@@ -115,7 +115,7 @@ const Navbar = () => {
           }`}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="container-custom py-4 flex flex-col space-y-4 pt-20">
+          <div className="container-custom py-4 flex flex-col space-y-4 pt-20 bg-white">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
