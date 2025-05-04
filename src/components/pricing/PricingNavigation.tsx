@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { ChevronRight, ChevronDown, ChevronUp } from "lucide-react";
 import { PriceCategory } from "./PriceCard";
@@ -18,7 +17,8 @@ const PricingNavigation: React.FC<PricingNavigationProps> = ({ categories }) => 
     e.preventDefault();
     const element = document.getElementById(categoryId);
     if (element) {
-      const headerHeight = 300; // Increased to 300 to ensure category headers are fully visible
+      // Apply consistent header offset regardless of device
+      const headerHeight = 300;
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
       
