@@ -127,13 +127,18 @@ export default {
 				slideUp: {
 					'0%': { transform: 'translateY(20px)', opacity: '0' },
 					'100%': { transform: 'translateY(0)', opacity: '1' }
+				},
+				collapse: {
+					'0%': { maxHeight: '500px', opacity: '1' },
+					'100%': { maxHeight: '0', opacity: '0' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fadeIn 0.5s ease-in-out',
-				'slide-up': 'slideUp 0.5s ease-in-out'
+				'slide-up': 'slideUp 0.5s ease-in-out',
+				'collapse': 'collapse 0.5s ease-in-out'
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

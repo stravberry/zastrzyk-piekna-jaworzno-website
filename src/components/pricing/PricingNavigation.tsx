@@ -1,11 +1,12 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronRight, ChevronDown, ChevronUp, Columns3, LayoutGrid } from "lucide-react";
 import { PriceCategory } from "./PriceCard";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { cn } from "@/lib/utils";
 
 interface PricingNavigationProps {
   categories: PriceCategory[];
@@ -15,6 +16,7 @@ const PricingNavigation: React.FC<PricingNavigationProps> = ({ categories }) => 
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
   const [isDesktopOpen, setIsDesktopOpen] = useState(true);
+  const [isAutoCollapsing, setIsAutoCollapsing] = useState(false);
 
   const handleCategoryClick = (e: React.MouseEvent<HTMLAnchorElement>, categoryId: string) => {
     e.preventDefault();
@@ -35,6 +37,15 @@ const PricingNavigation: React.FC<PricingNavigationProps> = ({ categories }) => 
       // Close the mobile menu after clicking a category
       if (isMobile) {
         setIsOpen(false);
+      } else {
+        // For desktop, animate the closing after a slight delay
+        setIsAutoCollapsing(true);
+        setTimeout(() => {
+          setIsDesktopOpen(false);
+          setTimeout(() => {
+            setIsAutoCollapsing(false);
+          }, 500); // Match this with the CSS transition duration
+        }, 300);
       }
     }
   };
@@ -57,7 +68,7 @@ const PricingNavigation: React.FC<PricingNavigationProps> = ({ categories }) => 
                 )}
               </Button>
             </CollapsibleTrigger>
-            <CollapsibleContent className="mt-2 space-y-2">
+            <CollapsibleContent className="mt-2 space-y-2 animate-accordion-down">
               {categories.map((category) => (
                 <a 
                   key={category.id}
@@ -95,7 +106,13 @@ const PricingNavigation: React.FC<PricingNavigationProps> = ({ categories }) => 
               </Button>
             </div>
             
-            {isDesktopOpen && (
+            <div 
+              className={cn(
+                "grid-container overflow-hidden transition-all duration-500 ease-in-out",
+                isDesktopOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0",
+                isAutoCollapsing ? "animate-collapse" : ""
+              )}
+            >
               <div className="grid grid-cols-3 gap-2">
                 {categories.map((category) => (
                   <a 
@@ -109,7 +126,7 @@ const PricingNavigation: React.FC<PricingNavigationProps> = ({ categories }) => 
                   </a>
                 ))}
               </div>
-            )}
+            </div>
           </div>
         )}
       </div>
