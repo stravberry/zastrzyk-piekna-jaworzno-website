@@ -1,3 +1,4 @@
+
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -81,7 +82,7 @@ const Pricing = () => {
       items: [
         { name: "Brwi Ombre", price: "850 zł" },
         { name: "Korekta (po 6 tyg.)", price: "100 zł" },
-        { name: "Odświeżenie makija��u", price: "500 zł" },
+        { name: "Odświeżenie makijażu", price: "500 zł" },
       ]
     },
     {
@@ -150,7 +151,7 @@ const Pricing = () => {
         {/* Quick Navigation */}
         <div className="bg-white py-6 shadow-sm sticky top-16 z-10">
           <div className="container-custom">
-            <ScrollArea className="w-full" orientation="horizontal">
+            <ScrollArea className="w-full">
               <div className="flex space-x-4 pb-2">
                 {priceCategories.map((category) => (
                   <a 
