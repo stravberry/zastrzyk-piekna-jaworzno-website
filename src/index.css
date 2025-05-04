@@ -1,4 +1,5 @@
 
+
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap');
 
 @tailwind base;
@@ -44,6 +45,12 @@
     @apply border-border;
   }
 
+  html, body {
+    overflow-x: hidden;
+    position: relative;
+    width: 100%;
+  }
+
   body {
     @apply bg-background text-foreground font-poppins;
   }
@@ -82,3 +89,4 @@
     @apply text-gold-500;
   }
 }
+
