@@ -26,7 +26,7 @@ const CTASection = () => {
               </Link>
             </Button>
             
-            <Button asChild variant="outline" size="lg" className="border-white text-white hover:bg-white/10">
+            <Button asChild variant="outline" size="lg" className="border-white text-white bg-gold-500 hover:bg-gold-600 hover:border-gold-400">
               <a href="https://instagram.com/zastrzyk_piekna" target="_blank" rel="noopener noreferrer">
                 Odwiedź Instagram
               </a>
