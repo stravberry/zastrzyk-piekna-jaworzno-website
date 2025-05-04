@@ -1,6 +1,13 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Star } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const TestimonialsSection = () => {
   const testimonials = [
@@ -36,6 +43,42 @@ const TestimonialsSection = () => {
     },
   ];
 
+  // Group testimonials into sets of 3 for each carousel slide
+  const testimonialGroups = [];
+  for (let i = 0; i < testimonials.length; i += 3) {
+    testimonialGroups.push(testimonials.slice(i, i + 3));
+  }
+
+  // Auto-advance carousel
+  const [api, setApi] = React.useState<any>();
+  const [current, setCurrent] = React.useState(0);
+
+  // Setup carousel auto-scroll
+  useEffect(() => {
+    if (!api) return;
+
+    const interval = setInterval(() => {
+      api.scrollNext();
+    }, 6000); // Change slide every 6 seconds
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
+  }, [api]);
+
+  // Update current index when slide changes
+  useEffect(() => {
+    if (!api) return;
+
+    const onSelect = () => {
+      setCurrent(api.selectedScrollSnap());
+    };
+
+    api.on("select", onSelect);
+    return () => {
+      api.off("select", onSelect);
+    };
+  }, [api]);
+
   return (
     <section className="section-padding bg-white">
       <div className="container-custom">
@@ -50,25 +93,56 @@ const TestimonialsSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {testimonials.map((testimonial) => (
-            <div
-              key={testimonial.id}
-              className="bg-pink-50/30 p-6 rounded-lg shadow-sm border border-pink-100"
-            >
-              <div className="flex mb-4">
-                {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star
-                    key={i}
-                    size={18}
-                    className="text-gold-400 fill-gold-400"
-                  />
-                ))}
-              </div>
-              <p className="text-gray-600 italic mb-4">"{testimonial.testimonial}"</p>
-              <p className="text-pink-500 font-medium">{testimonial.name}</p>
+        <div className="mx-auto max-w-5xl">
+          <Carousel
+            setApi={setApi}
+            className="relative"
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+          >
+            <CarouselContent>
+              {testimonialGroups.map((group, groupIndex) => (
+                <CarouselItem key={groupIndex}>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {group.map((testimonial) => (
+                      <div
+                        key={testimonial.id}
+                        className="bg-pink-50/30 p-6 rounded-lg shadow-sm border border-pink-100 h-full"
+                      >
+                        <div className="flex mb-4">
+                          {[...Array(testimonial.rating)].map((_, i) => (
+                            <Star
+                              key={i}
+                              size={18}
+                              className="text-gold-400 fill-gold-400"
+                            />
+                          ))}
+                        </div>
+                        <p className="text-gray-600 italic mb-4">"{testimonial.testimonial}"</p>
+                        <p className="text-pink-500 font-medium">{testimonial.name}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <div className="flex justify-center gap-2 mt-6">
+              {testimonialGroups.map((_, index) => (
+                <button
+                  key={index}
+                  className={`h-2.5 w-2.5 rounded-full ${
+                    current === index ? "bg-pink-500" : "bg-pink-200"
+                  }`}
+                  onClick={() => api?.scrollTo(index)}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
             </div>
-          ))}
+            <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2" />
+            <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2" />
+          </Carousel>
         </div>
       </div>
     </section>
