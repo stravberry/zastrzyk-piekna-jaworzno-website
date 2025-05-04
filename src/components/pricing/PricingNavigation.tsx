@@ -12,7 +12,7 @@ const PricingNavigation: React.FC<PricingNavigationProps> = ({ categories }) => 
     e.preventDefault();
     const element = document.getElementById(categoryId);
     if (element) {
-      const headerHeight = 120; // Approximation of the header + navigation height
+      const headerHeight = 180; // Increased from 120 to 180 to prevent overlap
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
       
@@ -26,7 +26,7 @@ const PricingNavigation: React.FC<PricingNavigationProps> = ({ categories }) => 
   return (
     <div className="bg-white py-8 shadow-sm sticky top-16 z-10">
       <div className="container-custom">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           {categories.map((category) => (
             <a 
               key={category.id}

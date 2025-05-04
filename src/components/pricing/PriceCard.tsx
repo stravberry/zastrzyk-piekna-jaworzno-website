@@ -46,7 +46,7 @@ interface PriceCardProps {
 
 const PriceCard: React.FC<PriceCardProps> = ({ category }) => {
   return (
-    <div id={category.id} className="scroll-mt-48">
+    <div id={category.id} className="scroll-mt-64">
       <div className="bg-white rounded-lg shadow-md overflow-hidden border border-pink-100 mb-8">
         <div className="bg-pink-500 py-4 px-6">
           <h2 className="text-xl md:text-2xl font-bold text-white font-playfair">
