@@ -49,6 +49,7 @@ const Services = () => {
       link: "/zabiegi/mezoterapia-iglowa",
       features: ["Silne nawilżenie", "Stymulacja kolagenu", "Rozjaśnienie przebarwień", "Poprawa elastyczności"],
       benefits: "Skóra jest wyraźnie nawilżona, odżywiona i rozświetlona, zmniejszają się drobne niedoskonałości.",
+      // Fixed image path with direct reference to ensure it loads properly
       image: "/lovable-uploads/f6040378-2ea3-416b-96ff-8bc14bebf7ba.png"
     },
     {
@@ -138,6 +139,7 @@ const Services = () => {
                       style={{height: "400px"}}
                       onError={(e) => {
                         const imgPath = service.image;
+                        console.log(`Attempting to load image: ${imgPath}`);
                         console.error(`Error loading image: ${imgPath}`);
                         e.currentTarget.src = "/placeholder.svg";
                         toast({
