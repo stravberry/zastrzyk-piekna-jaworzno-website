@@ -38,7 +38,7 @@ const Services = () => {
       link: "/zabiegi/makijaz-permanentny-brwi",
       features: ["Technika ombre", "Naturalny efekt", "Trwałość do 2 lat", "Indywidualny dobór kształtu"],
       benefits: "Perfekcyjnie wyglądające brwi każdego dnia, bez konieczności codziennego makijażu.",
-      image: "/lovable-uploads/8911cfd6-7a54-4b02-8722-20c61218807d.png"
+      image: "/lovable-uploads/4e36b405-2b0b-48e1-a707-234600f8a1c0.png"
     },
     {
       id: 4,
