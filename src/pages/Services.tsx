@@ -1,4 +1,3 @@
-
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -16,7 +15,7 @@ const Services = () => {
       link: "/zabiegi/terapie-przeciwstarzeniowe",
       features: ["Biostymulacja kolagenu", "Redukcja zmarszczek", "Poprawa owalu twarzy", "Lifting bez skalpela"],
       benefits: "Skóra staje się jędrna, napięta, zredukowane są zmarszczki, a owal twarzy ulega zauważalnej poprawie.",
-      image: "/images/terapie.jpg"
+      image: "/placeholder.svg"
     },
     {
       id: 2,
@@ -36,7 +35,7 @@ const Services = () => {
       link: "/zabiegi/makijaz-permanentny-brwi",
       features: ["Technika ombre", "Naturalny efekt", "Trwałość do 2 lat", "Indywidualny dobór kształtu"],
       benefits: "Perfekcyjnie wyglądające brwi każdego dnia, bez konieczności codziennego makijażu.",
-      image: "/images/makijaz.jpg"
+      image: "/placeholder.svg"
     },
     {
       id: 4,
@@ -46,7 +45,7 @@ const Services = () => {
       link: "/zabiegi/mezoterapia-iglowa",
       features: ["Silne nawilżenie", "Stymulacja kolagenu", "Rozjaśnienie przebarwień", "Poprawa elastyczności"],
       benefits: "Skóra jest wyraźnie nawilżona, odżywiona i rozświetlona, zmniejszają się drobne niedoskonałości.",
-      image: "/lovable-uploads/ce209bbf-87ec-4255-8de6-dd3c78be95e0.png"
+      image: "/lovable-uploads/4213b2f8-4c25-45f4-a2e0-b49b708c6d8c.png"
     },
     {
       id: 5,
@@ -56,7 +55,7 @@ const Services = () => {
       link: "/zabiegi/lipoliza-iniekcyjna",
       features: ["Redukcja podbródka", "Modelowanie policzków", "Likwidacja tzw. chomików", "Nieinwazyjna procedura"],
       benefits: "Skuteczna redukcja lokalnie nagromadzonej tkanki tłuszczowej, poprawa konturu twarzy.",
-      image: "/images/lipoliza.jpg"
+      image: "/placeholder.svg"
     },
     {
       id: 6,
@@ -66,7 +65,7 @@ const Services = () => {
       link: "/zabiegi/peelingi-chemiczne",
       features: ["Redukcja blizn", "Zmniejszenie porów", "Wyrównanie kolorytu", "Wygładzenie tekstury"],
       benefits: "Skóra jest gładsza, jednolita kolorystycznie, a niedoskonałości takie jak blizny czy przebarwienia są zredukowane.",
-      image: "/images/peelingi.jpg"
+      image: "/placeholder.svg"
     },
   ];
 
