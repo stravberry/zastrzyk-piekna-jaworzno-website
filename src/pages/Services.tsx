@@ -1,4 +1,3 @@
-
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -19,7 +18,7 @@ const Services = () => {
       link: "/zabiegi/terapie-przeciwstarzeniowe",
       features: ["Biostymulacja kolagenu", "Redukcja zmarszczek", "Poprawa owalu twarzy", "Lifting bez skalpela"],
       benefits: "Skóra staje się jędrna, napięta, zredukowane są zmarszczki, a owal twarzy ulega zauważalnej poprawie.",
-      image: "/lovable-uploads/9ab7a07f-c052-4dff-a5bc-07a270a5d943.png"
+      image: "/lovable-uploads/8911cfd6-7a54-4b02-8722-20c61218807d.png"
     },
     {
       id: 2,
@@ -29,7 +28,7 @@ const Services = () => {
       link: "/zabiegi/modelowanie-ust",
       features: ["Naturalne powiększenie", "Korekta asymetrii", "Hydratacja ust", "Wyraźny kontur"],
       benefits: "Usta zyskują objętość, stają się nawilżone, a ich kontur staje się wyraźniejszy i bardziej proporcjonalny.",
-      image: "/lovable-uploads/9ab7a07f-c052-4dff-a5bc-07a270a5d943.png"
+      image: "/lovable-uploads/8911cfd6-7a54-4b02-8722-20c61218807d.png"
     },
     {
       id: 3,
@@ -39,7 +38,7 @@ const Services = () => {
       link: "/zabiegi/makijaz-permanentny-brwi",
       features: ["Technika ombre", "Naturalny efekt", "Trwałość do 2 lat", "Indywidualny dobór kształtu"],
       benefits: "Perfekcyjnie wyglądające brwi każdego dnia, bez konieczności codziennego makijażu.",
-      image: "/lovable-uploads/9ab7a07f-c052-4dff-a5bc-07a270a5d943.png"
+      image: "/lovable-uploads/8911cfd6-7a54-4b02-8722-20c61218807d.png"
     },
     {
       id: 4,
@@ -49,7 +48,7 @@ const Services = () => {
       link: "/zabiegi/mezoterapia-iglowa",
       features: ["Silne nawilżenie", "Stymulacja kolagenu", "Rozjaśnienie przebarwień", "Poprawa elastyczności"],
       benefits: "Skóra jest wyraźnie nawilżona, odżywiona i rozświetlona, zmniejszają się drobne niedoskonałości.",
-      image: "/lovable-uploads/9ab7a07f-c052-4dff-a5bc-07a270a5d943.png"
+      image: "/lovable-uploads/8911cfd6-7a54-4b02-8722-20c61218807d.png"
     },
     {
       id: 5,
@@ -59,7 +58,7 @@ const Services = () => {
       link: "/zabiegi/lipoliza-iniekcyjna",
       features: ["Redukcja podbródka", "Modelowanie policzków", "Likwidacja tzw. chomików", "Nieinwazyjna procedura"],
       benefits: "Skuteczna redukcja lokalnie nagromadzonej tkanki tłuszczowej, poprawa konturu twarzy.",
-      image: "/lovable-uploads/9ab7a07f-c052-4dff-a5bc-07a270a5d943.png"
+      image: "/lovable-uploads/8911cfd6-7a54-4b02-8722-20c61218807d.png"
     },
     {
       id: 6,
@@ -69,7 +68,7 @@ const Services = () => {
       link: "/zabiegi/peelingi-chemiczne",
       features: ["Redukcja blizn", "Zmniejszenie porów", "Wyrównanie kolorytu", "Wygładzenie tekstury"],
       benefits: "Skóra jest gładsza, jednolita kolorystycznie, a niedoskonałości takie jak blizny czy przebarwienia są zredukowane.",
-      image: "/lovable-uploads/9ab7a07f-c052-4dff-a5bc-07a270a5d943.png"
+      image: "/lovable-uploads/8911cfd6-7a54-4b02-8722-20c61218807d.png"
     },
   ];
 
