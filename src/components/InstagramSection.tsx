@@ -52,9 +52,9 @@ const InstagramSection = () => {
           </p>
         </div>
 
-        {/* Instagram Feed Embed */}
+        {/* Instagram Feed Embed - Centered */}
         <div className="flex justify-center mb-8">
-          <div className={`w-full max-w-4xl transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+          <div className={`w-full max-w-4xl mx-auto flex justify-center transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
             <blockquote 
               className="instagram-media rounded-lg shadow-md" 
               data-instgrm-permalink="https://www.instagram.com/zastrzyk_piekna/"
@@ -63,7 +63,7 @@ const InstagramSection = () => {
                 background: '#FFF',
                 borderRadius: '8px',
                 boxShadow: '0 0 1px 0 rgba(0,0,0,0.5), 0 1px 10px 0 rgba(0,0,0,0.15)',
-                margin: '1px',
+                margin: '1px auto', /* Added auto margin for centering */
                 maxWidth: '540px',
                 minWidth: '326px',
                 padding: '0',
@@ -195,4 +195,3 @@ declare global {
 }
 
 export default InstagramSection;
-
