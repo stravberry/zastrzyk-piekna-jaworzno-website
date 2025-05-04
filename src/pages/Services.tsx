@@ -1,4 +1,3 @@
-
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -49,8 +48,7 @@ const Services = () => {
       link: "/zabiegi/mezoterapia-iglowa",
       features: ["Silne nawilżenie", "Stymulacja kolagenu", "Rozjaśnienie przebarwień", "Poprawa elastyczności"],
       benefits: "Skóra jest wyraźnie nawilżona, odżywiona i rozświetlona, zmniejszają się drobne niedoskonałości.",
-      // Fixed image path with direct reference to ensure it loads properly
-      image: "/lovable-uploads/f6040378-2ea3-416b-96ff-8bc14bebf7ba.png"
+      image: "lovable-uploads/f6040378-2ea3-416b-96ff-8bc14bebf7ba.png"
     },
     {
       id: 5,
@@ -133,7 +131,7 @@ const Services = () => {
                   
                   <div className={`relative ${index % 2 !== 0 ? 'lg:col-start-1' : ''}`}>
                     <img 
-                      src={service.image} 
+                      src={service.image.startsWith('/') ? service.image : `/${service.image}`} 
                       alt={service.title} 
                       className="w-full h-auto rounded-lg shadow-lg object-cover"
                       style={{height: "400px"}}
@@ -144,7 +142,7 @@ const Services = () => {
                         e.currentTarget.src = "/placeholder.svg";
                         toast({
                           title: "Błąd ładowania obrazu",
-                          description: `Nie udało się załadować obrazu: ${imgPath}`,
+                          description: `Nie udało się załadować obrazu dla zabiegu: ${service.title}`,
                           variant: "destructive",
                         });
                       }}
