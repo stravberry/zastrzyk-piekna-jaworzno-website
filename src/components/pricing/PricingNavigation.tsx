@@ -41,10 +41,10 @@ const PricingNavigation: React.FC<PricingNavigationProps> = ({ categories }) => 
           <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
             <CollapsibleTrigger asChild>
               <Button 
-                className="w-full flex items-center justify-between bg-pink-50 text-pink-600 hover:bg-pink-100"
+                className="w-full flex items-center justify-between bg-pink-100 text-pink-700 hover:bg-pink-200"
                 variant="outline"
               >
-                Kategorie cennika
+                Usługi
                 {isOpen ? (
                   <ChevronUp className="h-5 w-5" />
                 ) : (
