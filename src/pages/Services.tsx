@@ -25,7 +25,7 @@ const Services = () => {
       link: "/zabiegi/modelowanie-ust",
       features: ["Naturalne powiększenie", "Korekta asymetrii", "Hydratacja ust", "Wyraźny kontur"],
       benefits: "Usta zyskują objętość, stają się nawilżone, a ich kontur staje się wyraźniejszy i bardziej proporcjonalny.",
-      image: "/images/usta.jpg"
+      image: "/lovable-uploads/9ab7a07f-c052-4dff-a5bc-07a270a5d943.png"
     },
     {
       id: 3,
