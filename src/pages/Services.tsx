@@ -133,6 +133,10 @@ const Services = () => {
                       alt={service.title} 
                       className="w-full h-auto rounded-lg shadow-lg object-cover"
                       style={{height: "400px"}}
+                      onError={(e) => {
+                        console.error(`Error loading image: ${service.image}`);
+                        e.currentTarget.src = "/placeholder.svg";
+                      }}
                     />
                     <div className="absolute -bottom-4 -right-4 bg-white p-3 rounded-lg shadow-md border border-pink-100">
                       <span className="text-gold-500 font-medium font-playfair">
