@@ -1,9 +1,10 @@
+
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Droplet, User, Heart, Syringe, Star } from "lucide-react";
+import { Droplet, User, Heart, Syringe, Star, FileImage } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Services = () => {
@@ -18,7 +19,7 @@ const Services = () => {
       link: "/zabiegi/terapie-przeciwstarzeniowe",
       features: ["Biostymulacja kolagenu", "Redukcja zmarszczek", "Poprawa owalu twarzy", "Lifting bez skalpela"],
       benefits: "Skóra staje się jędrna, napięta, zredukowane są zmarszczki, a owal twarzy ulega zauważalnej poprawie.",
-      image: "/placeholder.svg"
+      image: "/lovable-uploads/9ab7a07f-c052-4dff-a5bc-07a270a5d943.png"
     },
     {
       id: 2,
@@ -38,7 +39,7 @@ const Services = () => {
       link: "/zabiegi/makijaz-permanentny-brwi",
       features: ["Technika ombre", "Naturalny efekt", "Trwałość do 2 lat", "Indywidualny dobór kształtu"],
       benefits: "Perfekcyjnie wyglądające brwi każdego dnia, bez konieczności codziennego makijażu.",
-      image: "/placeholder.svg"
+      image: "/lovable-uploads/9ab7a07f-c052-4dff-a5bc-07a270a5d943.png"
     },
     {
       id: 4,
@@ -58,7 +59,7 @@ const Services = () => {
       link: "/zabiegi/lipoliza-iniekcyjna",
       features: ["Redukcja podbródka", "Modelowanie policzków", "Likwidacja tzw. chomików", "Nieinwazyjna procedura"],
       benefits: "Skuteczna redukcja lokalnie nagromadzonej tkanki tłuszczowej, poprawa konturu twarzy.",
-      image: "/placeholder.svg"
+      image: "/lovable-uploads/9ab7a07f-c052-4dff-a5bc-07a270a5d943.png"
     },
     {
       id: 6,
@@ -68,7 +69,7 @@ const Services = () => {
       link: "/zabiegi/peelingi-chemiczne",
       features: ["Redukcja blizn", "Zmniejszenie porów", "Wyrównanie kolorytu", "Wygładzenie tekstury"],
       benefits: "Skóra jest gładsza, jednolita kolorystycznie, a niedoskonałości takie jak blizny czy przebarwienia są zredukowane.",
-      image: "/placeholder.svg"
+      image: "/lovable-uploads/9ab7a07f-c052-4dff-a5bc-07a270a5d943.png"
     },
   ];
 
@@ -130,20 +131,26 @@ const Services = () => {
                   </div>
                   
                   <div className={`relative ${index % 2 !== 0 ? 'lg:col-start-1' : ''}`}>
-                    <img 
-                      src={service.image} 
-                      alt={service.title} 
-                      className="w-full h-auto rounded-lg shadow-lg object-cover"
-                      style={{height: "400px"}}
-                      onError={(e) => {
-                        console.log(`Attempting to load image: ${service.image}`);
-                        e.currentTarget.src = "/placeholder.svg";
-                        toast({
-                          title: "Informacja",
-                          description: `Używam obrazu zastępczego dla: ${service.title}`,
-                        });
-                      }}
-                    />
+                    {service.image ? (
+                      <img 
+                        src={service.image} 
+                        alt={service.title} 
+                        className="w-full h-auto rounded-lg shadow-lg object-cover"
+                        style={{height: "400px"}}
+                        onError={(e) => {
+                          console.log(`Error loading image for ${service.title}: ${service.image}`);
+                          e.currentTarget.src = "/placeholder.svg";
+                          toast({
+                            title: "Informacja",
+                            description: `Używam obrazu zastępczego dla: ${service.title}`,
+                          });
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-[400px] rounded-lg shadow-lg bg-pink-100 flex items-center justify-center">
+                        <FileImage size={48} className="text-pink-300" />
+                      </div>
+                    )}
                     <div className="absolute -bottom-4 -right-4 bg-white p-3 rounded-lg shadow-md border border-pink-100">
                       <span className="text-gold-500 font-medium font-playfair">
                         Sprawdź cennik
