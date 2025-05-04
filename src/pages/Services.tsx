@@ -1,11 +1,15 @@
+
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Droplet, User, Heart, Syringe, Star } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const Services = () => {
+  const { toast } = useToast();
+  
   const services = [
     {
       id: 1,
@@ -45,7 +49,7 @@ const Services = () => {
       link: "/zabiegi/mezoterapia-iglowa",
       features: ["Silne nawilżenie", "Stymulacja kolagenu", "Rozjaśnienie przebarwień", "Poprawa elastyczności"],
       benefits: "Skóra jest wyraźnie nawilżona, odżywiona i rozświetlona, zmniejszają się drobne niedoskonałości.",
-      image: "/lovable-uploads/4213b2f8-4c25-45f4-a2e0-b49b708c6d8c.png"
+      image: "/lovable-uploads/f6040378-2ea3-416b-96ff-8bc14bebf7ba.png"
     },
     {
       id: 5,
@@ -133,8 +137,14 @@ const Services = () => {
                       className="w-full h-auto rounded-lg shadow-lg object-cover"
                       style={{height: "400px"}}
                       onError={(e) => {
-                        console.error(`Error loading image: ${service.image}`);
+                        const imgPath = service.image;
+                        console.error(`Error loading image: ${imgPath}`);
                         e.currentTarget.src = "/placeholder.svg";
+                        toast({
+                          title: "Błąd ładowania obrazu",
+                          description: `Nie udało się załadować obrazu: ${imgPath}`,
+                          variant: "destructive",
+                        });
                       }}
                     />
                     <div className="absolute -bottom-4 -right-4 bg-white p-3 rounded-lg shadow-md border border-pink-100">
