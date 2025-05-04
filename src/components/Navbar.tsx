@@ -74,7 +74,7 @@ const Navbar = () => {
         {/* Mobile Menu Button */}
         <button
           onClick={toggleMenu}
-          className="lg:hidden text-gray-700 focus:outline-none"
+          className="lg:hidden text-gray-700 focus:outline-none z-50"
         >
           <svg
             className="w-6 h-6"
@@ -102,10 +102,20 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Mobile Navigation */}
-      {isOpen && (
-        <div className="lg:hidden bg-white shadow-md">
-          <div className="container-custom py-4 flex flex-col space-y-4">
+      {/* Mobile Navigation with Animation */}
+      <div 
+        className={`fixed top-0 right-0 h-full w-full lg:hidden bg-black/30 backdrop-blur-sm transition-opacity duration-300 z-40 ${
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setIsOpen(false)}
+      >
+        <div 
+          className={`absolute top-0 right-0 h-full w-3/4 max-w-xs bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
+            isOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="container-custom py-4 flex flex-col space-y-4 pt-20">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
@@ -123,7 +133,7 @@ const Navbar = () => {
             </Button>
           </div>
         </div>
-      )}
+      </div>
     </header>
   );
 };
