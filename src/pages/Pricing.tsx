@@ -1,10 +1,9 @@
-
-import React, { useState } from "react";
+import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Pricing = () => {
   type PriceItem = {
@@ -18,8 +17,6 @@ const Pricing = () => {
     title: string;
     items: PriceItem[];
   };
-
-  const [selectedCategory, setSelectedCategory] = useState("stimulators");
 
   const priceCategories: PriceCategory[] = [
     {
@@ -84,7 +81,7 @@ const Pricing = () => {
       items: [
         { name: "Brwi Ombre", price: "850 zł" },
         { name: "Korekta (po 6 tyg.)", price: "100 zł" },
-        { name: "Odświeżenie makijażu", price: "500 zł" },
+        { name: "Odświeżenie makija��u", price: "500 zł" },
       ]
     },
     {
@@ -144,78 +141,77 @@ const Pricing = () => {
               <span>Zabiegów</span>
             </h1>
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              Zapoznaj się z cennikiem zabiegów kosmetologicznych w gabinecie Zastrzyk Piękna w Jaworznie.
+              Zapoznaj się z cennikiem zabiegów kosmetologicznych w gabinecie kosmetologicznym w Jaworznie.
               Zabiegi wykonywane są z najwyższej jakości certyfikowanych produktów.
             </p>
           </div>
         </section>
 
-        {/* Pricing Section */}
-        <section className="py-16 bg-white">
+        {/* Quick Navigation */}
+        <div className="bg-white py-6 shadow-sm sticky top-16 z-10">
           <div className="container-custom">
-            <Tabs defaultValue="stimulators" className="w-full" onValueChange={setSelectedCategory}>
-              <div className="mb-8 overflow-x-auto">
-                <TabsList className="inline-flex w-auto h-auto p-1 mb-2">
-                  {priceCategories.map((category) => (
-                    <TabsTrigger
-                      key={category.id}
-                      value={category.id}
-                      className={`px-4 py-2 whitespace-nowrap ${
-                        selectedCategory === category.id
-                          ? "data-[state=active]:bg-pink-500 data-[state=active]:text-white"
-                          : ""
-                      }`}
-                    >
-                      {category.title}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
+            <ScrollArea className="w-full" orientation="horizontal">
+              <div className="flex space-x-4 pb-2">
+                {priceCategories.map((category) => (
+                  <a 
+                    key={category.id}
+                    href={`#${category.id}`}
+                    className="px-4 py-2 whitespace-nowrap bg-pink-50 text-pink-600 rounded-md hover:bg-pink-100 transition-colors font-medium"
+                  >
+                    {category.title}
+                  </a>
+                ))}
               </div>
+            </ScrollArea>
+          </div>
+        </div>
 
-              {priceCategories.map((category) => (
-                <TabsContent key={category.id} value={category.id} className="mt-6">
-                  <div className="bg-white rounded-lg shadow-md overflow-hidden border border-pink-100">
-                    <div className="bg-pink-500 py-4 px-6">
-                      <h2 className="text-xl md:text-2xl font-bold text-white font-playfair">
-                        {category.title}
-                      </h2>
-                    </div>
+        {/* Pricing Section - All Categories */}
+        <section className="py-16 bg-white">
+          <div className="container-custom space-y-16">
+            {priceCategories.map((category) => (
+              <div key={category.id} id={category.id} className="scroll-mt-32">
+                <div className="bg-white rounded-lg shadow-md overflow-hidden border border-pink-100 mb-8">
+                  <div className="bg-pink-500 py-4 px-6">
+                    <h2 className="text-xl md:text-2xl font-bold text-white font-playfair">
+                      {category.title}
+                    </h2>
+                  </div>
 
-                    <div className="p-1">
-                      <table className="w-full">
-                        <thead className="bg-pink-50">
-                          <tr>
-                            <th className="py-3 px-6 text-left text-gray-700">Nazwa zabiegu</th>
-                            <th className="py-3 px-6 text-right text-gray-700">Cena</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {category.items.map((item, index) => (
-                            <React.Fragment key={index}>
+                  <div className="p-1">
+                    <table className="w-full">
+                      <thead className="bg-pink-50">
+                        <tr>
+                          <th className="py-3 px-6 text-left text-gray-700">Nazwa zabiegu</th>
+                          <th className="py-3 px-6 text-right text-gray-700">Cena</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {category.items.map((item, index) => (
+                          <React.Fragment key={index}>
+                            <tr className={index % 2 === 0 ? "bg-white" : "bg-pink-50/30"}>
+                              <td className="py-4 px-6">
+                                <span className="font-medium">{item.name}</span>
+                              </td>
+                              <td className="py-4 px-6 text-right text-pink-600 font-medium">
+                                {item.price}
+                              </td>
+                            </tr>
+                            {item.description && (
                               <tr className={index % 2 === 0 ? "bg-white" : "bg-pink-50/30"}>
-                                <td className="py-4 px-6">
-                                  <span className="font-medium">{item.name}</span>
-                                </td>
-                                <td className="py-4 px-6 text-right text-pink-600 font-medium">
-                                  {item.price}
+                                <td colSpan={2} className="py-2 px-6 text-sm text-gray-600 italic border-b border-pink-100/50">
+                                  {item.description}
                                 </td>
                               </tr>
-                              {item.description && (
-                                <tr className={index % 2 === 0 ? "bg-white" : "bg-pink-50/30"}>
-                                  <td colSpan={2} className="py-2 px-6 text-sm text-gray-600 italic border-b border-pink-100/50">
-                                    {item.description}
-                                  </td>
-                                </tr>
-                              )}
-                            </React.Fragment>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                            )}
+                          </React.Fragment>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                </TabsContent>
-              ))}
-            </Tabs>
+                </div>
+              </div>
+            ))}
 
             <div className="text-center mt-12 space-y-6">
               <p className="text-gray-600 max-w-2xl mx-auto">
