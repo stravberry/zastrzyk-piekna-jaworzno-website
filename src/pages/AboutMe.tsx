@@ -1,56 +1,43 @@
-
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-
 const AboutMe = () => {
-  const comparisonData = [
-    {
-      category: "Podejście do klienta",
-      others: "Standardowe, często schematyczne",
-      clinic: "Indywidualne, holistyczne podejście"
-    },
-    {
-      category: "Doświadczenie",
-      others: "Różne poziomy",
-      clinic: "Laureatka Kosmetologa Roku woj. śląskiego"
-    },
-    {
-      category: "Wykształcenie",
-      others: "Kursy i szkolenia",
-      clinic: "Magister kosmetologii, studentka pielęgniarstwa"
-    },
-    {
-      category: "Specjalizacja",
-      others: "Ogólna",
-      clinic: "Anti-aging, usta, makijaż permanentny brwi"
-    },
-    {
-      category: "Jakość preparatów",
-      others: "Niejednokrotnie niska",
-      clinic: "Tylko sprawdzone, certyfikowane preparaty"
-    },
-    {
-      category: "Efekty zabiegów",
-      others: "Niekiedy powierzchowne",
-      clinic: "Widoczne, precyzyjne i trwałe rezultaty"
-    },
-    {
-      category: "Wiedza i rozwój",
-      others: "Rzadko aktualizowana",
-      clinic: "Ciągłe szkolenia, aktualna wiedza branżowa"
-    },
-    {
-      category: "Komunikacja z klientem",
-      others: "Głównie telefoniczna",
-      clinic: "Dostępność online, Instagram, rolki edukacyjne"
-    }
-  ];
-
-  return (
-    <div className="min-h-screen flex flex-col">
+  const comparisonData = [{
+    category: "Podejście do klienta",
+    others: "Standardowe, często schematyczne",
+    clinic: "Indywidualne, holistyczne podejście"
+  }, {
+    category: "Doświadczenie",
+    others: "Różne poziomy",
+    clinic: "Laureatka Kosmetologa Roku woj. śląskiego"
+  }, {
+    category: "Wykształcenie",
+    others: "Kursy i szkolenia",
+    clinic: "Magister kosmetologii, studentka pielęgniarstwa"
+  }, {
+    category: "Specjalizacja",
+    others: "Ogólna",
+    clinic: "Anti-aging, usta, makijaż permanentny brwi"
+  }, {
+    category: "Jakość preparatów",
+    others: "Niejednokrotnie niska",
+    clinic: "Tylko sprawdzone, certyfikowane preparaty"
+  }, {
+    category: "Efekty zabiegów",
+    others: "Niekiedy powierzchowne",
+    clinic: "Widoczne, precyzyjne i trwałe rezultaty"
+  }, {
+    category: "Wiedza i rozwój",
+    others: "Rzadko aktualizowana",
+    clinic: "Ciągłe szkolenia, aktualna wiedza branżowa"
+  }, {
+    category: "Komunikacja z klientem",
+    others: "Głównie telefoniczna",
+    clinic: "Dostępność online, Instagram, rolki edukacyjne"
+  }];
+  return <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow pt-24">
         {/* Hero Section */}
@@ -80,11 +67,7 @@ const AboutMe = () => {
                 </Button>
               </div>
               <div className="relative">
-                <img
-                  src="/images/kosmetolog-about.jpg"
-                  alt="Anna Gajęcka - Kosmetolog"
-                  className="w-full h-auto rounded-lg shadow-lg"
-                />
+                <img alt="Anna Gajęcka - Kosmetolog" className="w-full h-auto rounded-lg shadow-lg" src="/lovable-uploads/3ffa044e-7598-4eaf-a751-a518d7f12c8b.jpg" />
                 <div className="absolute -bottom-5 -left-5 bg-white p-4 rounded-lg shadow-lg border border-pink-100">
                   <span className="block text-lg font-semibold text-gold-500">
                     Magister Kosmetologii
@@ -144,13 +127,11 @@ const AboutMe = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {comparisonData.map((item, index) => (
-                    <tr key={index} className={index % 2 === 0 ? 'bg-pink-50/30' : 'bg-white'}>
+                  {comparisonData.map((item, index) => <tr key={index} className={index % 2 === 0 ? 'bg-pink-50/30' : 'bg-white'}>
                       <td className="py-3 px-6 font-medium">{item.category}</td>
                       <td className="py-3 px-6 text-gray-600">{item.others}</td>
                       <td className="py-3 px-6 text-pink-600 font-medium">{item.clinic}</td>
-                    </tr>
-                  ))}
+                    </tr>)}
                 </tbody>
               </table>
             </div>
@@ -174,8 +155,6 @@ const AboutMe = () => {
         </section>
       </main>
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default AboutMe;
