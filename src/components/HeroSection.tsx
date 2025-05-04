@@ -48,10 +48,15 @@ const HeroSection = () => {
         
         {/* Right side video */}
         <div className="flex items-center justify-center">
-          <div className="w-full h-full min-h-[300px] bg-gray-200 rounded-lg shadow-md overflow-hidden">
-            {/* Video placeholder - can be replaced with actual video component */}
+          <div className="w-full h-full min-h-[300px] bg-gray-100 rounded-lg shadow-md overflow-hidden">
             <div className="w-full h-full flex items-center justify-center">
-              <p className="text-gray-500">Miejsce na film</p>
+              <iframe
+                className="w-full h-[300px] md:h-[350px]"
+                src="https://www.youtube.com/embed/bUmHTcIdrmk?si=3uuNuaWxzCmSr0KJ"
+                title="Zastrzyk Piękna - Gabinet kosmetologiczny"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen>
+              </iframe>
             </div>
           </div>
         </div>
