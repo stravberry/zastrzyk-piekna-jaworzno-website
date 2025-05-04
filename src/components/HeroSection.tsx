@@ -11,7 +11,7 @@ const HeroSection = () => {
       
       <div className="container-custom relative z-20 flex flex-col items-center text-center space-y-8 pt-20">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 leading-tight max-w-4xl animate-fade-in">
-          Witaj w Gabinecie Kosmetologii Estetycznej
+          Gabinet kosmetologiczny Jaworzno "Zastrzyk Piękna"
           <span className="block font-playfair mt-2 text-5xl md:text-6xl lg:text-7xl">
             <span className="text-pink-500">Zastrzyk</span>
             <span className="text-gold-500">Piękna</span>
