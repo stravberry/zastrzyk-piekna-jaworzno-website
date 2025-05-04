@@ -8,6 +8,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const TestimonialsSection = () => {
   const testimonials = [
@@ -43,23 +44,28 @@ const TestimonialsSection = () => {
     },
   ];
 
-  // Group testimonials into sets of 3 for each carousel slide
+  const isMobile = useIsMobile();
+
+  // Group testimonials differently based on screen size
   const testimonialGroups = [];
-  for (let i = 0; i < testimonials.length; i += 3) {
-    testimonialGroups.push(testimonials.slice(i, i + 3));
+  const itemsPerGroup = isMobile ? 1 : 3; // Show 1 testimonial on mobile, 3 on desktop
+  
+  for (let i = 0; i < testimonials.length; i += itemsPerGroup) {
+    testimonialGroups.push(testimonials.slice(i, i + itemsPerGroup));
   }
 
   // Auto-advance carousel
   const [api, setApi] = React.useState<any>();
   const [current, setCurrent] = React.useState(0);
 
-  // Setup carousel auto-scroll
+  // Setup carousel auto-scroll with faster rotation
   useEffect(() => {
     if (!api) return;
 
+    // Faster carousel rotation: 4 seconds instead of 6
     const interval = setInterval(() => {
       api.scrollNext();
-    }, 6000); // Change slide every 6 seconds
+    }, 4000); // Change slide every 4 seconds (faster than before)
 
     // Cleanup interval on component unmount
     return () => clearInterval(interval);
