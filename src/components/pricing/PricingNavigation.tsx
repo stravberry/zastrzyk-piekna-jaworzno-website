@@ -18,10 +18,12 @@ const PricingNavigation: React.FC<PricingNavigationProps> = ({ categories }) => 
     e.preventDefault();
     const element = document.getElementById(categoryId);
     if (element) {
-      // Set a small negative offset to position the viewport just above the category
-      const headerHeight = 150;
+      // Calculate the exact position to scroll to, placing the view just above the category
+      const navigationHeight = document.querySelector('.bg-white.py-4.shadow-sm')?.clientHeight || 72; // Height of navigation bar
+      const offset = navigationHeight + 16; // Add some extra padding for better visibility
+      
       const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
       
       window.scrollTo({
         top: offsetPosition,
