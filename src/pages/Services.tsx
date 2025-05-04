@@ -1,4 +1,3 @@
-
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -46,7 +45,7 @@ const Services = () => {
       link: "/zabiegi/mezoterapia-iglowa",
       features: ["Silne nawilżenie", "Stymulacja kolagenu", "Rozjaśnienie przebarwień", "Poprawa elastyczności"],
       benefits: "Skóra jest wyraźnie nawilżona, odżywiona i rozświetlona, zmniejszają się drobne niedoskonałości.",
-      image: "/images/mezoterapia.jpg"
+      image: "/lovable-uploads/16696627-596a-4696-a3a9-72c9146e2c1f.png"
     },
     {
       id: 5,
