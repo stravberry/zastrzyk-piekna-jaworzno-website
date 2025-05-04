@@ -12,7 +12,7 @@ const PricingNavigation: React.FC<PricingNavigationProps> = ({ categories }) => 
     e.preventDefault();
     const element = document.getElementById(categoryId);
     if (element) {
-      const headerHeight = 220; // Increased to 220 to ensure category headers are fully visible
+      const headerHeight = 300; // Increased to 300 to ensure category headers are fully visible
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
       
