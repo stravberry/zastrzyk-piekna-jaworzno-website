@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Droplet, Face, Lips, Syringe, Star } from "lucide-react";
+import { Droplet, User, Heart, Syringe, Star } from "lucide-react";
 
 const Services = () => {
   const services = [
@@ -22,7 +22,7 @@ const Services = () => {
       id: 2,
       title: "Modelowanie ust",
       description: "Precyzyjne zabiegi powiększania i konturowania ust z wykorzystaniem najwyższej jakości preparatów.",
-      icon: <Lips size={36} />,
+      icon: <Heart size={36} />,
       link: "/zabiegi/modelowanie-ust",
       features: ["Naturalne powiększenie", "Korekta asymetrii", "Hydratacja ust", "Wyraźny kontur"],
       benefits: "Usta zyskują objętość, stają się nawilżone, a ich kontur staje się wyraźniejszy i bardziej proporcjonalny.",
@@ -32,7 +32,7 @@ const Services = () => {
       id: 3,
       title: "Makijaż permanentny brwi",
       description: "Idealnie dopasowany makijaż permanentny brwi, wykonany z najwyższą dbałością o naturalny efekt.",
-      icon: <Face size={36} />,
+      icon: <User size={36} />,
       link: "/zabiegi/makijaz-permanentny-brwi",
       features: ["Technika ombre", "Naturalny efekt", "Trwałość do 2 lat", "Indywidualny dobór kształtu"],
       benefits: "Perfekcyjnie wyglądające brwi każdego dnia, bez konieczności codziennego makijażu.",

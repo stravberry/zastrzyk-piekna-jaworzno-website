@@ -1,7 +1,7 @@
 
 import React from "react";
 import ServiceCard from "./ServiceCard";
-import { Droplet, Face, Lips, Syringe } from "lucide-react";
+import { Droplet, User, Heart, Syringe } from "lucide-react";
 
 const ServicesSection = () => {
   const services = [
@@ -16,14 +16,14 @@ const ServicesSection = () => {
       id: 2,
       title: "Modelowanie ust",
       description: "Precyzyjne zabiegi powiększania i konturowania ust z wykorzystaniem najwyższej jakości preparatów.",
-      icon: <Lips size={36} />,
+      icon: <Heart size={36} />,
       link: "/zabiegi/modelowanie-ust",
     },
     {
       id: 3,
       title: "Makijaż permanentny brwi",
       description: "Idealnie dopasowany makijaż permanentny brwi, wykonany z najwyższą dbałością o naturalny efekt.",
-      icon: <Face size={36} />,
+      icon: <User size={36} />,
       link: "/zabiegi/makijaz-permanentny-brwi",
     },
     {
