@@ -48,7 +48,7 @@ const Services = () => {
       link: "/zabiegi/mezoterapia-iglowa",
       features: ["Silne nawilżenie", "Stymulacja kolagenu", "Rozjaśnienie przebarwień", "Poprawa elastyczności"],
       benefits: "Skóra jest wyraźnie nawilżona, odżywiona i rozświetlona, zmniejszają się drobne niedoskonałości.",
-      image: "lovable-uploads/f6040378-2ea3-416b-96ff-8bc14bebf7ba.png"
+      image: "/lovable-uploads/9ab7a07f-c052-4dff-a5bc-07a270a5d943.png"
     },
     {
       id: 5,
@@ -131,19 +131,16 @@ const Services = () => {
                   
                   <div className={`relative ${index % 2 !== 0 ? 'lg:col-start-1' : ''}`}>
                     <img 
-                      src={service.image.startsWith('/') ? service.image : `/${service.image}`} 
+                      src={service.image} 
                       alt={service.title} 
                       className="w-full h-auto rounded-lg shadow-lg object-cover"
                       style={{height: "400px"}}
                       onError={(e) => {
-                        const imgPath = service.image;
-                        console.log(`Attempting to load image: ${imgPath}`);
-                        console.error(`Error loading image: ${imgPath}`);
+                        console.log(`Attempting to load image: ${service.image}`);
                         e.currentTarget.src = "/placeholder.svg";
                         toast({
-                          title: "Błąd ładowania obrazu",
-                          description: `Nie udało się załadować obrazu dla zabiegu: ${service.title}`,
-                          variant: "destructive",
+                          title: "Informacja",
+                          description: `Używam obrazu zastępczego dla: ${service.title}`,
                         });
                       }}
                     />
