@@ -1,9 +1,14 @@
+
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { useIsMobile } from "@/hooks/use-mobile";
+
 const AboutMe = () => {
+  const isMobile = useIsMobile();
   const comparisonData = [{
     category: "Podejście do klienta",
     others: "Standardowe, często schematyczne",
@@ -118,22 +123,24 @@ const AboutMe = () => {
             </h2>
             
             <div className="bg-white rounded-lg shadow-md overflow-hidden max-w-4xl mx-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-pink-500 text-white">
-                    <th className="py-4 px-6 text-left">Kategoria</th>
-                    <th className="py-4 px-6 text-left">Inne gabinety</th>
-                    <th className="py-4 px-6 text-left">Zastrzyk Piękna – Anna Gajęcka</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {comparisonData.map((item, index) => <tr key={index} className={index % 2 === 0 ? 'bg-pink-50/30' : 'bg-white'}>
-                      <td className="py-3 px-6 font-medium">{item.category}</td>
-                      <td className="py-3 px-6 text-gray-600">{item.others}</td>
-                      <td className="py-3 px-6 text-pink-600 font-medium">{item.clinic}</td>
-                    </tr>)}
-                </tbody>
-              </table>
+              <Table className="w-full text-sm md:text-base">
+                <TableHeader>
+                  <TableRow className="bg-pink-500 text-white">
+                    <TableHead className="py-3 px-2 md:px-4 text-left font-medium text-white">Kategoria</TableHead>
+                    <TableHead className="py-3 px-2 md:px-4 text-left font-medium text-white">Inne gabinety</TableHead>
+                    <TableHead className="py-3 px-2 md:px-4 text-left font-medium text-white">Zastrzyk Piękna – Anna Gajęcka</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {comparisonData.map((item, index) => (
+                    <TableRow key={index} className={index % 2 === 0 ? 'bg-pink-50/30' : 'bg-white'}>
+                      <TableCell className="py-2 px-2 md:px-4 font-medium text-xs md:text-sm">{item.category}</TableCell>
+                      <TableCell className="py-2 px-2 md:px-4 text-gray-600 text-xs md:text-sm">{item.others}</TableCell>
+                      <TableCell className="py-2 px-2 md:px-4 text-pink-600 font-medium text-xs md:text-sm">{item.clinic}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           </div>
         </section>
