@@ -1,10 +1,11 @@
 
 import React, { useState } from "react";
-import { ChevronRight, ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronRight, ChevronDown, ChevronUp, Columns3, LayoutGrid } from "lucide-react";
 import { PriceCategory } from "./PriceCard";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 interface PricingNavigationProps {
   categories: PriceCategory[];
@@ -13,6 +14,7 @@ interface PricingNavigationProps {
 const PricingNavigation: React.FC<PricingNavigationProps> = ({ categories }) => {
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
+  const [isDesktopOpen, setIsDesktopOpen] = useState(true);
 
   const handleCategoryClick = (e: React.MouseEvent<HTMLAnchorElement>, categoryId: string) => {
     e.preventDefault();
@@ -70,18 +72,44 @@ const PricingNavigation: React.FC<PricingNavigationProps> = ({ categories }) => 
             </CollapsibleContent>
           </Collapsible>
         ) : (
-          <div className="grid grid-cols-1 gap-2">
-            {categories.map((category) => (
-              <a 
-                key={category.id}
-                href={`#${category.id}`}
-                onClick={(e) => handleCategoryClick(e, category.id)}
-                className="px-4 py-3 text-center bg-pink-50 text-pink-600 rounded-md hover:bg-pink-100 transition-colors font-medium flex items-center justify-between text-sm"
+          <div className="flex flex-col">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-lg font-medium text-pink-700">Kategorie zabiegów</h3>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="flex items-center justify-between bg-pink-100 text-pink-700 hover:bg-pink-200"
+                onClick={() => setIsDesktopOpen(!isDesktopOpen)}
               >
-                {category.title}
-                <ChevronRight className="ml-1 h-4 w-4 flex-shrink-0" />
-              </a>
-            ))}
+                {isDesktopOpen ? (
+                  <>
+                    <ChevronUp className="mr-1 h-4 w-4" />
+                    Ukryj
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="mr-1 h-4 w-4" />
+                    Pokaż
+                  </>
+                )}
+              </Button>
+            </div>
+            
+            {isDesktopOpen && (
+              <div className="grid grid-cols-3 gap-2">
+                {categories.map((category) => (
+                  <a 
+                    key={category.id}
+                    href={`#${category.id}`}
+                    onClick={(e) => handleCategoryClick(e, category.id)}
+                    className="px-4 py-3 text-center bg-pink-50 text-pink-600 rounded-md hover:bg-pink-100 transition-colors font-medium flex items-center justify-between text-sm"
+                  >
+                    {category.title}
+                    <ChevronRight className="ml-1 h-4 w-4 flex-shrink-0" />
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
