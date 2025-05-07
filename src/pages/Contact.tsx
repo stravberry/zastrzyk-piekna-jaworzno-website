@@ -190,7 +190,7 @@ const Contact = () => {
             </h2>
             <div className="rounded-lg overflow-hidden shadow-md h-96">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d40927.67688371424!2d19.2344861246582!3d50.20434999999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4716da83aa4a3235%3A0xf6c39db5a72ab7f2!2sJaworzno!5e0!3m2!1spl!2spl!4v1651234567890!5m2!1spl!2spl"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2555.034745259741!2d19.271557800000003!3d50.197916099999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4716c5f8279c8b99%3A0x95ab9f3a1c2236d4!2sHollywood%20Fit%20Candy!5e0!3m2!1spl!2spl!4v1714589606694!5m2!1spl!2spl"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
