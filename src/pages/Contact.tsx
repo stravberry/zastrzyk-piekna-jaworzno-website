@@ -46,7 +46,7 @@ const Contact = () => {
                       <MapPin className="text-pink-500 w-5 h-5 mt-1 mr-4 flex-shrink-0" />
                       <div>
                         <h3 className="font-semibold text-gray-800 mb-1">Adres</h3>
-                        <p className="text-gray-600">ul. Przykładowa 123</p>
+                        <p className="text-gray-600">ul. Grunwaldzka 106</p>
                         <p className="text-gray-600">43-600 Jaworzno</p>
                         <p className="text-gray-600">woj. śląskie</p>
                       </div>
@@ -190,7 +190,7 @@ const Contact = () => {
             </h2>
             <div className="rounded-lg overflow-hidden shadow-md h-96">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2555.034745259741!2d19.271557800000003!3d50.197916099999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4716c5f8279c8b99%3A0x95ab9f3a1c2236d4!2sHollywood%20Fit%20Candy!5e0!3m2!1spl!2spl!4v1714589606694!5m2!1spl!2spl"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2554.911413479363!2d19.25055177681162!3d50.20018317182461!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4716da93eed93775%3A0x11972b82a09975d4!2sGrunwaldzka%20106%2C%2043-600%20Jaworzno!5e0!3m2!1spl!2spl!4v1714589987341!5m2!1spl!2spl"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
