@@ -1,4 +1,3 @@
-
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -15,14 +14,14 @@ const Gallery = () => {
       images: [
         {
           id: "lips-1",
-          before: "/images/lips-before-1.jpg",
-          after: "/images/lips-after-1.jpg",
+          before: "/lovable-uploads/2e819def-450f-472d-bf96-82773e78b080.jpg",
+          after: "/lovable-uploads/3ffa044e-7598-4eaf-a751-a518d7f12c8b.jpg",
           description: "Naturalne powiększenie i konturowanie ust"
         },
         {
           id: "lips-2",
-          before: "/images/lips-before-2.jpg",
-          after: "/images/lips-after-2.jpg",
+          before: "/lovable-uploads/4213b2f8-4c25-45f4-a2e0-b49b708c6d8c.png",
+          after: "/lovable-uploads/8911cfd6-7a54-4b02-8722-20c61218807d.png",
           description: "Korekta asymetrii i zwiększenie objętości"
         },
       ]
@@ -33,14 +32,14 @@ const Gallery = () => {
       images: [
         {
           id: "brows-1",
-          before: "/images/brows-before-1.jpg",
-          after: "/images/brows-after-1.jpg",
+          before: "/lovable-uploads/9ab7a07f-c052-4dff-a5bc-07a270a5d943.png",
+          after: "/lovable-uploads/a49b2ad5-04a2-47df-b4f5-9c377ef464a3.png",
           description: "Technika ombre, naturalne wykończenie"
         },
         {
           id: "brows-2",
-          before: "/images/brows-before-2.jpg",
-          after: "/images/brows-after-2.jpg",
+          before: "/lovable-uploads/ce209bbf-87ec-4255-8de6-dd3c78be95e0.png",
+          after: "/lovable-uploads/f6040378-2ea3-416b-96ff-8bc14bebf7ba.png",
           description: "Korekta kształtu i zagęszczenie brwi"
         },
       ]
@@ -51,14 +50,14 @@ const Gallery = () => {
       images: [
         {
           id: "meso-1",
-          before: "/images/meso-before-1.jpg",
-          after: "/images/meso-after-1.jpg",
+          before: "/lovable-uploads/16696627-596a-4696-a3a9-72c9146e2c1f.png",
+          after: "/lovable-uploads/28e228b7-3605-4c15-9731-3c72e9585d6b.png",
           description: "Poprawa kondycji skóry, rozświetlenie"
         },
         {
           id: "meso-2",
-          before: "/images/meso-before-2.jpg",
-          after: "/images/meso-after-2.jpg",
+          before: "/lovable-uploads/4e36b405-2b0b-48e1-a707-234600f8a1c0.png",
+          after: "/lovable-uploads/3b19512b-b68a-4530-ac22-e8c824bf3cf3.png",
           description: "Redukcja cieni pod oczami"
         },
       ]
@@ -69,14 +68,14 @@ const Gallery = () => {
       images: [
         {
           id: "anti-1",
-          before: "/images/anti-before-1.jpg",
-          after: "/images/anti-after-1.jpg",
+          before: "/lovable-uploads/2e819def-450f-472d-bf96-82773e78b080.jpg",
+          after: "/lovable-uploads/3ffa044e-7598-4eaf-a751-a518d7f12c8b.jpg",
           description: "Lifting i poprawa owalu twarzy"
         },
         {
           id: "anti-2",
-          before: "/images/anti-before-2.jpg",
-          after: "/images/anti-after-2.jpg",
+          before: "/lovable-uploads/4213b2f8-4c25-45f4-a2e0-b49b708c6d8c.png",
+          after: "/lovable-uploads/8911cfd6-7a54-4b02-8722-20c61218807d.png",
           description: "Redukcja zmarszczek i odmłodzenie skóry"
         },
       ]
