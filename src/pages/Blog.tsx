@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Eye, Calendar, ArrowRight } from "lucide-react";
 
 const Blog = () => {
+  // State for category filter
+  const [activeCategory, setActiveCategory] = useState("Wszystkie");
+
   // Sample blog posts
   const blogPosts = [
     {
@@ -15,7 +18,7 @@ const Blog = () => {
       excerpt: "Dowiedz się, co robić przed zabiegiem wypełniania ust, aby uzyskać najlepsze efekty i zminimalizować ryzyko powikłań.",
       date: "10 kwietnia 2025",
       category: "Modelowanie ust",
-      image: "/images/blog-1.jpg",
+      image: "https://images.unsplash.com/photo-1619895092538-128962864398?q=80&w=1000&auto=format&fit=crop",
       readTime: "5 min",
       slug: "/blog/jak-przygotowac-sie-do-zabiegu-modelowania-ust",
     },
@@ -25,7 +28,7 @@ const Blog = () => {
       excerpt: "Poznaj najważniejsze zasady pielęgnacji skóry dojrzałej i sprawdź, które składniki aktywne są niezastąpione w codziennej rutynie.",
       date: "28 marca 2025",
       category: "Anti-aging",
-      image: "/images/blog-2.jpg",
+      image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=1000&auto=format&fit=crop",
       readTime: "8 min",
       slug: "/blog/pielegnacja-skory-po-40-tce",
     },
@@ -35,7 +38,7 @@ const Blog = () => {
       excerpt: "Porównujemy dwa popularne zabiegi na brwi. Sprawdź, które rozwiązanie będzie lepsze dla Ciebie.",
       date: "15 marca 2025",
       category: "Makijaż permanentny",
-      image: "/images/blog-3.jpg",
+      image: "https://images.unsplash.com/photo-1618073192936-7260d429283a?q=80&w=1000&auto=format&fit=crop",
       readTime: "6 min",
       slug: "/blog/brwi-idealne-makijaz-permanentny-czy-laminacja",
     },
@@ -45,7 +48,7 @@ const Blog = () => {
       excerpt: "Szczegółowy przewodnik po mezoterapii igłowej - wskazania, przeciwwskazania, przebieg zabiegu i efekty.",
       date: "2 marca 2025",
       category: "Mezoterapia",
-      image: "/images/blog-4.jpg",
+      image: "https://images.unsplash.com/photo-1614859334144-755b4f2b4b7f?q=80&w=1000&auto=format&fit=crop",
       readTime: "10 min",
       slug: "/blog/mezoterapia-iglowa-przewodnik",
     },
@@ -55,7 +58,7 @@ const Blog = () => {
       excerpt: "Poznaj zasady pielęgnacji skóry po peelingu chemicznym, aby zmaksymalizować efekty zabiegu i uniknąć podrażnień.",
       date: "18 lutego 2025",
       category: "Peelingi chemiczne",
-      image: "/images/blog-5.jpg",
+      image: "https://images.unsplash.com/photo-1570554886111-e80fcca6a029?q=80&w=1000&auto=format&fit=crop",
       readTime: "7 min",
       slug: "/blog/jak-dbac-o-skore-po-peelingach-chemicznych",
     },
@@ -65,7 +68,7 @@ const Blog = () => {
       excerpt: "Dowiedz się więcej o zabiegach wykorzystujących materiał biologiczny pacjenta - fibrynie, osoczu i innych innowacyjnych metodach.",
       date: "5 lutego 2025",
       category: "Autologia",
-      image: "/images/blog-6.jpg",
+      image: "https://images.unsplash.com/photo-1631815588090-d4bfec5b9866?q=80&w=1000&auto=format&fit=crop", 
       readTime: "9 min",
       slug: "/blog/autologiczne-zabiegi-w-kosmetologii",
     },
@@ -76,6 +79,11 @@ const Blog = () => {
     "Wszystkie",
     ...new Set(blogPosts.map((post) => post.category)),
   ];
+
+  // Filter posts by category
+  const filteredPosts = activeCategory === "Wszystkie"
+    ? blogPosts
+    : blogPosts.filter(post => post.category === activeCategory);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -104,10 +112,11 @@ const Blog = () => {
                   <button
                     key={index}
                     className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                      index === 0
+                      category === activeCategory
                         ? "bg-pink-500 text-white"
                         : "bg-pink-50 text-gray-700 hover:bg-pink-100"
                     }`}
+                    onClick={() => setActiveCategory(category)}
                   >
                     {category}
                   </button>
@@ -116,7 +125,7 @@ const Blog = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {blogPosts.map((post) => (
+              {filteredPosts.map((post) => (
                 <div
                   key={post.id}
                   className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 border border-pink-100 flex flex-col"
