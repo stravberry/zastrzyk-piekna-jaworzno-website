@@ -15,6 +15,13 @@ import Blog from "./pages/Blog";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 
+// Admin CMS
+import AdminWrapper from "./pages/admin/AdminWrapper";
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminPosts from "./pages/admin/AdminPosts";
+import AdminPostEditor from "./pages/admin/AdminPostEditor";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -31,6 +38,14 @@ const App = () => (
           <Route path="/galeria" element={<Gallery />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/kontakt" element={<Contact />} />
+          
+          {/* Admin CMS Routes */}
+          <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/posts" element={<AdminPosts />} />
+          <Route path="/admin/posts/new" element={<AdminPostEditor />} />
+          <Route path="/admin/posts/edit/:id" element={<AdminPostEditor />} />
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
