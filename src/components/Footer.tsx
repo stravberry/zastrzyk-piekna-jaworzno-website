@@ -11,10 +11,13 @@ const Footer = () => {
       <div className="container-custom">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="space-y-4">
-            <h3 className="text-xl font-bold font-playfair">
-              <span className="text-pink-500">Zastrzyk</span>
-              <span className="text-gold-500">Piękna</span>
-            </h3>
+            <div className="flex items-center">
+              <img 
+                src="/lovable-uploads/3b19512b-b68a-4530-ac22-e8c824bf3cf3.png" 
+                alt="Zastrzyk Piękna - Logo" 
+                className="h-16 mb-2"
+              />
+            </div>
             <p className="text-gray-600 text-sm">
               Gabinet kosmetologii estetycznej prowadzony przez Annę Gajęcką, 
               magistra kosmetologii, laureatkę konkursu na Kosmetologa Roku 

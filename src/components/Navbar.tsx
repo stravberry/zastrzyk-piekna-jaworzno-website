@@ -47,10 +47,11 @@ const Navbar = () => {
     >
       <div className="container-custom flex items-center justify-between">
         <Link to="/" className="flex items-center">
-          <span className="text-2xl font-bold font-playfair">
-            <span className="text-pink-500">Zastrzyk</span>
-            <span className="text-gold-500">Piękna</span>
-          </span>
+          <img 
+            src="/lovable-uploads/3b19512b-b68a-4530-ac22-e8c824bf3cf3.png" 
+            alt="Zastrzyk Piękna - Logo" 
+            className="h-12 md:h-16"
+          />
         </Link>
 
         {/* Desktop Navigation */}
