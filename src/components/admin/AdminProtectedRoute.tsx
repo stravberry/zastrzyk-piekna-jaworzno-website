@@ -17,6 +17,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
     }
   }, [isAuthenticated, navigate]);
 
+  // Only render children if authenticated
   return isAuthenticated ? <>{children}</> : null;
 };
 

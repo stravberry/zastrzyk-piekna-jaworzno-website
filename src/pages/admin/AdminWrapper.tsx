@@ -8,7 +8,11 @@ const AdminWrapper: React.FC = () => {
   
   // Check if we're at the admin root path and redirect to dashboard if so
   if (location.pathname === "/admin/") {
-    return <Navigate to="/admin/dashboard" replace />;
+    return (
+      <AdminProvider>
+        <Navigate to="/admin/dashboard" replace />
+      </AdminProvider>
+    );
   }
 
   return (

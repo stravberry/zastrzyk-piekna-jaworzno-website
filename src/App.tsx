@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AdminProvider } from "@/context/AdminContext";
 
 // Pages
 import Index from "./pages/Index";
@@ -39,8 +40,12 @@ const App = () => (
           <Route path="/blog" element={<Blog />} />
           <Route path="/kontakt" element={<Contact />} />
           
-          {/* Admin CMS Routes */}
-          <Route path="/admin" element={<AdminLogin />} />
+          {/* Admin CMS Routes - Wrapped with AdminProvider */}
+          <Route path="/admin" element={
+            <AdminProvider>
+              <AdminLogin />
+            </AdminProvider>
+          } />
           <Route path="/admin/*" element={<AdminWrapper />}>
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="posts" element={<AdminPosts />} />
