@@ -41,10 +41,12 @@ const App = () => (
           
           {/* Admin CMS Routes */}
           <Route path="/admin" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/posts" element={<AdminPosts />} />
-          <Route path="/admin/posts/new" element={<AdminPostEditor />} />
-          <Route path="/admin/posts/edit/:id" element={<AdminPostEditor />} />
+          <Route path="/admin" element={<AdminWrapper />}>
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="posts" element={<AdminPosts />} />
+            <Route path="posts/new" element={<AdminPostEditor />} />
+            <Route path="posts/edit/:id" element={<AdminPostEditor />} />
+          </Route>
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
