@@ -4,9 +4,10 @@ import { PriceCategory } from "@/components/pricing/PriceCard";
 import PricingCategoryDialog from "./PricingCategoryDialog";
 import PricingItemDialog from "./PricingItemDialog";
 import PricingDeleteDialog from "./PricingDeleteDialog";
+import { DialogType } from "@/hooks/usePricing";
 
 interface PricingDialogsProps {
-  dialogType: 'addCategory' | 'editCategory' | 'addItem' | 'editItem' | 'deleteCategory' | 'deleteItem' | null;
+  dialogType: DialogType;
   selectedCategory: PriceCategory | null;
   selectedItemIndex: number | null;
   onClose: () => void;
