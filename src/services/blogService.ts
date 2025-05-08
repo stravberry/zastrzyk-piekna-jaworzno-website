@@ -28,6 +28,12 @@ export const getAllBlogPosts = async (): Promise<BlogPost[]> => {
   // Return posts with mock stats
   return blogPosts.map(post => ({
     ...post,
+    content: `<p>Content will be loaded when viewing the full post.</p>`,
+    seo: {
+      metaTitle: post.title,
+      metaDescription: post.excerpt,
+      keywords: [post.category],
+    },
     stats: {
       id: post.id,
       views: Math.floor(Math.random() * 1000) + 100,
@@ -176,10 +182,19 @@ export const getBlogStats = async (): Promise<{
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
   
-  // Get recent posts
+  // Get recent posts with necessary properties to match BlogPost
   const recentPosts = [...blogPosts]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 5);
+    .slice(0, 5)
+    .map(post => ({
+      ...post,
+      content: `<p>Content will be loaded when viewing the full post.</p>`,
+      seo: {
+        metaTitle: post.title,
+        metaDescription: post.excerpt,
+        keywords: [post.category],
+      }
+    }));
   
   return {
     totalPosts: blogPosts.length,

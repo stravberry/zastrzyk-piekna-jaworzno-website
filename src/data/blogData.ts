@@ -1,7 +1,9 @@
 
-import { BlogPost } from "@/components/blog/BlogCard";
+import { BlogPost } from "@/types/admin";
 
-export const blogPosts: BlogPost[] = [
+// We're defining a partial BlogPost array here - these properties will be expanded 
+// in the services with content and SEO data when needed
+const blogPostsData = [
   {
     id: 1,
     title: "Jak przygotować się do zabiegu modelowania ust?",
@@ -63,3 +65,6 @@ export const blogPosts: BlogPost[] = [
     slug: "/blog/autologiczne-zabiegi-w-kosmetologii",
   },
 ];
+
+// Export as any since we will expand these in the service layer
+export const blogPosts: any[] = blogPostsData;

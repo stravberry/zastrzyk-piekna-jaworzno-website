@@ -2,20 +2,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Eye, Calendar, ArrowRight } from "lucide-react";
+import { BlogPost } from "@/types/admin";
 
-export interface BlogPost {
-  id: number;
-  title: string;
-  excerpt: string;
-  date: string;
-  category: string;
-  image: string;
-  readTime: string;
-  slug: string;
-}
-
-interface BlogCardProps {
-  post: BlogPost;
+// Create a simplified type that only includes the props needed for display
+type BlogCardProps = {
+  post: Pick<BlogPost, 'id' | 'title' | 'excerpt' | 'date' | 'category' | 'image' | 'readTime' | 'slug'>;
 }
 
 const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
