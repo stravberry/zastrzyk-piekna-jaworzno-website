@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAdmin } from "@/context/AdminContext";
@@ -23,6 +24,7 @@ import {
 interface AdminLayoutProps {
   children: React.ReactNode;
   title: string;
+  subtitle?: string;
 }
 
 const links = [
@@ -31,7 +33,7 @@ const links = [
   { name: "Cennik", path: "/admin/pricing", icon: DollarSign },
 ];
 
-const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
+const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, subtitle }) => {
   const { logout } = useAdmin();
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -133,7 +135,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
         {/* Main content */}
         <div className="flex-1 p-4 md:p-8">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-            <h1 className="text-2xl font-bold text-gray-800">{title}</h1>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800">{title}</h1>
+              {subtitle && <p className="text-gray-500 mt-1">{subtitle}</p>}
+            </div>
             {location.pathname === "/admin/posts" && (
               <Button asChild className="bg-pink-500 hover:bg-pink-600 w-full sm:w-auto">
                 <Link to="/admin/posts/new">
