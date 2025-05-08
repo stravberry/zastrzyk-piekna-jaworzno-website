@@ -3,23 +3,13 @@ import React, { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { PriceCategory } from "@/components/pricing/PriceCard";
-import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2 } from "lucide-react";
 import { 
-  Table, 
-  TableHeader, 
-  TableBody, 
-  TableHead, 
-  TableRow, 
-  TableCell 
-} from "@/components/ui/table";
-import {
   getPriceCategories,
   resetPriceCategories
 } from "@/services/pricingService";
-import PricingCategoryDialog from "@/components/admin/pricing/PricingCategoryDialog";
-import PricingItemDialog from "@/components/admin/pricing/PricingItemDialog";
-import PricingDeleteDialog from "@/components/admin/pricing/PricingDeleteDialog";
+import PricingActions from "@/components/admin/pricing/PricingActions";
+import PricingCategoriesList from "@/components/admin/pricing/PricingCategoriesList";
+import PricingDialogs from "@/components/admin/pricing/PricingDialogs";
 
 const AdminPricing = () => {
   const [categories, setCategories] = useState<PriceCategory[]>([]);
@@ -110,133 +100,27 @@ const AdminPricing = () => {
       subtitle="Dodawaj, edytuj i usuwaj kategorie oraz usługi w cenniku"
     >
       <div className="p-4">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <Button onClick={handleAddCategory} variant="default" className="mr-2">
-              <Plus className="mr-1" /> Dodaj kategorię
-            </Button>
-            <Button onClick={handleResetData} variant="outline" className="ml-2">
-              Resetuj dane
-            </Button>
-          </div>
-        </div>
-
-        {categories.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-gray-500 mb-4">Nie znaleziono żadnych kategorii w cenniku</p>
-            <Button onClick={handleAddCategory}>
-              <Plus className="mr-1" /> Dodaj pierwszą kategorię
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-8">
-            {categories.map((category) => (
-              <div key={category.id} className="border rounded-lg overflow-hidden">
-                <div className="bg-pink-50 p-4 flex justify-between items-center">
-                  <h3 className="text-lg font-semibold">{category.title}</h3>
-                  <div className="flex space-x-2">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => handleAddItem(category)}
-                    >
-                      <Plus className="mr-1 h-4 w-4" /> Dodaj usługę
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => handleEditCategory(category)}
-                    >
-                      <Pencil className="mr-1 h-4 w-4" /> Edytuj kategorię
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => handleDeleteCategory(category)}
-                    >
-                      <Trash2 className="mr-1 h-4 w-4" /> Usuń
-                    </Button>
-                  </div>
-                </div>
-
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Nazwa zabiegu</TableHead>
-                      <TableHead>Cena</TableHead>
-                      <TableHead>Opis</TableHead>
-                      <TableHead className="text-right w-[100px]">Akcje</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {category.items.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">
-                          Brak zabiegów w tej kategorii
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      category.items.map((item, index) => (
-                        <TableRow key={index}>
-                          <TableCell className="font-medium">{item.name}</TableCell>
-                          <TableCell>{item.price}</TableCell>
-                          <TableCell className="max-w-sm truncate">
-                            {item.description || "-"}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex justify-end space-x-1">
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => handleEditItem(category, index)}
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => handleDeleteItem(category, index)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Dialogs */}
-        <PricingCategoryDialog
-          open={dialogType === 'addCategory' || dialogType === 'editCategory'}
-          onClose={handleCloseDialog}
-          onSuccess={refreshData}
-          category={selectedCategory}
-          mode={dialogType === 'addCategory' ? 'add' : 'edit'}
+        <PricingActions 
+          onAddCategory={handleAddCategory} 
+          onResetData={handleResetData}
         />
 
-        <PricingItemDialog
-          open={dialogType === 'addItem' || dialogType === 'editItem'}
-          onClose={handleCloseDialog}
-          onSuccess={refreshData}
-          category={selectedCategory}
-          item={selectedCategory && selectedItemIndex !== null ? selectedCategory.items[selectedItemIndex] : undefined}
-          itemIndex={selectedItemIndex}
-          mode={dialogType === 'addItem' ? 'add' : 'edit'}
+        <PricingCategoriesList 
+          categories={categories}
+          onAddCategory={handleAddCategory}
+          onAddItem={handleAddItem}
+          onEditCategory={handleEditCategory}
+          onDeleteCategory={handleDeleteCategory}
+          onEditItem={handleEditItem}
+          onDeleteItem={handleDeleteItem}
         />
 
-        <PricingDeleteDialog
-          open={dialogType === 'deleteCategory' || dialogType === 'deleteItem'}
+        <PricingDialogs
+          dialogType={dialogType}
+          selectedCategory={selectedCategory}
+          selectedItemIndex={selectedItemIndex}
           onClose={handleCloseDialog}
           onSuccess={refreshData}
-          category={selectedCategory}
-          itemIndex={selectedItemIndex}
-          type={dialogType === 'deleteCategory' ? 'category' : 'item'}
         />
       </div>
     </AdminLayout>
