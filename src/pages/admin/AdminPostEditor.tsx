@@ -5,7 +5,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Save, Image } from "lucide-react";
+import { Save, Image, ChevronLeft } from "lucide-react";
 import { 
   Form,
   FormControl,
@@ -19,13 +19,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Checkbox } from "@/components/ui/checkbox";
 
 import AdminLayout from "@/components/admin/AdminLayout";
 import AdminProtectedRoute from "@/components/admin/AdminProtectedRoute";
 import { getBlogPostById, createBlogPost, updateBlogPost } from "@/services/blogService";
 import { BlogPostDraft } from "@/types/admin";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const formSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
@@ -46,6 +46,7 @@ const AdminPostEditor: React.FC = () => {
   const isEditing = id !== undefined;
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -63,6 +64,7 @@ const AdminPostEditor: React.FC = () => {
   });
   
   const [previewData, setPreviewData] = useState<FormValues | null>(null);
+  const [activeTab, setActiveTab] = useState("editor");
   
   // Fetch post data if editing
   const { data: post, isLoading: isLoadingPost } = useQuery({
@@ -164,25 +166,44 @@ const AdminPostEditor: React.FC = () => {
   const handlePreview = () => {
     const data = form.getValues();
     setPreviewData(data);
+    setActiveTab("preview");
   };
   
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
+  // Mobile-specific back button handler
+  const handleBackClick = () => {
+    navigate("/admin/posts");
+  };
+
   return (
     <AdminProtectedRoute>
       <AdminLayout title={isEditing ? "Edit Post" : "Create New Post"}>
-        <Tabs defaultValue="editor" className="w-full">
-          <div className="flex justify-between items-center mb-6">
-            <TabsList>
-              <TabsTrigger value="editor">Editor</TabsTrigger>
-              <TabsTrigger value="preview" onClick={handlePreview}>Preview</TabsTrigger>
-              <TabsTrigger value="seo">SEO</TabsTrigger>
+        {isMobile && (
+          <div className="mb-4">
+            <Button 
+              variant="ghost"
+              className="flex items-center text-gray-600"
+              onClick={handleBackClick}
+            >
+              <ChevronLeft className="mr-1 h-4 w-4" />
+              Back to Posts
+            </Button>
+          </div>
+        )}
+        
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <div className="flex flex-wrap justify-between items-center mb-6 gap-3">
+            <TabsList className={isMobile ? "w-full" : ""}>
+              <TabsTrigger value="editor" className={isMobile ? "flex-1" : ""}>Editor</TabsTrigger>
+              <TabsTrigger value="preview" className={isMobile ? "flex-1" : ""} onClick={handlePreview}>Preview</TabsTrigger>
+              <TabsTrigger value="seo" className={isMobile ? "flex-1" : ""}>SEO</TabsTrigger>
             </TabsList>
             
             <Button
               onClick={form.handleSubmit(onSubmit)}
               disabled={isSubmitting}
-              className="bg-pink-500 hover:bg-pink-600"
+              className="bg-pink-500 hover:bg-pink-600 w-full sm:w-auto mt-2 sm:mt-0"
             >
               <Save className="mr-2 h-4 w-4" />
               {isSubmitting ? "Saving..." : "Save Post"}
@@ -192,9 +213,9 @@ const AdminPostEditor: React.FC = () => {
           <Form {...form}>
             <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
               <TabsContent value="editor" className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <Card className="col-span-3 md:col-span-2">
-                    <CardContent className="p-6">
+                <div className="grid grid-cols-1 gap-6">
+                  <Card>
+                    <CardContent className="p-4 sm:p-6">
                       <div className="space-y-4">
                         <FormField
                           control={form.control}
@@ -237,7 +258,7 @@ const AdminPostEditor: React.FC = () => {
                               <FormControl>
                                 <Textarea 
                                   placeholder="Write your post content here..." 
-                                  className="min-h-[300px]"
+                                  className="min-h-[200px] sm:min-h-[300px]"
                                   {...field} 
                                 />
                               </FormControl>
@@ -245,13 +266,7 @@ const AdminPostEditor: React.FC = () => {
                             </FormItem>
                           )}
                         />
-                      </div>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="col-span-3 md:col-span-1">
-                    <CardContent className="p-6">
-                      <div className="space-y-4">
+
                         <FormField
                           control={form.control}
                           name="image"
@@ -280,7 +295,7 @@ const AdminPostEditor: React.FC = () => {
                           )}
                         />
                         
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <FormField
                             control={form.control}
                             name="category"
@@ -319,18 +334,18 @@ const AdminPostEditor: React.FC = () => {
                 {previewData ? (
                   <div className="space-y-6">
                     <Card>
-                      <CardContent className="p-6">
+                      <CardContent className="p-4 sm:p-6">
                         <div className="prose max-w-none">
                           <div className="mb-6">
-                            <h1 className="text-3xl font-bold mb-4">{previewData.title}</h1>
-                            <div className="flex items-center gap-4 text-gray-500 text-sm mb-6">
+                            <h1 className="text-2xl sm:text-3xl font-bold mb-4">{previewData.title}</h1>
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-gray-500 text-xs sm:text-sm mb-6">
                               <span>{new Date().toLocaleDateString()}</span>
-                              <span>•</span>
+                              <span className="hidden sm:inline">•</span>
                               <span>{previewData.category}</span>
-                              <span>•</span>
+                              <span className="hidden sm:inline">•</span>
                               <span>{previewData.readTime} read</span>
                             </div>
-                            <p className="text-xl text-gray-600">{previewData.excerpt}</p>
+                            <p className="text-lg sm:text-xl text-gray-600">{previewData.excerpt}</p>
                           </div>
                           
                           {previewData.image && (
@@ -338,7 +353,7 @@ const AdminPostEditor: React.FC = () => {
                               <img 
                                 src={previewData.image} 
                                 alt={previewData.title} 
-                                className="w-full max-h-[400px] object-cover rounded-lg"
+                                className="w-full max-h-[300px] sm:max-h-[400px] object-cover rounded-lg"
                                 onError={(e) => {
                                   (e.target as HTMLImageElement).src = "https://placehold.co/800x400?text=Image+Error";
                                 }}
@@ -346,7 +361,7 @@ const AdminPostEditor: React.FC = () => {
                             </div>
                           )}
                           
-                          <div dangerouslySetInnerHTML={{ __html: previewData.content }} />
+                          <div className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: previewData.content.replace(/\n/g, '<br/>') }} />
                         </div>
                       </CardContent>
                     </Card>
@@ -362,7 +377,7 @@ const AdminPostEditor: React.FC = () => {
               
               <TabsContent value="seo">
                 <Card>
-                  <CardContent className="p-6">
+                  <CardContent className="p-4 sm:p-6">
                     <div className="space-y-4">
                       <FormField
                         control={form.control}
@@ -423,7 +438,7 @@ const AdminPostEditor: React.FC = () => {
                           <div className="text-blue-600 text-lg font-medium truncate">
                             {form.watch("metaTitle") || form.watch("title") || "Post Title"}
                           </div>
-                          <div className="text-green-600 text-sm truncate">
+                          <div className="text-green-600 text-xs truncate">
                             {window.location.origin}/blog/post-slug
                           </div>
                           <div className="text-gray-600 text-sm mt-1 line-clamp-2">
