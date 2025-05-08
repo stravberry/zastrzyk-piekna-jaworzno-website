@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAdmin } from "@/context/AdminContext";
@@ -8,7 +7,9 @@ import {
   Settings, 
   LogIn,
   Plus,
-  Menu
+  Menu,
+  Home,
+  DollarSign
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -23,6 +24,12 @@ interface AdminLayoutProps {
   children: React.ReactNode;
   title: string;
 }
+
+const links = [
+  { name: "Dashboard", path: "/admin/dashboard", icon: Home },
+  { name: "Posty", path: "/admin/posts", icon: FileText },
+  { name: "Cennik", path: "/admin/pricing", icon: DollarSign },
+];
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
   const { logout } = useAdmin();

@@ -1,14 +1,22 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PricingHero from "@/components/pricing/PricingHero";
 import PricingNavigation from "@/components/pricing/PricingNavigation";
 import PriceCard from "@/components/pricing/PriceCard";
 import PricingInfo from "@/components/pricing/PricingInfo";
-import { priceCategories } from "@/data/pricingData";
+import { getPriceCategories } from "@/services/pricingService";
+import { PriceCategory } from "@/components/pricing/PriceCard";
 
 const Pricing = () => {
+  const [priceCategories, setPriceCategories] = useState<PriceCategory[]>([]);
+
+  useEffect(() => {
+    // Load categories from the service
+    setPriceCategories(getPriceCategories());
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
