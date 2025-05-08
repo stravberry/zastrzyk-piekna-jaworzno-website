@@ -98,17 +98,14 @@ const AdminPricing = () => {
 
   if (isLoading) {
     return (
-      <AdminLayout title="Zarządzanie cennikiem" subtitle="Ładowanie...">
+      <AdminLayout title="Zarządzanie cennikiem">
         <div className="p-4">Ładowanie danych...</div>
       </AdminLayout>
     );
   }
 
   return (
-    <AdminLayout 
-      title="Zarządzanie cennikiem" 
-      subtitle="Dodawaj, edytuj i usuwaj kategorie oraz usługi w cenniku"
-    >
+    <AdminLayout title="Zarządzanie cennikiem">
       <div className="p-4">
         <div className="flex justify-between items-center mb-6">
           <div>
