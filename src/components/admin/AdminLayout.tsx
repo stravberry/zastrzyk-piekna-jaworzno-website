@@ -10,7 +10,8 @@ import {
   Plus,
   Menu,
   Home,
-  DollarSign
+  DollarSign,
+  Code
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -31,6 +32,7 @@ const links = [
   { name: "Dashboard", path: "/admin/dashboard", icon: Home },
   { name: "Posty", path: "/admin/posts", icon: FileText },
   { name: "Cennik", path: "/admin/pricing", icon: DollarSign },
+  { name: "Kod HTML", path: "/admin/code-settings", icon: Code },
 ];
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, subtitle }) => {
@@ -43,6 +45,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title, subtitle }) 
     { name: "Dashboard", path: "/admin/dashboard", icon: <BarChart2 className="h-5 w-5" /> },
     { name: "Posts", path: "/admin/posts", icon: <FileText className="h-5 w-5" /> },
     { name: "Settings", path: "/admin/settings", icon: <Settings className="h-5 w-5" /> },
+    { name: "Kod HTML", path: "/admin/code-settings", icon: <Code className="h-5 w-5" /> },
   ];
 
   const NavLinks = () => (

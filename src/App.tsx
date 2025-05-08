@@ -23,6 +23,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPosts from "./pages/admin/AdminPosts";
 import AdminPostEditor from "./pages/admin/AdminPostEditor";
 import AdminPricing from "./pages/admin/AdminPricing";
+import AdminCodeSettings from "./pages/admin/AdminCodeSettings";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,7 @@ const App = () => (
             <Route path="posts/new" element={<AdminPostEditor />} />
             <Route path="posts/edit/:id" element={<AdminPostEditor />} />
             <Route path="pricing" element={<AdminPricing />} />
+            <Route path="code-settings" element={<AdminCodeSettings />} />
           </Route>
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
