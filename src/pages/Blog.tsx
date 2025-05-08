@@ -14,6 +14,8 @@ const Blog = () => {
   const [activeCategory, setActiveCategory] = useState("Wszystkie");
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 6; // Number of posts to display per page
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -30,6 +32,11 @@ const Blog = () => {
     fetchPosts();
   }, []);
 
+  // Reset to first page when category changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeCategory]);
+
   // Categories for filtering (derived from blog posts)
   const categories = [
     "Wszystkie",
@@ -41,6 +48,19 @@ const Blog = () => {
     ? posts
     : posts.filter(post => post.category === activeCategory);
 
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+  const startIndex = (currentPage - 1) * postsPerPage;
+  const endIndex = startIndex + postsPerPage;
+  const currentPosts = filteredPosts.slice(startIndex, endIndex);
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top of posts section
+    window.scrollTo({ top: document.getElementById('blog-posts')?.offsetTop || 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -49,7 +69,7 @@ const Blog = () => {
         <BlogHero />
 
         {/* Blog Articles */}
-        <section className="py-16 bg-white">
+        <section id="blog-posts" className="py-16 bg-white">
           <div className="container-custom">
             <CategoryFilter 
               categories={categories} 
@@ -65,13 +85,22 @@ const Blog = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredPosts.map((post) => (
+                {currentPosts.map((post) => (
                   <BlogCard key={post.id} post={post} />
                 ))}
+                {currentPosts.length === 0 && (
+                  <div className="col-span-3 text-center py-8">
+                    <h3 className="text-xl text-gray-500">Brak artykułów w wybranej kategorii</h3>
+                  </div>
+                )}
               </div>
             )}
 
-            <BlogPagination />
+            <BlogPagination 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
           </div>
         </section>
 
