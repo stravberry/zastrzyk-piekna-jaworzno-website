@@ -1,3 +1,4 @@
+
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -150,11 +151,11 @@ const Services = () => {
                         <FileImage size={48} className="text-pink-300" />
                       </div>
                     )}
-                    <div className="absolute -bottom-4 -right-4 bg-white p-3 rounded-lg shadow-md border border-pink-100">
+                    <Link to="/cennik" className="absolute -bottom-4 -right-4 bg-white p-3 rounded-lg shadow-md border border-pink-100 hover:bg-pink-50 transition-colors">
                       <span className="text-gold-500 font-medium font-playfair">
                         Sprawdź cennik
                       </span>
-                    </div>
+                    </Link>
                   </div>
                 </div>
               ))}
