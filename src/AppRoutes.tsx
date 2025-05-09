@@ -45,7 +45,7 @@ const AppRoutes = () => {
         </AdminProvider>
       } />
       
-      {/* Admin CMS Routes - Wrapped with AdminWrapper and protected */}
+      {/* Admin CMS Routes - Wrapped with AdminWrapper which includes AdminProvider */}
       <Route path="/admin/*" element={<AdminWrapper />}>
         <Route path="dashboard" element={
           <AdminProtectedRoute>
