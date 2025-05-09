@@ -9,8 +9,8 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 const AdminLogin: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("admin@example.com"); // Pre-fill with test account
+  const [password, setPassword] = useState("Admin123!"); // Pre-fill with test password
   const [isLoading, setIsLoading] = useState(false);
   const { login, isAuthenticated, loading } = useAdmin();
   const navigate = useNavigate();
@@ -51,16 +51,32 @@ const AdminLogin: React.FC = () => {
     setIsLoading(true);
 
     try {
+      // Validate inputs
+      if (!email || !password) {
+        toast.error("Proszę wprowadzić email i hasło");
+        setIsLoading(false);
+        return;
+      }
+
       const success = await login(email, password);
       
       if (success) {
         navigate("/admin/dashboard");
+      } else {
+        // This should not happen as errors should be caught in login function
+        toast.error("Nie udało się zalogować. Spróbuj ponownie.");
       }
     } catch (error) {
       console.error("Login error:", error);
+      toast.error("Wystąpił błąd podczas logowania");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const fillTestCredentials = () => {
+    setEmail("admin@example.com");
+    setPassword("Admin123!");
   };
 
   return (
@@ -122,10 +138,10 @@ const AdminLogin: React.FC = () => {
             
             <div className="text-center text-sm mt-4">
               <p className="text-gray-500">
-                Dane do logowania testowego:
+                Aby zalogować się do panelu, musisz najpierw stworzyć konto w Supabase
               </p>
-              <p className="text-gray-500">
-                Login: <span className="font-medium">admin@example.com</span> | Hasło: <span className="font-medium">Admin123!</span>
+              <p className="text-gray-500 font-medium mt-2">
+                Kliknij <Button onClick={fillTestCredentials} variant="link" className="h-auto p-0 text-pink-500">tutaj</Button> aby wypełnić formularz danymi testowymi
               </p>
             </div>
           </form>

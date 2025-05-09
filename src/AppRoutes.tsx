@@ -1,7 +1,6 @@
 
 import React, { useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
-import { AdminProvider } from "@/context/AdminContext";
 import usePageTracking from "./hooks/usePageTracking";
 
 // Pages
@@ -22,6 +21,7 @@ import AdminPosts from "./pages/admin/AdminPosts";
 import AdminPostEditor from "./pages/admin/AdminPostEditor";
 import AdminPricing from "./pages/admin/AdminPricing";
 import AdminCodeSettings from "./pages/admin/AdminCodeSettings";
+import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 
 const AppRoutes = () => {
   // Use the tracking hook
@@ -37,19 +37,41 @@ const AppRoutes = () => {
       <Route path="/blog" element={<Blog />} />
       <Route path="/kontakt" element={<Contact />} />
       
-      {/* Admin CMS Routes - Wrapped with AdminProvider */}
-      <Route path="/admin" element={
-        <AdminProvider>
-          <AdminLogin />
-        </AdminProvider>
-      } />
+      {/* Admin Login Route - Outside of AdminWrapper */}
+      <Route path="/admin" element={<AdminLogin />} />
+      
+      {/* Admin CMS Routes - Wrapped with AdminWrapper and protected */}
       <Route path="/admin/*" element={<AdminWrapper />}>
-        <Route path="dashboard" element={<AdminDashboard />} />
-        <Route path="posts" element={<AdminPosts />} />
-        <Route path="posts/new" element={<AdminPostEditor />} />
-        <Route path="posts/edit/:id" element={<AdminPostEditor />} />
-        <Route path="pricing" element={<AdminPricing />} />
-        <Route path="code-settings" element={<AdminCodeSettings />} />
+        <Route path="dashboard" element={
+          <AdminProtectedRoute>
+            <AdminDashboard />
+          </AdminProtectedRoute>
+        } />
+        <Route path="posts" element={
+          <AdminProtectedRoute>
+            <AdminPosts />
+          </AdminProtectedRoute>
+        } />
+        <Route path="posts/new" element={
+          <AdminProtectedRoute>
+            <AdminPostEditor />
+          </AdminProtectedRoute>
+        } />
+        <Route path="posts/edit/:id" element={
+          <AdminProtectedRoute>
+            <AdminPostEditor />
+          </AdminProtectedRoute>
+        } />
+        <Route path="pricing" element={
+          <AdminProtectedRoute>
+            <AdminPricing />
+          </AdminProtectedRoute>
+        } />
+        <Route path="code-settings" element={
+          <AdminProtectedRoute>
+            <AdminCodeSettings />
+          </AdminProtectedRoute>
+        } />
       </Route>
       
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
