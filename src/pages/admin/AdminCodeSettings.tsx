@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getCodeSettings, updateCodeSettings } from "@/services/codeSettingsService";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { InfoIcon } from "lucide-react";
 
 interface CodeSettingsFormValues {
   headCode: string;
@@ -58,6 +60,20 @@ const AdminCodeSettings: React.FC = () => {
   return (
     <AdminProtectedRoute>
       <AdminLayout title="Ustawienia kodu" subtitle="Dodaj kod śledzenia lub inne skrypty do nagłówka i treści strony">
+        <Alert className="mb-6 border-blue-200 bg-blue-50">
+          <InfoIcon className="h-5 w-5 text-blue-500" />
+          <AlertTitle>Optymalizacja dla Google Tag Manager</AlertTitle>
+          <AlertDescription>
+            Strona jest wstępnie skonfigurowana do pracy z Google Tag Manager. Domyślny kod został umieszczony w obu polach. 
+            Zastąp "GTM-XXXX" swoim identyfikatorem konta GTM. W panelu GTM możesz skonfigurować śledzenie następujących zdarzeń:
+            <ul className="list-disc pl-5 mt-2">
+              <li>Wirtualne odsłony stron - zdarzenie "virtualPageview"</li>
+              <li>Interakcje użytkownika - zdarzenie "userInteraction"</li>
+              <li>Przejścia między stronami - automatycznie śledzone</li>
+            </ul>
+          </AlertDescription>
+        </Alert>
+        
         <Card className="mb-8">
           <CardHeader>
             <CardTitle>Własny kod HTML</CardTitle>
@@ -97,6 +113,8 @@ const AdminCodeSettings: React.FC = () => {
                             </FormControl>
                             <FormDescription>
                               Ten kod zostanie dodany przed zamknięciem tagu &lt;/head&gt; na wszystkich stronach.
+                              <br />
+                              Tutaj umieszcza się zazwyczaj kod inicjalizacyjny Google Tag Manager.
                             </FormDescription>
                           </FormItem>
                         )}
@@ -120,6 +138,8 @@ const AdminCodeSettings: React.FC = () => {
                             </FormControl>
                             <FormDescription>
                               Ten kod zostanie dodany przed zamknięciem tagu &lt;/body&gt; na wszystkich stronach.
+                              <br />
+                              Tutaj umieszcza się zazwyczaj kod noscript Google Tag Manager oraz skrypty chatów, botów itp.
                             </FormDescription>
                           </FormItem>
                         )}

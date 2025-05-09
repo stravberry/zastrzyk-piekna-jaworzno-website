@@ -3,6 +3,10 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 import { getCodeSettings } from './services/codeSettingsService';
+import { initDataLayer } from './services/analyticService';
+
+// Initialize dataLayer for GTM
+initDataLayer();
 
 // Funkcja do wstrzykiwania kodu do head i body
 const injectCustomCode = async () => {
