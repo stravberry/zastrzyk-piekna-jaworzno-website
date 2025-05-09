@@ -135,7 +135,7 @@ export const addItemToCategory = async (
   }
   
   // Add the new item to the array
-  const updatedItems = [...(category?.items || []), item];
+  const updatedItems = [...(category?.items as PriceItem[] || []), item];
   
   // Update the category
   const { error: updateError } = await supabase
@@ -175,7 +175,7 @@ export const updateItemInCategory = async (
   }
   
   // Update the specific item
-  const updatedItems = [...category.items];
+  const updatedItems = [...(category.items as PriceItem[])];
   updatedItems[itemIndex] = { ...updatedItems[itemIndex], ...updatedItem };
   
   // Update the category
@@ -215,7 +215,7 @@ export const deleteItemFromCategory = async (
   }
   
   // Remove the specific item
-  const updatedItems = [...category.items];
+  const updatedItems = [...(category.items as PriceItem[])];
   updatedItems.splice(itemIndex, 1);
   
   // Update the category

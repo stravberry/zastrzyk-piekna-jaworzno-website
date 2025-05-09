@@ -67,7 +67,7 @@ export const getBlogPostById = async (id: number): Promise<BlogPost | undefined>
 export const createBlogPost = async (postData: BlogPostDraft): Promise<BlogPost> => {
   // Extract keywords array from comma-separated string if needed
   const keywords = typeof postData.seo?.keywords === 'string' 
-    ? postData.seo.keywords.split(',').map(k => k.trim()) 
+    ? (postData.seo.keywords as string).split(',').map(k => k.trim()) 
     : postData.seo?.keywords || [];
 
   // Generate slug from title
@@ -123,7 +123,7 @@ export const updateBlogPost = async (id: number, postData: Partial<BlogPostDraft
   // Handle keywords
   if (postData.seo?.keywords) {
     updateData.keywords = typeof postData.seo.keywords === 'string'
-      ? postData.seo.keywords.split(',').map(k => k.trim())
+      ? (postData.seo.keywords as string).split(',').map(k => k.trim())
       : postData.seo.keywords;
   }
   
