@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAdmin } from "@/context/AdminContext";
@@ -8,8 +9,8 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 const AdminLogin: React.FC = () => {
-  const [email, setEmail] = useState("admin@example.com"); // Pre-fill with test account
-  const [password, setPassword] = useState("Admin123!"); // Pre-fill with test password
+  const [email, setEmail] = useState("admin@test.pl"); // Updated to admin@test.pl
+  const [password, setPassword] = useState("Admin123"); // Updated to Admin123
   const [isLoading, setIsLoading] = useState(false);
   const { login, isAuthenticated, loading } = useAdmin();
   const navigate = useNavigate();
@@ -74,11 +75,10 @@ const AdminLogin: React.FC = () => {
   };
 
   const fillTestCredentials = () => {
-    setEmail("admin@example.com");
-    setPassword("Admin123!");
+    setEmail("admin@test.pl");
+    setPassword("Admin123");
   };
 
-  // Rest of the component remains the same
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <Card className="w-full max-w-md shadow-lg">
@@ -104,7 +104,7 @@ const AdminLogin: React.FC = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@example.com"
+                placeholder="admin@test.pl"
                 autoComplete="email"
                 required
               />
@@ -141,7 +141,7 @@ const AdminLogin: React.FC = () => {
                 Aby zalogować się do panelu, musisz najpierw stworzyć konto w Supabase
               </p>
               <p className="text-gray-500 font-medium mt-2">
-                Kliknij <Button onClick={fillTestCredentials} variant="link" className="h-auto p-0 text-pink-500">tutaj</Button> aby wypełnić formularz danymi testowymi
+                Używaj danych: <span className="text-pink-500 font-bold">admin@test.pl / Admin123</span>
               </p>
             </div>
           </form>

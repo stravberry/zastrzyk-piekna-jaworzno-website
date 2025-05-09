@@ -79,8 +79,8 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         // Continue even if this fails
       }
       
-      // For test account, use specific credentials for demo purposes
-      if (email === 'admin@example.com') {
+      // For test account, use specific credentials for demo
+      if (email === 'admin@test.pl') {
         console.log("Using test account");
       }
       
