@@ -1,6 +1,4 @@
 
-import { db } from "./firebaseConfig";
-
 export interface CodeSettings {
   headCode: string;
   bodyCode: string;
