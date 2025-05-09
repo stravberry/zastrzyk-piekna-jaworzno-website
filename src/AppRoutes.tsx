@@ -2,6 +2,7 @@
 import React, { useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import usePageTracking from "./hooks/usePageTracking";
+import { AdminProvider } from "@/context/AdminContext";
 
 // Pages
 import Index from "./pages/Index";
@@ -37,8 +38,12 @@ const AppRoutes = () => {
       <Route path="/blog" element={<Blog />} />
       <Route path="/kontakt" element={<Contact />} />
       
-      {/* Admin Login Route - Outside of AdminWrapper */}
-      <Route path="/admin" element={<AdminLogin />} />
+      {/* Admin Login Route - Wrapped with AdminProvider */}
+      <Route path="/admin" element={
+        <AdminProvider>
+          <AdminLogin />
+        </AdminProvider>
+      } />
       
       {/* Admin CMS Routes - Wrapped with AdminWrapper and protected */}
       <Route path="/admin/*" element={<AdminWrapper />}>

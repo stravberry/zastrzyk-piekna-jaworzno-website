@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAdmin } from "@/context/AdminContext";
@@ -79,6 +78,7 @@ const AdminLogin: React.FC = () => {
     setPassword("Admin123!");
   };
 
+  // Rest of the component remains the same
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <Card className="w-full max-w-md shadow-lg">
