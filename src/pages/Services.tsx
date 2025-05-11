@@ -33,8 +33,8 @@ const Services = () => {
     },
     {
       id: 3,
-      title: "Makijaż permanentny brwi",
-      description: "Idealnie dopasowany makijaż permanentny brwi, wykonany z najwyższą dbałością o naturalny efekt.",
+      title: "MAKIJAŻ PERMANENTNY BRWI",
+      description: "intensywne, ale lekko wykończone brwi permanentne bez wyraźnych konturów z uniesioną końcówka dla efektu otwartego i wypoczętego spojrzenia - to moja wypracowana latami technika",
       icon: <User size={36} />,
       link: "/zabiegi/makijaz-permanentny-brwi",
       features: ["Technika ombre", "Naturalny efekt", "Trwałość do 2 lat", "Indywidualny dobór kształtu"],
