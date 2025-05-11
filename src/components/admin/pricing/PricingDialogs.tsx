@@ -12,6 +12,7 @@ interface PricingDialogsProps {
   selectedItemIndex: number | null;
   onClose: () => void;
   onSuccess: () => void;
+  categories: PriceCategory[];
 }
 
 const PricingDialogs: React.FC<PricingDialogsProps> = ({
@@ -20,6 +21,7 @@ const PricingDialogs: React.FC<PricingDialogsProps> = ({
   selectedItemIndex,
   onClose,
   onSuccess,
+  categories,
 }) => {
   return (
     <>
@@ -39,6 +41,7 @@ const PricingDialogs: React.FC<PricingDialogsProps> = ({
         item={selectedCategory && selectedItemIndex !== null ? selectedCategory.items[selectedItemIndex] : undefined}
         itemIndex={selectedItemIndex}
         mode={dialogType === 'addItem' ? 'add' : 'edit'}
+        allCategories={categories}
       />
 
       <PricingDeleteDialog

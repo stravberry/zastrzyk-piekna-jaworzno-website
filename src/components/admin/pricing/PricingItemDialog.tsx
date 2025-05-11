@@ -11,11 +11,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { PriceCategory, PriceItem } from "@/components/pricing/PriceCard";
 import { addItemToCategory, updateItemInCategory } from "@/services/pricing";
 import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const formSchema = z.object({
   name: z.string().min(1, "Nazwa usługi jest wymagana"),
   price: z.string().min(1, "Cena jest wymagana"),
   description: z.string().optional(),
+  categoryId: z.string().min(1, "Kategoria jest wymagana"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -28,6 +30,7 @@ interface PricingItemDialogProps {
   item?: PriceItem;
   itemIndex: number | null;
   mode: 'add' | 'edit';
+  allCategories: PriceCategory[];
 }
 
 const PricingItemDialog: React.FC<PricingItemDialogProps> = ({
@@ -38,6 +41,7 @@ const PricingItemDialog: React.FC<PricingItemDialogProps> = ({
   item,
   itemIndex,
   mode,
+  allCategories,
 }) => {
   const isEditing = mode === 'edit';
   
@@ -47,6 +51,7 @@ const PricingItemDialog: React.FC<PricingItemDialogProps> = ({
       name: item?.name || "",
       price: item?.price || "",
       description: item?.description || "",
+      categoryId: category?.id || "",
     },
   });
 
@@ -57,12 +62,18 @@ const PricingItemDialog: React.FC<PricingItemDialogProps> = ({
         name: item?.name || "",
         price: item?.price || "",
         description: item?.description || "",
+        categoryId: category?.id || "",
       });
     }
-  }, [open, item, form]);
+  }, [open, item, category, form]);
   
   const handleSubmit = async (data: FormData) => {
-    if (!category) return;
+    const selectedCategoryId = data.categoryId;
+    
+    if (!selectedCategoryId) {
+      toast.error("Wybierz kategorię");
+      return;
+    }
     
     try {
       const itemData: PriceItem = {
@@ -72,10 +83,20 @@ const PricingItemDialog: React.FC<PricingItemDialogProps> = ({
       };
       
       if (isEditing && typeof itemIndex === 'number') {
-        await updateItemInCategory(category.id, itemIndex, itemData);
-        toast.success("Usługa została zaktualizowana");
+        // If user changed the category, we need special handling
+        if (category && selectedCategoryId !== category.id) {
+          // First add to new category
+          await addItemToCategory(selectedCategoryId, itemData);
+          // Then delete from old category
+          await updateItemInCategory(category.id, itemIndex, { ...itemData, _toDelete: true });
+          toast.success("Usługa została przeniesiona do innej kategorii");
+        } else {
+          // Regular update in same category
+          await updateItemInCategory(selectedCategoryId, itemIndex, itemData);
+          toast.success("Usługa została zaktualizowana");
+        }
       } else {
-        await addItemToCategory(category.id, itemData);
+        await addItemToCategory(selectedCategoryId, itemData);
         toast.success("Usługa została dodana");
       }
       onSuccess();
@@ -100,6 +121,33 @@ const PricingItemDialog: React.FC<PricingItemDialogProps> = ({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="categoryId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Kategoria</FormLabel>
+                  <FormControl>
+                    <Select 
+                      value={field.value} 
+                      onValueChange={field.onChange}
+                      disabled={isEditing && !allCategories.length}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Wybierz kategorię" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {allCategories.map((cat) => (
+                          <SelectItem key={cat.id} value={cat.id}>{cat.title}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
             <FormField
               control={form.control}
               name="name"

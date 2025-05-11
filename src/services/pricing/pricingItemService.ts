@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { PriceCategory, PriceItem } from "@/components/pricing/PriceCard";
 import { getPriceCategories } from "./pricingCoreService";
@@ -57,7 +56,7 @@ export const addItemToCategory = async (
 export const updateItemInCategory = async (
   categoryId: string, 
   itemIndex: number, 
-  updatedItem: Partial<PriceItem>
+  updatedItem: Partial<PriceItem> & { _toDelete?: boolean }
 ): Promise<PriceCategory[]> => {
   try {
     // First we need to get the current items
@@ -80,7 +79,7 @@ export const updateItemInCategory = async (
       throw notFoundError;
     }
     
-    // Update the specific item
+    // Update the specific item or remove it if _toDelete flag is set
     const updatedItems = [...(category.items as PriceItem[])];
     
     if (itemIndex < 0 || itemIndex >= updatedItems.length) {
@@ -90,7 +89,13 @@ export const updateItemInCategory = async (
       throw indexError;
     }
     
-    updatedItems[itemIndex] = { ...updatedItems[itemIndex], ...updatedItem };
+    if (updatedItem._toDelete) {
+      // Remove the item if _toDelete flag is set
+      updatedItems.splice(itemIndex, 1);
+    } else {
+      // Otherwise update the item
+      updatedItems[itemIndex] = { ...updatedItems[itemIndex], ...updatedItem };
+    }
     
     // Update the category
     const { error: updateError } = await supabase
@@ -104,7 +109,10 @@ export const updateItemInCategory = async (
       throw updateError;
     }
     
-    toast.success('Pomyślnie zaktualizowano usługę');
+    if (!updatedItem._toDelete) {
+      toast.success('Pomyślnie zaktualizowano usługę');
+    }
+    
     return getPriceCategories();
   } catch (error) {
     console.error('Error in updateItemInCategory:', error);

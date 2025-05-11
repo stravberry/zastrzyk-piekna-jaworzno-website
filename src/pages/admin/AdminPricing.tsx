@@ -104,6 +104,7 @@ const AdminPricing = () => {
           selectedItemIndex={selectedItemIndex}
           onClose={handleCloseDialog}
           onSuccess={refreshData}
+          categories={categories}
         />
       </div>
     </AdminLayout>
