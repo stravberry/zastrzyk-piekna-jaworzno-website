@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import { useAdmin } from "./context/AdminContext";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
+import usePageTracking from "./hooks/usePageTracking";
 import Index from "./pages/Index";
 import AboutMe from "./pages/AboutMe";
 import Services from "./pages/Services";
@@ -25,6 +26,9 @@ import AdminPricing from "./pages/admin/AdminPricing";
 
 const AppRoutes = () => {
   const { isAuthenticated } = useAdmin();
+  
+  // Use the page tracking hook to scroll to top on route change
+  usePageTracking();
 
   return (
     <Routes>
