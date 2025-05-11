@@ -14,7 +14,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) =
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      navigate("/admin");
+      navigate("/admin/login");
     }
   }, [isAuthenticated, navigate, loading]);
 

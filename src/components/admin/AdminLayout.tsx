@@ -1,7 +1,5 @@
-
 import React, {
   useState,
-  useContext,
   useEffect,
   useRef,
   useCallback,
@@ -14,7 +12,7 @@ import {
   X,
   Tag,
 } from "lucide-react";
-import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 
 import { useAdmin } from "@/context/AdminContext";
 import { useWindowSize } from "@/hooks/use-window-size";
@@ -36,8 +34,7 @@ interface AdminLayoutProps {
 }
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ title, subtitle, children }) => {
-  const { isAuthenticated: isAdmin, logout } = useAdmin();
-  const navigate = useNavigate();
+  const { logout } = useAdmin();
   const location = useLocation();
   const { width } = useWindowSize();
   const isMobile = width < 768;
@@ -108,11 +105,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, subtitle, children }) 
       current: location.pathname === '/admin/code-settings' 
     },
   ];
-
-  if (!isAdmin) {
-    navigate("/admin/login");
-    return null;
-  }
 
   return (
     <div className="flex h-screen bg-gray-50">
