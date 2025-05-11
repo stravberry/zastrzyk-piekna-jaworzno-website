@@ -1,3 +1,4 @@
+
 import React from "react";
 import ServiceCard from "./ServiceCard";
 import { Droplet, User, Heart, Syringe } from "lucide-react";
@@ -24,7 +25,7 @@ const ServicesSection = () => {
   }, {
     id: 4,
     title: "Mezoterapia igłowa",
-    description: "Zabieg polegający na dostarczaniu aktywnych składników w głąb skóry, poprawiający jej kondycję i wygląd.",
+    description: "niekwestionowana królowa technik dostarczania składników odżywczych w głąb skóry. Często mylona z konkretnym zabiegiem, tymczasem jest to metoda, a nie zabieg. Nie wszystkie preparaty można podać ta techniką, dobór koktajlu możliwy jest po ustaleniu oczekiwanych rezultatów",
     icon: <Syringe size={36} />,
     link: "/zabiegi/mezoterapia-iglowa"
   }, {
@@ -49,7 +50,7 @@ const ServicesSection = () => {
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">Oferuje szeroki wachlarz zabiegów o działaniu przeciwstarzeniowym.
 
- Do każdego przypadku podchodzę holistyczne, a terapie zabiegowe tworzę indywidualnie w oparciu o dogłębny wywiad, aktualna wiedze oraz najnowocześniejsze rozwiązania</p>
+ Do każdego przypadku podchodzę holistyczne, a terapie zabiegowe tworzę indywidualnie w oparciu o dogłębny wywiad, aktualna wiedze oraz najnowocześniejsze rozwiązania</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
