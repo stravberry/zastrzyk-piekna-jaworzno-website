@@ -25,15 +25,15 @@ export const EditorPreviewTab: React.FC<EditorPreviewTabProps> = ({ previewData 
         <CardContent className="p-4 sm:p-6">
           <div className="prose max-w-none">
             <div className="mb-6">
-              <h1 className="text-2xl sm:text-3xl font-bold mb-4">{previewData.title}</h1>
-              <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-gray-500 text-xs sm:text-sm mb-6">
+              <h1 className="text-2xl sm:text-3xl font-bold mb-4 break-words">{previewData.title}</h1>
+              <div className="flex flex-wrap items-center gap-2 text-gray-500 text-xs mb-6">
                 <span>{new Date().toLocaleDateString()}</span>
-                <span className="hidden sm:inline">•</span>
+                <span className="inline">•</span>
                 <span>{previewData.category}</span>
-                <span className="hidden sm:inline">•</span>
+                <span className="inline">•</span>
                 <span>{previewData.readTime} read</span>
               </div>
-              <p className="text-lg sm:text-xl text-gray-600">{previewData.excerpt}</p>
+              <p className="text-lg text-gray-600 break-words">{previewData.excerpt}</p>
             </div>
             
             {previewData.image && (
@@ -41,7 +41,7 @@ export const EditorPreviewTab: React.FC<EditorPreviewTabProps> = ({ previewData 
                 <img 
                   src={previewData.image} 
                   alt={previewData.title} 
-                  className="w-full max-h-[300px] sm:max-h-[400px] object-cover rounded-lg"
+                  className="w-full max-h-[200px] sm:max-h-[400px] object-cover rounded-lg"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = "https://placehold.co/800x400?text=Image+Error";
                   }}
@@ -50,7 +50,7 @@ export const EditorPreviewTab: React.FC<EditorPreviewTabProps> = ({ previewData 
             )}
             
             <div 
-              className="whitespace-pre-wrap" 
+              className="whitespace-pre-wrap break-words text-sm sm:text-base" 
               dangerouslySetInnerHTML={{ __html: previewData.content.replace(/\n/g, '<br/>') }} 
             />
           </div>
