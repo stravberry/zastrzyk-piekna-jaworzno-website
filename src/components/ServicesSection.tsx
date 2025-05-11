@@ -1,7 +1,7 @@
-
 import React from "react";
 import ServiceCard from "./ServiceCard";
 import { Droplet, User, Heart, Syringe } from "lucide-react";
+
 const ServicesSection = () => {
   const services = [{
     id: 1,
@@ -18,7 +18,7 @@ const ServicesSection = () => {
   }, {
     id: 3,
     title: "Makijaż permanentny brwi",
-    description: "Idealnie dopasowany makijaż permanentny brwi, wykonany z najwyższą dbałością o naturalny efekt.",
+    description: "intensywne, ale lekko wykończone brwi permanentne bez wyraźnych konturów z uniesioną końcówka dla efektu otwartego i wypoczętego spojrzenia - to moja wypracowana latami technika",
     icon: <User size={36} />,
     link: "/zabiegi/makijaz-permanentny-brwi"
   }, {
