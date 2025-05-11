@@ -1,4 +1,3 @@
-
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -53,8 +52,8 @@ const Services = () => {
     },
     {
       id: 5,
-      title: "Lipoliza iniekcyjna",
-      description: "Zabieg redukcji lokalnej tkanki tłuszczowej, pomagający wymodelować wybrane partie ciała.",
+      title: "LIPOLIZA INIEKCYJNA",
+      description: "zabieg pozwalający na redukcję lokalnie nagromadzonej tkanki tłuszczowej, zwłaszcza w okolicy twarzy",
       icon: <Syringe size={36} />,
       link: "/zabiegi/lipoliza-iniekcyjna",
       features: ["Redukcja podbródka", "Modelowanie policzków", "Likwidacja tzw. chomików", "Nieinwazyjna procedura"],
