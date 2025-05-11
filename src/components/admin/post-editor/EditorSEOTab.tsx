@@ -21,8 +21,8 @@ interface EditorSEOTabProps {
 export const EditorSEOTab: React.FC<EditorSEOTabProps> = ({ control, watch }) => {
   return (
     <Card className="overflow-hidden">
-      <CardContent className="p-3 sm:p-6">
-        <div className="space-y-3 sm:space-y-4">
+      <CardContent className="p-2 sm:p-6">
+        <div className="space-y-2 sm:space-y-4">
           <FormField
             control={control}
             name="metaTitle"
@@ -77,18 +77,16 @@ export const EditorSEOTab: React.FC<EditorSEOTabProps> = ({ control, watch }) =>
             )}
           />
           
-          <div className="mt-3 sm:mt-6">
-            <h3 className="text-xs sm:text-sm font-medium mb-2">Search Preview</h3>
+          <div className="mt-2 sm:mt-6">
+            <h3 className="text-xs sm:text-sm font-medium mb-1 sm:mb-2">Search Preview</h3>
             <div className="border rounded-md p-2 sm:p-4 bg-white">
-              <div className="text-blue-600 text-xs sm:text-lg font-medium truncate">
+              <div className="text-blue-600 text-xs sm:text-lg font-medium">
                 {watch("metaTitle") || watch("title") || "Post Title"}
               </div>
-              <div className="text-green-600 text-2xs sm:text-xs truncate break-all">
-                <span className="inline-block max-w-full overflow-hidden text-ellipsis whitespace-nowrap">
-                  {window.location.origin}/blog/post-slug
-                </span>
+              <div className="text-green-600 text-2xs sm:text-xs overflow-hidden break-all">
+                {window.location.origin}/blog/post-slug
               </div>
-              <div className="text-gray-600 text-2xs sm:text-sm mt-1 line-clamp-2 break-words">
+              <div className="text-gray-600 text-2xs sm:text-sm mt-1 break-words">
                 {watch("metaDescription") || watch("excerpt") || "Post description will appear here..."}
               </div>
             </div>
