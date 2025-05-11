@@ -1,3 +1,5 @@
+
+// Import the supabase client
 import { supabase } from "@/integrations/supabase/client";
 import { BlogPost, BlogPostDraft, BlogPostStats } from "@/types/admin";
 import { blogPosts } from "@/data/blogData"; // Import sample data
@@ -176,8 +178,8 @@ export const createBlogPost = async (postData: BlogPostDraft): Promise<BlogPost>
         meta_title: postData.seo?.metaTitle,
         meta_description: postData.seo?.metaDescription,
         keywords: keywords,
-        date: new Date().toISOString(),
-        author_id: (await supabase.auth.getUser()).data.user?.id
+        date: new Date().toISOString()
+        // Remove author_id reference to avoid permission issues
       })
       .select()
       .single();
