@@ -1,0 +1,58 @@
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Font Download Instructions</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 {
+            color: #ec4899;
+        }
+        code {
+            background: #f5f5f5;
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin: 20px 0;
+        }
+        .steps {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Font Download Instructions</h1>
+    <div class="warning">
+        <p><strong>Important:</strong> To ensure proper Polish character support in PDF exports, please download the Roboto font and place it in this directory.</p>
+    </div>
+
+    <div class="steps">
+        <h2>Follow these steps:</h2>
+        <ol>
+            <li>Download Roboto Regular from <a href="https://fonts.google.com/specimen/Roboto/about" target="_blank">Google Fonts</a></li>
+            <li>Extract the ZIP file</li>
+            <li>Find the file named <code>Roboto-Regular.ttf</code></li>
+            <li>Place that file in this directory (<code>public/fonts/</code>)</li>
+        </ol>
+    </div>
+
+    <p>After adding the font file, your PDF exports will correctly display Polish characters.</p>
+    <p>The application looks for this file at: <code>/fonts/Roboto-Regular.ttf</code></p>
+</body>
+</html>
