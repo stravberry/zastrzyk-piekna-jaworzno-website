@@ -3,6 +3,8 @@ import React, { useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import usePageTracking from "./hooks/usePageTracking";
 import { AdminProvider } from "@/context/AdminContext";
+import { getCodeSettings } from "@/services/codeSettingsService";
+import { supabase } from "@/integrations/supabase/client";
 
 // Pages
 import Index from "./pages/Index";
@@ -27,6 +29,59 @@ import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 const AppRoutes = () => {
   // Use the tracking hook
   usePageTracking();
+
+  // Initialize code_settings table if it doesn't exist
+  useEffect(() => {
+    const initCodeSettingsTable = async () => {
+      try {
+        // Check if the code_settings table exists and create it if it doesn't
+        const { error } = await supabase.rpc('create_code_settings_table_if_not_exists');
+        if (error) {
+          console.error("Error initializing code_settings table:", error);
+          
+          // Try to create the table directly if the RPC function fails
+          const createTableResult = await supabase.rpc('create_code_settings_table_directly');
+          if (createTableResult.error) {
+            console.error("Error creating code_settings table directly:", createTableResult.error);
+          }
+        }
+        
+        // Try to fetch the code settings to test if they exist
+        await getCodeSettings();
+      } catch (error) {
+        console.error("Error in initCodeSettingsTable:", error);
+      }
+    };
+    
+    initCodeSettingsTable();
+  }, []);
+
+  // Inject custom code snippets into the page
+  useEffect(() => {
+    const injectCustomCode = async () => {
+      try {
+        const settings = await getCodeSettings();
+        
+        // Inject head code if it exists
+        if (settings.headCode) {
+          const headScript = document.createElement('div');
+          headScript.innerHTML = settings.headCode;
+          document.head.appendChild(headScript);
+        }
+        
+        // Inject body code if it exists
+        if (settings.bodyCode) {
+          const bodyScript = document.createElement('div');
+          bodyScript.innerHTML = settings.bodyCode;
+          document.body.appendChild(bodyScript);
+        }
+      } catch (error) {
+        console.error('Error injecting custom code:', error);
+      }
+    };
+    
+    injectCustomCode();
+  }, []);
   
   return (
     <Routes>

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -27,7 +28,7 @@ const AdminCodeSettings: React.FC = () => {
     }
   });
 
-  const { data: codeSettings, isLoading } = useQuery({
+  const { data: codeSettings, isLoading, error, refetch } = useQuery({
     queryKey: ["codeSettings"],
     queryFn: getCodeSettings
   });
@@ -36,8 +37,13 @@ const AdminCodeSettings: React.FC = () => {
     mutationFn: updateCodeSettings,
     onSuccess: () => {
       toast.success("Kod został zapisany pomyślnie");
+      // Refresh the page to apply the new code settings
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Error updating code settings:", error);
       toast.error("Wystąpił błąd podczas zapisywania kodu");
     }
   });
@@ -54,6 +60,20 @@ const AdminCodeSettings: React.FC = () => {
   const onSubmit = (values: CodeSettingsFormValues) => {
     mutation.mutate(values);
   };
+
+  if (error) {
+    return (
+      <AdminLayout title="Ustawienia kodu" subtitle="Dodaj kod śledzenia lub inne skrypty do nagłówka i treści strony">
+        <Alert variant="destructive" className="mb-6">
+          <InfoIcon className="h-4 w-4" />
+          <AlertDescription>
+            Wystąpił problem podczas ładowania ustawień kodu. Spróbuj odświeżyć stronę.
+          </AlertDescription>
+        </Alert>
+        <Button onClick={() => refetch()}>Spróbuj ponownie</Button>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout title="Ustawienia kodu" subtitle="Dodaj kod śledzenia lub inne skrypty do nagłówka i treści strony">
