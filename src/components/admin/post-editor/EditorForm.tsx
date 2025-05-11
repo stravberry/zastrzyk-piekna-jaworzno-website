@@ -34,7 +34,19 @@ export const EditorForm: React.FC<EditorFormProps> = ({
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
+    mode: "onChange",
   });
+  
+  // Update form with defaultValues when they change (when post is loaded)
+  React.useEffect(() => {
+    if (defaultValues && isEditing) {
+      Object.keys(defaultValues).forEach(key => {
+        const fieldKey = key as keyof FormValues;
+        form.setValue(fieldKey, defaultValues[fieldKey], { shouldValidate: true });
+      });
+      setPreviewData(defaultValues);
+    }
+  }, [defaultValues, form, isEditing]);
   
   // Update preview data when form values change
   const handlePreview = () => {
@@ -44,6 +56,7 @@ export const EditorForm: React.FC<EditorFormProps> = ({
   };
   
   const handleFormSubmit = (data: FormValues) => {
+    console.log("Form submitted with values:", data);
     const postData: BlogPostDraft = {
       title: data.title,
       excerpt: data.excerpt,
