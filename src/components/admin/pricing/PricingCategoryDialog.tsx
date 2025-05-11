@@ -1,41 +1,29 @@
 
 import React from "react";
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { z } from "zod";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PriceCategory } from "@/components/pricing/PriceCard";
 import { addCategory, updateCategory } from "@/services/pricingService";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 const formSchema = z.object({
-  id: z.string().optional(),
-  title: z.string().min(3, "Tytuł musi mieć minimum 3 znaki"),
+  title: z.string().min(1, "Tytuł kategorii jest wymagany")
 });
 
-type PricingCategoryDialogProps = {
+type FormData = z.infer<typeof formSchema>;
+
+interface PricingCategoryDialogProps {
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  category: PriceCategory | null;
-  mode: "add" | "edit";
-};
+  category?: PriceCategory | null;
+  mode: 'add' | 'edit';
+}
 
 const PricingCategoryDialog: React.FC<PricingCategoryDialogProps> = ({
   open,
@@ -44,75 +32,55 @@ const PricingCategoryDialog: React.FC<PricingCategoryDialogProps> = ({
   category,
   mode,
 }) => {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const isEditing = mode === 'edit';
+  
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      id: category?.id || "",
       title: category?.title || "",
     },
   });
 
-  // Reset form when category changes
+  // Reset form when dialog opens/closes or category changes
   React.useEffect(() => {
-    if (category) {
+    if (open) {
       form.reset({
-        id: category.id,
-        title: category.title,
-      });
-    } else {
-      form.reset({
-        id: "",
-        title: "",
+        title: category?.title || "",
       });
     }
-  }, [category, form]);
-
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  }, [open, category, form]);
+  
+  const handleSubmit = async (data: FormData) => {
     try {
-      if (mode === "add") {
-        // Add new category
-        addCategory({
-          title: values.title,
-          items: [],
-        });
-        toast({
-          title: "Kategoria dodana",
-          description: `Kategoria "${values.title}" została dodana do cennika.`,
-        });
+      if (isEditing && category) {
+        await updateCategory(category.id, { title: data.title });
+        toast.success("Kategoria została zaktualizowana");
       } else {
-        // Update existing category
-        if (category) {
-          updateCategory(category.id, {
-            title: values.title,
-          });
-          toast({
-            title: "Kategoria zaktualizowana",
-            description: `Kategoria "${values.title}" została zaktualizowana.`,
-          });
-        }
+        await addCategory({ title: data.title, items: [] });
+        toast.success("Kategoria została dodana");
       }
       onSuccess();
       onClose();
     } catch (error) {
       console.error("Error saving category:", error);
-      toast({
-        title: "Błąd",
-        description: "Wystąpił błąd podczas zapisywania kategorii.",
-        variant: "destructive",
-      });
+      toast.error(isEditing 
+        ? "Nie udało się zaktualizować kategorii" 
+        : "Nie udało się dodać kategorii"
+      );
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={() => onClose()}>
+    <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {mode === "add" ? "Dodaj nową kategorię" : "Edytuj kategorię"}
+            {isEditing ? "Edytuj kategorię" : "Dodaj nową kategorię"}
           </DialogTitle>
         </DialogHeader>
+
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="title"
@@ -120,18 +88,29 @@ const PricingCategoryDialog: React.FC<PricingCategoryDialogProps> = ({
                 <FormItem>
                   <FormLabel>Nazwa kategorii</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Np. Mezoterapia igłowa" />
+                    <Input 
+                      placeholder="Wprowadź nazwę kategorii" 
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <DialogFooter>
+
+            <DialogFooter className="mt-4">
               <Button type="button" variant="outline" onClick={onClose}>
                 Anuluj
               </Button>
-              <Button type="submit">
-                {mode === "add" ? "Dodaj kategorię" : "Zapisz zmiany"}
+              <Button 
+                type="submit" 
+                disabled={form.formState.isSubmitting}
+                className="bg-pink-500 hover:bg-pink-600"
+              >
+                {form.formState.isSubmitting 
+                  ? "Zapisywanie..." 
+                  : isEditing ? "Zaktualizuj" : "Dodaj"
+                }
               </Button>
             </DialogFooter>
           </form>

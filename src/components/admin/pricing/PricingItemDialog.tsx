@@ -1,46 +1,34 @@
 
 import React from "react";
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { z } from "zod";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  FormDescription,
-} from "@/components/ui/form";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PriceCategory, PriceItem } from "@/components/pricing/PriceCard";
 import { addItemToCategory, updateItemInCategory } from "@/services/pricingService";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 const formSchema = z.object({
-  name: z.string().min(2, "Nazwa musi mieć minimum 2 znaki"),
+  name: z.string().min(1, "Nazwa usługi jest wymagana"),
   price: z.string().min(1, "Cena jest wymagana"),
   description: z.string().optional(),
 });
 
-type PricingItemDialogProps = {
+type FormData = z.infer<typeof formSchema>;
+
+interface PricingItemDialogProps {
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
   category: PriceCategory | null;
   item?: PriceItem;
   itemIndex: number | null;
-  mode: "add" | "edit";
-};
+  mode: 'add' | 'edit';
+}
 
 const PricingItemDialog: React.FC<PricingItemDialogProps> = ({
   open,
@@ -51,7 +39,9 @@ const PricingItemDialog: React.FC<PricingItemDialogProps> = ({
   itemIndex,
   mode,
 }) => {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const isEditing = mode === 'edit';
+  
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: item?.name || "",
@@ -60,85 +50,73 @@ const PricingItemDialog: React.FC<PricingItemDialogProps> = ({
     },
   });
 
-  // Reset form when item changes
+  // Reset form when dialog opens/closes or item changes
   React.useEffect(() => {
-    if (item) {
+    if (open) {
       form.reset({
-        name: item.name,
-        price: item.price,
-        description: item.description || "",
-      });
-    } else {
-      form.reset({
-        name: "",
-        price: "",
-        description: "",
+        name: item?.name || "",
+        price: item?.price || "",
+        description: item?.description || "",
       });
     }
-  }, [item, form]);
-
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  }, [open, item, form]);
+  
+  const handleSubmit = async (data: FormData) => {
+    if (!category) return;
+    
     try {
-      if (!category) return;
-
       const itemData: PriceItem = {
-        name: values.name,
-        price: values.price,
-        description: values.description || undefined,
+        name: data.name,
+        price: data.price,
+        ...(data.description ? { description: data.description } : {}),
       };
-
-      if (mode === "add") {
-        // Add new item
-        addItemToCategory(category.id, itemData);
-        toast({
-          title: "Zabieg dodany",
-          description: `Zabieg "${values.name}" został dodany do kategorii "${category.title}".`,
-        });
+      
+      if (isEditing && typeof itemIndex === 'number') {
+        await updateItemInCategory(category.id, itemIndex, itemData);
+        toast.success("Usługa została zaktualizowana");
       } else {
-        // Update existing item
-        if (itemIndex !== null) {
-          updateItemInCategory(category.id, itemIndex, itemData);
-          toast({
-            title: "Zabieg zaktualizowany",
-            description: `Zabieg "${values.name}" został zaktualizowany.`,
-          });
-        }
+        await addItemToCategory(category.id, itemData);
+        toast.success("Usługa została dodana");
       }
       onSuccess();
       onClose();
     } catch (error) {
       console.error("Error saving item:", error);
-      toast({
-        title: "Błąd",
-        description: "Wystąpił błąd podczas zapisywania zabiegu.",
-        variant: "destructive",
-      });
+      toast.error(isEditing 
+        ? "Nie udało się zaktualizować usługi" 
+        : "Nie udało się dodać usługi"
+      );
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={() => onClose()}>
+    <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {mode === "add" ? "Dodaj nowy zabieg" : "Edytuj zabieg"}
+            {isEditing ? "Edytuj usługę" : "Dodaj nową usługę"}
           </DialogTitle>
         </DialogHeader>
+
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nazwa zabiegu</FormLabel>
+                  <FormLabel>Nazwa usługi</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Np. Sculptra (1 amp.)" />
+                    <Input 
+                      placeholder="Wprowadź nazwę usługi" 
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            
             <FormField
               control={form.control}
               name="price"
@@ -146,12 +124,16 @@ const PricingItemDialog: React.FC<PricingItemDialogProps> = ({
                 <FormItem>
                   <FormLabel>Cena</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Np. 1800 zł" />
+                    <Input 
+                      placeholder="np. 100 zł" 
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            
             <FormField
               control={form.control}
               name="description"
@@ -159,24 +141,30 @@ const PricingItemDialog: React.FC<PricingItemDialogProps> = ({
                 <FormItem>
                   <FormLabel>Opis (opcjonalnie)</FormLabel>
                   <FormControl>
-                    <Textarea
+                    <Textarea 
+                      placeholder="Wprowadź dodatkowy opis usługi" 
                       {...field}
-                      placeholder="Krótki opis zabiegu (opcjonalnie)"
+                      rows={3}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Dodatkowy opis wyświetlany pod nazwą zabiegu
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <DialogFooter>
+
+            <DialogFooter className="mt-4">
               <Button type="button" variant="outline" onClick={onClose}>
                 Anuluj
               </Button>
-              <Button type="submit">
-                {mode === "add" ? "Dodaj zabieg" : "Zapisz zmiany"}
+              <Button 
+                type="submit" 
+                disabled={form.formState.isSubmitting}
+                className="bg-pink-500 hover:bg-pink-600"
+              >
+                {form.formState.isSubmitting 
+                  ? "Zapisywanie..." 
+                  : isEditing ? "Zaktualizuj" : "Dodaj"
+                }
               </Button>
             </DialogFooter>
           </form>

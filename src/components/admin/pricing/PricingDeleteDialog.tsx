@@ -1,27 +1,18 @@
 
 import React from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { PriceCategory } from "@/components/pricing/PriceCard";
 import { deleteCategory, deleteItemFromCategory } from "@/services/pricingService";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
-type PricingDeleteDialogProps = {
+interface PricingDeleteDialogProps {
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
   category: PriceCategory | null;
   itemIndex: number | null;
-  type: "category" | "item";
-};
+  type: 'category' | 'item';
+}
 
 const PricingDeleteDialog: React.FC<PricingDeleteDialogProps> = ({
   open,
@@ -31,74 +22,61 @@ const PricingDeleteDialog: React.FC<PricingDeleteDialogProps> = ({
   itemIndex,
   type,
 }) => {
-  const handleDelete = () => {
-    try {
-      if (!category) return;
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
-      if (type === "category") {
-        // Delete category
-        deleteCategory(category.id);
-        toast({
-          title: "Kategoria usunięta",
-          description: `Kategoria "${category.title}" została usunięta.`,
-        });
-      } else {
-        // Delete item
-        if (itemIndex !== null) {
-          const itemName = category.items[itemIndex].name;
-          deleteItemFromCategory(category.id, itemIndex);
-          toast({
-            title: "Zabieg usunięty",
-            description: `Zabieg "${itemName}" został usunięty.`,
-          });
-        }
+  const handleConfirmDelete = async () => {
+    if (!category) return;
+    
+    try {
+      setIsDeleting(true);
+      
+      if (type === 'category') {
+        await deleteCategory(category.id);
+        toast.success("Kategoria została usunięta");
+      } else if (type === 'item' && typeof itemIndex === 'number') {
+        await deleteItemFromCategory(category.id, itemIndex);
+        toast.success("Usługa została usunięta");
       }
+      
       onSuccess();
       onClose();
     } catch (error) {
       console.error("Error deleting:", error);
-      toast({
-        title: "Błąd",
-        description: "Wystąpił błąd podczas usuwania.",
-        variant: "destructive",
-      });
+      toast.error(type === 'category' 
+        ? "Nie udało się usunąć kategorii" 
+        : "Nie udało się usunąć usługi"
+      );
+    } finally {
+      setIsDeleting(false);
     }
-  };
-
-  const getDialogTitle = () => {
-    if (type === "category") {
-      return "Usuń kategorię";
-    }
-    return "Usuń zabieg";
-  };
-
-  const getDialogDescription = () => {
-    if (!category) return "";
-
-    if (type === "category") {
-      return `Czy na pewno chcesz usunąć kategorię "${category.title}"? Wszystkie zabiegi w tej kategorii również zostaną usunięte. Tej operacji nie można cofnąć.`;
-    }
-
-    if (itemIndex !== null && category.items[itemIndex]) {
-      return `Czy na pewno chcesz usunąć zabieg "${category.items[itemIndex].name}"? Tej operacji nie można cofnąć.`;
-    }
-
-    return "";
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={() => onClose()}>
+    <AlertDialog open={open} onOpenChange={(open) => !open && onClose()}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{getDialogTitle()}</AlertDialogTitle>
+          <AlertDialogTitle>
+            {type === 'category' 
+              ? "Czy na pewno chcesz usunąć tę kategorię?" 
+              : "Czy na pewno chcesz usunąć tę usługę?"}
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            {getDialogDescription()}
+            {type === 'category' 
+              ? "Ta operacja usunie kategorię wraz ze wszystkimi jej usługami. Tej operacji nie można cofnąć."
+              : "Ta operacja usunie wybraną usługę z cennika. Tej operacji nie można cofnąć."}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onClose}>Anuluj</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-            Usuń
+          <AlertDialogCancel disabled={isDeleting}>Anuluj</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={(e) => {
+              e.preventDefault();
+              handleConfirmDelete();
+            }}
+            disabled={isDeleting}
+            className="bg-red-500 hover:bg-red-600"
+          >
+            {isDeleting ? "Usuwanie..." : "Usuń"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

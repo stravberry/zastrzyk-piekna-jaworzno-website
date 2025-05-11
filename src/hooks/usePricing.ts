@@ -1,11 +1,12 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { PriceCategory } from "@/components/pricing/PriceCard";
 import {
   getPriceCategories,
   resetPriceCategories,
-  exportPricingToPdf
+  exportPricingToPdf,
+  exportPricingToPng
 } from "@/services/pricingService";
 
 export type DialogType = 'addCategory' | 'editCategory' | 'addItem' | 'editItem' | 'deleteCategory' | 'deleteItem' | null;
@@ -18,94 +19,79 @@ export const usePricing = () => {
   const [dialogType, setDialogType] = useState<DialogType>(null);
   
   // Load categories
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        setIsLoading(true);
-        const data = await getPriceCategories();
-        setCategories(data);
-      } catch (error) {
-        console.error('Error loading categories:', error);
-        toast.error('Nie udało się załadować cennika');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadCategories();
-  }, []);
-
-  // Refresh data
-  const refreshData = async () => {
+  const refreshData = useCallback(async () => {
     try {
       setIsLoading(true);
       const data = await getPriceCategories();
       setCategories(data);
     } catch (error) {
-      console.error('Error refreshing data:', error);
-      toast.error('Nie udało się odświeżyć danych');
+      console.error('Error loading categories:', error);
+      toast.error('Nie udało się załadować cennika');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   // Handle dialog close
-  const handleCloseDialog = () => {
+  const handleCloseDialog = useCallback(() => {
     setDialogType(null);
     setSelectedCategory(null);
     setSelectedItemIndex(null);
-  };
+  }, []);
 
   // Handle adding a new category
-  const handleAddCategory = () => {
+  const handleAddCategory = useCallback(() => {
     setDialogType('addCategory');
     setSelectedCategory(null);
-  };
+  }, []);
 
   // Handle editing a category
-  const handleEditCategory = (category: PriceCategory) => {
+  const handleEditCategory = useCallback((category: PriceCategory) => {
     setSelectedCategory(category);
     setDialogType('editCategory');
-  };
+  }, []);
 
   // Handle deleting a category
-  const handleDeleteCategory = (category: PriceCategory) => {
+  const handleDeleteCategory = useCallback((category: PriceCategory) => {
     setSelectedCategory(category);
     setDialogType('deleteCategory');
-  };
+  }, []);
 
   // Handle adding an item
-  const handleAddItem = (category: PriceCategory) => {
+  const handleAddItem = useCallback((category: PriceCategory) => {
     setSelectedCategory(category);
     setDialogType('addItem');
-  };
+  }, []);
 
   // Handle editing an item
-  const handleEditItem = (category: PriceCategory, itemIndex: number) => {
+  const handleEditItem = useCallback((category: PriceCategory, itemIndex: number) => {
     setSelectedCategory(category);
     setSelectedItemIndex(itemIndex);
     setDialogType('editItem');
-  };
+  }, []);
 
   // Handle deleting an item
-  const handleDeleteItem = (category: PriceCategory, itemIndex: number) => {
+  const handleDeleteItem = useCallback((category: PriceCategory, itemIndex: number) => {
     setSelectedCategory(category);
     setSelectedItemIndex(itemIndex);
     setDialogType('deleteItem');
-  };
+  }, []);
 
   // Handle exporting to PDF
-  const handleExportPdf = async () => {
+  const handleExportPdf = useCallback(async (categoryId?: string) => {
     try {
       toast.info('Generowanie PDF...');
-      const pdfBlob = await exportPricingToPdf();
+      const pdfBlob = await exportPricingToPdf(categoryId);
       
       // Create download link
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = url;
       const date = new Date().toISOString().slice(0, 10);
-      link.download = `Zastrzyk-Piekna-Cennik-${date}.pdf`;
+      const filename = categoryId 
+        ? `Zastrzyk-Piekna-Cennik-${categoryId}-${date}.pdf`
+        : `Zastrzyk-Piekna-Cennik-${date}.pdf`;
+      link.download = filename;
       link.click();
       
       // Clean up
@@ -115,10 +101,36 @@ export const usePricing = () => {
       console.error('Error exporting PDF:', error);
       toast.error('Nie udało się wygenerować PDF');
     }
-  };
+  }, []);
+
+  // Handle exporting to PNG
+  const handleExportPng = useCallback(async (categoryId?: string) => {
+    try {
+      toast.info('Generowanie PNG...');
+      const pngBlob = await exportPricingToPng(categoryId);
+      
+      // Create download link
+      const url = URL.createObjectURL(pngBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      const date = new Date().toISOString().slice(0, 10);
+      const filename = categoryId 
+        ? `Zastrzyk-Piekna-Cennik-${categoryId}-${date}.png`
+        : `Zastrzyk-Piekna-Cennik-${date}.png`;
+      link.download = filename;
+      link.click();
+      
+      // Clean up
+      URL.revokeObjectURL(url);
+      toast.success('Pomyślnie wygenerowano PNG');
+    } catch (error) {
+      console.error('Error exporting PNG:', error);
+      toast.error('Nie udało się wygenerować PNG');
+    }
+  }, []);
 
   // Handle resetting data
-  const handleResetData = async () => {
+  const handleResetData = useCallback(async () => {
     if (confirm("Czy na pewno chcesz zresetować wszystkie dane cennika do wartości początkowych?")) {
       try {
         setIsLoading(true);
@@ -132,7 +144,7 @@ export const usePricing = () => {
         setIsLoading(false);
       }
     }
-  };
+  }, []);
 
   return {
     categories,
@@ -149,6 +161,7 @@ export const usePricing = () => {
     handleEditItem,
     handleDeleteItem,
     handleResetData,
-    handleExportPdf
+    handleExportPdf,
+    handleExportPng
   };
 };

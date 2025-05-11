@@ -23,13 +23,14 @@ const AdminPricing = () => {
     handleEditItem,
     handleDeleteItem,
     handleResetData,
-    handleExportPdf
+    handleExportPdf,
+    handleExportPng
   } = usePricing();
 
   useEffect(() => {
     // Refresh data when component mounts to ensure we have latest data
     refreshData();
-  }, []);
+  }, [refreshData]);
 
   return (
     <AdminLayout title="Zarządzanie cennikiem">
@@ -38,6 +39,7 @@ const AdminPricing = () => {
           onAddCategory={handleAddCategory} 
           onResetData={handleResetData}
           onExportPdf={handleExportPdf}
+          onExportPng={handleExportPng}
         />
 
         {isLoading ? (

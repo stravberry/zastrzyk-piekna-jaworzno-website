@@ -28,7 +28,7 @@ export const generatePricingPDF = (title: string, categories: any[]) => {
     const tableBody = category.items.map((item: any) => [
       item.name,
       item.description || "",
-      `${item.price} PLN`
+      `${item.price}`
     ]);
     
     // Add table
@@ -95,7 +95,7 @@ export const generatePricingPdf = (categories: PriceCategory[]): Blob => {
     const tableBody = category.items.map(item => [
       item.name,
       item.description || "",
-      `${item.price} PLN`
+      `${item.price}`
     ]);
     
     autoTable(doc, {
