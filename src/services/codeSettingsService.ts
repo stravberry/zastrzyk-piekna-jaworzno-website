@@ -25,9 +25,8 @@ export const getCodeSettings = async (): Promise<CodeSettings> => {
   try {
     // Try to fetch from Supabase if available
     const { data: settings, error } = await supabase
-      .from('code_settings')
-      .select('*')
-      .maybeSingle();
+      .rpc('get_code_settings')
+      .single();
     
     if (error) {
       console.error('Error fetching code settings from Supabase:', error);
@@ -84,15 +83,12 @@ export const getCodeSettings = async (): Promise<CodeSettings> => {
 // Update code settings
 export const updateCodeSettings = async (settings: CodeSettings): Promise<void> => {
   try {
-    // Try to update in Supabase
+    // Try to update in Supabase using RPC instead of direct table access
     const { error } = await supabase
-      .from('code_settings')
-      .upsert({
-        id: 1, // Use a single record with ID 1 for settings
-        head_code: settings.headCode,
-        body_code: settings.bodyCode,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'id' });
+      .rpc('update_code_settings', {
+        p_head_code: settings.headCode,
+        p_body_code: settings.bodyCode
+      });
     
     if (error) {
       console.error('Error updating code settings in Supabase:', error);

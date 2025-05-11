@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import usePageTracking from "./hooks/usePageTracking";
@@ -38,16 +37,6 @@ const AppRoutes = () => {
         const { error } = await supabase.rpc('create_code_settings_table_if_not_exists');
         if (error) {
           console.error("Error initializing code_settings table:", error);
-          
-          // Try to create the table directly if the RPC function fails
-          try {
-            const createTableResult = await supabase.rpc('create_code_settings_table_directly');
-            if (createTableResult.error) {
-              console.error("Error creating code_settings table directly:", createTableResult.error);
-            }
-          } catch (err) {
-            console.error("Failed to create code_settings table:", err);
-          }
         }
         
         // Try to fetch the code settings to test if they exist
@@ -66,10 +55,18 @@ const AppRoutes = () => {
       try {
         const settings = await getCodeSettings();
         
+        // Clean up any previously injected scripts before adding new ones
+        const existingHeadScripts = document.querySelectorAll('div[data-custom-head-code]');
+        existingHeadScripts.forEach(el => el.remove());
+        
+        const existingBodyScripts = document.querySelectorAll('div[data-custom-body-code]');
+        existingBodyScripts.forEach(el => el.remove());
+        
         // Inject head code if it exists
         if (settings.headCode) {
           const headScript = document.createElement('div');
           headScript.innerHTML = settings.headCode;
+          headScript.setAttribute('data-custom-head-code', 'true');
           document.head.appendChild(headScript);
         }
         
@@ -77,6 +74,7 @@ const AppRoutes = () => {
         if (settings.bodyCode) {
           const bodyScript = document.createElement('div');
           bodyScript.innerHTML = settings.bodyCode;
+          bodyScript.setAttribute('data-custom-body-code', 'true');
           document.body.appendChild(bodyScript);
         }
       } catch (error) {

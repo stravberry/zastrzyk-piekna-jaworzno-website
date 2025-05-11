@@ -57,6 +57,30 @@ export type Database = {
         }
         Relationships: []
       }
+      code_settings: {
+        Row: {
+          body_code: string | null
+          created_at: string | null
+          head_code: string | null
+          id: number
+          updated_at: string | null
+        }
+        Insert: {
+          body_code?: string | null
+          created_at?: string | null
+          head_code?: string | null
+          id: number
+          updated_at?: string | null
+        }
+        Update: {
+          body_code?: string | null
+          created_at?: string | null
+          head_code?: string | null
+          id?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       pricing_categories: {
         Row: {
           id: string
