@@ -23,8 +23,8 @@ const Services = () => {
     },
     {
       id: 2,
-      title: "Modelowanie ust",
-      description: "Precyzyjne zabiegi powiększania i konturowania ust z wykorzystaniem najwyższej jakości preparatów.",
+      title: "MODELOWANIE UST",
+      description: "to nie tylko zabieg powiększenia ust, to precyzyjne, indywidualne dopasowanie kształtu oraz ich wielkości. Praca oparta nie na wyuczonych schematach, a oparta na wieloletnim doświadczeniu oraz jednostkowym podejściu do klien",
       icon: <Heart size={36} />,
       link: "/zabiegi/modelowanie-ust",
       features: ["Naturalne powiększenie", "Korekta asymetrii", "Hydratacja ust", "Wyraźny kontur"],
