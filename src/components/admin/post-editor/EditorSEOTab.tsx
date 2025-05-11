@@ -33,6 +33,7 @@ export const EditorSEOTab: React.FC<EditorSEOTabProps> = ({ control, watch }) =>
                   <Input 
                     placeholder="SEO title (defaults to post title)" 
                     {...field} 
+                    className="text-sm"
                   />
                 </FormControl>
                 <FormMessage />
@@ -49,7 +50,7 @@ export const EditorSEOTab: React.FC<EditorSEOTabProps> = ({ control, watch }) =>
                 <FormControl>
                   <Textarea 
                     placeholder="SEO description (defaults to excerpt)" 
-                    className="min-h-[80px]"
+                    className="min-h-[80px] text-sm"
                     {...field} 
                   />
                 </FormControl>
@@ -67,7 +68,7 @@ export const EditorSEOTab: React.FC<EditorSEOTabProps> = ({ control, watch }) =>
                 <FormControl>
                   <Textarea 
                     placeholder="e.g. skincare, anti-aging, beauty" 
-                    className="min-h-[80px]"
+                    className="min-h-[80px] text-sm"
                     {...field} 
                   />
                 </FormControl>
@@ -78,14 +79,14 @@ export const EditorSEOTab: React.FC<EditorSEOTabProps> = ({ control, watch }) =>
           
           <div className="mt-6">
             <h3 className="text-sm font-medium mb-2">Search Preview</h3>
-            <div className="border rounded-md p-4 bg-white">
-              <div className="text-blue-600 text-lg font-medium truncate">
+            <div className="border rounded-md p-3 sm:p-4 bg-white">
+              <div className="text-blue-600 text-sm sm:text-lg font-medium truncate">
                 {watch("metaTitle") || watch("title") || "Post Title"}
               </div>
-              <div className="text-green-600 text-xs truncate">
+              <div className="text-green-600 text-xs truncate break-all">
                 {window.location.origin}/blog/post-slug
               </div>
-              <div className="text-gray-600 text-sm mt-1 line-clamp-2">
+              <div className="text-gray-600 text-xs sm:text-sm mt-1 line-clamp-2 break-words">
                 {watch("metaDescription") || watch("excerpt") || "Post description will appear here..."}
               </div>
             </div>
