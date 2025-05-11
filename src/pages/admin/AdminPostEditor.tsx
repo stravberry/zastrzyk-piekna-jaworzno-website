@@ -28,13 +28,15 @@ const AdminPostEditor: React.FC = () => {
     queryFn: () => getBlogPostById(Number(id)),
     enabled: isEditing,
     retry: 1,
-    onError: (error) => {
-      console.error("Error fetching post:", error);
-      toast({
-        title: "Błąd",
-        description: "Nie udało się załadować postu",
-        variant: "destructive",
-      });
+    onSettled: (data, error) => {
+      if (error) {
+        console.error("Error fetching post:", error);
+        toast({
+          title: "Błąd",
+          description: "Nie udało się załadować postu",
+          variant: "destructive",
+        });
+      }
     },
   });
   
