@@ -1,6 +1,7 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Control } from "react-hook-form";
+import { Upload } from "lucide-react";
 import { 
   FormField,
   FormItem,
@@ -11,6 +12,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 import { FormValues } from "./formSchema";
 
 interface EditorMainTabProps {
@@ -18,6 +21,57 @@ interface EditorMainTabProps {
 }
 
 export const EditorMainTab: React.FC<EditorMainTabProps> = ({ control }) => {
+  const [uploading, setUploading] = useState(false);
+  
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+    onChange: (value: string) => void
+  ) => {
+    try {
+      setUploading(true);
+      
+      if (!event.target.files || event.target.files.length === 0) {
+        return;
+      }
+      
+      const file = event.target.files[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+      const filePath = `blog-images/${fileName}`;
+      
+      // Check if storage bucket exists, if not create it
+      const { data: buckets } = await supabase.storage.listBuckets();
+      if (!buckets?.find(b => b.name === 'blog-images')) {
+        await supabase.storage.createBucket('blog-images', {
+          public: true,
+          fileSizeLimit: 5242880, // 5MB
+        });
+      }
+      
+      // Upload file
+      const { error: uploadError, data } = await supabase.storage
+        .from('blog-images')
+        .upload(filePath, file);
+        
+      if (uploadError) {
+        throw uploadError;
+      }
+      
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('blog-images')
+        .getPublicUrl(filePath);
+        
+      // Update form with the image URL
+      onChange(publicUrl);
+      
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 gap-6">
       <Card>
@@ -78,10 +132,33 @@ export const EditorMainTab: React.FC<EditorMainTabProps> = ({ control }) => {
               name="image"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Featured Image URL</FormLabel>
+                  <FormLabel>Featured Image</FormLabel>
                   <FormControl>
                     <div className="space-y-2">
-                      <Input placeholder="https://example.com/image.jpg" {...field} />
+                      <div className="flex gap-2">
+                        <Input 
+                          placeholder="Enter image URL or upload" 
+                          {...field} 
+                          className="flex-1"
+                        />
+                        <div className="relative">
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            className="absolute inset-0 opacity-0 cursor-pointer"
+                            onChange={(e) => handleFileUpload(e, field.onChange)}
+                            disabled={uploading}
+                          />
+                          <Button 
+                            type="button" 
+                            variant="outline"
+                            disabled={uploading}
+                          >
+                            <Upload className="h-4 w-4 mr-2" />
+                            {uploading ? "Uploading..." : "Upload"}
+                          </Button>
+                        </div>
+                      </div>
                       {field.value && (
                         <div className="relative aspect-video mt-2 rounded-md overflow-hidden border">
                           <img 

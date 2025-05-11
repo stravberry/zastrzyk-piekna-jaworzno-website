@@ -6,7 +6,7 @@ export const formSchema = z.object({
   excerpt: z.string().min(10, "Excerpt must be at least 10 characters"),
   content: z.string().min(50, "Content must be at least 50 characters"),
   category: z.string().min(1, "Category is required"),
-  image: z.string().url("Image must be a valid URL"),
+  image: z.string().optional(),
   readTime: z.string().min(1, "Reading time is required"),
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),

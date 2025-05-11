@@ -106,7 +106,7 @@ const AdminPostEditor: React.FC = () => {
       excerpt: post.excerpt,
       content: post.content,
       category: post.category,
-      image: post.image,
+      image: post.image || "",
       readTime: post.readTime,
       metaTitle: post.seo?.metaTitle || post.title,
       metaDescription: post.seo?.metaDescription || post.excerpt,
