@@ -107,7 +107,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_code_settings_table_directly: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      create_code_settings_table_if_not_exists: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

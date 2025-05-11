@@ -40,9 +40,13 @@ const AppRoutes = () => {
           console.error("Error initializing code_settings table:", error);
           
           // Try to create the table directly if the RPC function fails
-          const createTableResult = await supabase.rpc('create_code_settings_table_directly');
-          if (createTableResult.error) {
-            console.error("Error creating code_settings table directly:", createTableResult.error);
+          try {
+            const createTableResult = await supabase.rpc('create_code_settings_table_directly');
+            if (createTableResult.error) {
+              console.error("Error creating code_settings table directly:", createTableResult.error);
+            }
+          } catch (err) {
+            console.error("Failed to create code_settings table:", err);
           }
         }
         

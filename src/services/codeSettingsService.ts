@@ -91,7 +91,7 @@ export const updateCodeSettings = async (settings: CodeSettings): Promise<void> 
         id: 1, // Use a single record with ID 1 for settings
         head_code: settings.headCode,
         body_code: settings.bodyCode,
-        updated_at: new Date()
+        updated_at: new Date().toISOString()
       }, { onConflict: 'id' });
     
     if (error) {
