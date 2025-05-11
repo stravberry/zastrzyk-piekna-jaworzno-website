@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -29,7 +30,7 @@ To styl życia, który łączy pielegnacje, odżywianie i ruch – holistyczne p
           
           <div className="grid grid-cols-2 gap-6 pt-8 w-full">
             <div className="flex flex-col items-center p-4 bg-white/80 backdrop-blur-sm rounded-lg shadow-sm border border-pink-100">
-              <div className="text-gold-500 text-xl font-bold font-playfair">5+</div>
+              <div className="text-gold-500 text-xl font-bold font-playfair">11+</div>
               <div className="text-gray-600 text-sm">Lat doświadczenia</div>
             </div>
             <div className="flex flex-col items-center p-4 bg-white/80 backdrop-blur-sm rounded-lg shadow-sm border border-pink-100">
