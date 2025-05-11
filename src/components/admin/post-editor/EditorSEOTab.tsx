@@ -77,7 +77,8 @@ export const EditorSEOTab: React.FC<EditorSEOTabProps> = ({ control, watch }) =>
             )}
           />
           
-          <div className="mt-2 sm:mt-6">
+          {/* Hide search preview on mobile, show only on sm breakpoint and above */}
+          <div className="hidden sm:block mt-2 sm:mt-6">
             <h3 className="text-xs sm:text-sm font-medium mb-1 sm:mb-2">Search Preview</h3>
             <div className="border rounded-md p-2 sm:p-4 bg-white">
               <div className="text-blue-600 text-xs sm:text-lg font-medium">
