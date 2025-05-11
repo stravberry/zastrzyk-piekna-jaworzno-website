@@ -31,7 +31,7 @@ const ServicesSection = () => {
   }, {
     id: 5,
     title: "Lipoliza iniekcyjna",
-    description: "Zabieg redukcji lokalnej tkanki tłuszczowej, pomagający wymodelować wybrane partie ciała.",
+    description: "zabieg pozwalający na redukcję lokalnie nagromadzonej tkanki tłuszczowej, zwłaszcza w okolicy twarzy",
     icon: <Syringe size={36} />,
     link: "/zabiegi/lipoliza-iniekcyjna"
   }, {
