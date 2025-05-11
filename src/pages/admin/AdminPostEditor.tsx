@@ -28,18 +28,14 @@ const AdminPostEditor: React.FC = () => {
     queryFn: () => getBlogPostById(Number(id)),
     enabled: isEditing,
     retry: 1,
-    meta: {
-      onSettled: (data: any, error: any) => {
-        if (error) {
-          console.error("Error fetching post:", error);
-          toast({
-            title: "Błąd",
-            description: "Nie udało się załadować postu",
-            variant: "destructive",
-          });
-        }
-      },
-    },
+    onError: (error) => {
+      console.error("Error fetching post:", error);
+      toast({
+        title: "Błąd",
+        description: "Nie udało się załadować postu",
+        variant: "destructive",
+      });
+    }
   });
   
   console.log("Fetched post data:", post);
@@ -102,15 +98,15 @@ const AdminPostEditor: React.FC = () => {
     if (!post) return getDefaultFormValues();
     
     return {
-      title: post.title,
-      excerpt: post.excerpt,
-      content: post.content,
-      category: post.category,
+      title: post.title || "",
+      excerpt: post.excerpt || "",
+      content: post.content || "",
+      category: post.category || "",
       image: post.image || "",
-      readTime: post.readTime,
-      metaTitle: post.seo?.metaTitle || post.title,
-      metaDescription: post.seo?.metaDescription || post.excerpt,
-      keywords: post.seo?.keywords?.join(", ") || post.category,
+      readTime: post.readTime || "5 min",
+      metaTitle: post.seo?.metaTitle || post.title || "",
+      metaDescription: post.seo?.metaDescription || post.excerpt || "",
+      keywords: post.seo?.keywords?.join(", ") || post.category || "",
     };
   };
   

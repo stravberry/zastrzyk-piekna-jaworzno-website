@@ -29,13 +29,14 @@ export const EditorForm: React.FC<EditorFormProps> = ({
 }) => {
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = React.useState("editor");
-  const [previewData, setPreviewData] = React.useState<FormValues | null>(null);
+  const [previewData, setPreviewData] = React.useState<FormValues | null>(defaultValues || null);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
   
+  // Update preview data when form values change
   const handlePreview = () => {
     const data = form.getValues();
     setPreviewData(data);
@@ -48,7 +49,7 @@ export const EditorForm: React.FC<EditorFormProps> = ({
       excerpt: data.excerpt,
       content: data.content,
       category: data.category,
-      image: data.image,
+      image: data.image || "",
       readTime: data.readTime,
       slug: "",
       seo: {
@@ -67,7 +68,13 @@ export const EditorForm: React.FC<EditorFormProps> = ({
       <div className="flex flex-wrap justify-between items-center mb-6 gap-3">
         <TabsList className={isMobile ? "w-full" : ""}>
           <TabsTrigger value="editor" className={isMobile ? "flex-1" : ""}>Editor</TabsTrigger>
-          <TabsTrigger value="preview" className={isMobile ? "flex-1" : ""} onClick={handlePreview}>Preview</TabsTrigger>
+          <TabsTrigger 
+            value="preview" 
+            className={isMobile ? "flex-1" : ""} 
+            onClick={handlePreview}
+          >
+            Preview
+          </TabsTrigger>
           <TabsTrigger value="seo" className={isMobile ? "flex-1" : ""}>SEO</TabsTrigger>
         </TabsList>
         

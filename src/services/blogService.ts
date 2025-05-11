@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { BlogPost, BlogPostDraft, BlogPostStats } from "@/types/admin";
 import { blogPosts } from "@/data/blogData"; // Import sample data
@@ -11,7 +10,7 @@ const mapDbPostToFrontend = (dbPost: any): BlogPost => {
     excerpt: dbPost.excerpt,
     content: dbPost.content || "",
     category: dbPost.category,
-    image: dbPost.image || "/placeholder.svg",
+    image: dbPost.image || "",
     readTime: dbPost.read_time,
     date: new Date(dbPost.date).toLocaleDateString('pl-PL', {
       day: 'numeric',
@@ -109,7 +108,7 @@ export const getAllBlogPosts = async (): Promise<BlogPost[]> => {
 };
 
 // Get a single blog post by ID
-export const getBlogPostById = async (id: number): Promise<BlogPost | undefined> => {
+export const getBlogPostById = async (id: number): Promise<BlogPost | null> => {
   try {
     const { data, error } = await supabase
       .from('blog_posts')
@@ -119,10 +118,10 @@ export const getBlogPostById = async (id: number): Promise<BlogPost | undefined>
 
     if (error) {
       console.error('Error fetching blog post:', error);
-      return undefined;
+      throw error;
     }
 
-    return mapDbPostToFrontend(data);
+    return data ? mapDbPostToFrontend(data) : null;
   } catch (error) {
     console.error('Error in getBlogPostById:', error);
     
@@ -146,7 +145,8 @@ export const getBlogPostById = async (id: number): Promise<BlogPost | undefined>
       };
     }
     
-    return undefined;
+    // Return null rather than undefined to fix the issue with the React Query
+    return null;
   }
 };
 
@@ -196,7 +196,7 @@ export const createBlogPost = async (postData: BlogPostDraft): Promise<BlogPost>
 };
 
 // Update an existing blog post
-export const updateBlogPost = async (id: number, postData: Partial<BlogPostDraft>): Promise<BlogPost | undefined> => {
+export const updateBlogPost = async (id: number, postData: Partial<BlogPostDraft>): Promise<BlogPost | null> => {
   console.log("Updating post", id, "with data:", postData);
   
   try {
@@ -207,7 +207,7 @@ export const updateBlogPost = async (id: number, postData: Partial<BlogPostDraft
     if (postData.excerpt) updateData.excerpt = postData.excerpt;
     if (postData.content) updateData.content = postData.content;
     if (postData.category) updateData.category = postData.category;
-    if (postData.image) updateData.image = postData.image;
+    if (postData.image !== undefined) updateData.image = postData.image;
     if (postData.readTime) updateData.read_time = postData.readTime;
     
     // Update slug if title changed
@@ -239,7 +239,7 @@ export const updateBlogPost = async (id: number, postData: Partial<BlogPostDraft
     }
 
     console.log("Successfully updated post:", data);
-    return mapDbPostToFrontend(data);
+    return data ? mapDbPostToFrontend(data) : null;
   } catch (error) {
     console.error('Error in updateBlogPost:', error);
     throw error;
