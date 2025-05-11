@@ -12,6 +12,7 @@ import { FormValues, formSchema } from "./formSchema";
 import { EditorMainTab } from "./EditorMainTab";
 import { EditorPreviewTab } from "./EditorPreviewTab";
 import { EditorSEOTab } from "./EditorSEOTab";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 
 interface EditorFormProps {
   defaultValues: FormValues;
@@ -76,19 +77,88 @@ export const EditorForm: React.FC<EditorFormProps> = ({
     onSubmit(postData);
   };
   
+  // Use Drawer for mobile and Tabs for desktop
+  if (isMobile) {
+    return (
+      <Form {...form}>
+        <form 
+          id="post-editor-form" 
+          className="space-y-6" 
+          onSubmit={form.handleSubmit(handleFormSubmit)}
+        >
+          <div className="flex flex-wrap justify-between items-center mb-6 gap-3">
+            <Drawer>
+              <DrawerTrigger asChild>
+                <Button variant="outline" className="w-full sm:w-auto mb-3">
+                  {activeTab === "editor" ? "Editor" : activeTab === "preview" ? "Preview" : "SEO"}
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent className="px-4 pb-6">
+                <div className="mt-6 space-y-6">
+                  <TabsList className="w-full grid grid-cols-3">
+                    <TabsTrigger 
+                      value="editor" 
+                      onClick={() => setActiveTab("editor")}
+                      className={activeTab === "editor" ? "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground" : ""}
+                    >
+                      Editor
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="preview" 
+                      onClick={() => {
+                        handlePreview();
+                        setActiveTab("preview");
+                      }}
+                      className={activeTab === "preview" ? "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground" : ""}
+                    >
+                      Preview
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="seo" 
+                      onClick={() => setActiveTab("seo")}
+                      className={activeTab === "seo" ? "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground" : ""}
+                    >
+                      SEO
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+              </DrawerContent>
+            </Drawer>
+            
+            <Button
+              type="submit"
+              form="post-editor-form"
+              disabled={isSubmitting}
+              className="bg-pink-500 hover:bg-pink-600 w-full sm:w-auto"
+            >
+              <Save className="mr-2 h-4 w-4" />
+              {isSubmitting ? "Zapisywanie..." : "Zapisz Post"}
+            </Button>
+          </div>
+          
+          <div className="pt-4">
+            {activeTab === "editor" && <EditorMainTab control={form.control} />}
+            {activeTab === "preview" && <EditorPreviewTab previewData={previewData} />}
+            {activeTab === "seo" && <EditorSEOTab control={form.control} watch={form.watch} />}
+          </div>
+        </form>
+      </Form>
+    );
+  }
+  
+  // Desktop view with tabs
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <div className="flex flex-wrap justify-between items-center mb-6 gap-3">
-        <TabsList className={isMobile ? "w-full" : ""}>
-          <TabsTrigger value="editor" className={isMobile ? "flex-1" : ""}>Editor</TabsTrigger>
+        <TabsList>
+          <TabsTrigger value="editor">Editor</TabsTrigger>
           <TabsTrigger 
             value="preview" 
-            className={isMobile ? "flex-1" : ""} 
             onClick={handlePreview}
           >
             Preview
           </TabsTrigger>
-          <TabsTrigger value="seo" className={isMobile ? "flex-1" : ""}>SEO</TabsTrigger>
+          <TabsTrigger value="seo">SEO</TabsTrigger>
         </TabsList>
         
         <Button

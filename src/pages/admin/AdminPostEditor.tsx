@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 
@@ -72,7 +72,7 @@ const AdminPostEditor: React.FC = () => {
     onSuccess: () => {
       toast({
         title: "Sukces!",
-        description: "Zapisano post",
+        description: "Zaktualizowano post",
         className: "bottom-0 left-0",
       });
       navigate("/admin/posts");
@@ -90,6 +90,7 @@ const AdminPostEditor: React.FC = () => {
   // Handle form submission
   const handleSubmit = (postData: BlogPostDraft) => {
     console.log("Submitting post data:", postData);
+    
     if (isEditing && id) {
       updateMutation.mutate({ id: Number(id), data: postData });
     } else {
@@ -119,12 +120,10 @@ const AdminPostEditor: React.FC = () => {
 
   return (
     <AdminProtectedRoute>
-      <AdminLayout title={isEditing ? "Edit Post" : "Create New Post"}>
-        {isMobile && (
-          <div className="mb-4">
-            <BackButton />
-          </div>
-        )}
+      <AdminLayout title={isEditing ? "Edytuj Post" : "Utwórz Nowy Post"}>
+        <div className={isMobile ? "mb-4" : ""}>
+          <BackButton />
+        </div>
         
         <EditorForm
           defaultValues={defaultValues}
