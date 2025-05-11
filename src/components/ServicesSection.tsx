@@ -54,12 +54,11 @@ const ServicesSection = () => {
       <div className="container-custom">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 font-playfair">
-            <span className="text-pink-500">Nasze </span>
-            <span>Zabiegi</span>
+            <span className="text-pink-500">OFERTA </span>
+            <span>ZABIEGOWA</span>
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Oferujemy szeroki zakres profesjonalnych zabiegów kosmetologicznych,
-            dostosowanych do indywidualnych potrzeb każdego klienta.
+            Oferuję szeroki zakres profesjonalnych usług o działaniu przeciwstarzeniowym. Do każdego przypadku podchodzę holistycznie i indywidualnie. Terapie zabiegowe tworzę w oparciu o dogłębny wywiad, najnowocześniejsze rozwiązania oraz aktualną wiedzę.
           </p>
         </div>
 
