@@ -3,61 +3,84 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { PriceCategory } from "@/components/pricing/PriceCard";
 
-// Funkcja do dodawania polskich znaków do PDF
+// Add Polish font support to PDF
 const addPolishFontSupport = (doc: jsPDF) => {
-  // jsPDF ma wbudowane wsparcie dla znaków UTF-8, ale musimy upewnić się, 
-  // że korzystamy z odpowiedniego kodowania
-  doc.setFont("helvetica", "normal");
-  doc.setLanguage("pl");
+  // Import fonts explicitly
+  import("jspdf").then(async (module) => {
+    // This is needed to register fonts properly
+    const { jsPDF } = module;
+    
+    try {
+      // Configure Roboto font which has good support for Polish characters
+      const fontData = await fetch('/fonts/Roboto-Regular.ttf').catch(() => {
+        console.warn("Could not load Roboto font, falling back to built-in fonts");
+        return null;
+      });
+      
+      if (fontData) {
+        const fontBytes = await fontData.arrayBuffer();
+        doc.addFileToVFS('Roboto-Regular.ttf', Buffer.from(fontBytes).toString('base64'));
+        doc.addFont('Roboto-Regular.ttf', 'Roboto', 'normal');
+        doc.setFont('Roboto');
+      }
+    } catch (error) {
+      console.warn("Error setting up custom font, using default:", error);
+    }
+  });
+
+  // Configure defaults for Polish text
+  doc.setLanguage('pl');
+  
+  // Use standard PDF font with decent Unicode support as fallback
+  doc.setFont("helvetica");
+  
   return doc;
 };
 
-// Funkcja do generowania PDF dla danych cennika
-export const generatePricingPDF = (title: string, categories: any[]) => {
-  // Create a new PDF document
+// Generate PDF for pricing data
+export const generatePricingPdf = (categories: PriceCategory[]): Blob => {
   const doc = new jsPDF();
   
-  // Dodaj obsługę polskich znaków
+  // Add support for Polish characters
   addPolishFontSupport(doc);
   
-  // Dodaj tytuł
+  // Add title
   doc.setFontSize(20);
-  doc.text(title, 14, 22);
+  doc.setFont("helvetica", "bold");
+  doc.text("Cennik Usług", 14, 22);
   doc.setFontSize(12);
+  doc.setFont("helvetica", "normal");
   
-  // Current Y position
   let yPos = 30;
   
   // For each category
   categories.forEach(category => {
-    // Dodaj tytuł kategorii
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
     doc.text(category.title, 14, yPos);
-    doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
     yPos += 10;
     
-    // Create table data
-    const tableBody = category.items.map((item: any) => [
+    // Use autoTable for better layout control
+    const tableBody = category.items.map(item => [
       item.name,
       item.description || "",
       `${item.price}`
     ]);
     
-    // Add table
     autoTable(doc, {
       startY: yPos,
       head: [["Nazwa", "Opis", "Cena"]],
       body: tableBody,
       theme: "striped",
       headStyles: { 
-        fillColor: [236, 72, 153], // róż zgodny z Tailwind pink-500
+        fillColor: [236, 72, 153], // Tailwind pink-500
         textColor: [255, 255, 255],
         fontStyle: 'bold',
       },
       alternateRowStyles: {
-        fillColor: [252, 231, 243], // jasnoróżowy dla co drugiego wiersza
+        fillColor: [252, 231, 243], // Light pink for alternating rows
       },
       styles: { 
         fontSize: 10,
@@ -65,6 +88,7 @@ export const generatePricingPDF = (title: string, categories: any[]) => {
         overflow: 'linebreak',
         lineWidth: 0.1,
         font: "helvetica",
+        halign: 'left',
       },
       columnStyles: {
         0: { fontStyle: 'bold' },
@@ -72,12 +96,34 @@ export const generatePricingPDF = (title: string, categories: any[]) => {
         2: { halign: 'right', fontStyle: 'bold', textColor: [236, 72, 153] }
       },
       margin: { top: 10 },
+      didParseCell: function(data) {
+        // Convert Polish characters to UTF-8 encoding for PDF
+        if (typeof data.cell.text === 'string') {
+          data.cell.text = data.cell.text
+            .replace(/ą/g, '\u0105')
+            .replace(/ć/g, '\u0107')
+            .replace(/ę/g, '\u0119')
+            .replace(/ł/g, '\u0142')
+            .replace(/ń/g, '\u0144')
+            .replace(/ó/g, '\u00F3')
+            .replace(/ś/g, '\u015B')
+            .replace(/ź/g, '\u017A')
+            .replace(/ż/g, '\u017C')
+            .replace(/Ą/g, '\u0104')
+            .replace(/Ć/g, '\u0106')
+            .replace(/Ę/g, '\u0118')
+            .replace(/Ł/g, '\u0141')
+            .replace(/Ń/g, '\u0143')
+            .replace(/Ó/g, '\u00D3')
+            .replace(/Ś/g, '\u015A')
+            .replace(/Ź/g, '\u0179')
+            .replace(/Ż/g, '\u017B');
+        }
+      },
     });
     
-    // Update yPos based on where the table ends
     yPos = (doc as any).lastAutoTable.finalY + 15;
     
-    // Dodaj nową stronę, jeśli to konieczne
     if (yPos > 270) {
       doc.addPage();
       yPos = 20;
@@ -102,102 +148,13 @@ export const generatePricingPDF = (title: string, categories: any[]) => {
     );
   }
   
-  // Save the PDF
-  doc.save(`cennik-${new Date().toISOString().split("T")[0]}.pdf`);
-};
-
-// Funkcja dla usługi cennika
-export const generatePricingPdf = (categories: PriceCategory[]): Blob => {
-  const doc = new jsPDF();
-  
-  // Dodaj obsługę polskich znaków
-  addPolishFontSupport(doc);
-  
-  // Dodaj tytuł
-  doc.setFontSize(20);
-  doc.setFont("helvetica", "bold");
-  doc.text("Cennik Usług", 14, 22);
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "normal");
-  
-  let yPos = 30;
-  
-  // Dla każdej kategorii
-  categories.forEach(category => {
-    doc.setFontSize(16);
-    doc.setFont("helvetica", "bold");
-    doc.text(category.title, 14, yPos);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(12);
-    yPos += 10;
-    
-    const tableBody = category.items.map(item => [
-      item.name,
-      item.description || "",
-      `${item.price}`
-    ]);
-    
-    autoTable(doc, {
-      startY: yPos,
-      head: [["Nazwa", "Opis", "Cena"]],
-      body: tableBody,
-      theme: "striped",
-      headStyles: { 
-        fillColor: [236, 72, 153], // róż zgodny z Tailwind pink-500
-        textColor: [255, 255, 255],
-        fontStyle: 'bold',
-      },
-      alternateRowStyles: {
-        fillColor: [252, 231, 243], // jasnoróżowy dla co drugiego wiersza
-      },
-      styles: { 
-        fontSize: 10,
-        cellPadding: 3,
-        overflow: 'linebreak',
-        lineWidth: 0.1,
-        font: "helvetica",
-      },
-      columnStyles: {
-        0: { fontStyle: 'bold' },
-        1: { cellWidth: 'auto' },
-        2: { halign: 'right', fontStyle: 'bold', textColor: [236, 72, 153] }
-      },
-      margin: { top: 10 },
-    });
-    
-    yPos = (doc as any).lastAutoTable.finalY + 15;
-    
-    if (yPos > 270) {
-      doc.addPage();
-      yPos = 20;
-    }
-  });
-  
-  // Dodaj stopkę
-  const pageCount = doc.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
-    doc.setFontSize(10);
-    doc.setTextColor(150);
-    doc.text(
-      `Wygenerowano ${new Date().toLocaleDateString('pl-PL')}`,
-      14,
-      doc.internal.pageSize.height - 10
-    );
-    doc.text(
-      `Strona ${i} z ${pageCount}`,
-      doc.internal.pageSize.width - 25,
-      doc.internal.pageSize.height - 10
-    );
-  }
-  
-  // Zwróć jako Blob zamiast bezpośredniego zapisywania
+  // Return as Blob instead of direct saving
   return doc.output('blob');
 };
 
-// Funkcja do poprawienia graficznego wyglądu PDFów dla eksportu PNG
+// Function for improving visual appearance of PDFs for PNG export
 export const createPdfLayoutForPng = (categories: PriceCategory[]) => {
-  // Ta funkcja tworzy HTML, który będzie ładnie wyglądał również w PDF
+  // This function creates HTML that will look good in PNG as well
   return `
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap');
@@ -304,4 +261,122 @@ export const createPdfLayoutForPng = (categories: PriceCategory[]) => {
       </div>
     </div>
   `;
+};
+
+// Function to generate PDF from the pricing data (legacy function kept for compatibility)
+export const generatePricingPDF = (title: string, categories: any[]) => {
+  // Create a new PDF document
+  const doc = new jsPDF();
+  
+  // Add Polish font support
+  addPolishFontSupport(doc);
+  
+  // Add title
+  doc.setFontSize(20);
+  doc.text(title, 14, 22);
+  doc.setFontSize(12);
+  
+  // Current Y position
+  let yPos = 30;
+  
+  // For each category
+  categories.forEach(category => {
+    // Add category title
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text(category.title, 14, yPos);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    yPos += 10;
+    
+    // Create table data
+    const tableBody = category.items.map((item: any) => [
+      item.name,
+      item.description || "",
+      `${item.price}`
+    ]);
+    
+    // Add table
+    autoTable(doc, {
+      startY: yPos,
+      head: [["Nazwa", "Opis", "Cena"]],
+      body: tableBody,
+      theme: "striped",
+      headStyles: { 
+        fillColor: [236, 72, 153],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+      },
+      alternateRowStyles: {
+        fillColor: [252, 231, 243],
+      },
+      styles: { 
+        fontSize: 10,
+        cellPadding: 3,
+        overflow: 'linebreak',
+        lineWidth: 0.1,
+        font: "helvetica",
+      },
+      columnStyles: {
+        0: { fontStyle: 'bold' },
+        1: { cellWidth: 'auto' },
+        2: { halign: 'right', fontStyle: 'bold', textColor: [236, 72, 153] }
+      },
+      margin: { top: 10 },
+      didParseCell: function(data) {
+        // Convert Polish characters to UTF-8 encoding for PDF
+        if (typeof data.cell.text === 'string') {
+          data.cell.text = data.cell.text
+            .replace(/ą/g, '\u0105')
+            .replace(/ć/g, '\u0107')
+            .replace(/ę/g, '\u0119')
+            .replace(/ł/g, '\u0142')
+            .replace(/ń/g, '\u0144')
+            .replace(/ó/g, '\u00F3')
+            .replace(/ś/g, '\u015B')
+            .replace(/ź/g, '\u017A')
+            .replace(/ż/g, '\u017C')
+            .replace(/Ą/g, '\u0104')
+            .replace(/Ć/g, '\u0106')
+            .replace(/Ę/g, '\u0118')
+            .replace(/Ł/g, '\u0141')
+            .replace(/Ń/g, '\u0143')
+            .replace(/Ó/g, '\u00D3')
+            .replace(/Ś/g, '\u015A')
+            .replace(/Ź/g, '\u0179')
+            .replace(/Ż/g, '\u017B');
+        }
+      },
+    });
+    
+    // Update yPos based on where the table ends
+    yPos = (doc as any).lastAutoTable.finalY + 15;
+    
+    // Add new page if necessary
+    if (yPos > 270) {
+      doc.addPage();
+      yPos = 20;
+    }
+  });
+  
+  // Add footer
+  const pageCount = doc.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(10);
+    doc.setTextColor(150);
+    doc.text(
+      `Wygenerowano ${new Date().toLocaleDateString('pl-PL')}`,
+      14,
+      doc.internal.pageSize.height - 10
+    );
+    doc.text(
+      `Strona ${i} z ${pageCount}`,
+      doc.internal.pageSize.width - 25,
+      doc.internal.pageSize.height - 10
+    );
+  }
+  
+  // Save the PDF
+  doc.save(`cennik-${new Date().toISOString().split("T")[0]}.pdf`);
 };

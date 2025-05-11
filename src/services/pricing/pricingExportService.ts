@@ -47,7 +47,7 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
         // Use our improved layout for better visual consistency
         tempContainer.innerHTML = createPdfLayoutForPng(targetCategories);
         
-        // Ładowanie fontów przed renderowaniem - upewnijmy się, że wszystkie fonty są załadowane
+        // Ensure custom fonts are loaded before rendering
         const fontPromises = [
           new FontFace('Playfair Display', 'url(https://fonts.gstatic.com/s/playfairdisplay/v30/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKdFvXDXbtXK-F2qC0s.woff2)').load(),
           new FontFace('Poppins', 'url(https://fonts.gstatic.com/s/poppins/v20/pxiEyp8kv8JHgFVrJJfecnFHGPc.woff2)').load()
@@ -60,11 +60,11 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
           console.warn("Could not load custom fonts, falling back to system fonts:", fontError);
         }
         
-        // Poczekaj, aż wszystkie załadowane fonty będą gotowe
+        // Wait for all loaded fonts to be ready
         await document.fonts.ready;
         
-        // Dodajemy małe opóźnienie, aby fonty mogły się poprawnie wyrenderować
-        await new Promise(r => setTimeout(r, 100));
+        // Add a small delay to ensure fonts render properly
+        await new Promise(r => setTimeout(r, 200));
         
         // Use html2canvas to convert to image
         const canvas = await html2canvas(tempContainer, {
@@ -74,8 +74,8 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
           allowTaint: true,
           useCORS: true,
           onclone: (document) => {
-            // Możemy tutaj dodatkowe operacje na sklonowanym dokumencie
-            // Na przykład upewnić się, że style są poprawnie załadowane
+            // Additional operations on the cloned document can be performed here
+            // For example, ensuring styles are correctly loaded
           }
         });
         
@@ -89,7 +89,7 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
             reject(new Error("Failed to create image"));
           }
         }, 'image/png', 0.95);
-      }, 300); // Zwiększamy timeout aby dać więcej czasu na załadowanie fontów
+      }, 400); // Increased timeout to give more time for fonts to load
     } catch (error) {
       console.error("Error generating PNG:", error);
       reject(error);
