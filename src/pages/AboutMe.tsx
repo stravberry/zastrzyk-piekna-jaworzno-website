@@ -1,4 +1,3 @@
-
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -97,18 +96,24 @@ const AboutMe = () => {
             <div className="max-w-3xl mx-auto space-y-6 text-gray-600">
               <p>
                 Nazywam się Anna Gajęcka, jestem absolwentką Uniwersytetu Śląskiego, magistrem kosmetologii, 
-                studentką pielęgniarstwa, właścicielką gabinetu kosmetologii estetycznej Zastrzyk Piękna, 
+                studentką pielęgniarstwa, właścicielką gabinetu kosmetologii Zastrzyk_piekna, 
                 laureatką konkursu na Kosmetologa Roku województwa śląskiego oraz niezaprzeczalną pasjonatką zawodu.
               </p>
               <p>
-                Specjalizuję się w terapiach przeciwstarzeniowych, modelowaniu ust oraz makijażu permanentnym brwi. 
-                Motywuje mnie ciągłe podnoszenie kwalifikacji oraz zdobywanie wiedzy z zakresu kosmetologii i medycyny estetycznej. 
-                Holistyczne podejście jest kluczem do pięknego wyglądu oraz samopoczucia, które promuję 
-                zarówno na co dzień, jak i w mediach społecznościowych.
+                Moją specjalnością są terapie przeciwstarzeniowe, modelowanie ust oraz makijaż permanentny brwi.
+                "Branża beauty to ocean niekończących się możliwości. Motywuje mnie to do ciągłego podnoszenia kwalifikacji 
+                i umiejętności oraz pozyskiwania wiedzy w zakresie rozwijającej się medycyny estetycznej i kosmetologii.
               </p>
               <p>
-                Uwielbiam zabiegi dające natychmiastowy efekt dzięki moim zdolnościom manualnym. 
-                Zapraszam na mój Instagram @zastrzyk_piekna, gdzie znajdziesz wiele edukacyjnych materiałów.
+                Starzenia nie da się zatrzymać, ale można je spowolnić". Holistyczne podejście to klucz to wspaniałego 
+                wyglądu i samopoczucia i takie podejście promuje na swoich mediach społecznościowych i w codziennym życiu.
+                Moją specjalnością są zdecydowanie terapie przeciwstarzeniowe, ale te wymagają czasu, wytrwałości 
+                i konsekwencji ze strony klientki.
+              </p>
+              <p>
+                Ze względu na wrodzone zdolności manualne uwielbiam zabiegi, które dają natychmiastowy efekt i są 
+                w stanie zmienić nasz wygląd w przeciągu jednego zabiegu. Zapraszam na mój Instagram @zastrzyk_piekna 
+                oraz zachęcam do obejrzenia wszystkich rolek edukacyjnych znajdujących się na moim profilu.
               </p>
             </div>
           </div>
