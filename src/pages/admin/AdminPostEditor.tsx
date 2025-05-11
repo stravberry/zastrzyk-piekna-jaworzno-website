@@ -20,12 +20,25 @@ const AdminPostEditor: React.FC = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   
+  console.log("Current post id:", id);
+  
   // Fetch post data if editing
   const { data: post, isLoading: isLoadingPost } = useQuery({
     queryKey: ["blogPost", id],
     queryFn: () => getBlogPostById(Number(id)),
     enabled: isEditing,
+    retry: 1,
+    onError: (error) => {
+      console.error("Error fetching post:", error);
+      toast({
+        title: "Błąd",
+        description: "Nie udało się załadować postu",
+        variant: "destructive",
+      });
+    },
   });
+  
+  console.log("Fetched post data:", post);
   
   // Create post mutation
   const createMutation = useMutation({
@@ -38,7 +51,8 @@ const AdminPostEditor: React.FC = () => {
       });
       navigate("/admin/posts");
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Create post error:", error);
       toast({
         title: "Błąd",
         description: "Nie udało się zapisać postu",
@@ -59,7 +73,8 @@ const AdminPostEditor: React.FC = () => {
       });
       navigate("/admin/posts");
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Update post error:", error);
       toast({
         title: "Błąd",
         description: "Nie udało się zaktualizować postu",
@@ -70,6 +85,7 @@ const AdminPostEditor: React.FC = () => {
   
   // Handle form submission
   const handleSubmit = (postData: BlogPostDraft) => {
+    console.log("Submitting post data:", postData);
     if (isEditing && id) {
       updateMutation.mutate({ id: Number(id), data: postData });
     } else {

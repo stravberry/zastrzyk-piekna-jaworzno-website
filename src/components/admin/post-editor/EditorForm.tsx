@@ -2,7 +2,6 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -59,6 +58,7 @@ export const EditorForm: React.FC<EditorFormProps> = ({
       }
     };
     
+    // Call the onSubmit handler passed from the parent component
     onSubmit(postData);
   };
   

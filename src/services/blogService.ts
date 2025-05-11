@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { BlogPost, BlogPostDraft, BlogPostStats } from "@/types/admin";
 import { blogPosts } from "@/data/blogData"; // Import sample data
@@ -109,97 +110,140 @@ export const getAllBlogPosts = async (): Promise<BlogPost[]> => {
 
 // Get a single blog post by ID
 export const getBlogPostById = async (id: number): Promise<BlogPost | undefined> => {
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .select('*')
-    .eq('id', id)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-  if (error) {
-    console.error('Error fetching blog post:', error);
+    if (error) {
+      console.error('Error fetching blog post:', error);
+      return undefined;
+    }
+
+    return mapDbPostToFrontend(data);
+  } catch (error) {
+    console.error('Error in getBlogPostById:', error);
+    
+    // If database access fails, try to find the post in sample data
+    const samplePost = blogPosts.find(post => post.id === id);
+    if (samplePost) {
+      return {
+        ...samplePost,
+        content: `<p>${samplePost.excerpt}</p><p>Lorem ipsum dolor sit amet...</p>`,
+        seo: {
+          metaTitle: samplePost.title,
+          metaDescription: samplePost.excerpt,
+          keywords: [samplePost.category],
+        },
+        stats: {
+          id: samplePost.id,
+          views: Math.floor(Math.random() * 1000) + 100,
+          clicks: Math.floor(Math.random() * 200) + 20,
+          timeSpent: Math.floor(Math.random() * 180) + 60,
+        }
+      };
+    }
+    
     return undefined;
   }
-
-  return mapDbPostToFrontend(data);
 };
 
 // Create a new blog post
 export const createBlogPost = async (postData: BlogPostDraft): Promise<BlogPost> => {
-  // Extract keywords array from comma-separated string if needed
-  const keywords = typeof postData.seo?.keywords === 'string' 
-    ? (postData.seo.keywords as string).split(',').map(k => k.trim()) 
-    : postData.seo?.keywords || [];
+  console.log("Creating new post with data:", postData);
 
-  // Generate slug from title
-  const slug = `/blog/${postData.title.toLowerCase().replace(/[^\w ]+/g, '').replace(/ +/g, '-')}`;
+  try {
+    // Extract keywords array from comma-separated string if needed
+    const keywords = typeof postData.seo?.keywords === 'string' 
+      ? (postData.seo.keywords as string).split(',').map(k => k.trim()) 
+      : postData.seo?.keywords || [];
 
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .insert({
-      title: postData.title,
-      excerpt: postData.excerpt,
-      content: postData.content,
-      category: postData.category,
-      image: postData.image,
-      read_time: postData.readTime,
-      slug: slug,
-      meta_title: postData.seo?.metaTitle,
-      meta_description: postData.seo?.metaDescription,
-      keywords: keywords,
-      author_id: (await supabase.auth.getUser()).data.user?.id
-    })
-    .select()
-    .single();
+    // Generate slug from title
+    const slug = `/blog/${postData.title.toLowerCase().replace(/[^\w ]+/g, '').replace(/ +/g, '-')}`;
 
-  if (error) {
-    console.error('Error creating blog post:', error);
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .insert({
+        title: postData.title,
+        excerpt: postData.excerpt,
+        content: postData.content,
+        category: postData.category,
+        image: postData.image,
+        read_time: postData.readTime,
+        slug: slug,
+        meta_title: postData.seo?.metaTitle,
+        meta_description: postData.seo?.metaDescription,
+        keywords: keywords,
+        date: new Date().toISOString(),
+        author_id: (await supabase.auth.getUser()).data.user?.id
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating blog post:', error);
+      throw error;
+    }
+
+    console.log("Successfully created post:", data);
+    return mapDbPostToFrontend(data);
+  } catch (error) {
+    console.error('Error in createBlogPost:', error);
     throw error;
   }
-
-  return mapDbPostToFrontend(data);
 };
 
 // Update an existing blog post
 export const updateBlogPost = async (id: number, postData: Partial<BlogPostDraft>): Promise<BlogPost | undefined> => {
-  // Prepare update data
-  const updateData: any = {};
+  console.log("Updating post", id, "with data:", postData);
   
-  if (postData.title) updateData.title = postData.title;
-  if (postData.excerpt) updateData.excerpt = postData.excerpt;
-  if (postData.content) updateData.content = postData.content;
-  if (postData.category) updateData.category = postData.category;
-  if (postData.image) updateData.image = postData.image;
-  if (postData.readTime) updateData.read_time = postData.readTime;
-  
-  // Update slug if title changed
-  if (postData.title) {
-    updateData.slug = `/blog/${postData.title.toLowerCase().replace(/[^\w ]+/g, '').replace(/ +/g, '-')}`;
-  }
-  
-  // Update SEO fields
-  if (postData.seo?.metaTitle) updateData.meta_title = postData.seo.metaTitle;
-  if (postData.seo?.metaDescription) updateData.meta_description = postData.seo.metaDescription;
-  
-  // Handle keywords
-  if (postData.seo?.keywords) {
-    updateData.keywords = typeof postData.seo.keywords === 'string'
-      ? (postData.seo.keywords as string).split(',').map(k => k.trim())
-      : postData.seo.keywords;
-  }
-  
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .update(updateData)
-    .eq('id', id)
-    .select()
-    .single();
+  try {
+    // Prepare update data
+    const updateData: any = {};
+    
+    if (postData.title) updateData.title = postData.title;
+    if (postData.excerpt) updateData.excerpt = postData.excerpt;
+    if (postData.content) updateData.content = postData.content;
+    if (postData.category) updateData.category = postData.category;
+    if (postData.image) updateData.image = postData.image;
+    if (postData.readTime) updateData.read_time = postData.readTime;
+    
+    // Update slug if title changed
+    if (postData.title) {
+      updateData.slug = `/blog/${postData.title.toLowerCase().replace(/[^\w ]+/g, '').replace(/ +/g, '-')}`;
+    }
+    
+    // Update SEO fields
+    if (postData.seo?.metaTitle) updateData.meta_title = postData.seo.metaTitle;
+    if (postData.seo?.metaDescription) updateData.meta_description = postData.seo.metaDescription;
+    
+    // Handle keywords
+    if (postData.seo?.keywords) {
+      updateData.keywords = typeof postData.seo.keywords === 'string'
+        ? (postData.seo.keywords as string).split(',').map(k => k.trim())
+        : postData.seo.keywords;
+    }
+    
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
 
-  if (error) {
-    console.error('Error updating blog post:', error);
-    return undefined;
-  }
+    if (error) {
+      console.error('Error updating blog post:', error);
+      throw error;
+    }
 
-  return mapDbPostToFrontend(data);
+    console.log("Successfully updated post:", data);
+    return mapDbPostToFrontend(data);
+  } catch (error) {
+    console.error('Error in updateBlogPost:', error);
+    throw error;
+  }
 };
 
 // Delete a blog post
