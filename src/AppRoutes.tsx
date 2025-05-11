@@ -41,8 +41,12 @@ const AppRoutes = () => {
       <Route path="/contact" element={<Contact />} />
       <Route path="/gallery" element={<Gallery />} />
       
-      {/* Admin Routes - Ensure both /admin and /admin/ redirect to dashboard */}
-      <Route path="/admin" element={<AdminWrapper />}>
+      {/* Admin Routes */}
+      {/* Redirect /admin (without slash) to /admin/ */}
+      <Route path="admin" element={<Navigate to="/admin/" replace />} />
+      
+      {/* Handle all admin routes */}
+      <Route path="admin/*" element={<AdminWrapper />}>
         <Route index element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="login" element={<AdminLogin />} />
         <Route path="dashboard" element={
