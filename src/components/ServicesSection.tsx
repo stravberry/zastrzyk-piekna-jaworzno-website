@@ -5,7 +5,7 @@ const ServicesSection = () => {
   const services = [{
     id: 1,
     title: "Terapie przeciwstarzeniowe",
-    description: "Zaawansowane zabiegi anti-aging, które redukują oznaki starzenia i przywracają skórze młodzieńczy wygląd.",
+    description: "Zaawansowane zabiegi oparte na pobudzaniu istniejących fibroblastów do intensywniejszej produkcji kolagenu oraz zabiegi zwiększające liczbę fibroblastów (rozmnażanie/napływ)",
     icon: <Droplet size={36} />,
     link: "/zabiegi/terapie-przeciwstarzeniowe"
   }, {
