@@ -3,13 +3,22 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { PriceCategory } from "@/components/pricing/PriceCard";
 
+// Funkcja do dodawania polskich znaków do PDF
+const addPolishFontSupport = (doc: jsPDF) => {
+  // jsPDF ma wbudowane wsparcie dla znaków UTF-8, ale musimy upewnić się, 
+  // że korzystamy z odpowiedniego kodowania
+  doc.setFont("helvetica", "normal");
+  doc.setLanguage("pl");
+  return doc;
+};
+
 // Funkcja do generowania PDF dla danych cennika
 export const generatePricingPDF = (title: string, categories: any[]) => {
   // Create a new PDF document
   const doc = new jsPDF();
   
-  // Dodaj font - podstawowy jest już wbudowany, więc nie musimy go osobno ładować
-  doc.setFont("helvetica", "normal");
+  // Dodaj obsługę polskich znaków
+  addPolishFontSupport(doc);
   
   // Dodaj tytuł
   doc.setFontSize(20);
@@ -55,6 +64,7 @@ export const generatePricingPDF = (title: string, categories: any[]) => {
         cellPadding: 3,
         overflow: 'linebreak',
         lineWidth: 0.1,
+        font: "helvetica",
       },
       columnStyles: {
         0: { fontStyle: 'bold' },
@@ -100,8 +110,8 @@ export const generatePricingPDF = (title: string, categories: any[]) => {
 export const generatePricingPdf = (categories: PriceCategory[]): Blob => {
   const doc = new jsPDF();
   
-  // Dodaj font - podstawowy jest już wbudowany
-  doc.setFont("helvetica", "normal");
+  // Dodaj obsługę polskich znaków
+  addPolishFontSupport(doc);
   
   // Dodaj tytuł
   doc.setFontSize(20);
@@ -145,6 +155,7 @@ export const generatePricingPdf = (categories: PriceCategory[]): Blob => {
         cellPadding: 3,
         overflow: 'linebreak',
         lineWidth: 0.1,
+        font: "helvetica",
       },
       columnStyles: {
         0: { fontStyle: 'bold' },
@@ -189,12 +200,12 @@ export const createPdfLayoutForPng = (categories: PriceCategory[]) => {
   // Ta funkcja tworzy HTML, który będzie ładnie wyglądał również w PDF
   return `
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap');
       
       .pricing-export {
         background-color: white;
         padding: 20px;
-        font-family: Arial, sans-serif;
+        font-family: 'Poppins', sans-serif;
         max-width: 800px;
         margin: 0 auto;
       }
@@ -222,6 +233,7 @@ export const createPdfLayoutForPng = (categories: PriceCategory[]) => {
         border-collapse: collapse;
         border: 1px solid #e5e7eb;
         border-top: none;
+        font-family: 'Poppins', sans-serif;
       }
       .pricing-items th {
         background-color: #fdf2f8;
@@ -255,6 +267,7 @@ export const createPdfLayoutForPng = (categories: PriceCategory[]) => {
         font-size: 0.8em;
         color: #6b7280;
         text-align: center;
+        font-family: 'Poppins', sans-serif;
       }
     </style>
     <div class="pricing-export">

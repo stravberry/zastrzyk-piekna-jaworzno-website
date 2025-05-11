@@ -47,8 +47,24 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
         // Use our improved layout for better visual consistency
         tempContainer.innerHTML = createPdfLayoutForPng(targetCategories);
         
-        // Załaduj czcionki przed renderowaniem
+        // Ładowanie fontów przed renderowaniem - upewnijmy się, że wszystkie fonty są załadowane
+        const fontPromises = [
+          new FontFace('Playfair Display', 'url(https://fonts.gstatic.com/s/playfairdisplay/v30/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKdFvXDXbtXK-F2qC0s.woff2)').load(),
+          new FontFace('Poppins', 'url(https://fonts.gstatic.com/s/poppins/v20/pxiEyp8kv8JHgFVrJJfecnFHGPc.woff2)').load()
+        ];
+        
+        try {
+          const fonts = await Promise.all(fontPromises);
+          fonts.forEach(font => document.fonts.add(font));
+        } catch (fontError) {
+          console.warn("Could not load custom fonts, falling back to system fonts:", fontError);
+        }
+        
+        // Poczekaj, aż wszystkie załadowane fonty będą gotowe
         await document.fonts.ready;
+        
+        // Dodajemy małe opóźnienie, aby fonty mogły się poprawnie wyrenderować
+        await new Promise(r => setTimeout(r, 100));
         
         // Use html2canvas to convert to image
         const canvas = await html2canvas(tempContainer, {
@@ -57,6 +73,10 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
           logging: false,
           allowTaint: true,
           useCORS: true,
+          onclone: (document) => {
+            // Możemy tutaj dodatkowe operacje na sklonowanym dokumencie
+            // Na przykład upewnić się, że style są poprawnie załadowane
+          }
         });
         
         // Convert canvas to blob
@@ -69,7 +89,7 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
             reject(new Error("Failed to create image"));
           }
         }, 'image/png', 0.95);
-      }, 100);
+      }, 300); // Zwiększamy timeout aby dać więcej czasu na załadowanie fontów
     } catch (error) {
       console.error("Error generating PNG:", error);
       reject(error);
