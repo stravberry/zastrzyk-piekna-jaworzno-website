@@ -1,3 +1,4 @@
+
 import React, {
   useState,
   useContext,
@@ -15,7 +16,7 @@ import {
 } from "lucide-react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
-import { AdminContext } from "@/contexts/AdminContext";
+import { useAdmin } from "@/context/AdminContext";
 import { useWindowSize } from "@/hooks/use-window-size";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -30,11 +31,12 @@ import {
 
 interface AdminLayoutProps {
   title: string;
+  subtitle?: string;
   children: React.ReactNode;
 }
 
-const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
-  const { isAdmin, logout } = useContext(AdminContext);
+const AdminLayout: React.FC<AdminLayoutProps> = ({ title, subtitle, children }) => {
+  const { isAuthenticated: isAdmin, logout } = useAdmin();
   const navigate = useNavigate();
   const location = useLocation();
   const { width } = useWindowSize();
@@ -171,7 +173,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, children }) => {
               <Menu className="h-6 w-6" />
             </Button>
           )}
-          <h1 className="text-2xl font-semibold">{title}</h1>
+          <div className="flex flex-col">
+            <h1 className="text-2xl font-semibold">{title}</h1>
+            {subtitle && <p className="text-sm text-gray-500">{subtitle}</p>}
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0 lg:h-10 lg:w-10">

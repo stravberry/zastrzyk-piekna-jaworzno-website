@@ -1,11 +1,11 @@
-import React, { useState, useContext } from "react";
+
+import React from "react";
 import {
-  BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
-import { AdminContext } from "./contexts/AdminContext";
+import { useAdmin } from "./context/AdminContext";
 import Index from "./pages/Index";
 import AboutMe from "./pages/AboutMe";
 import Services from "./pages/Services";
@@ -23,8 +23,7 @@ import AdminCodeSettings from "./pages/admin/AdminCodeSettings";
 import AdminPricing from "./pages/admin/AdminPricing";
 
 const AppRoutes = () => {
-  const { isAdmin } = useContext(AdminContext);
-  const [loading, setLoading] = useState(true);
+  const { isAuthenticated: isAdmin } = useAdmin();
 
   return (
     <Routes>
