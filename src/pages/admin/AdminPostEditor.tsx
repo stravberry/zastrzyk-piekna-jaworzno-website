@@ -23,22 +23,24 @@ const AdminPostEditor: React.FC = () => {
   console.log("Current post id:", id);
   
   // Fetch post data if editing
-  const { data: post, isLoading: isLoadingPost } = useQuery({
+  const { data: post, isLoading: isLoadingPost, error: postError } = useQuery({
     queryKey: ["blogPost", id],
     queryFn: () => getBlogPostById(Number(id)),
     enabled: isEditing,
     retry: 1,
-    onSettled: (data, error) => {
-      if (error) {
-        console.error("Error fetching post:", error);
-        toast({
-          title: "Błąd",
-          description: "Nie udało się załadować postu",
-          variant: "destructive",
-        });
-      }
-    }
   });
+  
+  // Handle error from the query
+  React.useEffect(() => {
+    if (postError) {
+      console.error("Error fetching post:", postError);
+      toast({
+        title: "Błąd",
+        description: "Nie udało się załadować postu",
+        variant: "destructive",
+      });
+    }
+  }, [postError, toast]);
   
   console.log("Fetched post data:", post);
   
