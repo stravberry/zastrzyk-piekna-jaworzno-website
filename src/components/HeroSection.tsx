@@ -11,10 +11,8 @@ const HeroSection = () => {
         <div className="flex flex-col items-start text-left space-y-8">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 leading-tight animate-fade-in">Gabinet kosmetologii Jaworzno</h1>
           
-          <p className="text-lg md:text-xl text-gray-600 max-w-2xl animate-slide-up">
-            Indywidualne podejście do klienta, holistyczna pielęgnacja i najwyższej jakości zabiegi 
-            kosmetologii estetycznej w Jaworznie.
-          </p>
+          <p className="text-lg md:text-xl text-gray-600 max-w-2xl animate-slide-up">Piękno to nie efekt jednego zabiegu.
+To styl życia, który łączy pielegnacje, odżywianie i ruch – holistyczne podejście do życia to klucz do piękna, które trwa, a ja się do tego przyczynię </p>
           
           <div className="flex flex-col sm:flex-row gap-4 pt-4 animate-slide-up">
             <Button asChild size="lg" className="bg-pink-500 hover:bg-pink-600 text-white px-8 py-6 text-base">
