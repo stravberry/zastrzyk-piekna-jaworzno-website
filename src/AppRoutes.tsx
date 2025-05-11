@@ -41,9 +41,9 @@ const AppRoutes = () => {
       <Route path="/contact" element={<Contact />} />
       <Route path="/gallery" element={<Gallery />} />
       
-      {/* Admin Routes */}
+      {/* Admin Routes - Ensure both /admin and /admin/ redirect to dashboard */}
       <Route path="/admin" element={<AdminWrapper />}>
-        <Route path="" element={<Navigate to="/admin/dashboard" replace />} />
+        <Route index element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="login" element={<AdminLogin />} />
         <Route path="dashboard" element={
           <AdminProtectedRoute>
