@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PriceCategory } from "@/components/pricing/PriceCard";
-import { addCategory, updateCategory } from "@/services/pricingService";
+import { addCategory, updateCategory } from "@/services/pricing";
 import { toast } from "sonner";
 
 const formSchema = z.object({

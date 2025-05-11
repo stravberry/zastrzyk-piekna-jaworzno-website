@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { PriceCategory } from "@/components/pricing/PriceCard";
@@ -7,7 +6,7 @@ import {
   resetPriceCategories,
   exportPricingToPdf,
   exportPricingToPng
-} from "@/services/pricingService";
+} from "@/services/pricing";
 
 export type DialogType = 'addCategory' | 'editCategory' | 'addItem' | 'editItem' | 'deleteCategory' | 'deleteItem' | null;
 

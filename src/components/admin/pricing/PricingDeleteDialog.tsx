@@ -2,7 +2,7 @@
 import React from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { PriceCategory } from "@/components/pricing/PriceCard";
-import { deleteCategory, deleteItemFromCategory } from "@/services/pricingService";
+import { deleteCategory, deleteItemFromCategory } from "@/services/pricing";
 import { toast } from "sonner";
 
 interface PricingDeleteDialogProps {

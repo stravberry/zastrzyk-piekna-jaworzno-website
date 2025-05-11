@@ -9,7 +9,7 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PriceCategory, PriceItem } from "@/components/pricing/PriceCard";
-import { addItemToCategory, updateItemInCategory } from "@/services/pricingService";
+import { addItemToCategory, updateItemInCategory } from "@/services/pricing";
 import { toast } from "sonner";
 
 const formSchema = z.object({

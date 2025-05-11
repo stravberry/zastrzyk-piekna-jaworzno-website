@@ -6,7 +6,7 @@ import PricingHero from "@/components/pricing/PricingHero";
 import PricingNavigation from "@/components/pricing/PricingNavigation";
 import PriceCard from "@/components/pricing/PriceCard";
 import PricingInfo from "@/components/pricing/PricingInfo";
-import { getPriceCategories } from "@/services/pricingService";
+import { getPriceCategories } from "@/services/pricing";
 import { PriceCategory } from "@/components/pricing/PriceCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
