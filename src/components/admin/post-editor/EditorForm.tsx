@@ -12,7 +12,7 @@ import { FormValues, formSchema } from "./formSchema";
 import { EditorMainTab } from "./EditorMainTab";
 import { EditorPreviewTab } from "./EditorPreviewTab";
 import { EditorSEOTab } from "./EditorSEOTab";
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 interface EditorFormProps {
   defaultValues: FormValues;
@@ -31,6 +31,7 @@ export const EditorForm: React.FC<EditorFormProps> = ({
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = React.useState("editor");
   const [previewData, setPreviewData] = React.useState<FormValues | null>(defaultValues || null);
+  const [isSheetOpen, setIsSheetOpen] = React.useState(false);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -77,56 +78,63 @@ export const EditorForm: React.FC<EditorFormProps> = ({
     onSubmit(postData);
   };
   
-  // Use Drawer for mobile and Tabs for desktop
+  const getActiveTabLabel = () => {
+    switch(activeTab) {
+      case "editor": return "Editor";
+      case "preview": return "Preview"; 
+      case "seo": return "SEO";
+      default: return "Editor";
+    }
+  };
+
+  // Use Sheet for mobile and Tabs for desktop
   if (isMobile) {
     return (
       <Form {...form}>
         <form 
           id="post-editor-form" 
-          className="space-y-6" 
+          className="space-y-4" 
           onSubmit={form.handleSubmit(handleFormSubmit)}
         >
-          <div className="flex flex-wrap justify-between items-center mb-6 gap-3">
-            <Drawer>
-              <DrawerTrigger asChild>
-                <Button variant="outline" className="w-full sm:w-auto mb-3">
-                  {activeTab === "editor" ? "Editor" : activeTab === "preview" ? "Preview" : "SEO"}
+          <div className="flex flex-wrap justify-between items-center mb-4 gap-3">
+            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" className="w-full sm:w-auto">
+                  {getActiveTabLabel()}
                 </Button>
-              </DrawerTrigger>
-              <DrawerContent className="px-4 pb-6">
-                <div className="mt-6 space-y-6">
-                  {/* Wrapping TabsList inside a Tabs component to fix "TabsList must be used within Tabs" error */}
-                  <Tabs value={activeTab} onValueChange={setActiveTab}>
-                    <TabsList className="w-full grid grid-cols-3">
-                      <TabsTrigger 
-                        value="editor" 
-                        onClick={() => setActiveTab("editor")}
-                        className={activeTab === "editor" ? "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground" : ""}
-                      >
-                        Editor
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value="preview" 
-                        onClick={() => {
-                          handlePreview();
-                          setActiveTab("preview");
-                        }}
-                        className={activeTab === "preview" ? "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground" : ""}
-                      >
-                        Preview
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value="seo" 
-                        onClick={() => setActiveTab("seo")}
-                        className={activeTab === "seo" ? "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground" : ""}
-                      >
-                        SEO
-                      </TabsTrigger>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="h-[30vh] p-0 pt-6 px-2">
+                <div className="mt-2 pb-2">
+                  <Tabs value={activeTab} onValueChange={(value) => {
+                    setActiveTab(value);
+                    if (value === "preview") {
+                      handlePreview();
+                    }
+                    // Don't close the sheet - let user see content in the sheet
+                  }}>
+                    <TabsList className="w-full grid grid-cols-3 mb-4">
+                      <TabsTrigger value="editor">Editor</TabsTrigger>
+                      <TabsTrigger value="preview">Preview</TabsTrigger>
+                      <TabsTrigger value="seo">SEO</TabsTrigger>
                     </TabsList>
+
+                    <div className="px-2 pb-4 overflow-y-auto max-h-[calc(30vh-80px)]">
+                      <TabsContent value="editor" className="m-0">
+                        <EditorMainTab control={form.control} />
+                      </TabsContent>
+                      
+                      <TabsContent value="preview" className="m-0">
+                        <EditorPreviewTab previewData={previewData} />
+                      </TabsContent>
+                      
+                      <TabsContent value="seo" className="m-0">
+                        <EditorSEOTab control={form.control} watch={form.watch} />
+                      </TabsContent>
+                    </div>
                   </Tabs>
                 </div>
-              </DrawerContent>
-            </Drawer>
+              </SheetContent>
+            </Sheet>
             
             <Button
               type="submit"
@@ -139,7 +147,7 @@ export const EditorForm: React.FC<EditorFormProps> = ({
             </Button>
           </div>
           
-          <div className="pt-4">
+          <div className="pt-2">
             {activeTab === "editor" && <EditorMainTab control={form.control} />}
             {activeTab === "preview" && <EditorPreviewTab previewData={previewData} />}
             {activeTab === "seo" && <EditorSEOTab control={form.control} watch={form.watch} />}

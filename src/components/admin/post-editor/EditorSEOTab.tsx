@@ -20,15 +20,15 @@ interface EditorSEOTabProps {
 
 export const EditorSEOTab: React.FC<EditorSEOTabProps> = ({ control, watch }) => {
   return (
-    <Card>
-      <CardContent className="p-4 sm:p-6">
-        <div className="space-y-4">
+    <Card className="overflow-hidden">
+      <CardContent className="p-3 sm:p-6">
+        <div className="space-y-3 sm:space-y-4">
           <FormField
             control={control}
             name="metaTitle"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Meta Title</FormLabel>
+                <FormLabel className="text-sm">Meta Title</FormLabel>
                 <FormControl>
                   <Input 
                     placeholder="SEO title (defaults to post title)" 
@@ -46,7 +46,7 @@ export const EditorSEOTab: React.FC<EditorSEOTabProps> = ({ control, watch }) =>
             name="metaDescription"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Meta Description</FormLabel>
+                <FormLabel className="text-sm">Meta Description</FormLabel>
                 <FormControl>
                   <Textarea 
                     placeholder="SEO description (defaults to excerpt)" 
@@ -64,7 +64,7 @@ export const EditorSEOTab: React.FC<EditorSEOTabProps> = ({ control, watch }) =>
             name="keywords"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Keywords (comma-separated)</FormLabel>
+                <FormLabel className="text-sm">Keywords (comma-separated)</FormLabel>
                 <FormControl>
                   <Textarea 
                     placeholder="e.g. skincare, anti-aging, beauty" 
@@ -77,14 +77,16 @@ export const EditorSEOTab: React.FC<EditorSEOTabProps> = ({ control, watch }) =>
             )}
           />
           
-          <div className="mt-6">
-            <h3 className="text-sm font-medium mb-2">Search Preview</h3>
-            <div className="border rounded-md p-3 sm:p-4 bg-white">
-              <div className="text-blue-600 text-sm sm:text-lg font-medium truncate">
+          <div className="mt-4 sm:mt-6">
+            <h3 className="text-xs sm:text-sm font-medium mb-2">Search Preview</h3>
+            <div className="border rounded-md p-2 sm:p-4 bg-white">
+              <div className="text-blue-600 text-xs sm:text-lg font-medium truncate">
                 {watch("metaTitle") || watch("title") || "Post Title"}
               </div>
               <div className="text-green-600 text-xs truncate break-all">
-                {window.location.origin}/blog/post-slug
+                <span className="inline-block max-w-full overflow-hidden overflow-ellipsis">
+                  {window.location.origin}/blog/post-slug
+                </span>
               </div>
               <div className="text-gray-600 text-xs sm:text-sm mt-1 line-clamp-2 break-words">
                 {watch("metaDescription") || watch("excerpt") || "Post description will appear here..."}
