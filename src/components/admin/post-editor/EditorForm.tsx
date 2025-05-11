@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -103,34 +102,20 @@ export const EditorForm: React.FC<EditorFormProps> = ({
                   {getActiveTabLabel()}
                 </Button>
               </SheetTrigger>
-              <SheetContent side="bottom" className="h-[30vh] p-0 pt-6 px-2">
+              <SheetContent side="bottom" className="p-0 pt-6 px-2">
                 <div className="mt-2 pb-2">
                   <Tabs value={activeTab} onValueChange={(value) => {
                     setActiveTab(value);
                     if (value === "preview") {
                       handlePreview();
                     }
-                    // Don't close the sheet - let user see content in the sheet
+                    setIsSheetOpen(false);
                   }}>
                     <TabsList className="w-full grid grid-cols-3 mb-4">
                       <TabsTrigger value="editor">Editor</TabsTrigger>
                       <TabsTrigger value="preview">Preview</TabsTrigger>
                       <TabsTrigger value="seo">SEO</TabsTrigger>
                     </TabsList>
-
-                    <div className="px-2 pb-4 overflow-y-auto max-h-[calc(30vh-80px)]">
-                      <TabsContent value="editor" className="m-0">
-                        <EditorMainTab control={form.control} />
-                      </TabsContent>
-                      
-                      <TabsContent value="preview" className="m-0">
-                        <EditorPreviewTab previewData={previewData} />
-                      </TabsContent>
-                      
-                      <TabsContent value="seo" className="m-0">
-                        <EditorSEOTab control={form.control} watch={form.watch} />
-                      </TabsContent>
-                    </div>
                   </Tabs>
                 </div>
               </SheetContent>
