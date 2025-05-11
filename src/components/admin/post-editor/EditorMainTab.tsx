@@ -13,8 +13,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress"; 
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { FormValues } from "./formSchema";
+import { useToast } from "@/hooks/use-toast";
 
 interface EditorMainTabProps {
   control: Control<FormValues>;
@@ -22,31 +25,27 @@ interface EditorMainTabProps {
 
 export const EditorMainTab: React.FC<EditorMainTabProps> = ({ control }) => {
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const { toast } = useToast();
   
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
     onChange: (value: string) => void
   ) => {
     try {
-      setUploading(true);
-      
       if (!event.target.files || event.target.files.length === 0) {
         return;
       }
       
+      setUploading(true);
+      setUploadProgress(10);
+      
       const file = event.target.files[0];
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-      const filePath = `blog-images/${fileName}`;
+      const filePath = `${fileName}`;
       
-      // Check if storage bucket exists, if not create it
-      const { data: buckets } = await supabase.storage.listBuckets();
-      if (!buckets?.find(b => b.name === 'blog-images')) {
-        await supabase.storage.createBucket('blog-images', {
-          public: true,
-          fileSizeLimit: 5242880, // 5MB
-        });
-      }
+      setUploadProgress(30);
       
       // Upload file
       const { error: uploadError, data } = await supabase.storage
@@ -54,21 +53,43 @@ export const EditorMainTab: React.FC<EditorMainTabProps> = ({ control }) => {
         .upload(filePath, file);
         
       if (uploadError) {
+        toast({
+          title: "Upload Error",
+          description: uploadError.message,
+          variant: "destructive",
+        });
         throw uploadError;
       }
+      
+      setUploadProgress(70);
       
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('blog-images')
         .getPublicUrl(filePath);
         
+      setUploadProgress(100);
+      
       // Update form with the image URL
       onChange(publicUrl);
       
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully",
+      });
+      
     } catch (error) {
       console.error("Error uploading image:", error);
+      toast({
+        title: "Upload Failed",
+        description: "There was a problem uploading your image",
+        variant: "destructive",
+      });
     } finally {
-      setUploading(false);
+      setTimeout(() => {
+        setUploading(false);
+        setUploadProgress(0);
+      }, 600);
     }
   };
 
@@ -132,7 +153,7 @@ export const EditorMainTab: React.FC<EditorMainTabProps> = ({ control }) => {
               name="image"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Featured Image</FormLabel>
+                  <FormLabel>Featured Image (Optional)</FormLabel>
                   <FormControl>
                     <div className="space-y-2">
                       <div className="flex gap-2">
@@ -140,6 +161,7 @@ export const EditorMainTab: React.FC<EditorMainTabProps> = ({ control }) => {
                           placeholder="Enter image URL or upload" 
                           {...field} 
                           className="flex-1"
+                          disabled={uploading}
                         />
                         <div className="relative">
                           <Input
@@ -154,23 +176,37 @@ export const EditorMainTab: React.FC<EditorMainTabProps> = ({ control }) => {
                             variant="outline"
                             disabled={uploading}
                           >
-                            <Upload className="h-4 w-4 mr-2" />
+                            <Upload className={`h-4 w-4 mr-2 ${uploading ? 'animate-pulse' : ''}`} />
                             {uploading ? "Uploading..." : "Upload"}
                           </Button>
                         </div>
                       </div>
-                      {field.value && (
-                        <div className="relative aspect-video mt-2 rounded-md overflow-hidden border">
-                          <img 
-                            src={field.value} 
-                            alt="Preview" 
-                            className="object-cover w-full h-full"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = "https://placehold.co/600x400?text=Image+Error";
-                            }}
-                          />
+                      
+                      {uploading && (
+                        <div className="space-y-2">
+                          <Progress value={uploadProgress} className="h-2" />
+                          <p className="text-xs text-center text-muted-foreground">
+                            Uploading image... {uploadProgress}%
+                          </p>
                         </div>
                       )}
+                      
+                      {field.value ? (
+                        <div className="relative aspect-video mt-2 rounded-md overflow-hidden border">
+                          {uploading ? (
+                            <Skeleton className="w-full h-full" />
+                          ) : (
+                            <img 
+                              src={field.value} 
+                              alt="Preview" 
+                              className="object-cover w-full h-full"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = "https://placehold.co/600x400?text=Image+Error";
+                              }}
+                            />
+                          )}
+                        </div>
+                      ) : null}
                     </div>
                   </FormControl>
                   <FormMessage />
