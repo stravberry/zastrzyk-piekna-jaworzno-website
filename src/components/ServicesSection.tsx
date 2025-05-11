@@ -37,7 +37,7 @@ const ServicesSection = () => {
   }, {
     id: 6,
     title: "Peelingi chemiczne",
-    description: "Głęboka regeneracja skóry przy pomocy kwasów, poprawiająca jej strukturę i niwelująca niedoskonałości.",
+    description: "Zobacz pełną ofertę zabiegów i poznaj aktualny cennik usług kosmetologicznych",
     icon: <Droplet size={36} />,
     link: "/zabiegi/peelingi-chemiczne"
   }];
