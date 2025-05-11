@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -12,6 +11,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { EditorForm } from "@/components/admin/post-editor/EditorForm";
 import { getDefaultFormValues, FormValues } from "@/components/admin/post-editor/formSchema";
 import { BackButton } from "@/components/admin/post-editor/BackButton";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdminPostEditor: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -59,7 +59,7 @@ const AdminPostEditor: React.FC = () => {
       console.error("Create post error:", error);
       toast({
         title: "Błąd",
-        description: "Nie udało się zapisać postu",
+        description: error instanceof Error ? error.message : "Nie udało się zapisać postu. Upewnij się, że jesteś zalogowany.",
         variant: "destructive",
       });
     },
@@ -81,11 +81,34 @@ const AdminPostEditor: React.FC = () => {
       console.error("Update post error:", error);
       toast({
         title: "Błąd",
-        description: "Nie udało się zaktualizować postu",
+        description: error instanceof Error ? error.message : "Nie udało się zaktualizować postu. Upewnij się, że jesteś zalogowany.",
         variant: "destructive",
       });
     },
   });
+  
+  // Verify authentication status
+  const [authChecked, setAuthChecked] = React.useState(false);
+  
+  React.useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (!data.session) {
+          toast({
+            title: "Wymagane logowanie",
+            description: "Musisz być zalogowany, aby edytować posty",
+            variant: "destructive",
+          });
+        }
+        setAuthChecked(true);
+      } catch (err) {
+        console.error("Auth check failed:", err);
+      }
+    };
+    
+    checkAuth();
+  }, [toast]);
   
   // Handle form submission
   const handleSubmit = (postData: BlogPostDraft) => {

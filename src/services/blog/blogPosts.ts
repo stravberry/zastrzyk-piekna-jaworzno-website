@@ -90,6 +90,12 @@ export const createBlogPost = async (postData: BlogPostDraft): Promise<BlogPost>
   console.log("Creating new post with data:", postData);
 
   try {
+    // Verify auth status before continuing
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) {
+      throw new Error("User must be authenticated to create blog posts");
+    }
+
     // Extract keywords array from comma-separated string if needed
     const keywords = typeof postData.seo?.keywords === 'string' 
       ? (postData.seo.keywords as string).split(',').map(k => k.trim()) 
@@ -112,7 +118,6 @@ export const createBlogPost = async (postData: BlogPostDraft): Promise<BlogPost>
         meta_description: postData.seo?.metaDescription,
         keywords: keywords,
         date: new Date().toISOString()
-        // Remove author_id reference to avoid permission issues
       })
       .select()
       .single();
@@ -135,6 +140,12 @@ export const updateBlogPost = async (id: number, postData: Partial<BlogPostDraft
   console.log("Updating post", id, "with data:", postData);
   
   try {
+    // Verify auth status before continuing
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) {
+      throw new Error("User must be authenticated to update blog posts");
+    }
+    
     // Prepare update data
     const updateData: any = {};
     
@@ -183,15 +194,26 @@ export const updateBlogPost = async (id: number, postData: Partial<BlogPostDraft
 
 // Delete a blog post
 export const deleteBlogPost = async (id: number): Promise<boolean> => {
-  const { error } = await supabase
-    .from('blog_posts')
-    .delete()
-    .eq('id', id);
+  try {
+    // Verify auth status before continuing
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) {
+      throw new Error("User must be authenticated to delete blog posts");
+    }
+    
+    const { error } = await supabase
+      .from('blog_posts')
+      .delete()
+      .eq('id', id);
 
-  if (error) {
-    console.error('Error deleting blog post:', error);
+    if (error) {
+      console.error('Error deleting blog post:', error);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error in deleteBlogPost:', error);
     return false;
   }
-
-  return true;
 };
