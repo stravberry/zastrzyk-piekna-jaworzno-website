@@ -32,15 +32,16 @@ const AdminPostEditor: React.FC = () => {
     mutationFn: (data: BlogPostDraft) => createBlogPost(data),
     onSuccess: () => {
       toast({
-        title: "Success!",
-        description: "Post created successfully",
+        title: "Sukces!",
+        description: "Zapisano post",
+        className: "bottom-0 left-0",
       });
       navigate("/admin/posts");
     },
     onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to create post",
+        title: "Błąd",
+        description: "Nie udało się zapisać postu",
         variant: "destructive",
       });
     },
@@ -52,15 +53,16 @@ const AdminPostEditor: React.FC = () => {
       updateBlogPost(id, data),
     onSuccess: () => {
       toast({
-        title: "Success!",
-        description: "Post updated successfully",
+        title: "Sukces!",
+        description: "Zapisano post",
+        className: "bottom-0 left-0",
       });
       navigate("/admin/posts");
     },
     onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to update post",
+        title: "Błąd",
+        description: "Nie udało się zaktualizować postu",
         variant: "destructive",
       });
     },

@@ -72,17 +72,22 @@ export const EditorForm: React.FC<EditorFormProps> = ({
         </TabsList>
         
         <Button
-          onClick={form.handleSubmit(handleFormSubmit)}
+          type="submit"
+          form="post-editor-form"
           disabled={isSubmitting}
           className="bg-pink-500 hover:bg-pink-600 w-full sm:w-auto mt-2 sm:mt-0"
         >
           <Save className="mr-2 h-4 w-4" />
-          {isSubmitting ? "Saving..." : "Save Post"}
+          {isSubmitting ? "Zapisywanie..." : "Zapisz Post"}
         </Button>
       </div>
       
       <Form {...form}>
-        <form className="space-y-6" onSubmit={form.handleSubmit(handleFormSubmit)}>
+        <form 
+          id="post-editor-form" 
+          className="space-y-6" 
+          onSubmit={form.handleSubmit(handleFormSubmit)}
+        >
           <TabsContent value="editor">
             <EditorMainTab control={form.control} />
           </TabsContent>
