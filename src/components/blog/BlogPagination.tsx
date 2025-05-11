@@ -56,56 +56,62 @@ const BlogPagination: React.FC<BlogPaginationProps> = ({
   const pageNumbers = getPageNumbers();
 
   return (
-    <div className="flex justify-center mt-12">
-      <div className="flex space-x-2">
+    <div className="flex justify-center mt-10 md:mt-12">
+      <div className="flex flex-wrap justify-center gap-2">
         <Button
           variant="outline"
-          className="border-pink-200 text-pink-500 hover:bg-pink-50"
+          className="border-pink-200 text-pink-500 hover:bg-pink-50 h-9"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
+          size="sm"
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
-          Poprzednia
+          <span className="hidden sm:inline">Poprzednia</span>
         </Button>
         
-        {pageNumbers.map((page, index) => {
-          if (page === "ellipsis") {
+        <div className="flex flex-wrap gap-2 justify-center">
+          {pageNumbers.map((page, index) => {
+            if (page === "ellipsis") {
+              return (
+                <Button
+                  key={`ellipsis-${index}`}
+                  variant="outline"
+                  className="border-pink-200 text-pink-500 h-9 w-9 p-0"
+                  disabled
+                  size="sm"
+                >
+                  ...
+                </Button>
+              );
+            }
+            
+            const pageNum = page as number;
             return (
               <Button
-                key={`ellipsis-${index}`}
+                key={pageNum}
                 variant="outline"
-                className="border-pink-200 text-pink-500"
-                disabled
+                className={
+                  pageNum === currentPage
+                    ? "bg-pink-500 text-white border-pink-500 h-9 w-9 p-0"
+                    : "border-pink-200 text-pink-500 hover:bg-pink-50 h-9 w-9 p-0"
+                }
+                onClick={() => onPageChange(pageNum)}
+                size="sm"
               >
-                ...
+                {pageNum}
               </Button>
             );
-          }
-          
-          const pageNum = page as number;
-          return (
-            <Button
-              key={pageNum}
-              variant="outline"
-              className={
-                pageNum === currentPage
-                  ? "bg-pink-500 text-white border-pink-500"
-                  : "border-pink-200 text-pink-500 hover:bg-pink-50"
-              }
-              onClick={() => onPageChange(pageNum)}
-            >
-              {pageNum}
-            </Button>
-          );
-        })}
+          })}
+        </div>
 
         <Button
           variant="outline"
-          className="border-pink-200 text-pink-500 hover:bg-pink-50"
+          className="border-pink-200 text-pink-500 hover:bg-pink-50 h-9"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
+          size="sm"
         >
-          Następna
+          <span className="hidden sm:inline">Następna</span>
           <ChevronRight className="h-4 w-4 ml-1" />
         </Button>
       </div>

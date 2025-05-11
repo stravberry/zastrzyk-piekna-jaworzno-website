@@ -13,12 +13,12 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
   onCategoryChange,
 }) => {
   return (
-    <div className="mb-12 overflow-x-auto">
-      <div className="flex space-x-4 min-w-max">
+    <div className="mb-8 md:mb-12 overflow-x-auto pb-2">
+      <div className="flex space-x-3 min-w-max">
         {categories.map((category, index) => (
           <button
             key={index}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
               category === activeCategory
                 ? "bg-pink-500 text-white"
                 : "bg-pink-50 text-gray-700 hover:bg-pink-100"

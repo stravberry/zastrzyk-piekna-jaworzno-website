@@ -70,7 +70,7 @@ const Blog = () => {
 
         {/* Blog Articles */}
         <section id="blog-posts" className="py-16 bg-white">
-          <div className="container-custom">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
             <CategoryFilter 
               categories={categories} 
               activeCategory={activeCategory} 
@@ -78,18 +78,18 @@ const Blog = () => {
             />
 
             {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 {[...Array(6)].map((_, index) => (
                   <div key={index} className="bg-gray-100 h-80 rounded-lg animate-pulse"></div>
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 {currentPosts.map((post) => (
                   <BlogCard key={post.id} post={post} />
                 ))}
                 {currentPosts.length === 0 && (
-                  <div className="col-span-3 text-center py-8">
+                  <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-8">
                     <h3 className="text-xl text-gray-500">Brak artykułów w wybranej kategorii</h3>
                   </div>
                 )}
