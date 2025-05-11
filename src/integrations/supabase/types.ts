@@ -139,6 +139,17 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      get_code_settings: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          head_code: string
+          body_code: string
+        }[]
+      }
+      update_code_settings: {
+        Args: { p_head_code: string; p_body_code: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

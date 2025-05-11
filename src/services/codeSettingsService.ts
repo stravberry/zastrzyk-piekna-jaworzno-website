@@ -24,7 +24,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 export const getCodeSettings = async (): Promise<CodeSettings> => {
   try {
     // Try to fetch from Supabase if available
-    const { data: settings, error } = await supabase
+    const { data, error } = await supabase
       .rpc('get_code_settings')
       .single();
     
@@ -34,10 +34,10 @@ export const getCodeSettings = async (): Promise<CodeSettings> => {
     }
     
     // If settings exist in database, return them
-    if (settings) {
+    if (data) {
       return {
-        headCode: settings.head_code || defaultGTMHead,
-        bodyCode: settings.body_code || defaultGTMBody,
+        headCode: data.head_code || defaultGTMHead,
+        bodyCode: data.body_code || defaultGTMBody,
       };
     }
     
