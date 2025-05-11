@@ -2,11 +2,11 @@
 import { PriceCategory } from "@/components/pricing/PriceCard";
 import { getPriceCategories } from "./pricingCoreService";
 import html2canvas from "html2canvas";
-import { createPdfLayoutForPng } from "@/utils/pdfGenerator";
+import { createPdfLayoutForPng, generatePricingPdf } from "@/utils/pdf";
 
 // Export pricing data as PDF
 export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => {
-  // This function will be implemented with a PDF generation library
+  // Get all price categories
   const categories = await getPriceCategories();
   
   // If categoryId is provided, filter to that category only
@@ -14,8 +14,7 @@ export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => 
     ? categories.filter(cat => cat.id === categoryId) 
     : categories;
   
-  // We'll implement the actual PDF generation in a separate module
-  const { generatePricingPdf } = await import('@/utils/pdfGenerator');
+  // Generate the PDF using our utility function
   return generatePricingPdf(filteredCategories);
 };
 
