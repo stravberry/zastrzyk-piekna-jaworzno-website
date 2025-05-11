@@ -1,11 +1,14 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { usePricing } from "@/hooks/usePricing";
 import PricingActions from "@/components/admin/pricing/PricingActions";
 import PricingCategoriesList from "@/components/admin/pricing/PricingCategoriesList";
 import PricingDialogs from "@/components/admin/pricing/PricingDialogs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 
 const AdminPricing = () => {
   const {
@@ -27,10 +30,23 @@ const AdminPricing = () => {
     handleExportPng
   } = usePricing();
 
+  const [loadRetries, setLoadRetries] = useState(0);
+
   useEffect(() => {
     // Refresh data when component mounts to ensure we have latest data
     refreshData();
   }, [refreshData]);
+
+  const handleForceReload = () => {
+    toast.info("Wymuszenie odświeżenia danych cennika...");
+    setLoadRetries(prev => prev + 1);
+    handleResetData().then(() => {
+      toast.success("Dane cennika zostały odświeżone");
+    }).catch(err => {
+      toast.error("Nie udało się odświeżyć danych");
+      console.error("Force reload error:", err);
+    });
+  };
 
   return (
     <AdminLayout title="Zarządzanie cennikiem">
@@ -55,6 +71,20 @@ const AdminPricing = () => {
                 </div>
               </div>
             ))}
+          </div>
+        ) : categories.length === 0 ? (
+          <div className="mt-8 text-center">
+            <p className="text-gray-500 mb-4">
+              Nie znaleziono kategorii cennika. Prawdopodobnie wystąpił problem z inicjalizacją danych.
+            </p>
+            <Button 
+              onClick={handleForceReload}
+              variant="default" 
+              className="mx-auto"
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Wymuś ponowne załadowanie danych
+            </Button>
           </div>
         ) : (
           <PricingCategoriesList 
