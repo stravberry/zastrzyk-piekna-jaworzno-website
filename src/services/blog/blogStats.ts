@@ -41,11 +41,25 @@ export const getBlogStats = async (): Promise<{
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
     
-    // Get recent posts
-    const recentPosts = posts
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 5)
-      .map(mapDbPostToFrontend);
+    // Get recent posts with error handling
+    let recentPosts: BlogPost[] = [];
+    try {
+      // Sort posts by date with error handling
+      const sortedPosts = [...posts].sort((a, b) => {
+        try {
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        } catch (error) {
+          console.error('Error sorting by date:', error);
+          return 0; // Keep original order if there's an error
+        }
+      });
+      
+      recentPosts = sortedPosts.slice(0, 5).map(mapDbPostToFrontend);
+    } catch (error) {
+      console.error('Error processing recent posts:', error);
+      // Return empty array if there was an error
+      recentPosts = [];
+    }
     
     // Calculate total views (sum of all post views)
     const totalViews = posts.length * (Math.floor(Math.random() * 500) + 100);
@@ -59,7 +73,7 @@ export const getBlogStats = async (): Promise<{
   } catch (error) {
     console.error('Error in getBlogStats:', error);
     
-    // Fall back to sample data
+    // Fall back to sample data with better error handling
     const samplePosts = blogPosts;
     
     // Calculate categories from sample data
@@ -78,9 +92,8 @@ export const getBlogStats = async (): Promise<{
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
     
-    // Get recent posts with mock stats
+    // Get recent posts with mock stats and better error handling
     const recentPosts = samplePosts
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, 5)
       .map(post => ({
         ...post,

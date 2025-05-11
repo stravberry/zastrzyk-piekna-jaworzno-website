@@ -41,6 +41,7 @@ const AdminDashboard: React.FC = () => {
   );
 
   if (error) {
+    console.error('Dashboard error:', error);
     return (
       <AdminLayout title="Dashboard">
         <Alert variant="destructive" className="mb-6">
@@ -79,7 +80,7 @@ const AdminDashboard: React.FC = () => {
             />
             <StatCard 
               title="Średni czas czytania" 
-              value={`${Math.round(stats.totalViews / stats.totalPosts / 60)} min`} 
+              value={`${Math.round((stats.totalViews / stats.totalPosts) / 60) || 0} min`} 
               icon={<Clock className="h-5 w-5" />}
               description="Średni czas spędzony na wpisie"
             />
@@ -92,22 +93,26 @@ const AdminDashboard: React.FC = () => {
                 <CardDescription>Najczęściej używane kategorie na blogu</CardDescription>
               </CardHeader>
               <CardContent>
-                {stats.popularCategories.map((category, index) => (
-                  <div key={index} className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">{category.category}</span>
-                    <div className="flex items-center">
-                      <span className="text-sm text-muted-foreground mr-2">{category.count} wpisów</span>
-                      <div className="w-24 h-2 rounded-full bg-gray-200 overflow-hidden">
-                        <div 
-                          className="h-full bg-pink-500" 
-                          style={{ 
-                            width: `${(category.count / stats.totalPosts) * 100}%` 
-                          }}
-                        />
+                {stats.popularCategories && stats.popularCategories.length > 0 ? (
+                  stats.popularCategories.map((category, index) => (
+                    <div key={index} className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">{category.category}</span>
+                      <div className="flex items-center">
+                        <span className="text-sm text-muted-foreground mr-2">{category.count} wpisów</span>
+                        <div className="w-24 h-2 rounded-full bg-gray-200 overflow-hidden">
+                          <div 
+                            className="h-full bg-pink-500" 
+                            style={{ 
+                              width: `${(category.count / stats.totalPosts) * 100}%` 
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">Brak danych kategorii</p>
+                )}
               </CardContent>
             </Card>
             
@@ -118,26 +123,30 @@ const AdminDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {stats.recentPosts.map(post => (
-                    <div key={post.id} className="flex items-start space-x-3">
-                      <div 
-                        className="w-12 h-12 rounded-md bg-cover bg-center flex-shrink-0" 
-                        style={{ backgroundImage: `url(${post.image || '/placeholder.svg'})` }}
-                      />
-                      <div>
-                        <Link 
-                          to={`/admin/posts/edit/${post.id}`} 
-                          className="text-sm font-medium hover:underline line-clamp-1"
-                        >
-                          {post.title}
-                        </Link>
-                        <div className="flex space-x-3 text-xs text-muted-foreground mt-1">
-                          <span>{post.date}</span>
-                          <span>{post.category}</span>
+                  {stats.recentPosts && stats.recentPosts.length > 0 ? (
+                    stats.recentPosts.map(post => (
+                      <div key={post.id} className="flex items-start space-x-3">
+                        <div 
+                          className="w-12 h-12 rounded-md bg-cover bg-center flex-shrink-0" 
+                          style={{ backgroundImage: `url(${post.image || '/placeholder.svg'})` }}
+                        />
+                        <div>
+                          <Link 
+                            to={`/admin/posts/edit/${post.id}`} 
+                            className="text-sm font-medium hover:underline line-clamp-1"
+                          >
+                            {post.title}
+                          </Link>
+                          <div className="flex space-x-3 text-xs text-muted-foreground mt-1">
+                            <span>{post.date}</span>
+                            <span>{post.category}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Brak ostatnich wpisów</p>
+                  )}
                 </div>
                 
                 <Button 
@@ -152,7 +161,10 @@ const AdminDashboard: React.FC = () => {
           </div>
         </>
       ) : (
-        <p>Nie udało się załadować statystyk</p>
+        <div className="text-center py-8">
+          <p>Nie udało się załadować statystyk</p>
+          <Button onClick={() => refetch()} className="mt-4">Spróbuj ponownie</Button>
+        </div>
       )}
     </AdminLayout>
   );
