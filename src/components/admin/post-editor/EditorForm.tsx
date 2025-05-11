@@ -95,32 +95,35 @@ export const EditorForm: React.FC<EditorFormProps> = ({
               </DrawerTrigger>
               <DrawerContent className="px-4 pb-6">
                 <div className="mt-6 space-y-6">
-                  <TabsList className="w-full grid grid-cols-3">
-                    <TabsTrigger 
-                      value="editor" 
-                      onClick={() => setActiveTab("editor")}
-                      className={activeTab === "editor" ? "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground" : ""}
-                    >
-                      Editor
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="preview" 
-                      onClick={() => {
-                        handlePreview();
-                        setActiveTab("preview");
-                      }}
-                      className={activeTab === "preview" ? "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground" : ""}
-                    >
-                      Preview
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="seo" 
-                      onClick={() => setActiveTab("seo")}
-                      className={activeTab === "seo" ? "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground" : ""}
-                    >
-                      SEO
-                    </TabsTrigger>
-                  </TabsList>
+                  {/* Wrapping TabsList inside a Tabs component to fix "TabsList must be used within Tabs" error */}
+                  <Tabs value={activeTab} onValueChange={setActiveTab}>
+                    <TabsList className="w-full grid grid-cols-3">
+                      <TabsTrigger 
+                        value="editor" 
+                        onClick={() => setActiveTab("editor")}
+                        className={activeTab === "editor" ? "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground" : ""}
+                      >
+                        Editor
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="preview" 
+                        onClick={() => {
+                          handlePreview();
+                          setActiveTab("preview");
+                        }}
+                        className={activeTab === "preview" ? "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground" : ""}
+                      >
+                        Preview
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="seo" 
+                        onClick={() => setActiveTab("seo")}
+                        className={activeTab === "seo" ? "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground" : ""}
+                      >
+                        SEO
+                      </TabsTrigger>
+                    </TabsList>
+                  </Tabs>
                 </div>
               </DrawerContent>
             </Drawer>
