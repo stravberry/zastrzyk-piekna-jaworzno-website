@@ -9,7 +9,8 @@ import {
   Search,
   TrendingUp,
   Clock,
-  MoreHorizontal
+  MoreHorizontal,
+  FilePlus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -157,6 +158,12 @@ const AdminPosts: React.FC = () => {
                 className="pl-10"
               />
             </div>
+            <Button asChild className="w-full sm:w-auto">
+              <Link to="/admin/posts/new">
+                <FilePlus className="mr-2" />
+                Nowy post
+              </Link>
+            </Button>
           </div>
           
           {/* Mobile View */}
