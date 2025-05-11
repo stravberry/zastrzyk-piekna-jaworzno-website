@@ -43,8 +43,8 @@ const Services = () => {
     },
     {
       id: 4,
-      title: "Mezoterapia igłowa",
-      description: "Zabieg polegający na dostarczaniu aktywnych składników w głąb skóry, poprawiający jej kondycję i wygląd.",
+      title: "MEZOTERAPIA IGŁOWA",
+      description: "niekwestionowana królowa technik dostarczania składników odżywczych w głąb skóry. Często mylona z konkretnym zabiegiem, tymczasem jest to metoda, a nie zabieg. Nie wszystkie preparaty można podać ta techniką, dobór koktajlu możliwy jest po ustaleniu oczekiwanych rezultatów",
       icon: <Syringe size={36} />,
       link: "/zabiegi/mezoterapia-iglowa",
       features: ["Silne nawilżenie", "Stymulacja kolagenu", "Rozjaśnienie przebarwień", "Poprawa elastyczności"],
