@@ -58,4 +58,3 @@ export const encodePlChars = (text: string): string => {
     .replace(/Ź/g, '\u0179')
     .replace(/Ż/g, '\u017B');
 };
-

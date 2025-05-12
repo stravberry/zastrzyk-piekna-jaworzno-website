@@ -130,4 +130,3 @@ export const generatePricingPDF = async (title: string, categories: any[]) => {
   // Clean up
   URL.revokeObjectURL(pdfUrl);
 };
-
