@@ -8,22 +8,68 @@ import AboutSection from "@/components/AboutSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import CTASection from "@/components/CTASection";
 import InstagramSection from "@/components/InstagramSection";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const Index = () => {
   const servicesRef = useRef<HTMLDivElement>(null);
+  const aboutRef = useRef<HTMLDivElement>(null);
+  const testimonialsRef = useRef<HTMLDivElement>(null);
+  const instagramRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+  
+  // Track scroll animations for each section
+  const isServicesVisible = useScrollAnimation(servicesRef);
+  const isAboutVisible = useScrollAnimation(aboutRef);
+  const isTestimonialsVisible = useScrollAnimation(testimonialsRef);
+  const isInstagramVisible = useScrollAnimation(instagramRef);
+  const isCtaVisible = useScrollAnimation(ctaRef);
   
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow">
         <HeroSection />
-        <div ref={servicesRef} id="services">
+        <div 
+          ref={servicesRef}
+          id="services"
+          className={`transition-all duration-700 ${
+            isServicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+          }`}
+        >
           <ServicesSection />
         </div>
-        <AboutSection />
-        <TestimonialsSection />
-        <InstagramSection />
-        <CTASection />
+        <div 
+          ref={aboutRef}
+          className={`transition-all duration-700 ${
+            isAboutVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+          }`}
+        >
+          <AboutSection />
+        </div>
+        <div 
+          ref={testimonialsRef}
+          className={`transition-all duration-700 ${
+            isTestimonialsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+          }`}
+        >
+          <TestimonialsSection />
+        </div>
+        <div 
+          ref={instagramRef}
+          className={`transition-all duration-700 ${
+            isInstagramVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+          }`}
+        >
+          <InstagramSection />
+        </div>
+        <div 
+          ref={ctaRef}
+          className={`transition-all duration-700 ${
+            isCtaVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+          }`}
+        >
+          <CTASection />
+        </div>
       </main>
       <Footer />
     </div>

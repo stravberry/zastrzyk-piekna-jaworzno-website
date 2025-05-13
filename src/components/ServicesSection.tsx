@@ -1,9 +1,13 @@
 
-import React from "react";
+import React, { useRef } from "react";
 import ServiceCard from "./ServiceCard";
 import { Droplet, User, Heart, Syringe } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const ServicesSection = () => {
+  const headerRef = useRef<HTMLDivElement>(null);
+  const isHeaderVisible = useScrollAnimation(headerRef);
+
   const services = [{
     id: 1,
     title: "Terapie przeciwstarzeniowe",
@@ -41,9 +45,15 @@ const ServicesSection = () => {
     icon: <Droplet size={36} />,
     link: "/zabiegi/peelingi-chemiczne"
   }];
+
   return <section className="section-padding bg-pink-50/50">
       <div className="container-custom">
-        <div className="text-center mb-12">
+        <div 
+          ref={headerRef}
+          className={`text-center mb-12 transition-all duration-700 ${
+            isHeaderVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+          }`}
+        >
           <h2 className="text-3xl md:text-4xl font-bold mb-4 font-playfair">
             <span className="text-pink-500">OFERTA </span>
             <span>ZABIEGOWA</span>
@@ -54,9 +64,27 @@ const ServicesSection = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map(service => <ServiceCard key={service.id} title={service.title} description={service.description} icon={service.icon} link={service.link} />)}
+          {services.map((service, index) => (
+            <div 
+              key={service.id}
+              className="transition-all duration-700"
+              style={{ 
+                transitionDelay: `${index * 100}ms`,
+                opacity: isHeaderVisible ? 1 : 0,
+                transform: isHeaderVisible ? 'translateY(0)' : 'translateY(20px)'
+              }}
+            >
+              <ServiceCard 
+                title={service.title} 
+                description={service.description} 
+                icon={service.icon} 
+                link={service.link} 
+              />
+            </div>
+          ))}
         </div>
       </div>
     </section>;
 };
+
 export default ServicesSection;
