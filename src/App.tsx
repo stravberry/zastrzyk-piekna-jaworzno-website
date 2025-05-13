@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import AppRoutes from "./AppRoutes";
 import { AdminProvider } from "./context/AdminContext";
 
@@ -23,6 +24,7 @@ const App = () => (
           </AdminProvider>
         </BrowserRouter>
         <Analytics />
+        <SpeedInsights />
       </TooltipProvider>
     </HelmetProvider>
   </QueryClientProvider>
