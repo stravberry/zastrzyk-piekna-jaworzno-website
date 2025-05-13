@@ -149,8 +149,8 @@ const AntiAgingTherapies: React.FC = () => {
           {JSON.stringify(schemaData)}
         </script>
         
-        {/* Hreflang tags for language/region targeting */}
-        <link rel="alternate" hreflang="pl-pl" href="https://zastrzyk-piekna.pl/zabiegi/terapie-przeciwstarzeniowe" />
+        {/* Hreflang tags for language/region targeting - Fix the casing here */}
+        <link rel="alternate" hrefLang="pl-pl" href="https://zastrzyk-piekna.pl/zabiegi/terapie-przeciwstarzeniowe" />
       </Helmet>
       <Navbar />
       <main className="flex-grow pt-24">
