@@ -16,7 +16,7 @@ import {
   growthFactorEffects
 } from "@/components/antiaging/data/treatments";
 
-const AntiAgingTherapies = () => {
+const AntiAgingTherapies: React.FC = () => {
   // References for scrolling to sections
   const autologousRef = React.useRef<HTMLDivElement>(null);
   const stimulatorsRef = React.useRef<HTMLDivElement>(null);

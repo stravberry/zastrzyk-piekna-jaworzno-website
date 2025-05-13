@@ -10,14 +10,14 @@ const IntroductionSection: React.FC = () => {
   const isChartVisible = useScrollAnimation(chartRef, { threshold: 0.3 });
   
   return (
-    <section ref={sectionRef} className="py-16 bg-white">
+    <section ref={sectionRef} className="py-16 bg-white" aria-labelledby="introduction-title">
       <div className="container-custom">
         <div 
           className={`max-w-3xl mx-auto text-center transition-all duration-1000 ${
             isVisible ? "opacity-100" : "opacity-0 translate-y-10"
           }`}
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-8 font-playfair">
+          <h2 id="introduction-title" className="text-3xl md:text-4xl font-bold mb-8 font-playfair">
             <span className="text-gray-800">Kompleksowe podejście do </span>
             <span className="text-pink-500">młodości skóry</span>
           </h2>
@@ -37,11 +37,12 @@ const IntroductionSection: React.FC = () => {
         </div>
         
         {/* Wizualna prezentacja podziału terapii */}
-        <div 
+        <figure 
           ref={chartRef}
           className={`mt-16 max-w-4xl mx-auto transition-all duration-1000 delay-300 ${
             isChartVisible ? "opacity-100" : "opacity-0 translate-y-10"
           }`}
+          aria-label="Schemat podziału terapii przeciwstarzeniowych"
         >
           <div className="bg-pink-50/60 rounded-xl p-8 shadow-sm">
             <div className="flex flex-col items-center">
@@ -98,10 +99,10 @@ const IntroductionSection: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
+        </figure>
       </div>
     </section>
   );
 };
 
-export default IntroductionSection;
+export default React.memo(IntroductionSection);

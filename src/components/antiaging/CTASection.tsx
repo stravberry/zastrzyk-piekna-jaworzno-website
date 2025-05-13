@@ -10,14 +10,21 @@ const CTASection: React.FC = () => {
   const isVisible = useScrollAnimation(sectionRef);
   
   return (
-    <section ref={sectionRef} className="py-16 bg-gradient-to-r from-pink-500 to-[#9b87f5] text-white">
+    <section 
+      ref={sectionRef} 
+      className="py-16 bg-gradient-to-r from-pink-500 to-[#9b87f5] text-white"
+      aria-labelledby="cta-title"
+    >
       <div className="container-custom">
         <div 
           className={`max-w-3xl mx-auto text-center transition-all duration-1000 ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 font-playfair">
+          <h2 
+            id="cta-title" 
+            className="text-3xl md:text-4xl font-bold mb-6 font-playfair"
+          >
             Rozpocznij swoją terapię przeciwstarzeniową już dziś
           </h2>
           <p className="text-lg mb-8 text-white/90">
@@ -33,7 +40,7 @@ const CTASection: React.FC = () => {
           >
             <Link to="/kontakt">
               Umów wizytę
-              <ArrowRight className="ml-2 w-4 h-4" />
+              <ArrowRight className="ml-2 w-4 h-4" aria-hidden="true" />
             </Link>
           </Button>
         </div>
@@ -42,4 +49,4 @@ const CTASection: React.FC = () => {
   );
 };
 
-export default CTASection;
+export default React.memo(CTASection);
