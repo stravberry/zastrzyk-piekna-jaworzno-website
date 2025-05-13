@@ -3,6 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useScrollTo } from "@/hooks/useScrollTo";
 
 interface HeroSectionProps {
   scrollToSection: (ref: React.RefObject<HTMLDivElement>) => void;
@@ -16,6 +17,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   stimulatorsRef,
 }) => {
   const isMobile = useIsMobile();
+  const { scrollToRef } = useScrollTo();
+  
+  const handleScrollTo = (ref: React.RefObject<HTMLDivElement>) => {
+    scrollToRef(ref, { offset: 80 });
+  };
 
   return (
     <header className="relative bg-gradient-to-b from-pink-50/80 to-white py-12 md:py-20 lg:py-28 overflow-hidden">
@@ -38,11 +44,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({
               i wspierają <span className="font-semibold">naturalną regenerację</span> tkanek.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-4 sm:mb-0">
+            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-6 sm:mb-4">
               <Button 
                 className="bg-pink-500 hover:bg-pink-600 text-white"
                 size={isMobile ? "default" : "lg"}
-                onClick={() => scrollToSection(autologousRef)}
+                onClick={() => handleScrollTo(autologousRef)}
                 aria-label="Przejdź do sekcji zabiegów autologicznych"
               >
                 Zabiegi autologiczne
@@ -52,7 +58,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                 variant="outline" 
                 className="border-pink-200 hover:bg-pink-50"
                 size={isMobile ? "default" : "lg"}
-                onClick={() => scrollToSection(stimulatorsRef)}
+                onClick={() => handleScrollTo(stimulatorsRef)}
                 aria-label="Przejdź do sekcji stymulatorów tkankowych"
               >
                 Stymulatory tkankowe

@@ -1,30 +1,38 @@
 
-import React from "react";
+import React, { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useScrollTo } from "@/hooks/useScrollTo";
+
 const HeroSection = () => {
+  const servicesRef = useRef<HTMLDivElement>(null);
+  const { scrollToRef } = useScrollTo();
+
+  const handleScrollToServices = () => {
+    scrollToRef(servicesRef, { offset: 80 });
+  };
+
   return <div className="relative min-h-[90vh] flex items-center justify-center bg-gradient-to-r from-pink-50 to-white">
       <div className="absolute inset-0 z-0 opacity-20 bg-[url('/images/hero-pattern.jpg')] bg-cover bg-center"></div>
       <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-sm"></div>
       
-      <div className="container-custom relative z-20 grid grid-cols-1 md:grid-cols-2 gap-8 pt-20">
+      <div className="container-custom relative z-20 grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 pt-20">
         {/* Left side content */}
-        <div className="flex flex-col items-start text-left space-y-8">
+        <div className="flex flex-col items-start text-left space-y-8 mb-10 lg:mb-0">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 leading-tight animate-fade-in">Gabinet kosmetologii Jaworzno</h1>
           
           <p className="text-lg md:text-xl text-gray-600 max-w-2xl animate-slide-up">Piękno to nie efekt jednego zabiegu.
 To styl życia, który łączy pielegnacje, odżywianie i ruch – holistyczne podejście do życia to klucz do piękna, które trwa, a ja się do tego przyczynię </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 pt-4 animate-slide-up">
+          <div className="flex flex-col sm:flex-row gap-4 pt-4 animate-slide-up mb-4 sm:mb-0">
             <Button asChild size="lg" className="bg-pink-500 hover:bg-pink-600 text-white px-8 py-6 text-base">
               <Link to="/kontakt">
                 Umów wizytę
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="border-pink-500 text-pink-500 hover:bg-pink-50 px-8 py-6 text-base">
-              <Link to="/zabiegi">
-                Poznaj zabiegi
-              </Link>
+            <Button variant="outline" size="lg" className="border-pink-500 text-pink-500 hover:bg-pink-50 px-8 py-6 text-base"
+              onClick={handleScrollToServices}>
+              Poznaj zabiegi
             </Button>
           </div>
           
@@ -50,6 +58,9 @@ To styl życia, który łączy pielegnacje, odżywianie i ruch – holistyczne p
           </div>
         </div>
       </div>
+      
+      {/* Invisible ref for scrolling to services */}
+      <div ref={servicesRef} className="absolute bottom-0 left-0 w-full"></div>
     </div>;
 };
 export default HeroSection;
