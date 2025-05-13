@@ -1,5 +1,5 @@
 
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import {
   Accordion,
@@ -7,79 +7,105 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { trackEvent } from "@/services/analyticService";
 
-// FAQ items for better maintainability
-const faqItems = [
+const faqs = [
   {
-    id: "item-1",
-    question: "Czy zabiegi autologiczne są bolesne?",
-    answer: "Komfort podczas zabiegu jest dla mnie priorytetem. Procedura pobierania krwi jest minimalne bolesna, a sama aplikacja preparatu poprzedzona jest nałożeniem kremu znieczulającego. Większość pacjentów ocenia dyskomfort jako minimalny lub umiarkowany."
+    question: "Czy zabiegi przeciwstarzeniowe są bolesne?",
+    answer: "Większość zabiegów przeciwstarzeniowych w naszym gabinecie w Jaworznie wykonujemy z zastosowaniem kremów znieczulających lub odpowiedniego przygotowania skóry, co minimalizuje dyskomfort. Poziom odczuwanego bólu jest bardzo indywidualny, jednak pacjenci zazwyczaj określają go jako nieznaczny lub umiarkowany."
   },
   {
-    id: "item-2",
-    question: "Jak długo utrzymują się efekty zabiegów?",
-    answer: "Efekty zabiegów autologicznych rozwijają się stopniowo i mogą utrzymywać się od 6 do nawet 18 miesięcy, w zależności od indywidualnych cech pacjenta i zastosowanej metody. Z kolei stymulatory tkankowe mogą działać nawet do 24 miesięcy."
+    question: "Jak szybko będą widoczne efekty zabiegów?",
+    answer: "Pierwsze efekty widoczne są zazwyczaj bezpośrednio po zabiegu w postaci lepszego napięcia i nawilżenia skóry. Pełne rezultaty pojawiają się po kilku tygodniach od zabiegu, gdy skóra zdąży wyprodukować nowe włókna kolagenowe. W naszym gabinecie w Jaworznie oferujemy pełne monitorowanie postępów terapii."
   },
   {
-    id: "item-3",
-    question: "Ile zabiegów potrzeba do osiągnięcia zadowalających efektów?",
-    answer: "Zazwyczaj zalecam serię 2-4 zabiegów w odstępach 4-6 tygodni, aby osiągnąć optymalny efekt. Po zakończeniu serii zabiegowej wykonujemy zabiegi podtrzymujące co 6-12 miesięcy."
+    question: "Jak długo utrzymują się efekty zabiegów przeciwstarzeniowych?",
+    answer: "Efekty zabiegów przeciwstarzeniowych utrzymują się średnio od 6 do 18 miesięcy, w zależności od zastosowanej metody, indywidualnych predyspozycji pacjenta oraz dbałości o skórę po zabiegu. Dla podtrzymania efektów zalecamy regularne zabiegi podtrzymujące, które dobieramy indywidualnie dla mieszkańców Jaworzna i okolicznych miast."
   },
   {
-    id: "item-4",
-    question: "Czy są przeciwwskazania do terapii przeciwstarzeniowych?",
-    answer: "Tak, istnieją przeciwwskazania do wykonywania tego typu zabiegów. Należą do nich m.in.: ciąża i karmienie piersią, choroby autoimmunologiczne w fazie zaostrzenia, choroby nowotworowe, aktywne infekcje w miejscu podania, tendencja do tworzenia bliznowców i inne. Przed zabiegiem przeprowadzam dokładny wywiad medyczny."
+    question: "Czy zabiegi mają okres rekonwalescencji?",
+    answer: "Czas rekonwalescencji zależy od typu zabiegu. Zabiegi małoinwazyjne jak mezoterapia igłowa wymagają 1-2 dni, podczas których mogą występować zaczerwienienia czy obrzęki. W przypadku intensywniejszych zabiegów regeneracja może trwać kilka dni. Zapewniamy pełne wsparcie w okresie rekonwalescencji dla pacjentów z Jaworzna, Katowic, Myślowic i innych pobliskich miejscowości."
   },
   {
-    id: "item-5",
-    question: "W jakim wieku warto zacząć terapie przeciwstarzeniowe?",
-    answer: "Nie ma jednego uniwersalnego wieku, w którym należy rozpocząć zabiegi. Zazwyczaj pierwsze oznaki starzenia pojawiają się około 25-30 roku życia, więc jest to dobry moment, aby zacząć profilaktykę. Jednak kluczowe jest indywidualne podejście – oceniam stan skóry i dostosowuję terapię do potrzeb konkretnej osoby."
+    question: "Czy można łączyć różne terapie przeciwstarzeniowe?",
+    answer: "Tak, w naszym gabinecie w Jaworznie często stosujemy terapie łączone, co przynosi lepsze i trwalsze efekty. Odpowiednio dobrana sekwencja zabiegów pozwala na kompleksowe rozwiązanie problemów skórnych. Oferujemy indywidualnie dobrane plany zabiegowe dla mieszkańców całego regionu śląskiego oraz Małopolski."
+  },
+  {
+    question: "Od jakiego wieku można stosować terapie przeciwstarzeniowe?",
+    answer: "Zabiegi profilaktyczne można rozpocząć już od 25-30 roku życia. W przypadku wyraźnych oznak starzenia, zabiegi można wykonywać niezależnie od wieku, po konsultacji w naszym gabinecie. Zapraszamy pacjentów z Jaworzna, Katowic, Krakowa, Olkusza i innych okolicznych miejscowości na bezpłatną konsultację."
+  },
+  {
+    question: "Czy dojazd do gabinetu w Jaworznie z okolicznych miejscowości jest dogodny?",
+    answer: "Nasz gabinet w Jaworznie posiada bardzo dobrą lokalizację z łatwym dojazdem zarówno z centrum miasta, jak i z okolicznych miejscowości. Z Katowic czy Mysłowic dojazd zajmuje około 20-30 minut, z Krakowa około 45 minut, a z Oświęcimia czy Olkusza około 30 minut. Przy gabinecie znajduje się wygodny parking dla naszych klientów."
   }
 ];
 
 const FAQSection: React.FC = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isVisible = useScrollAnimation(sectionRef);
-
-  const accordionRef = useRef<HTMLDivElement>(null);
-  const isAccordionVisible = useScrollAnimation(accordionRef, { threshold: 0.1 });
+  
+  // Track FAQ interactions
+  const handleAccordionChange = (value: string) => {
+    trackEvent(
+      'User Interaction',
+      'FAQ Expanded',
+      value,
+    );
+  };
+  
+  // Track section visibility
+  useEffect(() => {
+    if (isVisible) {
+      trackEvent('Section Visibility', 'FAQ Section Viewed', 'Terapie Przeciwstarzeniowe');
+    }
+  }, [isVisible]);
   
   return (
-    <section 
-      ref={sectionRef} 
-      className="py-16 bg-pink-50/30" 
-      aria-labelledby="faq-title"
+    <section
+      ref={sectionRef}
+      className="py-16 bg-gray-50"
+      aria-labelledby="faq-heading"
     >
       <div className="container-custom">
-        <div 
-          className={`text-center mb-12 transition-all duration-700 ${
-            isVisible ? "opacity-100" : "opacity-0 translate-y-10"
-          }`}
-        >
-          <h2 id="faq-title" className="text-3xl md:text-4xl font-bold mb-4 font-playfair">
-            <span className="text-pink-500">Często zadawane </span>
-            <span className="text-gray-800">pytania</span>
+        <div className="text-center mb-12">
+          <h2
+            id="faq-heading"
+            className={`text-3xl md:text-4xl font-bold mb-4 font-playfair transition-all duration-700 ${
+              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+            }`}
+          >
+            Najczęściej zadawane pytania
           </h2>
+          <p 
+            className={`text-gray-600 max-w-2xl mx-auto transition-all duration-700 delay-100 ${
+              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+            }`}
+          >
+            Odpowiedzi na najczęstsze pytania dotyczące terapii przeciwstarzeniowych w naszym gabinecie w Jaworznie oraz regionie śląskim
+          </p>
         </div>
-        
+
         <div 
-          ref={accordionRef}
-          className={`max-w-3xl mx-auto transition-all duration-700 delay-200 ${
-            isAccordionVisible ? "opacity-100" : "opacity-0 translate-y-10"
+          className={`max-w-3xl mx-auto transition-all duration-1000 delay-200 ${
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}
         >
-          <Accordion type="single" collapsible className="w-full">
-            {faqItems.map((item) => (
-              <AccordionItem 
-                key={item.id}
-                value={item.id} 
-                className="transition-all duration-300 data-[state=open]:bg-white/60 rounded-lg mb-2"
-              >
-                <AccordionTrigger className="px-4 rounded-lg hover:bg-white/30 transition-colors">
-                  {item.question}
+          <Accordion 
+            type="single" 
+            collapsible 
+            className="w-full" 
+            onValueChange={handleAccordionChange}
+          >
+            {faqs.map((faq, index) => (
+              <AccordionItem key={index} value={`item-${index}`}>
+                <AccordionTrigger
+                  className="text-left text-lg font-medium"
+                  data-question-id={index}
+                >
+                  {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="px-4">
-                  {item.answer}
+                <AccordionContent className="text-gray-600 leading-relaxed">
+                  {faq.answer}
                 </AccordionContent>
               </AccordionItem>
             ))}
