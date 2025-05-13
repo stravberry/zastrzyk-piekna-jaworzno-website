@@ -129,7 +129,7 @@ const TissueStimulatorSection: React.FC<TissueStimulatorSectionProps> = ({
             Porównanie efektów
           </h3>
           
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto relative">
             <Carousel
               opts={{
                 align: "start",
@@ -167,9 +167,15 @@ const TissueStimulatorSection: React.FC<TissueStimulatorSectionProps> = ({
                   </div>
                 </CarouselItem>
               </CarouselContent>
-              <div className="flex justify-center mt-4">
-                <CarouselPrevious className="relative inset-auto left-auto -right-40" />
-                <CarouselNext className="relative inset-auto right-auto -left-40" />
+              <div className="flex justify-center mt-8 gap-6">
+                <CarouselPrevious 
+                  className="position-static relative inset-auto transform-none left-0 h-10 w-10 border-gold-400 bg-white hover:bg-gold-50 text-gold-500" 
+                  aria-label="Poprzednie zdjęcie"
+                />
+                <CarouselNext 
+                  className="position-static relative inset-auto transform-none right-0 h-10 w-10 border-gold-400 bg-white hover:bg-gold-50 text-gold-500" 
+                  aria-label="Następne zdjęcie"
+                />
               </div>
             </Carousel>
           </div>
