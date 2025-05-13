@@ -11,11 +11,18 @@ interface ServiceCardProps {
 }
 
 const ServiceCard = ({ title, description, icon, link }: ServiceCardProps) => {
-  // If the title is "Peelingi chemiczne", replace with "POZOSTAŁE ZABIEGI"
+  // Jeśli tytuł to "Terapie przeciwstarzeniowe", używamy nowego linku
   const displayTitle = title === "Peelingi chemiczne" ? "POZOSTAŁE ZABIEGI" : title;
   
-  // For "Peelingi chemiczne" service, change the link to the pricing page
-  const targetLink = title === "Peelingi chemiczne" ? "/pricing" : link;
+  // Dla "Peelingi chemiczne" zmieniamy link na stronę cennika
+  // Dla "Terapie przeciwstarzeniowe" używamy naszej nowej strony
+  let targetLink = link;
+  
+  if (title === "Peelingi chemiczne") {
+    targetLink = "/pricing";
+  } else if (title === "Terapie przeciwstarzeniowe") {
+    targetLink = "/zabiegi/terapie-przeciwstarzeniowe";
+  }
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 border border-pink-50 h-full flex flex-col">

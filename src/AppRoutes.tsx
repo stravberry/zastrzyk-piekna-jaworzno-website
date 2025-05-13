@@ -23,6 +23,7 @@ import AdminPostEditor from "./pages/admin/AdminPostEditor";
 import AdminWrapper from "./components/admin/AdminWrapper";
 import AdminCodeSettings from "./pages/admin/AdminCodeSettings";
 import AdminPricing from "./pages/admin/AdminPricing";
+import AntiAgingTherapies from "./pages/AntiAgingTherapies";
 
 const AppRoutes = () => {
   const { isAuthenticated } = useAdmin();
@@ -40,6 +41,7 @@ const AppRoutes = () => {
       <Route path="/blog" element={<Blog />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/gallery" element={<Gallery />} />
+      <Route path="/zabiegi/terapie-przeciwstarzeniowe" element={<AntiAgingTherapies />} />
       
       {/* Admin Routes */}
       {/* Redirect /admin (without slash) to /admin/ */}
