@@ -1,5 +1,5 @@
 
-import { ZIcon } from 'lucide-react';
+import { icons } from 'lucide-react';
 
 /**
  * Generates an SVG favicon using Lucide React icons
