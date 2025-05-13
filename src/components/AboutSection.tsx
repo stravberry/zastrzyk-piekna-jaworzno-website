@@ -32,7 +32,7 @@ const AboutSection = () => {
             </p>
 
             <Button asChild className="bg-pink-500 hover:bg-pink-600 text-white">
-              <Link to="/o-mnie">Poznaj mnie lepiej</Link>
+              <Link to="/about">Poznaj mnie lepiej</Link>
             </Button>
           </div>
 
