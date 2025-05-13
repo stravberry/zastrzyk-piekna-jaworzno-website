@@ -1,14 +1,22 @@
 
-import React from "react";
+import React, { useRef } from "react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
 const CTASection: React.FC = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const isVisible = useScrollAnimation(sectionRef);
+  
   return (
-    <section className="py-16 bg-gradient-to-r from-pink-500 to-[#9b87f5] text-white">
+    <section ref={sectionRef} className="py-16 bg-gradient-to-r from-pink-500 to-[#9b87f5] text-white">
       <div className="container-custom">
-        <div className="max-w-3xl mx-auto text-center">
+        <div 
+          className={`max-w-3xl mx-auto text-center transition-all duration-1000 ${
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+          }`}
+        >
           <h2 className="text-3xl md:text-4xl font-bold mb-6 font-playfair">
             Rozpocznij swoją terapię przeciwstarzeniową już dziś
           </h2>
@@ -18,7 +26,10 @@ const CTASection: React.FC = () => {
           <Button 
             asChild 
             size="lg" 
-            className="bg-white text-pink-600 hover:bg-pink-50 hover:text-pink-700"
+            className={`bg-white text-pink-600 hover:bg-pink-50 hover:text-pink-700 transition-all duration-500 ${
+              isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"
+            }`}
+            style={{ transitionDelay: "300ms" }}
           >
             <Link to="/kontakt">
               Umów wizytę

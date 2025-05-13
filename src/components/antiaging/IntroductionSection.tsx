@@ -1,11 +1,22 @@
 
-import React from "react";
+import React, { useRef } from "react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const IntroductionSection: React.FC = () => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const isVisible = useScrollAnimation(sectionRef, { threshold: 0.2 });
+
+  const chartRef = useRef<HTMLDivElement>(null);
+  const isChartVisible = useScrollAnimation(chartRef, { threshold: 0.3 });
+  
   return (
-    <section className="py-16 bg-white">
+    <section ref={sectionRef} className="py-16 bg-white">
       <div className="container-custom">
-        <div className="max-w-3xl mx-auto text-center">
+        <div 
+          className={`max-w-3xl mx-auto text-center transition-all duration-1000 ${
+            isVisible ? "opacity-100" : "opacity-0 translate-y-10"
+          }`}
+        >
           <h2 className="text-3xl md:text-4xl font-bold mb-8 font-playfair">
             <span className="text-gray-800">Kompleksowe podejście do </span>
             <span className="text-pink-500">młodości skóry</span>
@@ -26,7 +37,12 @@ const IntroductionSection: React.FC = () => {
         </div>
         
         {/* Wizualna prezentacja podziału terapii */}
-        <div className="mt-16 max-w-4xl mx-auto">
+        <div 
+          ref={chartRef}
+          className={`mt-16 max-w-4xl mx-auto transition-all duration-1000 delay-300 ${
+            isChartVisible ? "opacity-100" : "opacity-0 translate-y-10"
+          }`}
+        >
           <div className="bg-pink-50/60 rounded-xl p-8 shadow-sm">
             <div className="flex flex-col items-center">
               <div className="w-full max-w-xs text-center p-4 mb-8 bg-pink-500 text-white rounded-lg shadow-lg">

@@ -1,6 +1,7 @@
 
-import React from "react";
+import React, { useRef } from "react";
 import { ChevronRight } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import {
   Carousel,
   CarouselContent,
@@ -19,10 +20,27 @@ const TissueStimulatorSection: React.FC<TissueStimulatorSectionProps> = ({
   stimulatorsRef,
   tissueStimulators
 }) => {
+  const headerRef = useRef<HTMLDivElement>(null);
+  const isHeaderVisible = useScrollAnimation(headerRef);
+  
+  const descriptionRef = useRef<HTMLDivElement>(null);
+  const isDescriptionVisible = useScrollAnimation(descriptionRef);
+  
+  const categoriesRef = useRef<HTMLDivElement>(null);
+  const isCategoriesVisible = useScrollAnimation(categoriesRef);
+  
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const isCarouselVisible = useScrollAnimation(carouselRef);
+  
   return (
     <section ref={stimulatorsRef} className="py-16 bg-white">
       <div className="container-custom">
-        <div className="text-center mb-16">
+        <div 
+          ref={headerRef}
+          className={`text-center mb-16 transition-all duration-700 ${
+            isHeaderVisible ? "opacity-100" : "opacity-0 translate-y-10"
+          }`}
+        >
           <h2 className="text-3xl md:text-4xl font-bold mb-4 font-playfair">
             <span className="text-gold-500">Stymulatory </span>
             <span className="text-gray-800">tkankowe</span>
@@ -33,7 +51,12 @@ const TissueStimulatorSection: React.FC<TissueStimulatorSectionProps> = ({
         </div>
         
         {/* Opis stymulatorów */}
-        <div className="bg-gold-50/50 rounded-xl shadow-md p-8 mb-16">
+        <div 
+          ref={descriptionRef}
+          className={`bg-gold-50/50 rounded-xl shadow-md p-8 mb-16 transition-all duration-700 delay-100 ${
+            isDescriptionVisible ? "opacity-100" : "opacity-0 translate-y-10"
+          }`}
+        >
           <div className="max-w-3xl mx-auto">
             <p className="text-gray-700 mb-6">
               W moim gabinecie oferuję Państwu zabiegi z użyciem stymulatorów tkankowych –
@@ -52,13 +75,23 @@ const TissueStimulatorSection: React.FC<TissueStimulatorSectionProps> = ({
         </div>
         
         {/* Rodzaje stymulatorów */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div 
+          ref={categoriesRef} 
+          className={`grid grid-cols-1 lg:grid-cols-2 gap-8 transition-all duration-700 delay-200 ${
+            isCategoriesVisible ? "opacity-100" : "opacity-0 translate-y-10"
+          }`}
+        >
           {tissueStimulators.map((category, index) => (
             <div 
               key={index} 
-              className={`bg-white rounded-xl shadow-md p-8 border-l-4 ${
+              className={`bg-white rounded-xl shadow-md p-8 border-l-4 transition-all duration-500 hover:shadow-lg ${
                 index === 0 ? 'border-pink-400' : 'border-gold-400'
               }`}
+              style={{ 
+                transitionDelay: `${300 + index * 200}ms`,
+                opacity: isCategoriesVisible ? 1 : 0,
+                transform: isCategoriesVisible ? 'translateX(0)' : index === 0 ? 'translateX(-20px)' : 'translateX(20px)'
+              }}
             >
               <h3 className="text-xl font-semibold mb-6">
                 {category.category}
@@ -66,7 +99,16 @@ const TissueStimulatorSection: React.FC<TissueStimulatorSectionProps> = ({
               
               <ul className="space-y-3">
                 {category.items.map((item, i) => (
-                  <li key={i} className="flex items-start">
+                  <li 
+                    key={i} 
+                    className="flex items-start"
+                    style={{ 
+                      transitionDelay: `${400 + (index * 200) + (i * 100)}ms`,
+                      opacity: isCategoriesVisible ? 1 : 0,
+                      transform: isCategoriesVisible ? 'translateY(0)' : 'translateY(10px)',
+                      transition: 'all 0.5s ease'
+                    }}
+                  >
                     <ChevronRight className="text-gold-500 mr-2 h-5 w-5 mt-0.5 flex-shrink-0" />
                     <span className="text-gray-700">{item}</span>
                   </li>
@@ -77,7 +119,12 @@ const TissueStimulatorSection: React.FC<TissueStimulatorSectionProps> = ({
         </div>
         
         {/* Efekty przed i po */}
-        <div className="mt-16">
+        <div 
+          ref={carouselRef} 
+          className={`mt-16 transition-all duration-700 delay-300 ${
+            isCarouselVisible ? "opacity-100" : "opacity-0 translate-y-10"
+          }`}
+        >
           <h3 className="text-2xl font-bold mb-8 font-playfair text-center">
             Porównanie efektów
           </h3>
