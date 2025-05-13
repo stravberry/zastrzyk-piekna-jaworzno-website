@@ -1,5 +1,4 @@
-
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -10,6 +9,7 @@ import TissueStimulatorSection from "@/components/antiaging/TissueStimulatorSect
 import FAQSection from "@/components/antiaging/FAQSection";
 import CTASection from "@/components/antiaging/CTASection";
 import { trackEvent } from "@/services/analyticService";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { 
   autologousTreatments, 
   autologousAdvantages, 
@@ -74,6 +74,9 @@ const AntiAgingTherapies: React.FC = () => {
   // References for scrolling to sections
   const autologousRef = React.useRef<HTMLDivElement>(null);
   const stimulatorsRef = React.useRef<HTMLDivElement>(null);
+  
+  // Initialize analytics tracking
+  const { trackEvent } = useAnalytics();
 
   // Function to scroll to the appropriate section
   const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
@@ -98,19 +101,7 @@ const AntiAgingTherapies: React.FC = () => {
       'Anti-Aging Therapies',
       1
     );
-
-    // Track time on page
-    const startTime = new Date().getTime();
-    return () => {
-      const timeSpent = Math.floor((new Date().getTime() - startTime) / 1000);
-      trackEvent(
-        'User Engagement',
-        'Time on Page',
-        'Anti-Aging Therapies',
-        timeSpent
-      );
-    };
-  }, []);
+  }, [trackEvent]);
 
   return (
     <div className="min-h-screen flex flex-col">

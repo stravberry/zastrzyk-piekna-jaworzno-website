@@ -1,5 +1,5 @@
 
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
@@ -9,6 +9,7 @@ import TestimonialsSection from "@/components/TestimonialsSection";
 import CTASection from "@/components/CTASection";
 import InstagramSection from "@/components/InstagramSection";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 const Index = () => {
   const servicesRef = useRef<HTMLDivElement>(null);
@@ -17,12 +18,39 @@ const Index = () => {
   const instagramRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   
+  // Initialize analytics tracking
+  const { trackEvent } = useAnalytics();
+  
+  // Track home page engagement
+  useEffect(() => {
+    trackEvent('Page Engagement', 'Homepage View', 'Landing Page', 1);
+  }, [trackEvent]);
+  
   // Track scroll animations for each section
   const isServicesVisible = useScrollAnimation(servicesRef);
   const isAboutVisible = useScrollAnimation(aboutRef);
   const isTestimonialsVisible = useScrollAnimation(testimonialsRef);
   const isInstagramVisible = useScrollAnimation(instagramRef);
   const isCtaVisible = useScrollAnimation(ctaRef);
+  
+  // Track when sections become visible
+  useEffect(() => {
+    if (isServicesVisible) {
+      trackEvent('Section Visibility', 'Services Section Viewed', 'Homepage');
+    }
+    if (isAboutVisible) {
+      trackEvent('Section Visibility', 'About Section Viewed', 'Homepage');
+    }
+    if (isTestimonialsVisible) {
+      trackEvent('Section Visibility', 'Testimonials Section Viewed', 'Homepage');
+    }
+    if (isInstagramVisible) {
+      trackEvent('Section Visibility', 'Instagram Section Viewed', 'Homepage');
+    }
+    if (isCtaVisible) {
+      trackEvent('Section Visibility', 'CTA Section Viewed', 'Homepage');
+    }
+  }, [isServicesVisible, isAboutVisible, isTestimonialsVisible, isInstagramVisible, isCtaVisible, trackEvent]);
   
   return (
     <div className="min-h-screen flex flex-col">

@@ -1,109 +1,43 @@
-
-// Initialize the dataLayer if it doesn't exist
-declare global {
-  interface Window {
-    dataLayer: any[];
-  }
-}
-
-// Enhanced location tracking data for Jaworzno and surrounding areas
-const locationData = {
-  primaryCity: 'Jaworzno',
-  serviceRegion: 'Śląsk',
-  nearbyLocations: ['Katowice', 'Myślowice', 'Kraków', 'Oświęcim', 'Olkusz'],
-  coordinates: {
-    latitude: 50.2026,
-    longitude: 19.2773
-  }
-};
-
-// Initialize dataLayer with enhanced configuration
 export const initDataLayer = () => {
+  // Initialize dataLayer array if it doesn't exist
   window.dataLayer = window.dataLayer || [];
   
-  // Push initial configuration data
-  window.dataLayer.push({
-    'businessInfo': {
-      'businessName': 'Zastrzyk Piękna',
-      'businessType': 'Gabinet Kosmetologii Estetycznej',
-      'primaryLocation': locationData.primaryCity,
-      'serviceRegion': locationData.serviceRegion
-    }
-  });
+  // Push initial pageview event
+  trackPageView(window.location.pathname, document.title);
   
-  return window.dataLayer;
+  console.log('Analytics data layer initialized');
 };
 
-// Track virtual pageview with enhanced location data
-export const trackPageView = (pagePath: string, pageTitle: string) => {
-  if (window.dataLayer) {
+export const trackPageView = (path: string, title: string) => {
+  try {
+    // Push page view to dataLayer for GTM
     window.dataLayer.push({
-      event: 'virtualPageview',
-      virtualPagePath: pagePath,
-      virtualPageTitle: pageTitle,
-      pageLocations: locationData,
-      timestamp: new Date().toISOString()
+      event: 'page_view',
+      page: {
+        path,
+        title
+      }
     });
-    console.log('Virtual pageview tracked:', pagePath, pageTitle);
+    
+    console.log(`Page view tracked: ${path}`);
+  } catch (error) {
+    console.error('Error tracking page view:', error);
   }
 };
 
-// Enhanced user interaction event tracking
 export const trackEvent = (category: string, action: string, label?: string, value?: number) => {
-  if (window.dataLayer) {
+  try {
+    // Push event to dataLayer for GTM
     window.dataLayer.push({
-      event: 'userInteraction',
-      eventCategory: category,
-      eventAction: action,
-      eventLabel: label,
-      eventValue: value,
-      locationContext: locationData,
-      timestamp: new Date().toISOString()
+      event: 'custom_event',
+      event_category: category,
+      event_action: action,
+      event_label: label,
+      event_value: value
     });
-    console.log('User event tracked:', category, action, label, value);
-  }
-};
-
-// Track service interest for specific treatments
-export const trackServiceInterest = (serviceName: string, serviceCategory: string, interactionType: string) => {
-  if (window.dataLayer) {
-    window.dataLayer.push({
-      event: 'serviceInteraction',
-      serviceName: serviceName,
-      serviceCategory: serviceCategory,
-      interactionType: interactionType,
-      locationContext: locationData,
-      timestamp: new Date().toISOString()
-    });
-    console.log('Service interest tracked:', serviceName, interactionType);
-  }
-};
-
-// Track form submissions with enhanced data
-export const trackFormSubmission = (formName: string, formFields: string[], success: boolean) => {
-  if (window.dataLayer) {
-    window.dataLayer.push({
-      event: 'formSubmission',
-      formName: formName,
-      formFields: formFields,
-      formSuccess: success,
-      locationContext: locationData,
-      timestamp: new Date().toISOString()
-    });
-    console.log('Form submission tracked:', formName, success);
-  }
-};
-
-// Track outbound links
-export const trackOutboundLink = (linkUrl: string, linkText: string) => {
-  if (window.dataLayer) {
-    window.dataLayer.push({
-      event: 'outboundLink',
-      linkUrl: linkUrl,
-      linkText: linkText,
-      locationContext: locationData,
-      timestamp: new Date().toISOString()
-    });
-    console.log('Outbound link tracked:', linkUrl);
+    
+    console.log(`Event tracked: ${category} / ${action} / ${label || 'N/A'} / ${value || 'N/A'}`);
+  } catch (error) {
+    console.error('Error tracking event:', error);
   }
 };
