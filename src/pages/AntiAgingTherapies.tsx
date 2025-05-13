@@ -1,4 +1,3 @@
-
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -47,7 +46,7 @@ const AntiAgingTherapies = () => {
     {
       id: 1,
       name: "PRP – Osocze bogatopłytkowe",
-      nickname: "„Wampirzy lifting"",
+      nickname: "„Wampirzy lifting”",
       form: "Lekko złocista, płynna frakcja krwi",
       content: "Skoncentrowane płytki krwi z czynnikami wzrostu (PDGF, TGF-β, VEGF)",
       goal: "Stymulacja fibroblastów, poprawa mikrokrążenia, jędrności i regeneracji skóry",
@@ -240,7 +239,7 @@ const AntiAgingTherapies = () => {
                     <h3 className="text-xl font-bold">Terapie przeciwstarzeniowe</h3>
                   </div>
                   
-                  <div className="w-0.5 h-8 bg-pink-300"></div>
+                  <div className="w-0.5 h-8 bg-pink-300\"></div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
                     {/* Lewa strona - Zabiegi autologiczne */}
@@ -628,74 +627,3 @@ const AntiAgingTherapies = () => {
                     do nawet 18 miesięcy, w zależności od indywidualnych cech pacjenta i zastosowanej 
                     metody. Z kolei stymulatory tkankowe mogą działać nawet do 24 miesięcy.
                   </AccordionContent>
-                </AccordionItem>
-                
-                <AccordionItem value="item-3">
-                  <AccordionTrigger>
-                    Ile zabiegów potrzeba do osiągnięcia zadowalających efektów?
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    Zazwyczaj zalecam serię 2-4 zabiegów w odstępach 4-6 tygodni, aby osiągnąć 
-                    optymalny efekt. Po zakończeniu serii zabiegowej wykonujemy zabiegi podtrzymujące 
-                    co 6-12 miesięcy.
-                  </AccordionContent>
-                </AccordionItem>
-                
-                <AccordionItem value="item-4">
-                  <AccordionTrigger>
-                    Czy są przeciwwskazania do terapii przeciwstarzeniowych?
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    Tak, istnieją przeciwwskazania do wykonywania tego typu zabiegów. Należą do nich m.in.: 
-                    ciąża i karmienie piersią, choroby autoimmunologiczne w fazie zaostrzenia, choroby 
-                    nowotworowe, aktywne infekcje w miejscu podania, tendencja do tworzenia bliznowców 
-                    i inne. Przed zabiegiem przeprowadzam dokładny wywiad medyczny.
-                  </AccordionContent>
-                </AccordionItem>
-                
-                <AccordionItem value="item-5">
-                  <AccordionTrigger>
-                    W jakim wieku warto zacząć terapie przeciwstarzeniowe?
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    Nie ma jednego uniwersalnego wieku, w którym należy rozpocząć zabiegi. Zazwyczaj 
-                    pierwsze oznaki starzenia pojawiają się około 25-30 roku życia, więc jest to dobry moment, 
-                    aby zacząć profilaktykę. Jednak kluczowe jest indywidualne podejście – oceniam stan skóry 
-                    i dostosowuję terapię do potrzeb konkretnej osoby.
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </div>
-          </div>
-        </section>
-        
-        {/* CTA */}
-        <section className="py-16 bg-gradient-to-r from-pink-500 to-[#9b87f5] text-white">
-          <div className="container-custom">
-            <div className="max-w-3xl mx-auto text-center">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 font-playfair">
-                Rozpocznij swoją terapię przeciwstarzeniową już dziś
-              </h2>
-              <p className="text-lg mb-8 text-white/90">
-                Umów się na konsultację i dowiedz się, która metoda będzie najlepsza dla Twojej skóry
-              </p>
-              <Button 
-                asChild 
-                size="lg" 
-                className="bg-white text-pink-600 hover:bg-pink-50 hover:text-pink-700"
-              >
-                <Link to="/kontakt">
-                  Umów wizytę
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </section>
-      </main>
-      <Footer />
-    </div>
-  );
-};
-
-export default AntiAgingTherapies;
