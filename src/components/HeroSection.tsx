@@ -60,9 +60,9 @@ To styl życia, który łączy pielegnacje, odżywianie i ruch – holistyczne p
             }`}
           >
             <Button asChild size="lg" className="bg-pink-500 hover:bg-pink-600 text-white px-8 py-6 text-base">
-              <Link to="/kontakt">
+              <a href="https://instagram.com/zastrzyk_piekna" target="_blank" rel="noopener noreferrer">
                 Umów wizytę
-              </Link>
+              </a>
             </Button>
             <Button variant="outline" size="lg" className="border-pink-500 text-pink-500 hover:bg-pink-50 px-8 py-6 text-base"
               onClick={handleScrollToServices}>
