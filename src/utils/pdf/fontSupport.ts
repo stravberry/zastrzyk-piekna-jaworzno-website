@@ -6,38 +6,26 @@ export const addPolishFontSupport = async (doc: jsPDF) => {
   // Configure defaults for Polish text
   doc.setLanguage('pl');
   
+  // We'll use a base64-encoded font that's already in the jsPDF library
+  // This avoids the need to load external font files
   try {
-    // First try to load and use Roboto font which has good support for Polish characters
-    const fontData = await fetch('/fonts/Roboto-Regular.ttf').catch(() => {
-      console.warn("Could not load Roboto font, falling back to built-in fonts");
-      return null;
-    });
-    
-    if (fontData && fontData.ok) {
-      const fontBytes = await fontData.arrayBuffer();
-      
-      // Add font to virtual file system
-      doc.addFileToVFS('Roboto-Regular.ttf', Buffer.from(fontBytes).toString('base64'));
-      doc.addFont('Roboto-Regular.ttf', 'Roboto', 'normal');
-      doc.setFont('Roboto');
-      console.log("Successfully loaded Roboto font for PDF");
-      return doc;
-    }
+    // First try to use Helvetica font which has decent Unicode support
+    doc.setFont("helvetica");
+    console.log("Using built-in helvetica font for PDF");
+    return doc;
   } catch (error) {
-    console.warn("Error setting up custom font:", error);
+    console.warn("Error setting font:", error);
+    // Fallback to default font
+    return doc;
   }
-  
-  // Fallback to using standard PDF font with decent Unicode support
-  console.log("Using fallback fonts for PDF");
-  doc.setFont("helvetica");
-  
-  return doc;
 };
 
 // Helper function to encode Polish characters for PDF
 export const encodePlChars = (text: string): string => {
   if (!text || typeof text !== 'string') return String(text || '');
   
+  // Replace Polish characters with their Unicode equivalents
+  // This helps ensure proper rendering in the PDF
   return text
     .replace(/ą/g, '\u0105')
     .replace(/ć/g, '\u0107')

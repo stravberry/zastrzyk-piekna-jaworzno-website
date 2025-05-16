@@ -16,12 +16,15 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
   // Add support for Polish characters
   await addPolishFontSupport(doc);
   
-  // Add title with proper encoding
-  doc.setFontSize(24);
+  // Set up document
+  doc.setFontSize(18);
   doc.setTextColor(236, 72, 153); // Pink color for title
+  
+  // Add title with proper encoding
   const title = encodePlChars("Cennik Usług");
   doc.text(title, doc.internal.pageSize.width / 2, 20, { align: "center" });
   
+  // Track current vertical position
   let yPos = 30;
   
   // For each category
@@ -47,62 +50,54 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
     const categoryTitle = encodePlChars(category.title);
     doc.text(categoryTitle, 16, yPos);
     
+    // Reset text color for content
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(12);
     yPos += 10;
     
-    // Use autoTable for better layout control with customized styling to match PNG
-    const tableBody = category.items.map(item => [
-      encodePlChars(item.name),
-      item.description ? encodePlChars(item.description) : "",
-      encodePlChars(item.price)
-    ]);
+    // Prepare table data with proper encoding
+    const tableBody = [];
+    for (const item of category.items) {
+      tableBody.push([
+        encodePlChars(item.name),
+        item.description ? encodePlChars(item.description) : "",
+        encodePlChars(item.price)
+      ]);
+    }
     
-    // Calculate dynamic column widths based on content
-    const nameColWidth = Math.max(...category.items.map(i => i.name.length * 1.8));
-    const priceColWidth = Math.max(...category.items.map(i => i.price.length * 2.5));
-    const descColWidth = doc.internal.pageSize.width - 28 - nameColWidth - priceColWidth;
-    
+    // Use autoTable with simplified configuration to avoid layout issues
     autoTable(doc, {
       startY: yPos,
       head: [["Nazwa zabiegu", "Opis", "Cena"]],
       body: tableBody,
-      theme: "grid",
+      theme: 'grid',
       headStyles: { 
-        fillColor: [253, 242, 248], // Light pink for header (tailwind pink-50)
+        fillColor: [253, 242, 248], // Light pink
         textColor: [0, 0, 0],
-        fontStyle: 'bold',
-        halign: 'left'
+        fontStyle: 'bold'
       },
-      alternateRowStyles: {
-        fillColor: [252, 231, 243], // Lighter pink for alternating rows
+      styles: {
+        fontSize: 10,
+        cellPadding: 3,
       },
       columnStyles: {
-        0: { fontStyle: 'bold', cellWidth: nameColWidth },
-        1: { cellWidth: descColWidth },
-        2: { halign: 'right', fontStyle: 'bold', textColor: [236, 72, 153], cellWidth: priceColWidth }
+        0: { fontStyle: 'normal', cellWidth: 'auto' },
+        1: { fontStyle: 'italic', cellWidth: 'auto' },
+        2: { halign: 'right', fontStyle: 'bold', textColor: [236, 72, 153] }
       },
-      styles: { 
-        fontSize: 10,
-        cellPadding: 4,
-        lineColor: [236, 72, 153],
-        lineWidth: 0.1,
-        font: doc.getFont().fontName
-      },
-      margin: { top: 10, left: 14, right: 14 },
-      showHead: "firstPage",
+      margin: { left: 14, right: 14 },
     });
     
     // Update yPos based on where the table ends
     yPos = (doc as any).lastAutoTable.finalY + 10;
   }
   
-  // Add footer with company name and date
-  const footerText = encodePlChars(`Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej`);
+  // Add basic footer with company name and date
+  const footerText = encodePlChars("Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej");
   const dateText = encodePlChars(`Wygenerowano ${new Date().toLocaleDateString('pl-PL')}`);
+  const pageCount = doc.getNumberOfPages();
   
   // Add footer to all pages
-  const pageCount = doc.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFontSize(10);
@@ -112,7 +107,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
     doc.text(`Strona ${i} z ${pageCount}`, doc.internal.pageSize.width - 20, doc.internal.pageSize.height - 5);
   }
   
-  // Return as Blob instead of direct saving
+  // Return as Blob
   return doc.output('blob');
 };
 

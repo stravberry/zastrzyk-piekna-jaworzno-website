@@ -6,13 +6,10 @@ import { PriceCategory } from "@/components/pricing/PriceCard";
  * This is used for generating consistent screenshots for PNG exports
  */
 export const createPdfLayoutForPng = (categories: PriceCategory[]): string => {
-  // Generate the HTML content for the PNG
+  // Generate the HTML content for the PNG with system fonts
   return `
-    <div style="font-family: 'Playfair Display', 'Poppins', sans-serif; background: white; padding: 30px; color: #333; width: 100%; max-width: 800px;">
+    <div style="font-family: 'Arial', 'Helvetica', sans-serif; background: white; padding: 30px; color: #333; width: 100%; max-width: 800px;">
       <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap');
-        body { font-family: 'Poppins', sans-serif; }
-        h1, h2 { font-family: 'Playfair Display', serif; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
         th { background: #FDF2F8; padding: 12px; text-align: left; font-weight: bold; }
         td { padding: 12px; border-top: 1px solid #FCE7F3; }
