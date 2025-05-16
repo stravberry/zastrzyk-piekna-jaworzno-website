@@ -4,12 +4,16 @@ import { jsPDF } from "jspdf";
 // Add Polish font support to PDF
 export const addPolishFontSupport = async (doc: jsPDF) => {
   try {
-    // Use standard helvetica font which has better Unicode support
+    // Use standard helvetica font which has good Unicode support
     doc.setFont("helvetica");
     
-    // Set language and character encoding for better Unicode handling
+    // Configure document for better multilingual support
     doc.setLanguage("pl");
-    doc.setR2L(false);
+    
+    // Configure encoding - use UTF-8
+    if (typeof doc.setFontSize === 'function') {
+      doc.setFontSize(12); // Reset font size to avoid scaling issues
+    }
     
     console.log("PDF font configuration complete");
     return doc;
@@ -19,11 +23,10 @@ export const addPolishFontSupport = async (doc: jsPDF) => {
   }
 };
 
-// Improved helper function for encoding Polish characters for PDF
+// Helper function for encoding Polish characters
 export const encodePlChars = (text: string): string => {
   if (!text || typeof text !== 'string') return String(text || '');
   
-  // Use proper UTF-8 encoding rather than character substitution
-  // This approach works better with jsPDF's built-in fonts
+  // Just return the text, relying on jsPDF's internal handling with helvetica font
   return text;
 };

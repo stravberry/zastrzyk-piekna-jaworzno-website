@@ -54,16 +54,23 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
       // Use our simplified layout without custom fonts
       tempContainer.innerHTML = createPdfLayoutForPng(targetCategories);
       
-      // Longer delay to ensure rendering is complete
-      await new Promise(r => setTimeout(r, 500));
+      // Much longer delay to ensure complete rendering (2 seconds)
+      await new Promise(r => setTimeout(r, 2000));
       
       // Use html2canvas to convert to image with higher scale for better quality
       const canvas = await html2canvas(tempContainer, {
-        scale: 2.5, // Higher resolution for better text clarity
+        scale: 3, // Even higher resolution for better text clarity
         backgroundColor: '#ffffff',
         logging: false,
         allowTaint: true,
-        useCORS: true
+        useCORS: true,
+        onclone: (document, element) => {
+          // Force text rendering with correct encoding in the cloned document
+          const styleTag = document.createElement('style');
+          styleTag.innerHTML = `* { font-family: Arial, Helvetica, sans-serif !important; }`;
+          document.head.appendChild(styleTag);
+          return element;
+        }
       });
       
       // Convert canvas to blob with higher quality
