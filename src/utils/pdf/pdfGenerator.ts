@@ -17,7 +17,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
   await addPolishFontSupport(doc);
   
   // Set up document
-  doc.setFontSize(18);
+  doc.setFontSize(20);
   doc.setTextColor(236, 72, 153); // Pink color for title
   
   // Add title with proper encoding
@@ -55,6 +55,11 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
     doc.setFontSize(12);
     yPos += 10;
     
+    // Prepare simplified table structure to avoid layout issues
+    const tableHead = [
+      [encodePlChars("Nazwa zabiegu"), encodePlChars("Opis"), encodePlChars("Cena")]
+    ];
+    
     // Prepare table data with proper encoding
     const tableBody = [];
     for (const item of category.items) {
@@ -68,22 +73,25 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
     // Use autoTable with simplified configuration to avoid layout issues
     autoTable(doc, {
       startY: yPos,
-      head: [["Nazwa zabiegu", "Opis", "Cena"]],
+      head: tableHead,
       body: tableBody,
       theme: 'grid',
       headStyles: { 
         fillColor: [253, 242, 248], // Light pink
         textColor: [0, 0, 0],
-        fontStyle: 'bold'
+        fontStyle: 'bold',
+        halign: 'left'
       },
       styles: {
         fontSize: 10,
-        cellPadding: 3,
+        cellPadding: 4,
+        overflow: 'linebreak',
+        font: 'helvetica'
       },
       columnStyles: {
-        0: { fontStyle: 'normal', cellWidth: 'auto' },
+        0: { fontStyle: 'normal', cellWidth: 60 },
         1: { fontStyle: 'italic', cellWidth: 'auto' },
-        2: { halign: 'right', fontStyle: 'bold', textColor: [236, 72, 153] }
+        2: { halign: 'right', fontStyle: 'bold', textColor: [236, 72, 153], cellWidth: 25 }
       },
       margin: { left: 14, right: 14 },
     });
@@ -100,11 +108,14 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
   // Add footer to all pages
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
     doc.text(footerText, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 15, { align: "center" });
     doc.text(dateText, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 10, { align: "center" });
-    doc.text(`Strona ${i} z ${pageCount}`, doc.internal.pageSize.width - 20, doc.internal.pageSize.height - 5);
+    
+    // Add page numbers
+    const pageText = encodePlChars(`Strona ${i} z ${pageCount}`);
+    doc.text(pageText, doc.internal.pageSize.width - 20, doc.internal.pageSize.height - 5);
   }
   
   // Return as Blob

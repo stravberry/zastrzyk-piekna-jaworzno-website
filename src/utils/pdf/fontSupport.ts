@@ -3,13 +3,11 @@ import { jsPDF } from "jspdf";
 
 // Add Polish font support to PDF
 export const addPolishFontSupport = async (doc: jsPDF) => {
-  // Configure defaults for Polish text
-  doc.setLanguage('pl');
-  
-  // We'll use a base64-encoded font that's already in the jsPDF library
-  // This avoids the need to load external font files
   try {
-    // First try to use Helvetica font which has decent Unicode support
+    // Configure defaults for Polish text
+    doc.setLanguage('pl');
+    
+    // Use standard helvetica font which has better Unicode support
     doc.setFont("helvetica");
     console.log("Using built-in helvetica font for PDF");
     return doc;
@@ -20,12 +18,11 @@ export const addPolishFontSupport = async (doc: jsPDF) => {
   }
 };
 
-// Helper function to encode Polish characters for PDF
+// Improved helper function for encoding Polish characters for PDF
 export const encodePlChars = (text: string): string => {
   if (!text || typeof text !== 'string') return String(text || '');
   
-  // Replace Polish characters with their Unicode equivalents
-  // This helps ensure proper rendering in the PDF
+  // Direct Unicode mapping of Polish characters
   return text
     .replace(/ą/g, '\u0105')
     .replace(/ć/g, '\u0107')
