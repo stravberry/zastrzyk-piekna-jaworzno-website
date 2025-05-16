@@ -10,7 +10,9 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "mm",
-    format: "a4"
+    format: "a4",
+    putOnlyUsedFonts: true,
+    floatPrecision: 16 // For better text positioning
   });
   
   // Add support for Polish characters
@@ -21,8 +23,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
   doc.setTextColor(236, 72, 153); // Pink color for title
   
   // Add title with proper encoding
-  const title = encodePlChars("Cennik Usług");
-  doc.text(title, doc.internal.pageSize.width / 2, 20, { align: "center" });
+  doc.text("Cennik Usług", doc.internal.pageSize.width / 2, 20, { align: "center" });
   
   // Track current vertical position
   let yPos = 30;
@@ -47,34 +48,22 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
     // Add category title with white text
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(14);
-    const categoryTitle = encodePlChars(category.title);
-    doc.text(categoryTitle, 16, yPos);
+    doc.text(category.title, 16, yPos);
     
     // Reset text color for content
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(12);
     yPos += 10;
     
-    // Prepare simplified table structure to avoid layout issues
-    const tableHead = [
-      [encodePlChars("Nazwa zabiegu"), encodePlChars("Opis"), encodePlChars("Cena")]
-    ];
-    
-    // Prepare table data with proper encoding
-    const tableBody = [];
-    for (const item of category.items) {
-      tableBody.push([
-        encodePlChars(item.name),
-        item.description ? encodePlChars(item.description) : "",
-        encodePlChars(item.price)
-      ]);
-    }
-    
-    // Use autoTable with simplified configuration to avoid layout issues
+    // Use autoTable with simplified configuration for better compatibility
     autoTable(doc, {
       startY: yPos,
-      head: tableHead,
-      body: tableBody,
+      head: [["Nazwa zabiegu", "Opis", "Cena"]],
+      body: category.items.map(item => [
+        item.name,
+        item.description ? item.description : "",
+        item.price
+      ]),
       theme: 'grid',
       headStyles: { 
         fillColor: [253, 242, 248], // Light pink
@@ -82,18 +71,31 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
         fontStyle: 'bold',
         halign: 'left'
       },
-      styles: {
-        fontSize: 10,
-        cellPadding: 4,
-        overflow: 'linebreak',
-        font: 'helvetica'
-      },
       columnStyles: {
-        0: { fontStyle: 'normal', cellWidth: 60 },
-        1: { fontStyle: 'italic', cellWidth: 'auto' },
-        2: { halign: 'right', fontStyle: 'bold', textColor: [236, 72, 153], cellWidth: 25 }
+        0: { cellWidth: 60 },
+        1: { cellWidth: 'auto', fontStyle: 'italic' },
+        2: { cellWidth: 30, halign: 'right', textColor: [236, 72, 153], fontStyle: 'bold' }
+      },
+      styles: {
+        font: 'helvetica',
+        fontSize: 10,
+        cellPadding: 6,
+        overflow: 'linebreak',
+        minCellHeight: 10
       },
       margin: { left: 14, right: 14 },
+      didDrawPage: (data) => {
+        // This helps with page numbers and footer positioning
+        doc.setFontSize(9);
+        doc.setTextColor(100, 100, 100);
+        const pageCount = doc.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+          doc.setPage(i);
+          const pageSize = doc.internal.pageSize;
+          const pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
+          doc.text(`Strona ${i} z ${pageCount}`, pageSize.width - 20, pageHeight - 10);
+        }
+      },
     });
     
     // Update yPos based on where the table ends
@@ -101,8 +103,8 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
   }
   
   // Add basic footer with company name and date
-  const footerText = encodePlChars("Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej");
-  const dateText = encodePlChars(`Wygenerowano ${new Date().toLocaleDateString('pl-PL')}`);
+  const footerText = "Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej";
+  const dateText = `Wygenerowano ${new Date().toLocaleDateString('pl-PL')}`;
   const pageCount = doc.getNumberOfPages();
   
   // Add footer to all pages
@@ -110,12 +112,8 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
     doc.setPage(i);
     doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
-    doc.text(footerText, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 15, { align: "center" });
-    doc.text(dateText, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 10, { align: "center" });
-    
-    // Add page numbers
-    const pageText = encodePlChars(`Strona ${i} z ${pageCount}`);
-    doc.text(pageText, doc.internal.pageSize.width - 20, doc.internal.pageSize.height - 5);
+    doc.text(footerText, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 20, { align: "center" });
+    doc.text(dateText, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 15, { align: "center" });
   }
   
   // Return as Blob

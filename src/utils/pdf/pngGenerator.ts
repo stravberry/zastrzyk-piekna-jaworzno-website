@@ -8,7 +8,7 @@ import { PriceCategory } from "@/components/pricing/PriceCard";
 export const createPdfLayoutForPng = (categories: PriceCategory[]): string => {
   // Generate the HTML content for the PNG with system fonts
   return `
-    <div style="font-family: 'Arial', 'Helvetica', sans-serif; background: white; padding: 30px; color: #333; width: 100%; max-width: 800px;">
+    <div style="font-family: Arial, Helvetica, sans-serif; background: white; padding: 30px; color: #333; width: 100%; max-width: 800px;">
       <style>
         table { width: 100%; border-collapse: collapse; margin-bottom: 30px; table-layout: fixed; }
         th { background: #FDF2F8; padding: 12px; text-align: left; font-weight: bold; }

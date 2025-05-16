@@ -32,58 +32,50 @@ export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => 
 export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => {
   return new Promise(async (resolve, reject) => {
     try {
-      // Wait for next render cycle to ensure DOM is updated
-      setTimeout(async () => {
-        try {
-          // Get the categories to render
-          const categories = await getPriceCategories();
-          
-          // Filter categories if categoryId is provided
-          const targetCategories = categoryId
-            ? categories.filter(cat => cat.id === categoryId)
-            : categories;
-          
-          if (targetCategories.length === 0) {
-            throw new Error("No pricing categories found to export");
-          }
-          
-          // Create a temporary container for rendering
-          const tempContainer = document.createElement('div');
-          tempContainer.style.position = 'absolute';
-          tempContainer.style.left = '-9999px';
-          tempContainer.style.width = '800px'; // Fixed width for consistent output
-          document.body.appendChild(tempContainer);
-          
-          // Use our simplified layout without custom fonts
-          tempContainer.innerHTML = createPdfLayoutForPng(targetCategories);
-          
-          // Small delay to ensure rendering is complete
-          await new Promise(r => setTimeout(r, 200));
-          
-          // Use html2canvas to convert to image
-          const canvas = await html2canvas(tempContainer, {
-            scale: 2, // Higher resolution
-            backgroundColor: '#ffffff',
-            logging: false,
-            allowTaint: true,
-            useCORS: true
-          });
-          
-          // Convert canvas to blob
-          canvas.toBlob((blob) => {
-            if (blob) {
-              // Clean up temporary element
-              document.body.removeChild(tempContainer);
-              resolve(blob);
-            } else {
-              reject(new Error("Failed to create image"));
-            }
-          }, 'image/png', 0.95);
-        } catch (innerError) {
-          console.error("Inner error generating PNG:", innerError);
-          reject(innerError);
+      // Get the categories to render
+      const categories = await getPriceCategories();
+      
+      // Filter categories if categoryId is provided
+      const targetCategories = categoryId
+        ? categories.filter(cat => cat.id === categoryId)
+        : categories;
+      
+      if (targetCategories.length === 0) {
+        throw new Error("No pricing categories found to export");
+      }
+      
+      // Create a temporary container for rendering
+      const tempContainer = document.createElement('div');
+      tempContainer.style.position = 'absolute';
+      tempContainer.style.left = '-9999px';
+      tempContainer.style.width = '800px'; // Fixed width for consistent output
+      document.body.appendChild(tempContainer);
+      
+      // Use our simplified layout without custom fonts
+      tempContainer.innerHTML = createPdfLayoutForPng(targetCategories);
+      
+      // Longer delay to ensure rendering is complete
+      await new Promise(r => setTimeout(r, 500));
+      
+      // Use html2canvas to convert to image with higher scale for better quality
+      const canvas = await html2canvas(tempContainer, {
+        scale: 2.5, // Higher resolution for better text clarity
+        backgroundColor: '#ffffff',
+        logging: false,
+        allowTaint: true,
+        useCORS: true
+      });
+      
+      // Convert canvas to blob with higher quality
+      canvas.toBlob((blob) => {
+        if (blob) {
+          // Clean up temporary element
+          document.body.removeChild(tempContainer);
+          resolve(blob);
+        } else {
+          reject(new Error("Failed to create image"));
         }
-      }, 100);
+      }, 'image/png', 1.0); // Use highest quality
     } catch (error) {
       console.error("Error generating PNG:", error);
       reject(error);
