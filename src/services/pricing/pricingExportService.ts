@@ -55,7 +55,7 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
       tempContainer.innerHTML = createPdfLayoutForPng(targetCategories);
       
       // Much longer delay to ensure complete rendering (2 seconds)
-      await new Promise(r => setTimeout(r, 2000));
+      await new Promise(r => setTimeout(r, 3000));
       
       // Use html2canvas to convert to image with higher scale for better quality
       const canvas = await html2canvas(tempContainer, {
