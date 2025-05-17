@@ -133,7 +133,7 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
       tempContainer.style.backgroundColor = 'white';
       document.body.appendChild(tempContainer);
       
-      // Generate HTML content with explicit one category per page structure
+      // Generate HTML content using the same styling as PNG generator
       tempContainer.innerHTML = `
         <!DOCTYPE html>
         <html>
@@ -143,42 +143,40 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
             @charset "UTF-8";
             @page { size: A4; margin: 20mm 15mm; }
             body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif !important; }
-            * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-family: Arial, Helvetica, sans-serif !important; }
-            .title-page { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-            .title { color: #EC4899; text-align: center; font-size: 36px; font-weight: bold; font-family: Arial, Helvetica, sans-serif !important; }
-            .subtitle { color: #666; text-align: center; font-size: 16px; margin-top: 20px; font-family: Arial, Helvetica, sans-serif !important; }
-            .page { height: 100vh; page-break-after: always; padding-top: 40px; font-family: Arial, Helvetica, sans-serif !important; }
-            .page:last-child { page-break-after: auto; }
-            .category { page-break-inside: avoid; margin-bottom: 15px; break-inside: avoid; } /* Prevent page breaks inside categories */
-            .category-header { background: #EC4899; color: white; padding: 10px 15px; margin-top: 0; font-size: 24px; font-family: Arial, Helvetica, sans-serif !important; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 25px; table-layout: fixed; page-break-inside: avoid; } /* Avoid breaking tables */
-            th { background: #FDF2F8; padding: 10px 15px; text-align: left; font-weight: bold; font-size: 14px; font-family: Arial, Helvetica, sans-serif !important; }
-            td { padding: 10px 15px; border-top: 1px solid #FCE7F3; word-break: break-word; font-family: Arial, Helvetica, sans-serif !important; }
-            tr { page-break-inside: avoid; } /* Critical to prevent row breaks */
-            tr:nth-child(even) { background-color: #FDFAFC; }
-            .price { font-weight: bold; color: #EC4899; text-align: right; font-family: Arial, Helvetica, sans-serif !important; }
-            .description { font-style: italic; color: #666; font-size: 0.9em; font-family: Arial, Helvetica, sans-serif !important; }
-            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; font-family: Arial, Helvetica, sans-serif !important; position: absolute; bottom: 20px; width: 100%; }
+            * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            
+            /* Use the exact same styles as in createPdfLayoutForPng */
+            .title { color: #EC4899; text-align: center; font-size: 28px; font-weight: bold; margin-bottom: 30px; }
+            .category-header { background: #EC4899; color: white; padding: 10px 12px; margin-top: 20px; font-size: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 30px; table-layout: fixed; }
+            th { background: #FDF2F8; padding: 12px; text-align: left; font-weight: bold; font-size: 16px; }
+            td { padding: 12px; border-top: 1px solid #FCE7F3; word-break: break-word; font-size: 14px; }
+            tr:nth-child(even) { background-color: #FCF2F8; }
+            .price { font-weight: bold; color: #EC4899; text-align: right; }
+            .description { font-style: italic; color: #666; font-size: 0.9em; }
+            .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+            
+            /* Page break rules */
+            .page-container { page-break-after: always; min-height: 100vh; position: relative; padding: 40px 20px 60px 20px; }
+            .page-container:last-child { page-break-after: auto; }
+            .category { page-break-inside: avoid; }
+            tr { page-break-inside: avoid; }
+            
             @media print {
-              .page { page-break-after: always; min-height: 100vh; position: relative; }
-              h1, h2, table { page-break-inside: avoid; }
-              table { page-break-after: auto; }
-              tr { page-break-inside: avoid; page-break-after: auto; }
-              td { page-break-inside: avoid; }
-              thead { display: table-header-group; }
+              .page-container { page-break-after: always; }
             }
           </style>
         </head>
         <body>
           <!-- Title page -->
-          <div class="title-page">
+          <div class="page-container">
             <h1 class="title">Cennik Usług</h1>
-            <p class="subtitle">Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej</p>
+            <p style="text-align: center; font-size: 16px; color: #666;">Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej</p>
           </div>
           
           <!-- Each category on its own page -->
           ${categories.map(category => `
-            <div class="page">
+            <div class="page-container">
               <div class="category">
                 <div class="category-header">${category.title}</div>
                 <table>
@@ -212,11 +210,11 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
       `;
       
       // Wait for fonts and rendering to complete
-      await new Promise(r => setTimeout(r, 5000));
+      await new Promise(r => setTimeout(r, 1500));
       
       // Use html2canvas with higher quality settings
       const canvas = await html2canvas(tempContainer, {
-        scale: 3, // Higher quality for better text clarity
+        scale: 4, // Higher quality for better text clarity (increased from 3)
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#FFFFFF',
@@ -224,78 +222,98 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
         windowWidth: 794,
         windowHeight: tempContainer.scrollHeight,
         onclone: (document, element) => {
-          // Ensure proper font rendering with forced Arial font
+          // Force Arial font everywhere
           const style = document.createElement('style');
           style.textContent = `
             * { font-family: Arial, Helvetica, sans-serif !important; }
-            @font-face {
-              font-family: 'Arial';
-              font-style: normal;
-              font-weight: 400;
-              src: local('Arial');
-            }
-            .price { font-weight: bold !important; }
-            body, table, tr, td, th, div, p, h1, h2, h3 {
-              font-family: Arial, Helvetica, sans-serif !important;
-            }
-            .category { page-break-inside: avoid !important; }
-            tr { page-break-inside: avoid !important; }
-            .page { page-break-after: always; }
+            .price { font-weight: bold !important; color: #EC4899 !important; }
+            .category-header { background: #EC4899 !important; color: white !important; }
+            table { border-collapse: collapse !important; }
+            th { background: #FDF2F8 !important; }
+            tr:nth-child(even) { background-color: #FCF2F8 !important; }
           `;
           document.head.appendChild(style);
           return element;
         }
       });
       
-      // Create PDF from the canvas with properly configured dimensions
-      const imgData = canvas.toDataURL('image/png', 1.0);
-      
-      // Create a new PDF with correctly configured pages and dimensions
+      // Create PDF using a more precise page calculation approach
       const pdf = new jsPDF({
         orientation: 'portrait',
-        unit: 'px',
+        unit: 'mm',
         format: 'a4',
         hotfixes: ["px_scaling"],
       });
       
-      // Calculate dimensions - maintain aspect ratio
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      // Calculate page height in pixels based on A4 dimensions (1:1.414 ratio)
+      const pageWidthInMM = 210; // A4 width in mm
+      const pageHeightInMM = 297; // A4 height in mm
       
-      // Calculate page height and number of pages needed
-      const pageHeight = pdf.internal.pageSize.getHeight();
+      // Calculate the scale factor for converting canvas pixels to PDF mm
+      const mmToPxRatio = canvas.width / pageWidthInMM;
+      const pxToMmRatio = pageWidthInMM / canvas.width;
       
-      // Calculate page dimensions in the canvas
-      const pageHeightInCanvas = canvas.height / (pdfHeight / pageHeight);
+      // Calculate the number of full pages needed (title + one per category)
+      const numPages = categories.length + 1;
       
-      // Instead of trying to slice one big image, analyze the content by pages
-      // and create one page per category
-      for (let i = 0; i <= categories.length; i++) {
-        // First page is the title page
+      // Get all page containers from the document
+      const pageContainers = tempContainer.querySelectorAll('.page-container');
+      
+      // The total height of all pages combined
+      const totalHeight = canvas.height;
+      
+      // Keep track of our current position within the canvas
+      let currentY = 0;
+      
+      // Process each page container
+      for (let i = 0; i < pageContainers.length; i++) {
         if (i > 0) {
-          pdf.addPage();
+          pdf.addPage(); // Add a new page for each container after the first
         }
         
-        // Calculate position on the canvas for this page
-        // Title page (i=0) + category pages
-        const yPosition = -i * pageHeightInCanvas;
+        // Height of this specific page container
+        const pageHeight = pageContainers[i].clientHeight * (canvas.height / tempContainer.scrollHeight);
         
-        // Add the image to the page, positioning it to show the correct slice
-        pdf.addImage(imgData, 'PNG', 0, yPosition, pdfWidth, pdfHeight);
+        // Calculate the source area from the canvas
+        const sx = 0;
+        const sy = currentY;
+        const sWidth = canvas.width;
+        const sHeight = pageHeight;
+        
+        // Create a temporary canvas for just this page section
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = sWidth;
+        tempCanvas.height = sHeight;
+        const ctx = tempCanvas.getContext('2d');
+        
+        if (ctx) {
+          // Draw just this section of the full canvas
+          ctx.drawImage(
+            canvas,
+            sx, sy, sWidth, sHeight,  // Source rectangle
+            0, 0, sWidth, sHeight     // Destination rectangle
+          );
+          
+          // Convert this canvas section to image data
+          const imgData = tempCanvas.toDataURL('image/png', 1.0);
+          
+          // Add to PDF, fitting to page width
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = (sHeight * pdfWidth) / sWidth;
+          
+          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+          
+          // Update position for next section
+          currentY += sHeight;
+        }
       }
       
-      try {
-        const pdfBlob = pdf.output('blob');
-        // Clean up the temporary element
-        document.body.removeChild(tempContainer);
-        resolve(pdfBlob);
-      } catch (error) {
-        console.error("Error generating PDF blob:", error);
-        // Clean up even if there's an error
-        document.body.removeChild(tempContainer);
-        reject(error);
-      }
+      // Clean up the temporary DOM elements
+      document.body.removeChild(tempContainer);
+      
+      // Return PDF as blob
+      const pdfBlob = pdf.output('blob');
+      resolve(pdfBlob);
     } catch (error) {
       console.error("Error in HTML to PDF conversion process:", error);
       reject(error);

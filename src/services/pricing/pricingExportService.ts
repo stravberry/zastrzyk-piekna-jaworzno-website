@@ -27,7 +27,7 @@ export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => 
     
     try {
       // First try with the improved HTML-based PDF generator
-      toast.info("Generowanie PDF z ulepszoną obsługą stron...");
+      toast.info("Generowanie PDF z podziałem na strony...");
       const pdfBlob = await generatePricingPdfFromHtml(filteredCategories);
       console.log("Pomyślnie wygenerowano PDF za pomocą metody HTML");
       return pdfBlob;
@@ -88,7 +88,7 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
       
       // Use html2canvas to convert to image with higher scale for better quality
       const canvas = await html2canvas(tempContainer, {
-        scale: 3, // Even higher resolution for better text clarity
+        scale: 4, // Even higher resolution for better text clarity (increased from 3)
         backgroundColor: '#ffffff',
         logging: false,
         allowTaint: true,
