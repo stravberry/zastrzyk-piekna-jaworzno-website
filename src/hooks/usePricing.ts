@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { PriceCategory } from "@/components/pricing/PriceCard";
@@ -16,20 +17,34 @@ export const usePricing = () => {
   const [selectedCategory, setSelectedCategory] = useState<PriceCategory | null>(null);
   const [selectedItemIndex, setSelectedItemIndex] = useState<number | null>(null);
   const [dialogType, setDialogType] = useState<DialogType>(null);
+  const [error, setError] = useState<string | null>(null);
   
   // Load categories
   const refreshData = useCallback(async () => {
     try {
       setIsLoading(true);
+      setError(null);
       const data = await getPriceCategories();
+      
+      if (!data || data.length === 0) {
+        console.warn('Otrzymano pustą listę kategorii z API');
+        setError('Nie znaleziono kategorii cennika. Spróbuj odświeżyć stronę.');
+      }
+      
       setCategories(data);
     } catch (error) {
       console.error('Error loading categories:', error);
       toast.error('Nie udało się załadować cennika');
+      setError('Wystąpił błąd podczas ładowania danych. Spróbuj ponownie później.');
     } finally {
       setIsLoading(false);
     }
   }, []);
+
+  // Initial data load
+  useEffect(() => {
+    refreshData();
+  }, [refreshData]);
 
   // Handle dialog close
   const handleCloseDialog = useCallback(() => {
@@ -79,6 +94,11 @@ export const usePricing = () => {
   // Handle exporting to PDF - updated with better error handling
   const handleExportPdf = useCallback(async (categoryId?: string) => {
     try {
+      if (categories.length === 0) {
+        toast.error('Brak kategorii do eksportu');
+        return;
+      }
+      
       toast.info(categoryId 
         ? 'Generowanie PDF dla wybranej kategorii...' 
         : 'Generowanie pełnego cennika PDF...'
@@ -107,11 +127,16 @@ export const usePricing = () => {
       console.error('Error exporting PDF:', error);
       toast.error(`Nie udało się wygenerować PDF: ${(error as Error).message || 'Nieznany błąd'}`);
     }
-  }, []);
+  }, [categories]);
 
   // Handle exporting to PNG
   const handleExportPng = useCallback(async (categoryId?: string) => {
     try {
+      if (categories.length === 0) {
+        toast.error('Brak kategorii do eksportu');
+        return;
+      }
+      
       toast.info('Generowanie PNG...');
       const pngBlob = await exportPricingToPng(categoryId);
       
@@ -133,19 +158,21 @@ export const usePricing = () => {
       console.error('Error exporting PNG:', error);
       toast.error('Nie udało się wygenerować PNG');
     }
-  }, []);
+  }, [categories]);
 
   // Handle resetting data
   const handleResetData = useCallback(async () => {
     if (confirm("Czy na pewno chcesz zresetować wszystkie dane cennika do wartości początkowych?")) {
       try {
         setIsLoading(true);
+        setError(null);
         const data = await resetPriceCategories();
         setCategories(data);
         toast.success('Dane zostały zresetowane');
       } catch (error) {
         console.error('Error resetting data:', error);
         toast.error('Nie udało się zresetować danych');
+        setError('Wystąpił błąd podczas resetowania danych');
       } finally {
         setIsLoading(false);
       }
@@ -155,6 +182,7 @@ export const usePricing = () => {
   return {
     categories,
     isLoading,
+    error,
     selectedCategory,
     selectedItemIndex,
     dialogType,

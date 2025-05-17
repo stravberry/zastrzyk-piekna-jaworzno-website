@@ -9,9 +9,13 @@ import { createPdfLayoutForPng } from "./pngGenerator";
 // Generate PDF for pricing data using jsPDF and autoTable
 export const generatePricingPdf = async (categories: PriceCategory[]): Promise<Blob> => {
   try {
-    // Próba zastosowania techniki dzielenia dokumentu na mniejsze części
-    // jeśli jest zbyt dużo kategorii
-    if (categories.length > 3) {
+    // Create a deep copy of categories to avoid modifying the original
+    const categoriesToProcess = JSON.parse(JSON.stringify(categories));
+    
+    // Handle large number of categories by limiting output
+    if (categoriesToProcess.length > 3) {
+      console.log("Za dużo kategorii dla standardowego PDF - generowanie ograniczonej wersji");
+      
       // Generuj PDF tylko dla pierwszej kategorii jako fallback
       const singleCategoryDoc = new jsPDF({
         orientation: "portrait",
@@ -29,7 +33,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
       singleCategoryDoc.text("Cennik Usług", singleCategoryDoc.internal.pageSize.width / 2, 20, { align: "center" });
       
       // Wyświetl tylko pierwszą kategorię
-      const category = categories[0];
+      const category = categoriesToProcess[0];
       let yPosition = 40;
       
       // Category header with background
@@ -120,8 +124,8 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
     doc.text("Cennik Usług", doc.internal.pageSize.width / 2, 20, { align: "center" });
     
     // Process each category on a separate page
-    for (let i = 0; i < categories.length; i++) {
-      const category = categories[i];
+    for (let i = 0; i < categoriesToProcess.length; i++) {
+      const category = categoriesToProcess[i];
       
       // Always add new page for each category after the first page
       if (i > 0) {
@@ -210,14 +214,20 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
 export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): Promise<Blob> => {
   return new Promise(async (resolve, reject) => {
     try {
-      // Limit na zbyt dużą ilość danych aby uniknąć błędu 'Invalid string length'
-      if (categories.length > 3) {
-        // Jeśli za dużo kategorii, ogranicz do pierwszej
-        const limitedCategories = [categories[0]];
-        console.log("Ograniczono generowanie PDF tylko do pierwszej kategorii:", limitedCategories[0].title);
+      // Create a deep copy of the categories to avoid modifying the original data
+      const categoriesToProcess = JSON.parse(JSON.stringify(categories));
+      
+      // Limit on too much data to avoid 'Invalid string length' error
+      if (categoriesToProcess.length > 3) {
+        console.log("Za dużo kategorii dla HTML PDF - ograniczenie do pierwszej kategorii");
         
-        // Wywołanie ponownie tej samej funkcji, ale z ograniczonymi danymi
+        // Create a smaller PDF with just the first category
+        const limitedCategories = [categoriesToProcess[0]];
+        console.log("Ograniczono do kategorii:", limitedCategories[0].title);
+        
+        // Recall the same function with limited data
         const pdfBlob = await generatePricingPdfFromHtml(limitedCategories);
+        console.log("Wygenerowano ograniczony PDF");
         resolve(pdfBlob);
         return;
       }
@@ -275,7 +285,7 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
           </div>
           
           <!-- Each category on its own page -->
-          ${categories.map(category => `
+          ${categoriesToProcess.map(category => `
             <div class="page-container">
               <div class="category-header">${category.title}</div>
               <table>
@@ -341,8 +351,8 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
       pdf.text("Zastrzyk Piękna", pdf.internal.pageSize.width / 2, 45, { align: "center" });
       
       // Dodaj strony dla każdej kategorii
-      for (let i = 0; i < categories.length; i++) {
-        const category = categories[i];
+      for (let i = 0; i < categoriesToProcess.length; i++) {
+        const category = categoriesToProcess[i];
         pdf.addPage();
         
         // Nagłówek kategorii

@@ -21,19 +21,23 @@ export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => 
       throw new Error("Nie znaleziono kategorii cennika do eksportu");
     }
     
+    // Create a deep copy of the categories for PDF generation
+    // This ensures we don't modify the original data
+    const categoriesToExport = JSON.parse(JSON.stringify(filteredCategories));
+    
     // Logging for debugging
-    console.log(`Generowanie PDF dla ${filteredCategories.length} kategorii`);
-    console.log("Kategorie do eksportu:", filteredCategories.map(c => c.title));
+    console.log(`Generowanie PDF dla ${categoriesToExport.length} kategorii`);
+    console.log("Kategorie do eksportu:", categoriesToExport.map(c => c.title));
     
     try {
-      // Modyfikacja - jeśli jest dużo kategorii, generuj po jednej 
-      // kategorii na raz i łącz wyniki
-      if (filteredCategories.length > 3 && !categoryId) {
+      // If there are many categories, handle them differently
+      if (categoriesToExport.length > 3 && !categoryId) {
         toast.info("Generowanie PDF z wieloma kategoriami...");
         
-        // Generuj dla każdej kategorii osobno
-        const pdfPromises = filteredCategories.map(async (category) => {
+        // Generate PDF for each category separately
+        const pdfPromises = categoriesToExport.map(async (category) => {
           try {
+            // Pass a new array with just this category
             return await generatePricingPdfFromHtml([category]);
           } catch (err) {
             console.error(`Błąd generowania PDF dla kategorii ${category.title}:`, err);
@@ -41,7 +45,7 @@ export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => 
           }
         });
         
-        // Poczekaj na wszystkie PDF-y
+        // Wait for all PDFs
         const pdfResults = await Promise.all(pdfPromises);
         const validPdfs = pdfResults.filter(Boolean) as Blob[];
         
@@ -49,13 +53,12 @@ export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => 
           throw new Error("Nie udało się wygenerować żadnego PDF");
         }
         
-        // Jeśli są PDF-y, zwróć pierwszy - w przyszłości można zaimplementować łączenie PDF-ów
-        toast.success(`Pomyślnie wygenerowano PDF dla ${validPdfs.length}/${filteredCategories.length} kategorii`);
+        toast.success(`Pomyślnie wygenerowano PDF dla ${validPdfs.length}/${categoriesToExport.length} kategorii`);
         return validPdfs[0];
       } else {
-        // Standardowa metoda dla pojedynczej kategorii lub małej liczby
+        // Standard method for single category or small number
         toast.info("Generowanie PDF z podziałem na strony...");
-        const pdfBlob = await generatePricingPdfFromHtml(filteredCategories);
+        const pdfBlob = await generatePricingPdfFromHtml(categoriesToExport);
         console.log("Pomyślnie wygenerowano PDF za pomocą metody HTML");
         return pdfBlob;
       }
@@ -67,7 +70,7 @@ export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => 
       
       // Fall back to the classic PDF generator if the HTML method fails
       try {
-        const fallbackPdfBlob = await generatePricingPdf(filteredCategories);
+        const fallbackPdfBlob = await generatePricingPdf(categoriesToExport);
         console.log("Pomyślnie wygenerowano PDF za pomocą metody zapasowej");
         return fallbackPdfBlob;
       } catch (fallbackError) {
