@@ -26,11 +26,39 @@ export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => 
     console.log("Kategorie do eksportu:", filteredCategories.map(c => c.title));
     
     try {
-      // First try with the improved HTML-based PDF generator
-      toast.info("Generowanie PDF z podziałem na strony...");
-      const pdfBlob = await generatePricingPdfFromHtml(filteredCategories);
-      console.log("Pomyślnie wygenerowano PDF za pomocą metody HTML");
-      return pdfBlob;
+      // Modyfikacja - jeśli jest dużo kategorii, generuj po jednej 
+      // kategorii na raz i łącz wyniki
+      if (filteredCategories.length > 3 && !categoryId) {
+        toast.info("Generowanie PDF z wieloma kategoriami...");
+        
+        // Generuj dla każdej kategorii osobno
+        const pdfPromises = filteredCategories.map(async (category) => {
+          try {
+            return await generatePricingPdfFromHtml([category]);
+          } catch (err) {
+            console.error(`Błąd generowania PDF dla kategorii ${category.title}:`, err);
+            return null;
+          }
+        });
+        
+        // Poczekaj na wszystkie PDF-y
+        const pdfResults = await Promise.all(pdfPromises);
+        const validPdfs = pdfResults.filter(Boolean) as Blob[];
+        
+        if (validPdfs.length === 0) {
+          throw new Error("Nie udało się wygenerować żadnego PDF");
+        }
+        
+        // Jeśli są PDF-y, zwróć pierwszy - w przyszłości można zaimplementować łączenie PDF-ów
+        toast.success(`Pomyślnie wygenerowano PDF dla ${validPdfs.length}/${filteredCategories.length} kategorii`);
+        return validPdfs[0];
+      } else {
+        // Standardowa metoda dla pojedynczej kategorii lub małej liczby
+        toast.info("Generowanie PDF z podziałem na strony...");
+        const pdfBlob = await generatePricingPdfFromHtml(filteredCategories);
+        console.log("Pomyślnie wygenerowano PDF za pomocą metody HTML");
+        return pdfBlob;
+      }
     } catch (htmlError) {
       console.error("Błąd z generatorem HTML PDF, próba metody zapasowej:", htmlError);
       

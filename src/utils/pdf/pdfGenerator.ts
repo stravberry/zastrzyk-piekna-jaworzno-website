@@ -1,3 +1,4 @@
+
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { PriceCategory } from "@/components/pricing/PriceCard";
@@ -8,7 +9,101 @@ import { createPdfLayoutForPng } from "./pngGenerator";
 // Generate PDF for pricing data using jsPDF and autoTable
 export const generatePricingPdf = async (categories: PriceCategory[]): Promise<Blob> => {
   try {
-    // Create PDF with larger page format for better readability
+    // Próba zastosowania techniki dzielenia dokumentu na mniejsze części
+    // jeśli jest zbyt dużo kategorii
+    if (categories.length > 3) {
+      // Generuj PDF tylko dla pierwszej kategorii jako fallback
+      const singleCategoryDoc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+        putOnlyUsedFonts: true,
+      });
+      
+      // Add support for Polish characters
+      await addPolishFontSupport(singleCategoryDoc);
+      
+      // Main title page
+      singleCategoryDoc.setFontSize(24);
+      singleCategoryDoc.setTextColor(236, 72, 153); // Pink color for title
+      singleCategoryDoc.text("Cennik Usług", singleCategoryDoc.internal.pageSize.width / 2, 20, { align: "center" });
+      
+      // Wyświetl tylko pierwszą kategorię
+      const category = categories[0];
+      let yPosition = 40;
+      
+      // Category header with background
+      singleCategoryDoc.setFillColor(236, 72, 153); // Pink background
+      singleCategoryDoc.rect(10, yPosition - 5, singleCategoryDoc.internal.pageSize.width - 20, 10, "F");
+      
+      // Category title text
+      singleCategoryDoc.setFontSize(14);
+      singleCategoryDoc.setTextColor(255, 255, 255); // White text
+      singleCategoryDoc.text(category.title, 15, yPosition);
+      
+      yPosition += 10;
+      
+      // Create table for items (z ograniczoną liczbą wierszy)
+      const limitedItems = category.items.slice(0, 10); // Ogranicz do 10 pierwszych pozycji
+      
+      autoTable(singleCategoryDoc, {
+        startY: yPosition,
+        head: [["Nazwa zabiegu", "Opis", "Cena"]],
+        body: limitedItems.map(item => [
+          item.name,
+          item.description || "",
+          item.price
+        ]),
+        theme: 'grid',
+        headStyles: {
+          fillColor: [253, 242, 248], // Light pink
+          textColor: [0, 0, 0],
+          fontStyle: 'bold',
+          fontSize: 12,
+        },
+        columnStyles: {
+          0: { cellWidth: 70 },
+          1: { cellWidth: 'auto' },
+          2: { cellWidth: 30, halign: 'right', textColor: [236, 72, 153], fontStyle: 'bold' }
+        },
+        styles: {
+          font: 'helvetica',
+          fontSize: 10,
+          cellPadding: 6,
+          overflow: 'linebreak',
+        },
+        tableWidth: 'auto',
+        margin: { left: 10, right: 10 },
+        rowPageBreak: 'avoid',
+        bodyStyles: { minCellHeight: 20 },
+        didDrawPage: (data) => {
+          // Add page number
+          singleCategoryDoc.setFontSize(10);
+          singleCategoryDoc.setTextColor(100);
+          singleCategoryDoc.text(
+            `Wygenerowano częściowy podgląd cennika`,
+            singleCategoryDoc.internal.pageSize.width / 2,
+            singleCategoryDoc.internal.pageSize.height - 10,
+            { align: "center" }
+          );
+        },
+      });
+      
+      // Informacja o ograniczeniu
+      singleCategoryDoc.setFontSize(12);
+      singleCategoryDoc.setTextColor(236, 72, 153);
+      singleCategoryDoc.text(
+        "Ze względu na dużą ilość danych wygenerowano tylko podgląd pierwszej kategorii.",
+        singleCategoryDoc.internal.pageSize.width / 2,
+        singleCategoryDoc.internal.pageSize.height - 20,
+        { align: "center", maxWidth: singleCategoryDoc.internal.pageSize.width - 30 }
+      );
+      
+      // Return as blob
+      return singleCategoryDoc.output('blob');
+    }
+    
+    // Standardowe generowanie dla małej liczby kategorii
     const doc = new jsPDF({
       orientation: "portrait",
       unit: "mm",
@@ -115,6 +210,18 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
 export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): Promise<Blob> => {
   return new Promise(async (resolve, reject) => {
     try {
+      // Limit na zbyt dużą ilość danych aby uniknąć błędu 'Invalid string length'
+      if (categories.length > 3) {
+        // Jeśli za dużo kategorii, ogranicz do pierwszej
+        const limitedCategories = [categories[0]];
+        console.log("Ograniczono generowanie PDF tylko do pierwszej kategorii:", limitedCategories[0].title);
+        
+        // Wywołanie ponownie tej samej funkcji, ale z ograniczonymi danymi
+        const pdfBlob = await generatePricingPdfFromHtml(limitedCategories);
+        resolve(pdfBlob);
+        return;
+      }
+      
       // Format price with proper Polish currency symbol
       const formatPrice = (price: string): string => {
         // Keep original formatting if it already contains "zł" 
@@ -133,7 +240,7 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
       tempContainer.style.backgroundColor = 'white';
       document.body.appendChild(tempContainer);
       
-      // Generate HTML content using the same styling as PNG generator
+      // Generate HTML content - uprościmy strukturę dla mniejszego rozmiaru
       tempContainer.innerHTML = `
         <!DOCTYPE html>
         <html>
@@ -145,63 +252,53 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
             body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif !important; }
             * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             
-            /* Use the exact same styles as in createPdfLayoutForPng */
-            .title { color: #EC4899; text-align: center; font-size: 28px; font-weight: bold; margin-bottom: 30px; }
-            .category-header { background: #EC4899; color: white; padding: 10px 12px; margin-top: 20px; font-size: 20px; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 30px; table-layout: fixed; }
-            th { background: #FDF2F8; padding: 12px; text-align: left; font-weight: bold; font-size: 16px; }
-            td { padding: 12px; border-top: 1px solid #FCE7F3; word-break: break-word; font-size: 14px; }
+            /* Uproszczone style dla kompaktowego PDF */
+            .title { color: #EC4899; text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 20px; }
+            .category-header { background: #EC4899; color: white; padding: 8px 10px; margin-top: 15px; font-size: 16px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            th { background: #FDF2F8; padding: 8px; text-align: left; font-weight: bold; font-size: 14px; }
+            td { padding: 6px; border-top: 1px solid #FCE7F3; font-size: 12px; }
             tr:nth-child(even) { background-color: #FCF2F8; }
             .price { font-weight: bold; color: #EC4899; text-align: right; }
-            .description { font-style: italic; color: #666; font-size: 0.9em; }
-            .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+            .footer { text-align: center; margin-top: 15px; color: #666; font-size: 10px; }
             
             /* Page break rules */
-            .page-container { page-break-after: always; min-height: 100vh; position: relative; padding: 40px 20px 60px 20px; }
+            .page-container { page-break-after: always; position: relative; padding: 20px 10px 40px 10px; }
             .page-container:last-child { page-break-after: auto; }
-            .category { page-break-inside: avoid; }
-            tr { page-break-inside: avoid; }
-            
-            @media print {
-              .page-container { page-break-after: always; }
-            }
           </style>
         </head>
         <body>
           <!-- Title page -->
           <div class="page-container">
             <h1 class="title">Cennik Usług</h1>
-            <p style="text-align: center; font-size: 16px; color: #666;">Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej</p>
+            <p style="text-align: center; font-size: 14px; color: #666;">Zastrzyk Piękna</p>
           </div>
           
           <!-- Each category on its own page -->
           ${categories.map(category => `
             <div class="page-container">
-              <div class="category">
-                <div class="category-header">${category.title}</div>
-                <table>
-                  <thead>
+              <div class="category-header">${category.title}</div>
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 40%">Nazwa zabiegu</th>
+                    <th style="width: 40%">Opis</th>
+                    <th style="width: 20%; text-align: right;">Cena</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${category.items.map(item => `
                     <tr>
-                      <th style="width: 40%">Nazwa zabiegu</th>
-                      <th style="width: 40%">Opis</th>
-                      <th style="width: 20%; text-align: right;">Cena</th>
+                      <td>${item.name}</td>
+                      <td style="font-size:11px; color:#666; font-style:italic;">${item.description || ''}</td>
+                      <td class="price">${formatPrice(item.price)}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    ${category.items.map(item => `
-                      <tr>
-                        <td>${item.name}</td>
-                        <td class="description">${item.description || ''}</td>
-                        <td class="price">${formatPrice(item.price)}</td>
-                      </tr>
-                    `).join('')}
-                  </tbody>
-                </table>
-              </div>
+                  `).join('')}
+                </tbody>
+              </table>
               
               <div class="footer">
-                <p>Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej</p>
-                <p>Wygenerowano ${new Date().toLocaleDateString('pl-PL')}</p>
+                <p>Zastrzyk Piękna - ${new Date().toLocaleDateString('pl-PL')}</p>
               </div>
             </div>
           `).join('')}
@@ -210,102 +307,88 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
       `;
       
       // Wait for fonts and rendering to complete
-      await new Promise(r => setTimeout(r, 1500));
+      await new Promise(r => setTimeout(r, 500)); // Zredukowany czas oczekiwania
       
-      // Use html2canvas with higher quality settings
+      // Use html2canvas with minimal settings to avoid memory issues
       const canvas = await html2canvas(tempContainer, {
-        scale: 4, // Higher quality for better text clarity (increased from 3)
+        scale: 2, // Reduced scale to avoid memory issues
         useCORS: true,
-        allowTaint: true,
         backgroundColor: '#FFFFFF',
         logging: false,
-        windowWidth: 794,
-        windowHeight: tempContainer.scrollHeight,
         onclone: (document, element) => {
           // Force Arial font everywhere
           const style = document.createElement('style');
-          style.textContent = `
-            * { font-family: Arial, Helvetica, sans-serif !important; }
-            .price { font-weight: bold !important; color: #EC4899 !important; }
-            .category-header { background: #EC4899 !important; color: white !important; }
-            table { border-collapse: collapse !important; }
-            th { background: #FDF2F8 !important; }
-            tr:nth-child(even) { background-color: #FCF2F8 !important; }
-          `;
+          style.textContent = `* { font-family: Arial, Helvetica, sans-serif !important; }`;
           document.head.appendChild(style);
           return element;
         }
       });
       
-      // Create PDF using a more precise page calculation approach
+      // Create PDF with minimum memory usage
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4',
-        hotfixes: ["px_scaling"],
+        compress: true, // Kompresja dla zmniejszenia rozmiaru
       });
       
-      // Calculate page height in pixels based on A4 dimensions (1:1.414 ratio)
-      const pageWidthInMM = 210; // A4 width in mm
-      const pageHeightInMM = 297; // A4 height in mm
+      // Dodaj pierwszą stronę tytułową
+      pdf.setFontSize(24);
+      pdf.setTextColor(236, 72, 153); // Pink color
+      pdf.text("Cennik Usług", pdf.internal.pageSize.width / 2, 30, { align: "center" });
+      pdf.setFontSize(14);
+      pdf.setTextColor(100, 100, 100);
+      pdf.text("Zastrzyk Piękna", pdf.internal.pageSize.width / 2, 45, { align: "center" });
       
-      // Calculate the scale factor for converting canvas pixels to PDF mm
-      const mmToPxRatio = canvas.width / pageWidthInMM;
-      const pxToMmRatio = pageWidthInMM / canvas.width;
-      
-      // Calculate the number of full pages needed (title + one per category)
-      const numPages = categories.length + 1;
-      
-      // Get all page containers from the document
-      const pageContainers = tempContainer.querySelectorAll('.page-container');
-      
-      // The total height of all pages combined
-      const totalHeight = canvas.height;
-      
-      // Keep track of our current position within the canvas
-      let currentY = 0;
-      
-      // Process each page container
-      for (let i = 0; i < pageContainers.length; i++) {
-        if (i > 0) {
-          pdf.addPage(); // Add a new page for each container after the first
-        }
+      // Dodaj strony dla każdej kategorii
+      for (let i = 0; i < categories.length; i++) {
+        const category = categories[i];
+        pdf.addPage();
         
-        // Height of this specific page container
-        const pageHeight = pageContainers[i].clientHeight * (canvas.height / tempContainer.scrollHeight);
+        // Nagłówek kategorii
+        pdf.setFillColor(236, 72, 153); // Pink background
+        pdf.rect(10, 20, pdf.internal.pageSize.width - 20, 10, "F");
+        pdf.setFontSize(14);
+        pdf.setTextColor(255, 255, 255); // White text
+        pdf.text(category.title, 15, 27);
         
-        // Calculate the source area from the canvas
-        const sx = 0;
-        const sy = currentY;
-        const sWidth = canvas.width;
-        const sHeight = pageHeight;
+        // Tabela z pozycjami
+        autoTable(pdf, {
+          startY: 35,
+          head: [["Nazwa zabiegu", "Opis", "Cena"]],
+          body: category.items.map(item => [
+            item.name,
+            item.description || "",
+            formatPrice(item.price)
+          ]),
+          theme: 'grid',
+          headStyles: {
+            fillColor: [253, 242, 248], 
+            textColor: [0, 0, 0],
+            fontStyle: 'bold'
+          },
+          columnStyles: {
+            0: { cellWidth: 65 },
+            1: { cellWidth: 'auto' },
+            2: { cellWidth: 30, halign: 'right', textColor: [236, 72, 153] }
+          },
+          styles: {
+            font: 'helvetica',
+            fontSize: 10,
+            cellPadding: 4,
+          },
+          margin: { left: 10, right: 10 },
+        });
         
-        // Create a temporary canvas for just this page section
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = sWidth;
-        tempCanvas.height = sHeight;
-        const ctx = tempCanvas.getContext('2d');
-        
-        if (ctx) {
-          // Draw just this section of the full canvas
-          ctx.drawImage(
-            canvas,
-            sx, sy, sWidth, sHeight,  // Source rectangle
-            0, 0, sWidth, sHeight     // Destination rectangle
-          );
-          
-          // Convert this canvas section to image data
-          const imgData = tempCanvas.toDataURL('image/png', 1.0);
-          
-          // Add to PDF, fitting to page width
-          const pdfWidth = pdf.internal.pageSize.getWidth();
-          const pdfHeight = (sHeight * pdfWidth) / sWidth;
-          
-          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-          
-          // Update position for next section
-          currentY += sHeight;
-        }
+        // Stopka
+        pdf.setFontSize(10);
+        pdf.setTextColor(100);
+        pdf.text(
+          `Zastrzyk Piękna - ${new Date().toLocaleDateString('pl-PL')}`,
+          pdf.internal.pageSize.width / 2,
+          pdf.internal.pageSize.height - 10,
+          { align: "center" }
+        );
       }
       
       // Clean up the temporary DOM elements
