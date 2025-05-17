@@ -24,7 +24,7 @@ const PricingCategoryCard: React.FC<PricingCategoryCardProps> = ({
   isMobile = false,
 }) => {
   return (
-    <div className="border rounded-lg overflow-hidden">
+    <div className="border rounded-lg overflow-hidden shadow-sm">
       <PricingCategoryHeader
         category={category}
         onAddItem={onAddItem}

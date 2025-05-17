@@ -26,7 +26,7 @@ const PricingActions: React.FC<PricingActionsProps> = ({
 }) => {
   if (isMobile) {
     return (
-      <div className="flex flex-col gap-3 mb-6">
+      <div className="flex flex-col gap-3 mb-4">
         <Button 
           onClick={onAddCategory} 
           variant="default" 
@@ -43,7 +43,7 @@ const PricingActions: React.FC<PricingActionsProps> = ({
               <FileDown className="h-4 w-4 ml-2" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
+          <DropdownMenuContent className="w-full min-w-[200px] bg-white" align="end">
             <DropdownMenuItem onClick={onExportPdf}>
               <FileDown className="mr-2 h-4 w-4" />
               Eksportuj pełny cennik do PDF

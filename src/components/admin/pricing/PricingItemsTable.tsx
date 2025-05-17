@@ -31,42 +31,44 @@ const PricingItemsTable: React.FC<PricingItemsTableProps> = ({
             Brak usług w tej kategorii. Dodaj pierwszą usługę klikając przycisk "Dodaj usługę".
           </div>
         ) : (
-          category.items.map((item, index) => (
-            <div 
-              key={index} 
-              className={`py-3 px-2 ${index !== category.items.length - 1 ? 'border-b' : ''}`}
-            >
-              <div className="flex justify-between items-start">
-                <div className="flex-grow pr-2">
-                  <h4 className="font-medium">{item.name}</h4>
-                  <div className="text-pink-600 font-medium text-sm">{item.price}</div>
-                  {item.description && (
-                    <p className="text-gray-600 text-xs mt-1">{item.description}</p>
-                  )}
+          <div className="max-h-[70vh] overflow-y-auto">
+            {category.items.map((item, index) => (
+              <div 
+                key={index} 
+                className={`py-3 px-2 ${index !== category.items.length - 1 ? 'border-b' : ''}`}
+              >
+                <div className="flex justify-between items-start">
+                  <div className="flex-grow pr-2">
+                    <h4 className="font-medium">{item.name}</h4>
+                    <div className="text-pink-600 font-medium text-sm">{item.price}</div>
+                    {item.description && (
+                      <p className="text-gray-600 text-xs mt-1">{item.description}</p>
+                    )}
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="bg-white min-w-[150px]">
+                      <DropdownMenuItem onClick={() => onEditItem(category, index)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edytuj
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => onDeleteItem(category, index)}
+                        className="text-red-600 focus:text-red-600"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Usuń
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => onEditItem(category, index)}>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Edytuj
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => onDeleteItem(category, index)}
-                      className="text-red-600 focus:text-red-600"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Usuń
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
               </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </div>
     );

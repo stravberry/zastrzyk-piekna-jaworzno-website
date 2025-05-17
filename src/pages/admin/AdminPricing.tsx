@@ -57,7 +57,7 @@ const AdminPricing = () => {
 
   return (
     <AdminLayout title="Zarządzanie cennikiem">
-      <div className="p-4 sm:p-6 max-w-full overflow-hidden">
+      <div className="p-2 sm:p-6 w-full overflow-hidden">
         <PricingActions 
           onAddCategory={handleAddCategory} 
           onResetData={handleResetData}
@@ -68,7 +68,7 @@ const AdminPricing = () => {
 
         {isLoading ? (
           // Loading skeleton
-          <div className="space-y-8">
+          <div className="space-y-4 sm:space-y-8">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="border rounded-lg overflow-hidden">
                 <div className="bg-pink-50 p-4">
@@ -81,7 +81,7 @@ const AdminPricing = () => {
             ))}
           </div>
         ) : categories.length === 0 ? (
-          <div className="mt-8 text-center">
+          <div className="mt-6 text-center">
             <p className="text-gray-500 mb-4">
               Nie znaleziono kategorii cennika. Prawdopodobnie wystąpił problem z inicjalizacją danych.
             </p>

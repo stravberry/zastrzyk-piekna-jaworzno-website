@@ -27,7 +27,7 @@ const PricingCategoryHeader: React.FC<PricingCategoryHeaderProps> = ({
 }) => {
   if (isMobile) {
     return (
-      <div className="bg-pink-50 p-4">
+      <div className="bg-pink-50 p-3">
         <div className="flex items-center justify-between">
           <h3 className="font-medium text-lg">{category.title}</h3>
           <DropdownMenu>
@@ -37,7 +37,7 @@ const PricingCategoryHeader: React.FC<PricingCategoryHeaderProps> = ({
                 <span className="sr-only">Menu</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="bg-white min-w-[180px]">
               <DropdownMenuItem onClick={() => onAddItem(category)}>
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Dodaj usługę
