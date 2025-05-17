@@ -23,9 +23,11 @@ export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => 
     
     // Logging for debugging
     console.log(`Generowanie PDF dla ${filteredCategories.length} kategorii`);
+    console.log("Kategorie do eksportu:", filteredCategories.map(c => c.title));
     
     try {
       // First try with the improved HTML-based PDF generator
+      toast.info("Generowanie PDF z ulepszoną obsługą stron...");
       const pdfBlob = await generatePricingPdfFromHtml(filteredCategories);
       console.log("Pomyślnie wygenerowano PDF za pomocą metody HTML");
       return pdfBlob;
@@ -42,11 +44,13 @@ export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => 
         return fallbackPdfBlob;
       } catch (fallbackError) {
         console.error("Obie metody generowania PDF zawiodły:", fallbackError);
+        toast.error("Nie udało się wygenerować PDF przy użyciu żadnej z dostępnych metod");
         throw new Error("Nie udało się wygenerować PDF przy użyciu żadnej z dostępnych metod");
       }
     }
   } catch (error) {
     console.error("Błąd w exportPricingToPdf:", error);
+    toast.error(`Błąd eksportu do PDF: ${(error as Error).message}`);
     throw new Error("Nie udało się wygenerować PDF: " + (error as Error).message);
   }
 };
@@ -66,6 +70,8 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
       if (targetCategories.length === 0) {
         throw new Error("Nie znaleziono kategorii cennika do eksportu");
       }
+      
+      toast.info("Generowanie obrazu PNG z cennikiem...");
       
       // Create a temporary container for rendering
       const tempContainer = document.createElement('div');
@@ -101,13 +107,16 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
         if (blob) {
           // Clean up temporary element
           document.body.removeChild(tempContainer);
+          toast.success("Pomyślnie wygenerowano obraz PNG");
           resolve(blob);
         } else {
+          toast.error("Nie udało się utworzyć obrazu PNG");
           reject(new Error("Nie udało się utworzyć obrazu"));
         }
       }, 'image/png', 1.0); // Use highest quality
     } catch (error) {
       console.error("Błąd generowania PNG:", error);
+      toast.error(`Błąd eksportu do PNG: ${(error as Error).message}`);
       reject(error);
     }
   });

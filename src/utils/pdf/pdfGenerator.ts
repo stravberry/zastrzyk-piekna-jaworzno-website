@@ -19,24 +19,22 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
     // Add support for Polish characters
     await addPolishFontSupport(doc);
     
-    // Main title
+    // Main title page
     doc.setFontSize(24);
     doc.setTextColor(236, 72, 153); // Pink color for title
     doc.text("Cennik Usług", doc.internal.pageSize.width / 2, 20, { align: "center" });
     
-    let yPosition = 35;
-    
-    // Process each category
-    for (const category of categories) {
-      // Check if there's enough space for at least the category header and a few rows
-      // If not, add a page break before starting the category
-      if (yPosition > 240) {
+    // Process each category on a separate page
+    for (let i = 0; i < categories.length; i++) {
+      const category = categories[i];
+      
+      // Always add new page for each category after the first page
+      if (i > 0) {
         doc.addPage();
-        yPosition = 20;
       }
       
-      // Store current position to check if we need to add page later
-      const categoryStartPosition = yPosition;
+      // Reset position for new page
+      let yPosition = 40; // Start slightly lower on category pages
       
       // Category header with background
       doc.setFillColor(236, 72, 153); // Pink background
@@ -94,26 +92,15 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
               doc.internal.pageSize.width - 20,
               doc.internal.pageSize.height - 10
             );
+            
+            // Add footer to every page
+            const footerText = "Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej";
+            const dateText = `Wygenerowano ${new Date().toLocaleDateString('pl-PL')}`;
+            doc.text(footerText, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 20, { align: "center" });
+            doc.text(dateText, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 15, { align: "center" });
           }
         },
       });
-      
-      // Update position based on table height
-      yPosition = (doc as any).lastAutoTable.finalY + 15;
-    }
-    
-    // Add footer
-    const footerText = "Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej";
-    const dateText = `Wygenerowano ${new Date().toLocaleDateString('pl-PL')}`;
-    
-    // Add footer to all pages
-    const pageCount = doc.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(10);
-      doc.setTextColor(100);
-      doc.text(footerText, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 20, { align: "center" });
-      doc.text(dateText, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 15, { align: "center" });
     }
     
     // Return as blob
@@ -124,7 +111,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
   }
 };
 
-// Improved HTML-to-PDF generator with better Polish character support and price formatting
+// Improved HTML-to-PDF generator with better page breaking
 export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): Promise<Blob> => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -146,8 +133,7 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
       tempContainer.style.backgroundColor = 'white';
       document.body.appendChild(tempContainer);
       
-      // Generate HTML content with explicit UTF-8 encoding and styling for better Polish character support
-      // Add page-break-inside: avoid CSS for categories to prevent breaking sections across pages
+      // Generate HTML content with explicit one category per page structure
       tempContainer.innerHTML = `
         <!DOCTYPE html>
         <html>
@@ -155,23 +141,26 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
           <meta charset="UTF-8">
           <style>
             @charset "UTF-8";
-            @page { size: A4; margin: 0; }
+            @page { size: A4; margin: 20mm 15mm; }
             body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif !important; }
             * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-family: Arial, Helvetica, sans-serif !important; }
-            .page { width: 794px; padding: 40px; font-family: Arial, Helvetica, sans-serif !important; }
-            .title { color: #EC4899; text-align: center; margin-bottom: 30px; font-size: 28px; font-weight: bold; font-family: Arial, Helvetica, sans-serif !important; }
-            .category { page-break-inside: avoid; margin-bottom: 15px; } /* Prevent page breaks inside categories */
-            .category:not(:first-child) { margin-top: 30px; } /* Add space between categories */
-            .category-header { background: #EC4899; color: white; padding: 10px 15px; margin-top: 0; font-size: 18px; font-family: Arial, Helvetica, sans-serif !important; }
+            .title-page { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+            .title { color: #EC4899; text-align: center; font-size: 36px; font-weight: bold; font-family: Arial, Helvetica, sans-serif !important; }
+            .subtitle { color: #666; text-align: center; font-size: 16px; margin-top: 20px; font-family: Arial, Helvetica, sans-serif !important; }
+            .page { height: 100vh; page-break-after: always; padding-top: 40px; font-family: Arial, Helvetica, sans-serif !important; }
+            .page:last-child { page-break-after: auto; }
+            .category { page-break-inside: avoid; margin-bottom: 15px; break-inside: avoid; } /* Prevent page breaks inside categories */
+            .category-header { background: #EC4899; color: white; padding: 10px 15px; margin-top: 0; font-size: 24px; font-family: Arial, Helvetica, sans-serif !important; }
             table { width: 100%; border-collapse: collapse; margin-bottom: 25px; table-layout: fixed; page-break-inside: avoid; } /* Avoid breaking tables */
-            th { background: #FDF2F8; padding: 10px 15px; text-align: left; font-weight: bold; font-family: Arial, Helvetica, sans-serif !important; }
+            th { background: #FDF2F8; padding: 10px 15px; text-align: left; font-weight: bold; font-size: 14px; font-family: Arial, Helvetica, sans-serif !important; }
             td { padding: 10px 15px; border-top: 1px solid #FCE7F3; word-break: break-word; font-family: Arial, Helvetica, sans-serif !important; }
+            tr { page-break-inside: avoid; } /* Critical to prevent row breaks */
             tr:nth-child(even) { background-color: #FDFAFC; }
             .price { font-weight: bold; color: #EC4899; text-align: right; font-family: Arial, Helvetica, sans-serif !important; }
             .description { font-style: italic; color: #666; font-size: 0.9em; font-family: Arial, Helvetica, sans-serif !important; }
-            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; font-family: Arial, Helvetica, sans-serif !important; }
+            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; font-family: Arial, Helvetica, sans-serif !important; position: absolute; bottom: 20px; width: 100%; }
             @media print {
-              .category { page-break-inside: avoid; }
+              .page { page-break-after: always; min-height: 100vh; position: relative; }
               h1, h2, table { page-break-inside: avoid; }
               table { page-break-after: auto; }
               tr { page-break-inside: avoid; page-break-after: auto; }
@@ -181,10 +170,15 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
           </style>
         </head>
         <body>
-          <div class="page">
+          <!-- Title page -->
+          <div class="title-page">
             <h1 class="title">Cennik Usług</h1>
-            
-            ${categories.map(category => `
+            <p class="subtitle">Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej</p>
+          </div>
+          
+          <!-- Each category on its own page -->
+          ${categories.map(category => `
+            <div class="page">
               <div class="category">
                 <div class="category-header">${category.title}</div>
                 <table>
@@ -206,18 +200,18 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
                   </tbody>
                 </table>
               </div>
-            `).join('')}
-            
-            <div class="footer">
-              <p>Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej</p>
-              <p>Wygenerowano ${new Date().toLocaleDateString('pl-PL')}</p>
+              
+              <div class="footer">
+                <p>Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej</p>
+                <p>Wygenerowano ${new Date().toLocaleDateString('pl-PL')}</p>
+              </div>
             </div>
-          </div>
+          `).join('')}
         </body>
         </html>
       `;
       
-      // Wait longer for fonts and rendering to complete (5 seconds)
+      // Wait for fonts and rendering to complete
       await new Promise(r => setTimeout(r, 5000));
       
       // Use html2canvas with higher quality settings
@@ -246,6 +240,7 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
             }
             .category { page-break-inside: avoid !important; }
             tr { page-break-inside: avoid !important; }
+            .page { page-break-after: always; }
           `;
           document.head.appendChild(style);
           return element;
@@ -268,36 +263,26 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
       
-      // Completely restructured page handling to avoid "mediaBox" errors
-      // and ensure better page breaks
+      // Calculate page height and number of pages needed
       const pageHeight = pdf.internal.pageSize.getHeight();
-      const totalPages = Math.ceil(pdfHeight / pageHeight);
       
-      // First ensure we have at least one page
-      if (pdf.getNumberOfPages() === 0) {
-        pdf.addPage();
-      }
+      // Calculate page dimensions in the canvas
+      const pageHeightInCanvas = canvas.height / (pdfHeight / pageHeight);
       
-      // Split content across multiple pages if needed
-      let heightLeft = pdfHeight;
-      let position = 0;
-      
-      // Add the image to the first page
-      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-      
-      // If content requires multiple pages, add them
-      if (heightLeft > pageHeight) {
-        // Calculate how many additional pages we need
-        for (let i = 1; i < totalPages; i++) {
-          // Add a new page before continuing
+      // Instead of trying to slice one big image, analyze the content by pages
+      // and create one page per category
+      for (let i = 0; i <= categories.length; i++) {
+        // First page is the title page
+        if (i > 0) {
           pdf.addPage();
-          
-          // Calculate the position for the continued image
-          position = -pageHeight * i;
-          
-          // Add the same image but position it to show the right part
-          pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
         }
+        
+        // Calculate position on the canvas for this page
+        // Title page (i=0) + category pages
+        const yPosition = -i * pageHeightInCanvas;
+        
+        // Add the image to the page, positioning it to show the correct slice
+        pdf.addImage(imgData, 'PNG', 0, yPosition, pdfWidth, pdfHeight);
       }
       
       try {
