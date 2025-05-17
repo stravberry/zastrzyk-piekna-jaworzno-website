@@ -11,6 +11,8 @@ interface PricingCategoryCardProps {
   onDeleteCategory: (category: PriceCategory) => void;
   onEditItem: (category: PriceCategory, itemIndex: number) => void;
   onDeleteItem: (category: PriceCategory, itemIndex: number) => void;
+  onExportPdf?: (categoryId: string) => void;
+  onExportPng?: (categoryId: string) => void;
   isMobile?: boolean;
 }
 
@@ -21,6 +23,8 @@ const PricingCategoryCard: React.FC<PricingCategoryCardProps> = ({
   onDeleteCategory,
   onEditItem,
   onDeleteItem,
+  onExportPdf,
+  onExportPng,
   isMobile = false,
 }) => {
   return (
@@ -30,6 +34,8 @@ const PricingCategoryCard: React.FC<PricingCategoryCardProps> = ({
         onAddItem={onAddItem}
         onEditCategory={onEditCategory}
         onDeleteCategory={onDeleteCategory}
+        onExportPdf={onExportPdf}
+        onExportPng={onExportPng}
         isMobile={isMobile}
       />
       <PricingItemsTable

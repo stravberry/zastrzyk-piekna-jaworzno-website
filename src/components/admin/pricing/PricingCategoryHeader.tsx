@@ -1,13 +1,14 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, Trash2, MoreVertical } from "lucide-react";
+import { PlusCircle, Edit, Trash2, MoreVertical, FileDown, FileImage } from "lucide-react";
 import { PriceCategory } from "@/components/pricing/PriceCard";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
 interface PricingCategoryHeaderProps {
@@ -15,6 +16,8 @@ interface PricingCategoryHeaderProps {
   onAddItem: (category: PriceCategory) => void;
   onEditCategory: (category: PriceCategory) => void;
   onDeleteCategory: (category: PriceCategory) => void;
+  onExportPdf?: (categoryId: string) => void;
+  onExportPng?: (categoryId: string) => void;
   isMobile?: boolean;
 }
 
@@ -23,6 +26,8 @@ const PricingCategoryHeader: React.FC<PricingCategoryHeaderProps> = ({
   onAddItem,
   onEditCategory,
   onDeleteCategory,
+  onExportPdf,
+  onExportPng,
   isMobile = false,
 }) => {
   if (isMobile) {
@@ -46,6 +51,20 @@ const PricingCategoryHeader: React.FC<PricingCategoryHeaderProps> = ({
                 <Edit className="mr-2 h-4 w-4" />
                 Edytuj kategorię
               </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              {onExportPdf && (
+                <DropdownMenuItem onClick={() => onExportPdf(category.id)}>
+                  <FileDown className="mr-2 h-4 w-4" />
+                  Eksportuj do PDF
+                </DropdownMenuItem>
+              )}
+              {onExportPng && (
+                <DropdownMenuItem onClick={() => onExportPng(category.id)}>
+                  <FileImage className="mr-2 h-4 w-4" />
+                  Eksportuj do PNG
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
               <DropdownMenuItem 
                 onClick={() => onDeleteCategory(category)}
                 className="text-red-600 focus:text-red-600"

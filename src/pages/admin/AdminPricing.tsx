@@ -44,6 +44,15 @@ const AdminPricing = () => {
     handleExportPdf(); // Call without any parameters to export all categories
   };
 
+  // Functions to handle exporting single category
+  const handleCategoryPdfExport = (categoryId: string) => {
+    handleExportPdf(categoryId);
+  };
+
+  const handleCategoryPngExport = (categoryId: string) => {
+    handleExportPng(categoryId);
+  };
+
   const handleForceReload = () => {
     toast.info("Wymuszenie odświeżenia danych cennika...");
     setLoadRetries(prev => prev + 1);
@@ -103,6 +112,8 @@ const AdminPricing = () => {
             onDeleteCategory={handleDeleteCategory}
             onEditItem={handleEditItem}
             onDeleteItem={handleDeleteItem}
+            onExportPdf={handleCategoryPdfExport}
+            onExportPng={handleCategoryPngExport}
             isMobile={isMobile}
           />
         )}

@@ -12,6 +12,8 @@ interface PricingCategoriesListProps {
   onDeleteCategory: (category: PriceCategory) => void;
   onEditItem: (category: PriceCategory, itemIndex: number) => void;
   onDeleteItem: (category: PriceCategory, itemIndex: number) => void;
+  onExportPdf?: (categoryId: string) => void;
+  onExportPng?: (categoryId: string) => void;
   isMobile?: boolean;
 }
 
@@ -23,6 +25,8 @@ const PricingCategoriesList: React.FC<PricingCategoriesListProps> = ({
   onDeleteCategory,
   onEditItem,
   onDeleteItem,
+  onExportPdf,
+  onExportPng,
   isMobile = false,
 }) => {
   if (categories.length === 0) {
@@ -40,6 +44,8 @@ const PricingCategoriesList: React.FC<PricingCategoriesListProps> = ({
           onDeleteCategory={onDeleteCategory}
           onEditItem={onEditItem}
           onDeleteItem={onDeleteItem}
+          onExportPdf={onExportPdf}
+          onExportPng={onExportPng}
           isMobile={isMobile}
         />
       ))}
