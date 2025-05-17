@@ -28,11 +28,15 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
     
     // Process each category
     for (const category of categories) {
-      // Add page break if needed
+      // Check if there's enough space for at least the category header and a few rows
+      // If not, add a page break before starting the category
       if (yPosition > 240) {
         doc.addPage();
         yPosition = 20;
       }
+      
+      // Store current position to check if we need to add page later
+      const categoryStartPosition = yPosition;
       
       // Category header with background
       doc.setFillColor(236, 72, 153); // Pink background
@@ -70,9 +74,14 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
           font: 'helvetica',
           fontSize: 10,
           cellPadding: 6,
+          overflow: 'linebreak',
         },
         tableWidth: 'auto',
         margin: { left: 10, right: 10 },
+        // Keep table rows together on same page when possible
+        rowPageBreak: 'avoid',
+        // Avoid breaking inside rows (important for descriptions)
+        bodyStyles: { minCellHeight: 20 },
         didDrawPage: (data) => {
           // Add page number
           doc.setFontSize(10);
@@ -138,6 +147,7 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
       document.body.appendChild(tempContainer);
       
       // Generate HTML content with explicit UTF-8 encoding and styling for better Polish character support
+      // Add page-break-inside: avoid CSS for categories to prevent breaking sections across pages
       tempContainer.innerHTML = `
         <!DOCTYPE html>
         <html>
@@ -150,14 +160,24 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
             * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-family: Arial, Helvetica, sans-serif !important; }
             .page { width: 794px; padding: 40px; font-family: Arial, Helvetica, sans-serif !important; }
             .title { color: #EC4899; text-align: center; margin-bottom: 30px; font-size: 28px; font-weight: bold; font-family: Arial, Helvetica, sans-serif !important; }
-            .category-header { background: #EC4899; color: white; padding: 10px 15px; margin-top: 20px; font-size: 18px; font-family: Arial, Helvetica, sans-serif !important; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 25px; table-layout: fixed; }
+            .category { page-break-inside: avoid; margin-bottom: 15px; } /* Prevent page breaks inside categories */
+            .category:not(:first-child) { margin-top: 30px; } /* Add space between categories */
+            .category-header { background: #EC4899; color: white; padding: 10px 15px; margin-top: 0; font-size: 18px; font-family: Arial, Helvetica, sans-serif !important; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 25px; table-layout: fixed; page-break-inside: avoid; } /* Avoid breaking tables */
             th { background: #FDF2F8; padding: 10px 15px; text-align: left; font-weight: bold; font-family: Arial, Helvetica, sans-serif !important; }
             td { padding: 10px 15px; border-top: 1px solid #FCE7F3; word-break: break-word; font-family: Arial, Helvetica, sans-serif !important; }
             tr:nth-child(even) { background-color: #FDFAFC; }
             .price { font-weight: bold; color: #EC4899; text-align: right; font-family: Arial, Helvetica, sans-serif !important; }
             .description { font-style: italic; color: #666; font-size: 0.9em; font-family: Arial, Helvetica, sans-serif !important; }
             .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; font-family: Arial, Helvetica, sans-serif !important; }
+            @media print {
+              .category { page-break-inside: avoid; }
+              h1, h2, table { page-break-inside: avoid; }
+              table { page-break-after: auto; }
+              tr { page-break-inside: avoid; page-break-after: auto; }
+              td { page-break-inside: avoid; }
+              thead { display: table-header-group; }
+            }
           </style>
         </head>
         <body>
@@ -165,7 +185,7 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
             <h1 class="title">Cennik Usług</h1>
             
             ${categories.map(category => `
-              <div>
+              <div class="category">
                 <div class="category-header">${category.title}</div>
                 <table>
                   <thead>
@@ -224,6 +244,8 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
             body, table, tr, td, th, div, p, h1, h2, h3 {
               font-family: Arial, Helvetica, sans-serif !important;
             }
+            .category { page-break-inside: avoid !important; }
+            tr { page-break-inside: avoid !important; }
           `;
           document.head.appendChild(style);
           return element;
@@ -247,8 +269,9 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
       
       // Completely restructured page handling to avoid "mediaBox" errors
-      const totalPages = Math.ceil(pdfHeight / pdf.internal.pageSize.getHeight());
+      // and ensure better page breaks
       const pageHeight = pdf.internal.pageSize.getHeight();
+      const totalPages = Math.ceil(pdfHeight / pageHeight);
       
       // First ensure we have at least one page
       if (pdf.getNumberOfPages() === 0) {
