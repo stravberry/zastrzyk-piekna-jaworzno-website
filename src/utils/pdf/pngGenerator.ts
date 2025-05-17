@@ -1,4 +1,3 @@
-
 import { PriceCategory } from "@/components/pricing/PriceCard";
 
 /**
@@ -6,11 +5,22 @@ import { PriceCategory } from "@/components/pricing/PriceCard";
  * This is used for generating consistent screenshots for PNG exports
  */
 export const createPdfLayoutForPng = (categories: PriceCategory[]): string => {
+  // Format price for proper display with Polish currency symbol
+  const formatPrice = (price: string): string => {
+    // Keep original formatting if it already contains "zł" 
+    if (price.toLowerCase().includes('zł')) {
+      return price;
+    }
+    // Otherwise add "zł" with proper spacing
+    return price.trim() + ' zł';
+  };
+
   // Generate the HTML content for the PNG with explicit character encoding
   return `
     <div style="font-family: Arial, Helvetica, sans-serif; background: white; padding: 30px; color: #333; width: 100%; max-width: 800px; text-align: left;">
       <meta charset="UTF-8">
       <style>
+        @charset "UTF-8";
         * { font-family: Arial, Helvetica, sans-serif; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 30px; table-layout: fixed; }
         th { background: #FDF2F8; padding: 12px; text-align: left; font-weight: bold; font-size: 16px; }
@@ -20,6 +30,7 @@ export const createPdfLayoutForPng = (categories: PriceCategory[]): string => {
         .description { font-style: italic; color: #666; font-size: 0.9em; padding: 8px 12px; }
         .category-header { background: #EC4899; color: white; padding: 10px 12px; margin-top: 20px; font-size: 20px; }
         .title { color: #EC4899; text-align: center; margin-bottom: 30px; font-size: 28px; font-weight: bold; }
+        .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
       </style>
       
       <h1 class="title">Cennik Usług</h1>
@@ -40,7 +51,7 @@ export const createPdfLayoutForPng = (categories: PriceCategory[]): string => {
                 <tr>
                   <td>${item.name}</td>
                   <td>${item.description || ''}</td>
-                  <td class="price">${item.price}</td>
+                  <td class="price">${formatPrice(item.price)}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -48,7 +59,7 @@ export const createPdfLayoutForPng = (categories: PriceCategory[]): string => {
         </div>
       `).join('')}
       
-      <div style="text-align: center; margin-top: 30px; color: #666; font-size: 14px;">
+      <div class="footer">
         <p>Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej</p>
         <p>Wygenerowano ${new Date().toLocaleDateString('pl-PL')}</p>
       </div>

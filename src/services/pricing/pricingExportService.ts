@@ -3,7 +3,7 @@ import { PriceCategory } from "@/components/pricing/PriceCard";
 import { getPriceCategories } from "./pricingCoreService";
 import html2canvas from "html2canvas";
 import { createPdfLayoutForPng } from "@/utils/pdf/pngGenerator";
-import { generatePricingPdf } from "@/utils/pdf";
+import { generatePricingPdf, generatePricingPdfFromHtml } from "@/utils/pdf";
 
 // Export pricing data as PDF
 export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => {
@@ -20,8 +20,8 @@ export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => 
       throw new Error("No pricing categories found to export");
     }
     
-    // Generate the PDF using our utility function
-    return generatePricingPdf(filteredCategories);
+    // Use the new HTML-based PDF generator for better Polish character support
+    return generatePricingPdfFromHtml(filteredCategories);
   } catch (error) {
     console.error("Error generating PDF:", error);
     throw new Error("Failed to generate PDF");
@@ -54,7 +54,7 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
       // Use our simplified layout without custom fonts
       tempContainer.innerHTML = createPdfLayoutForPng(targetCategories);
       
-      // Much longer delay to ensure complete rendering (2 seconds)
+      // Even longer delay to ensure complete rendering (3 seconds)
       await new Promise(r => setTimeout(r, 3000));
       
       // Use html2canvas to convert to image with higher scale for better quality
