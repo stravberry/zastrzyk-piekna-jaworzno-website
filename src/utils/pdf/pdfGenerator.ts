@@ -116,7 +116,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
   }
 };
 
-// NEW METHOD: Generate PDF from HTML for better Polish character support
+// FIXED METHOD: Generate PDF from HTML for better Polish character support
 export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): Promise<Blob> => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -128,13 +128,8 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
       tempContainer.style.backgroundColor = 'white';
       document.body.appendChild(tempContainer);
       
-      // Add proper meta charset
-      const metaCharset = document.createElement('meta');
-      metaCharset.setAttribute('charset', 'UTF-8');
-      tempContainer.appendChild(metaCharset);
-      
       // Generate HTML content with explicit fonts and styling for PDF conversion
-      tempContainer.innerHTML += `
+      tempContainer.innerHTML = `
         <style>
           @page { size: A4; margin: 0; }
           body { margin: 0; padding: 0; font-family: 'Arial', sans-serif; }
@@ -211,6 +206,8 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
       
       // Create PDF from the canvas
       const imgData = canvas.toDataURL('image/png', 1.0);
+      
+      // FIX: Create a new PDF with correctly configured pages and dimensions
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'px',
@@ -223,39 +220,51 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
       
-      // Add image to PDF (full page)
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      // First remove any existing pages to avoid undefined page errors
+      while (pdf.getNumberOfPages() > 0) {
+        pdf.deletePage(pdf.getNumberOfPages());
+      }
       
-      // If content is taller than one page, add additional pages
+      // FIX: Always add the first page explicitly
+      pdf.addPage([pdfWidth, pdf.internal.pageSize.getHeight()]);
+      
+      // Split content across multiple pages if needed
       let heightLeft = pdfHeight;
+      const pageHeight = pdf.internal.pageSize.getHeight();
       let position = 0;
       
-      // Remove the first page which is now redundant
-      if (heightLeft > pdf.internal.pageSize.getHeight()) {
-        pdf.deletePage(1);
+      // FIX: Page handling logic rewritten to avoid mediaBox errors
+      let currentPage = 1;
+      
+      while (heightLeft > 0) {
+        // On first iteration, add the image to the first page
+        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
         
-        // Split the content across multiple pages
-        heightLeft = pdfHeight;
-        let pageHeight = pdf.internal.pageSize.getHeight();
-        position = 0;
+        // Reduce height left and update position
+        heightLeft -= pageHeight;
         
-        while (heightLeft > 0) {
-          pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-          heightLeft -= pageHeight;
-          position -= pageHeight;
+        // If there's more content to add, create a new page
+        if (heightLeft > 0) {
+          position -= pageHeight; // Move position for next page
+          pdf.addPage([pdfWidth, pageHeight]); // Add new page with explicit dimensions
+          currentPage++;
         }
       }
       
-      // Generate and return PDF blob
-      const pdfBlob = pdf.output('blob');
-      
-      // Clean up the temporary element
-      document.body.removeChild(tempContainer);
-      
-      resolve(pdfBlob);
+      // Generate and return PDF blob with proper error handling
+      try {
+        const pdfBlob = pdf.output('blob');
+        // Clean up the temporary element
+        document.body.removeChild(tempContainer);
+        resolve(pdfBlob);
+      } catch (error) {
+        console.error("Error generating PDF blob:", error);
+        // Clean up even if there's an error
+        document.body.removeChild(tempContainer);
+        reject(error);
+      }
     } catch (error) {
-      console.error("Error generating PDF from HTML:", error);
+      console.error("Error in HTML to PDF conversion process:", error);
       reject(error);
     }
   });
@@ -263,15 +272,20 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
 
 // Legacy function kept for backward compatibility
 export const generatePricingPDF = async (title: string, categories: any[]) => {
-  const pdfBlob = await generatePricingPdfFromHtml(categories);
-  const pdfUrl = URL.createObjectURL(pdfBlob);
-  
-  // Create a temporary link and trigger download
-  const link = document.createElement('a');
-  link.href = pdfUrl;
-  link.download = `cennik-${new Date().toISOString().split("T")[0]}.pdf`;
-  link.click();
-  
-  // Clean up
-  URL.revokeObjectURL(pdfUrl);
+  try {
+    const pdfBlob = await generatePricingPdfFromHtml(categories);
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    
+    // Create a temporary link and trigger download
+    const link = document.createElement('a');
+    link.href = pdfUrl;
+    link.download = `cennik-${new Date().toISOString().split("T")[0]}.pdf`;
+    link.click();
+    
+    // Clean up
+    URL.revokeObjectURL(pdfUrl);
+  } catch (error) {
+    console.error("Error generating legacy PDF:", error);
+    throw error;
+  }
 };

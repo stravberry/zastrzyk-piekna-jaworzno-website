@@ -4,6 +4,7 @@ import { getPriceCategories } from "./pricingCoreService";
 import html2canvas from "html2canvas";
 import { createPdfLayoutForPng } from "@/utils/pdf/pngGenerator";
 import { generatePricingPdf, generatePricingPdfFromHtml } from "@/utils/pdf";
+import { toast } from "sonner";
 
 // Export pricing data as PDF
 export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => {
@@ -20,11 +21,21 @@ export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => 
       throw new Error("No pricing categories found to export");
     }
     
-    // Use the new HTML-based PDF generator for better Polish character support
-    return generatePricingPdfFromHtml(filteredCategories);
+    // Better error feedback
+    console.log(`Generating PDF for ${filteredCategories.length} categories`);
+    
+    try {
+      // Use the improved HTML-based PDF generator
+      return await generatePricingPdfFromHtml(filteredCategories);
+    } catch (pdfError) {
+      console.error("Error with HTML PDF generator, trying fallback method:", pdfError);
+      
+      // Fall back to the classic PDF generator if the HTML method fails
+      return await generatePricingPdf(filteredCategories);
+    }
   } catch (error) {
-    console.error("Error generating PDF:", error);
-    throw new Error("Failed to generate PDF");
+    console.error("Error in exportPricingToPdf:", error);
+    throw new Error("Failed to generate PDF: " + (error as Error).message);
   }
 };
 

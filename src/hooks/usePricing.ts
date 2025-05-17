@@ -76,7 +76,7 @@ export const usePricing = () => {
     setDialogType('deleteItem');
   }, []);
 
-  // Handle exporting to PDF - updated to better handle full exports
+  // Handle exporting to PDF - updated with better error handling
   const handleExportPdf = useCallback(async (categoryId?: string) => {
     try {
       toast.info(categoryId 
@@ -105,7 +105,7 @@ export const usePricing = () => {
       );
     } catch (error) {
       console.error('Error exporting PDF:', error);
-      toast.error('Nie udało się wygenerować PDF');
+      toast.error(`Nie udało się wygenerować PDF: ${(error as Error).message || 'Nieznany błąd'}`);
     }
   }, []);
 
