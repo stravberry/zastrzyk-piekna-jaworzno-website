@@ -12,6 +12,7 @@ interface PricingCategoriesListProps {
   onDeleteCategory: (category: PriceCategory) => void;
   onEditItem: (category: PriceCategory, itemIndex: number) => void;
   onDeleteItem: (category: PriceCategory, itemIndex: number) => void;
+  isMobile?: boolean;
 }
 
 const PricingCategoriesList: React.FC<PricingCategoriesListProps> = ({
@@ -22,6 +23,7 @@ const PricingCategoriesList: React.FC<PricingCategoriesListProps> = ({
   onDeleteCategory,
   onEditItem,
   onDeleteItem,
+  isMobile = false,
 }) => {
   if (categories.length === 0) {
     return <PricingEmptyState onAddCategory={onAddCategory} />;
@@ -38,6 +40,7 @@ const PricingCategoriesList: React.FC<PricingCategoriesListProps> = ({
           onDeleteCategory={onDeleteCategory}
           onEditItem={onEditItem}
           onDeleteItem={onDeleteItem}
+          isMobile={isMobile}
         />
       ))}
     </div>

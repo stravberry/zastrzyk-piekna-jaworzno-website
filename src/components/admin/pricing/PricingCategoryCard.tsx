@@ -11,6 +11,7 @@ interface PricingCategoryCardProps {
   onDeleteCategory: (category: PriceCategory) => void;
   onEditItem: (category: PriceCategory, itemIndex: number) => void;
   onDeleteItem: (category: PriceCategory, itemIndex: number) => void;
+  isMobile?: boolean;
 }
 
 const PricingCategoryCard: React.FC<PricingCategoryCardProps> = ({
@@ -20,6 +21,7 @@ const PricingCategoryCard: React.FC<PricingCategoryCardProps> = ({
   onDeleteCategory,
   onEditItem,
   onDeleteItem,
+  isMobile = false,
 }) => {
   return (
     <div className="border rounded-lg overflow-hidden">
@@ -28,11 +30,13 @@ const PricingCategoryCard: React.FC<PricingCategoryCardProps> = ({
         onAddItem={onAddItem}
         onEditCategory={onEditCategory}
         onDeleteCategory={onDeleteCategory}
+        isMobile={isMobile}
       />
       <PricingItemsTable
         category={category}
         onEditItem={onEditItem}
         onDeleteItem={onDeleteItem}
+        isMobile={isMobile}
       />
     </div>
   );

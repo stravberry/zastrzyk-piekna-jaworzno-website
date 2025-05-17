@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const AdminPricing = () => {
   const {
@@ -31,6 +32,7 @@ const AdminPricing = () => {
   } = usePricing();
 
   const [loadRetries, setLoadRetries] = useState(0);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     // Refresh data when component mounts to ensure we have latest data
@@ -55,12 +57,13 @@ const AdminPricing = () => {
 
   return (
     <AdminLayout title="Zarządzanie cennikiem">
-      <div className="p-4">
+      <div className="p-4 sm:p-6 max-w-full overflow-hidden">
         <PricingActions 
           onAddCategory={handleAddCategory} 
           onResetData={handleResetData}
           onExportPdf={handleFullPdfExport}
           onExportPng={handleExportPng}
+          isMobile={isMobile}
         />
 
         {isLoading ? (
@@ -100,6 +103,7 @@ const AdminPricing = () => {
             onDeleteCategory={handleDeleteCategory}
             onEditItem={handleEditItem}
             onDeleteItem={handleDeleteItem}
+            isMobile={isMobile}
           />
         )}
 
