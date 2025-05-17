@@ -37,6 +37,11 @@ const AdminPricing = () => {
     refreshData();
   }, [refreshData]);
 
+  // Function to handle exporting of full PDF without any categoryId
+  const handleFullPdfExport = () => {
+    handleExportPdf(); // Call without any parameters to export all categories
+  };
+
   const handleForceReload = () => {
     toast.info("Wymuszenie odświeżenia danych cennika...");
     setLoadRetries(prev => prev + 1);
@@ -54,7 +59,7 @@ const AdminPricing = () => {
         <PricingActions 
           onAddCategory={handleAddCategory} 
           onResetData={handleResetData}
-          onExportPdf={handleExportPdf}
+          onExportPdf={handleFullPdfExport}
           onExportPng={handleExportPng}
         />
 

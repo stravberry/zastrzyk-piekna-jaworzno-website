@@ -76,10 +76,14 @@ export const usePricing = () => {
     setDialogType('deleteItem');
   }, []);
 
-  // Handle exporting to PDF
+  // Handle exporting to PDF - updated to better handle full exports
   const handleExportPdf = useCallback(async (categoryId?: string) => {
     try {
-      toast.info('Generowanie PDF...');
+      toast.info(categoryId 
+        ? 'Generowanie PDF dla wybranej kategorii...' 
+        : 'Generowanie pełnego cennika PDF...'
+      );
+      
       const pdfBlob = await exportPricingToPdf(categoryId);
       
       // Create download link
@@ -89,13 +93,16 @@ export const usePricing = () => {
       const date = new Date().toISOString().slice(0, 10);
       const filename = categoryId 
         ? `Zastrzyk-Piekna-Cennik-${categoryId}-${date}.pdf`
-        : `Zastrzyk-Piekna-Cennik-${date}.pdf`;
+        : `Zastrzyk-Piekna-Pelny-Cennik-${date}.pdf`;
       link.download = filename;
       link.click();
       
       // Clean up
       URL.revokeObjectURL(url);
-      toast.success('Pomyślnie wygenerowano PDF');
+      toast.success(categoryId 
+        ? 'Pomyślnie wygenerowano PDF dla wybranej kategorii' 
+        : 'Pomyślnie wygenerowano pełny cennik PDF'
+      );
     } catch (error) {
       console.error('Error exporting PDF:', error);
       toast.error('Nie udało się wygenerować PDF');

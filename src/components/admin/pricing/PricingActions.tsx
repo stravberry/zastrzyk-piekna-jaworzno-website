@@ -24,9 +24,12 @@ const PricingActions: React.FC<PricingActionsProps> = ({
           Dodaj kategorię
         </Button>
         
-        <Button onClick={onExportPdf} variant="outline">
+        <Button 
+          onClick={() => onExportPdf()} 
+          variant="outline"
+        >
           <FileDown className="mr-2 h-4 w-4" />
-          Eksportuj do PDF
+          Eksportuj pełny cennik do PDF
         </Button>
         
         <Button onClick={onExportPng} variant="outline">
