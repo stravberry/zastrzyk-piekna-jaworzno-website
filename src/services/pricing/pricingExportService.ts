@@ -21,47 +21,14 @@ export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => 
       throw new Error("Nie znaleziono kategorii cennika do eksportu");
     }
     
-    // Create a deep copy of the categories for PDF generation
-    // This ensures we don't modify the original data
-    const categoriesToExport = JSON.parse(JSON.stringify(filteredCategories));
-    
     // Logging for debugging
-    console.log(`Generowanie PDF dla ${categoriesToExport.length} kategorii`);
-    console.log("Kategorie do eksportu:", categoriesToExport.map(c => c.title));
+    console.log(`Generowanie PDF dla ${filteredCategories.length} kategorii`);
     
     try {
-      // If there are many categories, handle them differently
-      if (categoriesToExport.length > 3 && !categoryId) {
-        toast.info("Generowanie PDF z wieloma kategoriami...");
-        
-        // Generate PDF for each category separately
-        const pdfPromises = categoriesToExport.map(async (category) => {
-          try {
-            // Pass a new array with just this category
-            return await generatePricingPdfFromHtml([category]);
-          } catch (err) {
-            console.error(`Błąd generowania PDF dla kategorii ${category.title}:`, err);
-            return null;
-          }
-        });
-        
-        // Wait for all PDFs
-        const pdfResults = await Promise.all(pdfPromises);
-        const validPdfs = pdfResults.filter(Boolean) as Blob[];
-        
-        if (validPdfs.length === 0) {
-          throw new Error("Nie udało się wygenerować żadnego PDF");
-        }
-        
-        toast.success(`Pomyślnie wygenerowano PDF dla ${validPdfs.length}/${categoriesToExport.length} kategorii`);
-        return validPdfs[0];
-      } else {
-        // Standard method for single category or small number
-        toast.info("Generowanie PDF z podziałem na strony...");
-        const pdfBlob = await generatePricingPdfFromHtml(categoriesToExport);
-        console.log("Pomyślnie wygenerowano PDF za pomocą metody HTML");
-        return pdfBlob;
-      }
+      // First try with the improved HTML-based PDF generator
+      const pdfBlob = await generatePricingPdfFromHtml(filteredCategories);
+      console.log("Pomyślnie wygenerowano PDF za pomocą metody HTML");
+      return pdfBlob;
     } catch (htmlError) {
       console.error("Błąd z generatorem HTML PDF, próba metody zapasowej:", htmlError);
       
@@ -70,18 +37,16 @@ export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => 
       
       // Fall back to the classic PDF generator if the HTML method fails
       try {
-        const fallbackPdfBlob = await generatePricingPdf(categoriesToExport);
+        const fallbackPdfBlob = await generatePricingPdf(filteredCategories);
         console.log("Pomyślnie wygenerowano PDF za pomocą metody zapasowej");
         return fallbackPdfBlob;
       } catch (fallbackError) {
         console.error("Obie metody generowania PDF zawiodły:", fallbackError);
-        toast.error("Nie udało się wygenerować PDF przy użyciu żadnej z dostępnych metod");
         throw new Error("Nie udało się wygenerować PDF przy użyciu żadnej z dostępnych metod");
       }
     }
   } catch (error) {
     console.error("Błąd w exportPricingToPdf:", error);
-    toast.error(`Błąd eksportu do PDF: ${(error as Error).message}`);
     throw new Error("Nie udało się wygenerować PDF: " + (error as Error).message);
   }
 };
@@ -102,8 +67,6 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
         throw new Error("Nie znaleziono kategorii cennika do eksportu");
       }
       
-      toast.info("Generowanie obrazu PNG z cennikiem...");
-      
       // Create a temporary container for rendering
       const tempContainer = document.createElement('div');
       tempContainer.style.position = 'absolute';
@@ -119,7 +82,7 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
       
       // Use html2canvas to convert to image with higher scale for better quality
       const canvas = await html2canvas(tempContainer, {
-        scale: 4, // Even higher resolution for better text clarity (increased from 3)
+        scale: 3, // Even higher resolution for better text clarity
         backgroundColor: '#ffffff',
         logging: false,
         allowTaint: true,
@@ -138,16 +101,13 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
         if (blob) {
           // Clean up temporary element
           document.body.removeChild(tempContainer);
-          toast.success("Pomyślnie wygenerowano obraz PNG");
           resolve(blob);
         } else {
-          toast.error("Nie udało się utworzyć obrazu PNG");
           reject(new Error("Nie udało się utworzyć obrazu"));
         }
       }, 'image/png', 1.0); // Use highest quality
     } catch (error) {
       console.error("Błąd generowania PNG:", error);
-      toast.error(`Błąd eksportu do PNG: ${(error as Error).message}`);
       reject(error);
     }
   });
