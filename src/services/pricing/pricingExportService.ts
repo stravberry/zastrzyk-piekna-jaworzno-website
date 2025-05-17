@@ -18,24 +18,36 @@ export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => 
       : categories;
     
     if (filteredCategories.length === 0) {
-      throw new Error("No pricing categories found to export");
+      throw new Error("Nie znaleziono kategorii cennika do eksportu");
     }
     
-    // Better error feedback
-    console.log(`Generating PDF for ${filteredCategories.length} categories`);
+    // Logging for debugging
+    console.log(`Generowanie PDF dla ${filteredCategories.length} kategorii`);
     
     try {
-      // Use the improved HTML-based PDF generator
-      return await generatePricingPdfFromHtml(filteredCategories);
-    } catch (pdfError) {
-      console.error("Error with HTML PDF generator, trying fallback method:", pdfError);
+      // First try with the improved HTML-based PDF generator
+      const pdfBlob = await generatePricingPdfFromHtml(filteredCategories);
+      console.log("Pomyślnie wygenerowano PDF za pomocą metody HTML");
+      return pdfBlob;
+    } catch (htmlError) {
+      console.error("Błąd z generatorem HTML PDF, próba metody zapasowej:", htmlError);
+      
+      // Add a toast to inform user about fallback method
+      toast.info("Używanie alternatywnej metody generowania PDF...");
       
       // Fall back to the classic PDF generator if the HTML method fails
-      return await generatePricingPdf(filteredCategories);
+      try {
+        const fallbackPdfBlob = await generatePricingPdf(filteredCategories);
+        console.log("Pomyślnie wygenerowano PDF za pomocą metody zapasowej");
+        return fallbackPdfBlob;
+      } catch (fallbackError) {
+        console.error("Obie metody generowania PDF zawiodły:", fallbackError);
+        throw new Error("Nie udało się wygenerować PDF przy użyciu żadnej z dostępnych metod");
+      }
     }
   } catch (error) {
-    console.error("Error in exportPricingToPdf:", error);
-    throw new Error("Failed to generate PDF: " + (error as Error).message);
+    console.error("Błąd w exportPricingToPdf:", error);
+    throw new Error("Nie udało się wygenerować PDF: " + (error as Error).message);
   }
 };
 
@@ -52,7 +64,7 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
         : categories;
       
       if (targetCategories.length === 0) {
-        throw new Error("No pricing categories found to export");
+        throw new Error("Nie znaleziono kategorii cennika do eksportu");
       }
       
       // Create a temporary container for rendering
@@ -91,11 +103,11 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
           document.body.removeChild(tempContainer);
           resolve(blob);
         } else {
-          reject(new Error("Failed to create image"));
+          reject(new Error("Nie udało się utworzyć obrazu"));
         }
       }, 'image/png', 1.0); // Use highest quality
     } catch (error) {
-      console.error("Error generating PNG:", error);
+      console.error("Błąd generowania PNG:", error);
       reject(error);
     }
   });

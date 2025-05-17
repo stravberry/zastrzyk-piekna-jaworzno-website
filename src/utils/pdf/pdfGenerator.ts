@@ -1,4 +1,3 @@
-
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { PriceCategory } from "@/components/pricing/PriceCard";
@@ -116,10 +115,20 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
   }
 };
 
-// FIXED METHOD: Generate PDF from HTML for better Polish character support
+// Improved HTML-to-PDF generator with better Polish character support and price formatting
 export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): Promise<Blob> => {
   return new Promise(async (resolve, reject) => {
     try {
+      // Format price with proper Polish currency symbol
+      const formatPrice = (price: string): string => {
+        // Keep original formatting if it already contains "zł" 
+        if (price.toLowerCase().includes('zł')) {
+          return price;
+        }
+        // Otherwise add "zł" with proper spacing
+        return price.trim() + ' zł';
+      };
+      
       // Create HTML container in a hidden area
       const tempContainer = document.createElement('div');
       tempContainer.style.position = 'absolute';
@@ -128,64 +137,72 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
       tempContainer.style.backgroundColor = 'white';
       document.body.appendChild(tempContainer);
       
-      // Generate HTML content with explicit fonts and styling for PDF conversion
+      // Generate HTML content with explicit UTF-8 encoding and styling for better Polish character support
       tempContainer.innerHTML = `
-        <style>
-          @page { size: A4; margin: 0; }
-          body { margin: 0; padding: 0; font-family: 'Arial', sans-serif; }
-          * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          .page { width: 794px; padding: 40px; }
-          .title { color: #EC4899; text-align: center; margin-bottom: 30px; font-size: 28px; font-weight: bold; }
-          .category-header { background: #EC4899; color: white; padding: 10px 15px; margin-top: 20px; font-size: 18px; }
-          table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
-          th { background: #FDF2F8; padding: 10px 15px; text-align: left; font-weight: bold; }
-          td { padding: 10px 15px; border-top: 1px solid #FCE7F3; }
-          tr:nth-child(even) { background-color: #FDFAFC; }
-          .price { font-weight: bold; color: #EC4899; text-align: right; }
-          .description { font-style: italic; color: #666; font-size: 0.9em; }
-          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
-        </style>
-        
-        <div class="page">
-          <h1 class="title">Cennik Usług</h1>
-          
-          ${categories.map(category => `
-            <div>
-              <div class="category-header">${category.title}</div>
-              <table>
-                <thead>
-                  <tr>
-                    <th style="width: 40%">Nazwa zabiegu</th>
-                    <th style="width: 40%">Opis</th>
-                    <th style="width: 20%; text-align: right;">Cena</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${category.items.map(item => `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            @charset "UTF-8";
+            @page { size: A4; margin: 0; }
+            body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif !important; }
+            * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-family: Arial, Helvetica, sans-serif !important; }
+            .page { width: 794px; padding: 40px; font-family: Arial, Helvetica, sans-serif !important; }
+            .title { color: #EC4899; text-align: center; margin-bottom: 30px; font-size: 28px; font-weight: bold; font-family: Arial, Helvetica, sans-serif !important; }
+            .category-header { background: #EC4899; color: white; padding: 10px 15px; margin-top: 20px; font-size: 18px; font-family: Arial, Helvetica, sans-serif !important; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 25px; table-layout: fixed; }
+            th { background: #FDF2F8; padding: 10px 15px; text-align: left; font-weight: bold; font-family: Arial, Helvetica, sans-serif !important; }
+            td { padding: 10px 15px; border-top: 1px solid #FCE7F3; word-break: break-word; font-family: Arial, Helvetica, sans-serif !important; }
+            tr:nth-child(even) { background-color: #FDFAFC; }
+            .price { font-weight: bold; color: #EC4899; text-align: right; font-family: Arial, Helvetica, sans-serif !important; }
+            .description { font-style: italic; color: #666; font-size: 0.9em; font-family: Arial, Helvetica, sans-serif !important; }
+            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; font-family: Arial, Helvetica, sans-serif !important; }
+          </style>
+        </head>
+        <body>
+          <div class="page">
+            <h1 class="title">Cennik Usług</h1>
+            
+            ${categories.map(category => `
+              <div>
+                <div class="category-header">${category.title}</div>
+                <table>
+                  <thead>
                     <tr>
-                      <td>${item.name}</td>
-                      <td class="description">${item.description || ''}</td>
-                      <td class="price">${item.price}</td>
+                      <th style="width: 40%">Nazwa zabiegu</th>
+                      <th style="width: 40%">Opis</th>
+                      <th style="width: 20%; text-align: right;">Cena</th>
                     </tr>
-                  `).join('')}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    ${category.items.map(item => `
+                      <tr>
+                        <td>${item.name}</td>
+                        <td class="description">${item.description || ''}</td>
+                        <td class="price">${formatPrice(item.price)}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `).join('')}
+            
+            <div class="footer">
+              <p>Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej</p>
+              <p>Wygenerowano ${new Date().toLocaleDateString('pl-PL')}</p>
             </div>
-          `).join('')}
-          
-          <div class="footer">
-            <p>Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej</p>
-            <p>Wygenerowano ${new Date().toLocaleDateString('pl-PL')}</p>
           </div>
-        </div>
+        </body>
+        </html>
       `;
       
-      // Allow sufficient time for fonts to load and rendering to complete
-      await new Promise(r => setTimeout(r, 3000));
+      // Wait longer for fonts and rendering to complete (5 seconds)
+      await new Promise(r => setTimeout(r, 5000));
       
       // Use html2canvas with higher quality settings
       const canvas = await html2canvas(tempContainer, {
-        scale: 2, // Higher quality
+        scale: 3, // Higher quality for better text clarity
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#FFFFFF',
@@ -193,21 +210,30 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
         windowWidth: 794,
         windowHeight: tempContainer.scrollHeight,
         onclone: (document, element) => {
-          // Ensure proper font rendering
+          // Ensure proper font rendering with forced Arial font
           const style = document.createElement('style');
           style.textContent = `
-            * { font-family: Arial, sans-serif !important; }
+            * { font-family: Arial, Helvetica, sans-serif !important; }
+            @font-face {
+              font-family: 'Arial';
+              font-style: normal;
+              font-weight: 400;
+              src: local('Arial');
+            }
             .price { font-weight: bold !important; }
+            body, table, tr, td, th, div, p, h1, h2, h3 {
+              font-family: Arial, Helvetica, sans-serif !important;
+            }
           `;
           document.head.appendChild(style);
           return element;
         }
       });
       
-      // Create PDF from the canvas
+      // Create PDF from the canvas with properly configured dimensions
       const imgData = canvas.toDataURL('image/png', 1.0);
       
-      // FIX: Create a new PDF with correctly configured pages and dimensions
+      // Create a new PDF with correctly configured pages and dimensions
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'px',
@@ -215,43 +241,42 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
         hotfixes: ["px_scaling"],
       });
       
-      // Calculate dimensions
+      // Calculate dimensions - maintain aspect ratio
       const imgProps = pdf.getImageProperties(imgData);
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
       
-      // First remove any existing pages to avoid undefined page errors
-      while (pdf.getNumberOfPages() > 0) {
-        pdf.deletePage(pdf.getNumberOfPages());
-      }
+      // Completely restructured page handling to avoid "mediaBox" errors
+      const totalPages = Math.ceil(pdfHeight / pdf.internal.pageSize.getHeight());
+      const pageHeight = pdf.internal.pageSize.getHeight();
       
-      // FIX: Always add the first page explicitly
-      pdf.addPage([pdfWidth, pdf.internal.pageSize.getHeight()]);
+      // First ensure we have at least one page
+      if (pdf.getNumberOfPages() === 0) {
+        pdf.addPage();
+      }
       
       // Split content across multiple pages if needed
       let heightLeft = pdfHeight;
-      const pageHeight = pdf.internal.pageSize.getHeight();
       let position = 0;
       
-      // FIX: Page handling logic rewritten to avoid mediaBox errors
-      let currentPage = 1;
+      // Add the image to the first page
+      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
       
-      while (heightLeft > 0) {
-        // On first iteration, add the image to the first page
-        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-        
-        // Reduce height left and update position
-        heightLeft -= pageHeight;
-        
-        // If there's more content to add, create a new page
-        if (heightLeft > 0) {
-          position -= pageHeight; // Move position for next page
-          pdf.addPage([pdfWidth, pageHeight]); // Add new page with explicit dimensions
-          currentPage++;
+      // If content requires multiple pages, add them
+      if (heightLeft > pageHeight) {
+        // Calculate how many additional pages we need
+        for (let i = 1; i < totalPages; i++) {
+          // Add a new page before continuing
+          pdf.addPage();
+          
+          // Calculate the position for the continued image
+          position = -pageHeight * i;
+          
+          // Add the same image but position it to show the right part
+          pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
         }
       }
       
-      // Generate and return PDF blob with proper error handling
       try {
         const pdfBlob = pdf.output('blob');
         // Clean up the temporary element
