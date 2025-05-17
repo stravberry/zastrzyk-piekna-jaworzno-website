@@ -29,7 +29,7 @@ const PricingCategoryHeader: React.FC<PricingCategoryHeaderProps> = ({
     return (
       <div className="bg-pink-50 p-4">
         <div className="flex items-center justify-between">
-          <h3 className="font-medium text-lg">{category.name}</h3>
+          <h3 className="font-medium text-lg">{category.title}</h3>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -56,7 +56,6 @@ const PricingCategoryHeader: React.FC<PricingCategoryHeaderProps> = ({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <p className="text-sm text-gray-600 mt-1">{category.description}</p>
       </div>
     );
   }
@@ -65,8 +64,7 @@ const PricingCategoryHeader: React.FC<PricingCategoryHeaderProps> = ({
     <div className="bg-pink-50 p-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-medium text-lg">{category.name}</h3>
-          <p className="text-sm text-gray-600">{category.description}</p>
+          <h3 className="font-medium text-lg">{category.title}</h3>
         </div>
         <div className="flex space-x-2">
           <Button
