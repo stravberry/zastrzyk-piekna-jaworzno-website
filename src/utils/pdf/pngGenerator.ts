@@ -32,11 +32,15 @@ export const createPdfLayoutForPng = (categories: PriceCategory[]): string => {
         .category-header { 
           background: #EC4899; 
           color: white; 
-          padding: 10px 12px; 
+          padding: 15px 12px; 
           margin-top: 20px; 
           font-size: 20px; 
           text-align: center;
           font-weight: bold;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 50px;
         }
         .title { color: #EC4899; text-align: center; margin-bottom: 30px; font-size: 28px; font-weight: bold; }
         .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
@@ -100,12 +104,16 @@ export const createSingleCategoryLayoutForPng = (category: PriceCategory): strin
         .category-title { 
           background: #EC4899; 
           color: white; 
-          padding: 12px; 
+          padding: 15px 12px; 
           font-size: 18px; 
           font-weight: bold; 
           text-align: center; 
           margin-bottom: 15px; 
-          border-radius: 5px; 
+          border-radius: 5px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 50px;
         }
         .content { flex: 1; overflow: hidden; }
         .item { padding: 12px; border-bottom: 1px solid #FCE7F3; }
