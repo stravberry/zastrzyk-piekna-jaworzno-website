@@ -109,10 +109,18 @@ export const usePricing = () => {
     }
   }, []);
 
-  // Handle exporting to PNG
+  // Handle exporting to PNG - fixed to properly handle undefined categoryId
   const handleExportPng = useCallback(async (categoryId?: string) => {
     try {
-      toast.info('Generowanie PNG...');
+      console.log('handleExportPng called with categoryId:', categoryId);
+      console.log('categoryId type in hook:', typeof categoryId);
+      
+      toast.info(categoryId 
+        ? 'Generowanie PNG dla wybranej kategorii...' 
+        : 'Generowanie PNG pełnego cennika...'
+      );
+      
+      // Explicitly pass undefined when no categoryId is provided
       const pngBlob = await exportPricingToPng(categoryId);
       
       // Create download link
@@ -122,13 +130,16 @@ export const usePricing = () => {
       const date = new Date().toISOString().slice(0, 10);
       const filename = categoryId 
         ? `Zastrzyk-Piekna-Cennik-${categoryId}-${date}.png`
-        : `Zastrzyk-Piekna-Cennik-${date}.png`;
+        : `Zastrzyk-Piekna-Pelny-Cennik-${date}.png`;
       link.download = filename;
       link.click();
       
       // Clean up
       URL.revokeObjectURL(url);
-      toast.success('Pomyślnie wygenerowano PNG');
+      toast.success(categoryId 
+        ? 'Pomyślnie wygenerowano PNG dla wybranej kategorii' 
+        : 'Pomyślnie wygenerowano PNG pełnego cennika'
+      );
     } catch (error) {
       console.error('Error exporting PNG:', error);
       toast.error('Nie udało się wygenerować PNG');

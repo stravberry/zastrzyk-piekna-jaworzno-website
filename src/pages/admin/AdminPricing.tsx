@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { usePricing } from "@/hooks/usePricing";
@@ -44,6 +43,11 @@ const AdminPricing = () => {
     handleExportPdf(); // Call without any parameters to export all categories
   };
 
+  // Function to handle exporting of full PNG without any categoryId
+  const handleFullPngExport = () => {
+    handleExportPng(); // Call without any parameters to export all categories
+  };
+
   // Functions to handle exporting single category
   const handleCategoryPdfExport = (categoryId: string) => {
     handleExportPdf(categoryId);
@@ -71,7 +75,7 @@ const AdminPricing = () => {
           onAddCategory={handleAddCategory} 
           onResetData={handleResetData}
           onExportPdf={handleFullPdfExport}
-          onExportPng={handleExportPng}
+          onExportPng={handleFullPngExport}
           isMobile={isMobile}
         />
 
