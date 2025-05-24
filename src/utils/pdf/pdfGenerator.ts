@@ -23,19 +23,26 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
     const pageHeight = doc.internal.pageSize.height;
     const pageWidth = doc.internal.pageSize.width;
     
-    // Main title
+    // Increased margins for better readability
+    const leftMargin = 20;
+    const rightMargin = 20;
+    const topMargin = 25;
+    const bottomMargin = 25;
+    const contentWidth = pageWidth - leftMargin - rightMargin;
+    
+    // Main title with increased top margin
     doc.setFontSize(24);
     doc.setTextColor(236, 72, 153); // Pink color for title
-    doc.text("Cennik Usług", pageWidth / 2, 20, { align: "center" });
+    doc.text("Cennik Usług", pageWidth / 2, topMargin + 10, { align: "center" });
     
-    let yPosition = 35;
+    let yPosition = topMargin + 25;
     
-    // Function to estimate category height
+    // Function to estimate category height with margins
     const estimateCategoryHeight = (category: PriceCategory): number => {
       const headerHeight = 15;
-      const tableHeaderHeight = 10;
-      const rowHeight = 15; // Estimated row height including description
-      const padding = 10;
+      const tableHeaderHeight = 12;
+      const rowHeight = 16; // Increased row height for better spacing
+      const padding = 15; // Increased padding
       
       // Calculate estimated rows (items + descriptions)
       const estimatedRows = category.items.reduce((total, item) => {
@@ -65,20 +72,20 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
     // Process each category with intelligent page breaks
     for (const category of categories) {
       const estimatedHeight = estimateCategoryHeight(category);
-      const remainingSpace = pageHeight - yPosition - 30; // 30mm margin from bottom
+      const remainingSpace = pageHeight - yPosition - bottomMargin;
       
       // If category won't fit on current page, start new page
-      if (estimatedHeight > remainingSpace && yPosition > 50) {
+      if (estimatedHeight > remainingSpace && yPosition > topMargin + 50) {
         doc.addPage();
-        yPosition = 20;
+        yPosition = topMargin;
       }
       
       // If category is too large for a single page, split it
       let categoriesToProcess = [category];
-      if (estimatedHeight > pageHeight - 60) { // 60mm for margins and headers
-        // Estimate how many items can fit on a page
-        const itemsPerPage = Math.floor((pageHeight - 80) / 20); // Conservative estimate
-        categoriesToProcess = splitCategoryItems(category, Math.max(itemsPerPage, 5));
+      if (estimatedHeight > pageHeight - topMargin - bottomMargin - 20) {
+        // Estimate how many items can fit on a page with proper margins
+        const itemsPerPage = Math.floor((pageHeight - topMargin - bottomMargin - 80) / 22);
+        categoriesToProcess = splitCategoryItems(category, Math.max(itemsPerPage, 4));
       }
       
       // Process each category chunk
@@ -86,23 +93,23 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
         const categoryChunk = categoriesToProcess[i];
         
         // If this is not the first chunk and we need more space, add new page
-        if (i > 0 && yPosition > pageHeight - 100) {
+        if (i > 0 && yPosition > pageHeight - bottomMargin - 120) {
           doc.addPage();
-          yPosition = 20;
+          yPosition = topMargin;
         }
         
-        // Category header with background
+        // Category header with background and margins
         doc.setFillColor(236, 72, 153); // Pink background
-        doc.rect(10, yPosition - 5, pageWidth - 20, 10, "F");
+        doc.rect(leftMargin, yPosition - 5, contentWidth, 12, "F");
         
-        // Category title text
+        // Category title text with proper margin
         doc.setFontSize(14);
         doc.setTextColor(255, 255, 255); // White text
-        doc.text(categoryChunk.title, 15, yPosition);
+        doc.text(categoryChunk.title, leftMargin + 5, yPosition + 2);
         
-        yPosition += 10;
+        yPosition += 15;
         
-        // Create table for items with better page break handling
+        // Create table for items with better margins and spacing
         autoTable(doc, {
           startY: yPosition,
           head: [["Nazwa zabiegu", "Opis", "Cena"]],
@@ -117,43 +124,44 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
             textColor: [0, 0, 0],
             fontStyle: 'bold',
             fontSize: 12,
+            cellPadding: 8, // Increased padding
           },
           columnStyles: {
-            0: { cellWidth: 70 },
-            1: { cellWidth: 'auto' },
-            2: { cellWidth: 30, halign: 'right', textColor: [236, 72, 153], fontStyle: 'bold' }
+            0: { cellWidth: contentWidth * 0.35 }, // 35% of content width
+            1: { cellWidth: contentWidth * 0.45 }, // 45% of content width
+            2: { cellWidth: contentWidth * 0.2, halign: 'right', textColor: [236, 72, 153], fontStyle: 'bold' } // 20% of content width
           },
           styles: {
             font: 'helvetica',
             fontSize: 10,
-            cellPadding: 6,
+            cellPadding: 8, // Increased cell padding
             overflow: 'linebreak',
-            minCellHeight: 15,
+            minCellHeight: 18, // Increased minimum height
           },
-          tableWidth: 'auto',
-          margin: { left: 10, right: 10 },
+          tableWidth: contentWidth,
+          margin: { left: leftMargin, right: rightMargin },
           // Improved page break handling
           rowPageBreak: 'avoid',
           pageBreak: 'auto',
           showHead: 'everyPage',
           // Ensure table doesn't break too close to page bottom
           pageBreakBefore: (cursor) => {
-            return cursor.y > pageHeight - 40;
+            return cursor.y > pageHeight - bottomMargin - 60;
           },
         });
         
-        // Update position based on table height
-        yPosition = (doc as any).lastAutoTable.finalY + 15;
+        // Update position based on table height with spacing
+        yPosition = (doc as any).lastAutoTable.finalY + 20; // Increased spacing between categories
         
         // Ensure minimum spacing before next category
-        if (i < categoriesToProcess.length - 1 && yPosition > pageHeight - 60) {
+        if (i < categoriesToProcess.length - 1 && yPosition > pageHeight - bottomMargin - 80) {
           doc.addPage();
-          yPosition = 20;
+          yPosition = topMargin;
         }
       }
     }
     
-    // Add footer to all pages
+    // Add footer to all pages with proper margins
     const footerText = "Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej";
     const dateText = `Wygenerowano ${new Date().toLocaleDateString('pl-PL')}`;
     
@@ -162,9 +170,9 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
       doc.setPage(i);
       doc.setFontSize(10);
       doc.setTextColor(100);
-      doc.text(footerText, pageWidth / 2, pageHeight - 20, { align: "center" });
-      doc.text(dateText, pageWidth / 2, pageHeight - 15, { align: "center" });
-      doc.text(`Strona ${i} z ${pageCount}`, pageWidth - 20, pageHeight - 10);
+      doc.text(footerText, pageWidth / 2, pageHeight - bottomMargin + 10, { align: "center" });
+      doc.text(dateText, pageWidth / 2, pageHeight - bottomMargin + 15, { align: "center" });
+      doc.text(`Strona ${i} z ${pageCount}`, pageWidth - rightMargin, pageHeight - bottomMargin + 5, { align: "right" });
     }
     
     // Return as blob
@@ -175,7 +183,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
   }
 };
 
-// Improved HTML-to-PDF generator with better page break handling
+// Improved HTML-to-PDF generator with better margins and formatting
 export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): Promise<Blob> => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -188,7 +196,7 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
       };
       
       // Function to split large categories for better page breaks
-      const splitLargeCategory = (category: PriceCategory, maxItemsPerSection: number = 15): PriceCategory[] => {
+      const splitLargeCategory = (category: PriceCategory, maxItemsPerSection: number = 12): PriceCategory[] => {
         if (category.items.length <= maxItemsPerSection) {
           return [category];
         }
@@ -206,7 +214,7 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
       
       // Split large categories to prevent page break issues
       const processedCategories = categories.flatMap(category => 
-        splitLargeCategory(category, 12) // Max 12 items per section for better page breaks
+        splitLargeCategory(category, 10) // Reduced to 10 items per section for better margins
       );
       
       // Create HTML container in a hidden area
@@ -217,7 +225,7 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
       tempContainer.style.backgroundColor = 'white';
       document.body.appendChild(tempContainer);
       
-      // Generate HTML content with improved page break CSS
+      // Generate HTML content with improved margins and spacing
       tempContainer.innerHTML = `
         <!DOCTYPE html>
         <html>
@@ -227,13 +235,13 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
             @charset "UTF-8";
             @page { 
               size: A4; 
-              margin: 20mm; 
+              margin: 30mm 25mm; /* Increased margins: top/bottom 30mm, left/right 25mm */
             }
             body { 
               margin: 0; 
-              padding: 0; 
+              padding: 25px; /* Increased padding */
               font-family: Arial, Helvetica, sans-serif !important; 
-              line-height: 1.4;
+              line-height: 1.6; /* Increased line height for better readability */
             }
             * { 
               box-sizing: border-box; 
@@ -242,15 +250,15 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
               font-family: Arial, Helvetica, sans-serif !important; 
             }
             .page { 
-              width: 754px; 
-              padding: 20px; 
+              width: 100%; 
+              padding: 0; 
               font-family: Arial, Helvetica, sans-serif !important; 
             }
             .title { 
               color: #EC4899; 
               text-align: center; 
-              margin-bottom: 30px; 
-              font-size: 28px; 
+              margin-bottom: 40px; /* Increased margin */
+              font-size: 32px; /* Larger title */
               font-weight: bold; 
               font-family: Arial, Helvetica, sans-serif !important; 
               page-break-after: avoid;
@@ -258,45 +266,50 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
             .category { 
               page-break-inside: avoid; 
               break-inside: avoid;
-              margin-bottom: 20px; 
+              margin-bottom: 30px; /* Increased margin between categories */
               min-height: 100px;
             }
             .category:not(:first-child) { 
-              margin-top: 25px; 
+              margin-top: 35px; /* Increased top margin */
             }
             .category-header { 
               background: #EC4899; 
               color: white; 
-              padding: 12px 15px; 
+              padding: 16px 20px; /* Increased padding */
               margin: 0; 
-              font-size: 18px; 
+              font-size: 20px; /* Larger header font */
               font-family: Arial, Helvetica, sans-serif !important; 
               page-break-after: avoid;
               break-after: avoid;
+              border-radius: 8px 8px 0 0; /* Added rounded corners */
             }
             table { 
               width: 100%; 
               border-collapse: collapse; 
-              margin-bottom: 25px; 
+              margin-bottom: 35px; /* Increased bottom margin */
               table-layout: fixed; 
               page-break-inside: avoid;
               break-inside: avoid;
+              border-radius: 0 0 8px 8px; /* Rounded bottom corners */
+              overflow: hidden;
             }
             th { 
               background: #FDF2F8; 
-              padding: 10px 15px; 
+              padding: 15px 20px; /* Increased padding */
               text-align: left; 
               font-weight: bold; 
               font-family: Arial, Helvetica, sans-serif !important; 
               border-bottom: 2px solid #F3E8FF;
+              font-size: 14px; /* Slightly larger font */
             }
             td { 
-              padding: 10px 15px; 
+              padding: 15px 20px; /* Increased padding */
               border-top: 1px solid #FCE7F3; 
               word-break: break-word; 
               font-family: Arial, Helvetica, sans-serif !important; 
               page-break-inside: avoid;
               break-inside: avoid;
+              font-size: 13px; /* Slightly larger font */
             }
             tr { 
               page-break-inside: avoid;
@@ -310,27 +323,33 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
               color: #EC4899; 
               text-align: right; 
               font-family: Arial, Helvetica, sans-serif !important; 
+              font-size: 14px; /* Larger price font */
             }
             .description { 
               font-style: italic; 
               color: #666; 
-              font-size: 0.9em; 
+              font-size: 12px; 
               font-family: Arial, Helvetica, sans-serif !important; 
+              padding-top: 8px; /* Added spacing */
             }
             .footer { 
               text-align: center; 
-              margin-top: 30px; 
+              margin-top: 50px; /* Increased top margin */
               color: #666; 
               font-size: 12px; 
               font-family: Arial, Helvetica, sans-serif !important; 
               page-break-inside: avoid;
+              padding-top: 20px; /* Added padding */
+              border-top: 1px solid #E5E7EB; /* Added separator */
             }
             
-            /* Enhanced print-specific styles */
+            /* Enhanced print-specific styles with better margins */
             @media print {
+              body { padding: 0; }
               .category { 
                 page-break-inside: avoid !important; 
                 break-inside: avoid !important;
+                margin-bottom: 25px !important;
               }
               .category-header { 
                 page-break-after: avoid !important; 
@@ -387,7 +406,7 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
             `).join('')}
             
             <div class="footer">
-              <p>Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej</p>
+              <p><strong>Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej</strong></p>
               <p>Wygenerowano ${new Date().toLocaleDateString('pl-PL')}</p>
             </div>
           </div>
@@ -398,7 +417,7 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
       // Wait for complete rendering
       await new Promise(r => setTimeout(r, 3000));
       
-      // Create PDF using the improved method - render each page separately to avoid cuts
+      // Create PDF using the improved method with better margins
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -407,12 +426,13 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
       
       // Split content into logical sections for better page handling
       const categoryElements = tempContainer.querySelectorAll('.category');
-      const maxPageHeight = 250; // mm, accounting for margins
+      const maxPageHeight = 230; // mm, reduced for larger margins
+      const pageMargin = 25; // mm margin from edges
       
-      let currentPageHeight = 40; // Start after title
+      let currentPageHeight = 50; // Start after title with margin
       let isFirstPage = true;
       
-      // Render title first
+      // Render title first with margin
       const titleCanvas = await html2canvas(tempContainer.querySelector('.title'), {
         scale: 2,
         backgroundColor: '#FFFFFF',
@@ -420,12 +440,12 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
       });
       
       const titleImgData = titleCanvas.toDataURL('image/png', 1.0);
-      const titleHeight = (titleCanvas.height * 210) / titleCanvas.width; // Scale to A4 width
+      const titleHeight = (titleCanvas.height * 160) / titleCanvas.width; // Scale to fit with margins
       
-      pdf.addImage(titleImgData, 'PNG', 0, 10, 210, titleHeight);
-      currentPageHeight += titleHeight + 10;
+      pdf.addImage(titleImgData, 'PNG', pageMargin, pageMargin, 160, titleHeight);
+      currentPageHeight += titleHeight + 20;
       
-      // Process each category
+      // Process each category with proper margins
       for (let i = 0; i < categoryElements.length; i++) {
         const categoryElement = categoryElements[i] as HTMLElement;
         
@@ -438,28 +458,28 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
         });
         
         const categoryImgData = categoryCanvas.toDataURL('image/png', 1.0);
-        const categoryHeight = (categoryCanvas.height * 210) / categoryCanvas.width;
+        const categoryHeight = (categoryCanvas.height * 160) / categoryCanvas.width;
         
-        // Check if category fits on current page
+        // Check if category fits on current page with margins
         if (currentPageHeight + categoryHeight > maxPageHeight && !isFirstPage) {
           pdf.addPage();
-          currentPageHeight = 20;
+          currentPageHeight = pageMargin;
         }
         
-        // Add category to PDF
-        pdf.addImage(categoryImgData, 'PNG', 0, currentPageHeight, 210, categoryHeight);
-        currentPageHeight += categoryHeight + 5;
+        // Add category to PDF with margins
+        pdf.addImage(categoryImgData, 'PNG', pageMargin, currentPageHeight, 160, categoryHeight);
+        currentPageHeight += categoryHeight + 10;
         isFirstPage = false;
       }
       
-      // Add footer to last page
+      // Add footer to all pages with margins
       pdf.setFontSize(10);
       pdf.setTextColor(100);
       const pageCount = pdf.getNumberOfPages();
       
       for (let i = 1; i <= pageCount; i++) {
         pdf.setPage(i);
-        pdf.text(`Strona ${i} z ${pageCount}`, 200, 285, { align: 'right' });
+        pdf.text(`Strona ${i} z ${pageCount}`, 210 - pageMargin, 297 - 15, { align: 'right' });
       }
       
       // Clean up and resolve
