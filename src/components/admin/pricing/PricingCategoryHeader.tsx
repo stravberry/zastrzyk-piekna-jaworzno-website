@@ -1,14 +1,14 @@
 
 import React from "react";
-import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, Trash2, MoreVertical, FileDown, FileImage } from "lucide-react";
 import { PriceCategory } from "@/components/pricing/PriceCard";
+import { Button } from "@/components/ui/button";
+import { PlusCircle, Edit, Trash2, FileDown, FileImage, MoreHorizontal } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 interface PricingCategoryHeaderProps {
@@ -32,24 +32,19 @@ const PricingCategoryHeader: React.FC<PricingCategoryHeaderProps> = ({
 }) => {
   if (isMobile) {
     return (
-      <div className="bg-pink-50 p-3">
-        <div className="flex items-center justify-between">
-          <h3 className="font-medium text-lg">{category.title}</h3>
+      <div className="bg-pink-50 p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-lg font-semibold text-pink-800">{category.title}</h3>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <MoreVertical className="h-5 w-5" />
-                <span className="sr-only">Menu</span>
+              <Button variant="ghost" size="sm">
+                <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-white min-w-[180px]">
+            <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuItem onClick={() => onAddItem(category)}>
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Dodaj usługę
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onEditCategory(category)}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edytuj kategorię
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               {onExportPdf && (
@@ -65,15 +60,22 @@ const PricingCategoryHeader: React.FC<PricingCategoryHeaderProps> = ({
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onEditCategory(category)}>
+                <Edit className="mr-2 h-4 w-4" />
+                Edytuj kategorię
+              </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={() => onDeleteCategory(category)}
-                className="text-red-600 focus:text-red-600"
+                className="text-red-600"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Usuń kategorię
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+        </div>
+        <div className="text-sm text-gray-600">
+          {category.items.length} {category.items.length === 1 ? 'usługa' : 'usług'}
         </div>
       </div>
     );
@@ -83,32 +85,67 @@ const PricingCategoryHeader: React.FC<PricingCategoryHeaderProps> = ({
     <div className="bg-pink-50 p-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-medium text-lg">{category.title}</h3>
+          <h3 className="text-lg font-semibold text-pink-800">{category.title}</h3>
+          <p className="text-sm text-gray-600">
+            {category.items.length} {category.items.length === 1 ? 'usługa' : 'usług'}
+          </p>
         </div>
-        <div className="flex space-x-2">
-          <Button
+        
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => onAddItem(category)} 
+            size="sm" 
             variant="outline"
-            size="sm"
-            onClick={() => onAddItem(category)}
+            className="bg-white hover:bg-gray-50"
           >
-            <PlusCircle className="h-4 w-4 mr-2" />
+            <PlusCircle className="mr-2 h-4 w-4" />
             Dodaj usługę
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onEditCategory(category)}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-red-500 hover:text-red-700"
-            onClick={() => onDeleteCategory(category)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          
+          {onExportPdf && (
+            <Button 
+              onClick={() => onExportPdf(category.id)} 
+              size="sm" 
+              variant="outline"
+              className="bg-white hover:bg-gray-50"
+            >
+              <FileDown className="mr-2 h-4 w-4" />
+              PDF
+            </Button>
+          )}
+          
+          {onExportPng && (
+            <Button 
+              onClick={() => onExportPng(category.id)} 
+              size="sm" 
+              variant="outline"
+              className="bg-white hover:bg-gray-50"
+            >
+              <FileImage className="mr-2 h-4 w-4" />
+              PNG
+            </Button>
+          )}
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onEditCategory(category)}>
+                <Edit className="mr-2 h-4 w-4" />
+                Edytuj kategorię
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => onDeleteCategory(category)}
+                className="text-red-600"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Usuń kategorię
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </div>

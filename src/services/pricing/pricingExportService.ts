@@ -1,3 +1,4 @@
+
 import { PriceCategory } from "@/components/pricing/PriceCard";
 import { getPriceCategories } from "./pricingCoreService";
 import html2canvas from "html2canvas";
@@ -22,6 +23,9 @@ export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => 
     
     // Logging for debugging
     console.log(`Generowanie PDF dla ${filteredCategories.length} kategorii`);
+    if (categoryId) {
+      console.log(`Eksport pojedynczej kategorii: ${filteredCategories[0]?.title}`);
+    }
     
     try {
       // First try with the improved HTML-based PDF generator
