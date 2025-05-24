@@ -66,3 +66,60 @@ export const createPdfLayoutForPng = (categories: PriceCategory[]): string => {
     </div>
   `;
 };
+
+/**
+ * Creates HTML layout for single category PNG export in 9:16 format
+ */
+export const createSingleCategoryLayoutForPng = (category: PriceCategory): string => {
+  // Format price for proper display with Polish currency symbol
+  const formatPrice = (price: string): string => {
+    if (price.toLowerCase().includes('zł')) {
+      return price;
+    }
+    return price.trim() + ' zł';
+  };
+
+  return `
+    <div style="font-family: Arial, Helvetica, sans-serif; background: white; padding: 20px; color: #333; width: 450px; height: 800px; display: flex; flex-direction: column; box-sizing: border-box;">
+      <meta charset="UTF-8">
+      <style>
+        @charset "UTF-8";
+        * { font-family: Arial, Helvetica, sans-serif; box-sizing: border-box; }
+        .container { display: flex; flex-direction: column; height: 100%; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .title { color: #EC4899; font-size: 20px; font-weight: bold; margin: 0 0 10px 0; }
+        .category-title { background: #EC4899; color: white; padding: 12px; font-size: 18px; font-weight: bold; text-align: center; margin-bottom: 15px; border-radius: 5px; }
+        .content { flex: 1; overflow: hidden; }
+        .item { padding: 12px; border-bottom: 1px solid #FCE7F3; }
+        .item:nth-child(even) { background-color: #FCF2F8; }
+        .item-name { font-weight: bold; color: #333; font-size: 14px; margin-bottom: 4px; }
+        .item-price { color: #EC4899; font-weight: bold; font-size: 14px; margin-bottom: 4px; }
+        .item-description { color: #666; font-size: 12px; font-style: italic; line-height: 1.3; }
+        .footer { text-align: center; color: #666; font-size: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #FCE7F3; }
+      </style>
+      
+      <div class="container">
+        <div class="header">
+          <div class="title">Zastrzyk Piękna</div>
+        </div>
+        
+        <div class="category-title">${category.title}</div>
+        
+        <div class="content">
+          ${category.items.map(item => `
+            <div class="item">
+              <div class="item-name">${item.name}</div>
+              <div class="item-price">${formatPrice(item.price)}</div>
+              ${item.description ? `<div class="item-description">${item.description}</div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+        
+        <div class="footer">
+          <p>Gabinet Kosmetologii Estetycznej</p>
+          <p>${new Date().toLocaleDateString('pl-PL')}</p>
+        </div>
+      </div>
+    </div>
+  `;
+};
