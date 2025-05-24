@@ -1,3 +1,4 @@
+
 import { PriceCategory } from "@/components/pricing/PriceCard";
 
 /**
@@ -28,7 +29,15 @@ export const createPdfLayoutForPng = (categories: PriceCategory[]): string => {
         tr:nth-child(even) { background-color: #FCF2F8; }
         .price { font-weight: bold; color: #EC4899; text-align: right; }
         .description { font-style: italic; color: #666; font-size: 0.9em; padding: 8px 12px; }
-        .category-header { background: #EC4899; color: white; padding: 10px 12px; margin-top: 20px; font-size: 20px; }
+        .category-header { 
+          background: #EC4899; 
+          color: white; 
+          padding: 10px 12px; 
+          margin-top: 20px; 
+          font-size: 20px; 
+          text-align: center;
+          font-weight: bold;
+        }
         .title { color: #EC4899; text-align: center; margin-bottom: 30px; font-size: 28px; font-weight: bold; }
         .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
       </style>
@@ -88,7 +97,16 @@ export const createSingleCategoryLayoutForPng = (category: PriceCategory): strin
         .container { display: flex; flex-direction: column; height: 100%; }
         .header { text-align: center; margin-bottom: 20px; }
         .title { color: #EC4899; font-size: 20px; font-weight: bold; margin: 0 0 10px 0; }
-        .category-title { background: #EC4899; color: white; padding: 12px; font-size: 18px; font-weight: bold; text-align: center; margin-bottom: 15px; border-radius: 5px; }
+        .category-title { 
+          background: #EC4899; 
+          color: white; 
+          padding: 12px; 
+          font-size: 18px; 
+          font-weight: bold; 
+          text-align: center; 
+          margin-bottom: 15px; 
+          border-radius: 5px; 
+        }
         .content { flex: 1; overflow: hidden; }
         .item { padding: 12px; border-bottom: 1px solid #FCE7F3; }
         .item:nth-child(even) { background-color: #FCF2F8; }
