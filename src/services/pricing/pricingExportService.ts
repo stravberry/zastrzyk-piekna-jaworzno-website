@@ -112,7 +112,66 @@ const downloadSingleCategoryPng = async (category: PriceCategory): Promise<void>
   }
 };
 
-// Export pricing data as PNG - updated to handle separate category downloads
+// Helper function to download full pricing table as PNG
+const downloadFullPricingTablePng = async (categories: PriceCategory[]): Promise<void> => {
+  console.log('Rozpoczynam generowanie PNG dla pełnego cennika');
+  
+  const tempContainer = document.createElement('div');
+  tempContainer.style.position = 'absolute';
+  tempContainer.style.left = '-9999px';
+  tempContainer.style.width = '800px';
+  document.body.appendChild(tempContainer);
+  
+  try {
+    // Use full pricing layout
+    tempContainer.innerHTML = createPdfLayoutForPng(categories);
+    
+    console.log('Czekam na renderowanie pełnego cennika');
+    // Wait for rendering
+    await new Promise(r => setTimeout(r, 1500));
+    
+    console.log('Tworzę canvas dla pełnego cennika');
+    // Convert to canvas
+    const canvas = await html2canvas(tempContainer, {
+      scale: 2,
+      backgroundColor: '#ffffff',
+      logging: false,
+      allowTaint: true,
+      useCORS: true,
+      onclone: (document, element) => {
+        const styleTag = document.createElement('style');
+        styleTag.innerHTML = `* { font-family: Arial, Helvetica, sans-serif !important; }`;
+        document.head.appendChild(styleTag);
+        return element;
+      }
+    });
+    
+    console.log('Konwertuję pełny cennik do blob');
+    // Convert to blob and download
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          const date = new Date().toISOString().slice(0, 10);
+          link.download = `Zastrzyk-Piekna-Pelny-Cennik-${date}.png`;
+          link.click();
+          URL.revokeObjectURL(url);
+          console.log('Pomyślnie pobrano PNG pełnego cennika');
+          resolve();
+        } else {
+          console.error('Nie udało się utworzyć blob dla pełnego cennika');
+          reject(new Error("Nie udało się utworzyć obrazu pełnego cennika"));
+        }
+      }, 'image/png', 1.0);
+    });
+  } finally {
+    document.body.removeChild(tempContainer);
+  }
+};
+
+// Export pricing data as PNG - updated to handle both full table and separate categories
 export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => {
   try {
     // Get the categories to render
@@ -124,21 +183,33 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
     console.log('categoryId is undefined:', categoryId === undefined);
     console.log('categoryId is null:', categoryId === null);
     
-    // If no categoryId provided, download each category separately
+    // If no categoryId provided, download both full table and each category separately
     if (categoryId === undefined || categoryId === null || categoryId === '') {
-      console.log('Downloading all categories as separate PNG files in 9:16 format');
+      console.log('Downloading full pricing table and all categories as separate PNG files');
       
-      toast.info(`Rozpoczynam pobieranie ${categories.length} kategorii jako oddzielne pliki PNG...`);
+      toast.info(`Rozpoczynam pobieranie pełnego cennika i ${categories.length} kategorii jako oddzielne pliki PNG...`);
       
-      // Download each category as separate PNG file
+      // First download the full pricing table
+      try {
+        await downloadFullPricingTablePng(categories);
+        console.log('Zakończono pobieranie pełnego cennika');
+      } catch (error) {
+        console.error('Błąd podczas pobierania pełnego cennika:', error);
+        toast.error('Błąd podczas pobierania pełnego cennika');
+      }
+      
+      // Small delay before downloading categories
+      await new Promise(r => setTimeout(r, 1000));
+      
+      // Then download each category as separate PNG file
       for (let i = 0; i < categories.length; i++) {
         const category = categories[i];
-        console.log(`Generowanie PNG ${i + 1}/${categories.length}: ${category.title}`);
-        toast.info(`Generowanie PNG ${i + 1}/${categories.length}: ${category.title}`);
+        console.log(`Generowanie PNG kategorii ${i + 1}/${categories.length}: ${category.title}`);
+        toast.info(`Generowanie PNG kategorii ${i + 1}/${categories.length}: ${category.title}`);
         
         try {
           await downloadSingleCategoryPng(category);
-          console.log(`Zakończono pobieranie ${i + 1}/${categories.length}: ${category.title}`);
+          console.log(`Zakończono pobieranie kategorii ${i + 1}/${categories.length}: ${category.title}`);
         } catch (error) {
           console.error(`Błąd podczas pobierania kategorii ${category.title}:`, error);
           toast.error(`Błąd podczas pobierania kategorii ${category.title}`);
@@ -150,7 +221,7 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
         }
       }
       
-      toast.success(`Pomyślnie pobrano ${categories.length} plików PNG`);
+      toast.success(`Pomyślnie pobrano pełny cennik i ${categories.length} plików PNG kategorii`);
       
       // Return a dummy blob since we've handled the downloads separately
       return new Blob([''], { type: 'image/png' });
