@@ -59,17 +59,33 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
       const categories = await getPriceCategories();
       
       console.log(`Pobrano ${categories.length} kategorii z bazy danych`);
-      console.log('categoryId:', categoryId);
+      console.log('categoryId parameter:', categoryId);
+      console.log('categoryId type:', typeof categoryId);
+      console.log('categoryId is undefined:', categoryId === undefined);
+      console.log('categoryId is null:', categoryId === null);
       
-      // Filter categories if categoryId is provided, otherwise use all categories
-      const targetCategories = categoryId
-        ? categories.filter(cat => cat.id === categoryId)
-        : categories; // Use all categories when categoryId is undefined/null
+      // Fix the filtering logic - ensure we handle undefined/null properly
+      let targetCategories: PriceCategory[];
+      
+      if (categoryId === undefined || categoryId === null || categoryId === '') {
+        // No categoryId provided - use ALL categories
+        targetCategories = categories;
+        console.log('Using ALL categories (no filter)');
+      } else {
+        // CategoryId provided - filter to specific category
+        targetCategories = categories.filter(cat => cat.id === categoryId);
+        console.log(`Filtering for categoryId: ${categoryId}`);
+      }
       
       console.log(`Po filtrowaniu: ${targetCategories.length} kategorii do eksportu`);
+      console.log('Target categories IDs:', targetCategories.map(cat => cat.id));
       
       if (targetCategories.length === 0) {
-        throw new Error("Nie znaleziono kategorii cennika do eksportu");
+        if (categoryId) {
+          throw new Error(`Nie znaleziono kategorii o ID: ${categoryId}`);
+        } else {
+          throw new Error("Brak dostępnych kategorii cennika do eksportu");
+        }
       }
       
       // Create a temporary container for rendering
