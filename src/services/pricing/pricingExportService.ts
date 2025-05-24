@@ -58,10 +58,15 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
       // Get the categories to render
       const categories = await getPriceCategories();
       
-      // Filter categories if categoryId is provided
+      console.log(`Pobrano ${categories.length} kategorii z bazy danych`);
+      console.log('categoryId:', categoryId);
+      
+      // Filter categories if categoryId is provided, otherwise use all categories
       const targetCategories = categoryId
         ? categories.filter(cat => cat.id === categoryId)
-        : categories;
+        : categories; // Use all categories when categoryId is undefined/null
+      
+      console.log(`Po filtrowaniu: ${targetCategories.length} kategorii do eksportu`);
       
       if (targetCategories.length === 0) {
         throw new Error("Nie znaleziono kategorii cennika do eksportu");
