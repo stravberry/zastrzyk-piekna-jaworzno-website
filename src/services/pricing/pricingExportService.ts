@@ -52,6 +52,8 @@ export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => 
 
 // Helper function to download a single category as PNG in 9:16 format
 const downloadSingleCategoryPng = async (category: PriceCategory): Promise<void> => {
+  console.log(`Rozpoczynam generowanie PNG dla kategorii: ${category.title}`);
+  
   const tempContainer = document.createElement('div');
   tempContainer.style.position = 'absolute';
   tempContainer.style.left = '-9999px';
@@ -59,47 +61,55 @@ const downloadSingleCategoryPng = async (category: PriceCategory): Promise<void>
   tempContainer.style.height = '800px'; // 9:16 aspect ratio height
   document.body.appendChild(tempContainer);
   
-  // Use single category layout
-  tempContainer.innerHTML = createSingleCategoryLayoutForPng(category);
-  
-  // Wait for rendering
-  await new Promise(r => setTimeout(r, 2000));
-  
-  // Convert to canvas
-  const canvas = await html2canvas(tempContainer, {
-    scale: 3,
-    backgroundColor: '#ffffff',
-    logging: false,
-    allowTaint: true,
-    useCORS: true,
-    width: 450,
-    height: 800,
-    onclone: (document, element) => {
-      const styleTag = document.createElement('style');
-      styleTag.innerHTML = `* { font-family: Arial, Helvetica, sans-serif !important; }`;
-      document.head.appendChild(styleTag);
-      return element;
-    }
-  });
-  
-  // Convert to blob and download
-  return new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => {
-      if (blob) {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        const date = new Date().toISOString().slice(0, 10);
-        link.download = `Zastrzyk-Piekna-${category.title.replace(/\s+/g, '-')}-${date}.png`;
-        link.click();
-        URL.revokeObjectURL(url);
-        document.body.removeChild(tempContainer);
-        resolve();
-      } else {
-        reject(new Error("Nie udało się utworzyć obrazu"));
+  try {
+    // Use single category layout
+    tempContainer.innerHTML = createSingleCategoryLayoutForPng(category);
+    
+    console.log(`Czekam na renderowanie kategorii: ${category.title}`);
+    // Wait for rendering
+    await new Promise(r => setTimeout(r, 1000));
+    
+    console.log(`Tworzę canvas dla kategorii: ${category.title}`);
+    // Convert to canvas
+    const canvas = await html2canvas(tempContainer, {
+      scale: 2,
+      backgroundColor: '#ffffff',
+      logging: false,
+      allowTaint: true,
+      useCORS: true,
+      width: 450,
+      height: 800,
+      onclone: (document, element) => {
+        const styleTag = document.createElement('style');
+        styleTag.innerHTML = `* { font-family: Arial, Helvetica, sans-serif !important; }`;
+        document.head.appendChild(styleTag);
+        return element;
       }
-    }, 'image/png', 1.0);
-  });
+    });
+    
+    console.log(`Konwertuję do blob kategorię: ${category.title}`);
+    // Convert to blob and download
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          const date = new Date().toISOString().slice(0, 10);
+          link.download = `Zastrzyk-Piekna-${category.title.replace(/\s+/g, '-')}-${date}.png`;
+          link.click();
+          URL.revokeObjectURL(url);
+          console.log(`Pomyślnie pobrano PNG dla kategorii: ${category.title}`);
+          resolve();
+        } else {
+          console.error(`Nie udało się utworzyć blob dla kategorii: ${category.title}`);
+          reject(new Error("Nie udało się utworzyć obrazu"));
+        }
+      }, 'image/png', 1.0);
+    });
+  } finally {
+    document.body.removeChild(tempContainer);
+  }
 };
 
 // Export pricing data as PNG - updated to handle separate category downloads
@@ -118,15 +128,26 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
     if (categoryId === undefined || categoryId === null || categoryId === '') {
       console.log('Downloading all categories as separate PNG files in 9:16 format');
       
-      toast.info(`Pobieranie ${categories.length} kategorii jako oddzielne pliki PNG...`);
+      toast.info(`Rozpoczynam pobieranie ${categories.length} kategorii jako oddzielne pliki PNG...`);
       
       // Download each category as separate PNG file
       for (let i = 0; i < categories.length; i++) {
         const category = categories[i];
+        console.log(`Generowanie PNG ${i + 1}/${categories.length}: ${category.title}`);
         toast.info(`Generowanie PNG ${i + 1}/${categories.length}: ${category.title}`);
-        await downloadSingleCategoryPng(category);
+        
+        try {
+          await downloadSingleCategoryPng(category);
+          console.log(`Zakończono pobieranie ${i + 1}/${categories.length}: ${category.title}`);
+        } catch (error) {
+          console.error(`Błąd podczas pobierania kategorii ${category.title}:`, error);
+          toast.error(`Błąd podczas pobierania kategorii ${category.title}`);
+        }
+        
         // Small delay between downloads
-        await new Promise(r => setTimeout(r, 500));
+        if (i < categories.length - 1) {
+          await new Promise(r => setTimeout(r, 500));
+        }
       }
       
       toast.success(`Pomyślnie pobrano ${categories.length} plików PNG`);
@@ -151,40 +172,43 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
       tempContainer.style.height = '800px';
       document.body.appendChild(tempContainer);
       
-      // Use single category layout
-      tempContainer.innerHTML = createSingleCategoryLayoutForPng(targetCategory);
-      
-      // Wait for rendering
-      await new Promise(r => setTimeout(r, 2000));
-      
-      // Use html2canvas to convert to image
-      const canvas = await html2canvas(tempContainer, {
-        scale: 3,
-        backgroundColor: '#ffffff',
-        logging: false,
-        allowTaint: true,
-        useCORS: true,
-        width: 450,
-        height: 800,
-        onclone: (document, element) => {
-          const styleTag = document.createElement('style');
-          styleTag.innerHTML = `* { font-family: Arial, Helvetica, sans-serif !important; }`;
-          document.head.appendChild(styleTag);
-          return element;
-        }
-      });
-      
-      // Convert canvas to blob
-      return new Promise((resolve, reject) => {
-        canvas.toBlob((blob) => {
-          if (blob) {
-            document.body.removeChild(tempContainer);
-            resolve(blob);
-          } else {
-            reject(new Error("Nie udało się utworzyć obrazu"));
+      try {
+        // Use single category layout
+        tempContainer.innerHTML = createSingleCategoryLayoutForPng(targetCategory);
+        
+        // Wait for rendering
+        await new Promise(r => setTimeout(r, 1000));
+        
+        // Use html2canvas to convert to image
+        const canvas = await html2canvas(tempContainer, {
+          scale: 2,
+          backgroundColor: '#ffffff',
+          logging: false,
+          allowTaint: true,
+          useCORS: true,
+          width: 450,
+          height: 800,
+          onclone: (document, element) => {
+            const styleTag = document.createElement('style');
+            styleTag.innerHTML = `* { font-family: Arial, Helvetica, sans-serif !important; }`;
+            document.head.appendChild(styleTag);
+            return element;
           }
-        }, 'image/png', 1.0);
-      });
+        });
+        
+        // Convert canvas to blob
+        return new Promise((resolve, reject) => {
+          canvas.toBlob((blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error("Nie udało się utworzyć obrazu"));
+            }
+          }, 'image/png', 1.0);
+        });
+      } finally {
+        document.body.removeChild(tempContainer);
+      }
     }
   } catch (error) {
     console.error("Błąd generowania PNG:", error);
