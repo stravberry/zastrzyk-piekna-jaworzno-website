@@ -1,3 +1,4 @@
+
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -38,7 +39,7 @@ const Services = () => {
       link: "/zabiegi/makijaz-permanentny-brwi",
       features: ["Technika ombre", "Naturalny efekt", "Trwałość do 2 lat", "Indywidualny dobór kształtu"],
       benefits: "Perfekcyjnie wyglądające brwi każdego dnia, bez konieczności codziennego makijażu.",
-      image: "/lovable-uploads/4e36b405-2b0b-48e1-a707-234600f8a1c0.png"
+      image: "/lovable-uploads/280bfdfd-5739-433f-b71e-e6a00eae59d8.png"
     },
     {
       id: 4,
