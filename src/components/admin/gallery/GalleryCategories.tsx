@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GalleryService } from "@/services/galleryService";
@@ -15,7 +16,17 @@ import type { GalleryCategory } from "@/types/gallery";
 // Helper function to ensure valid category type - moved outside component to avoid recreations
 const getSafeCategoryType = (categoryType?: string): 'lip_modeling' | 'anti_aging' | 'general' | 'before_after' => {
   const validTypes = ['lip_modeling', 'anti_aging', 'general', 'before_after'] as const;
-  return validTypes.includes(categoryType as any) ? (categoryType as any) : 'general';
+  
+  console.log('getSafeCategoryType input:', categoryType);
+  
+  if (!categoryType || typeof categoryType !== 'string') {
+    console.log('Invalid or empty categoryType, returning general');
+    return 'general';
+  }
+  
+  const result = validTypes.includes(categoryType as any) ? (categoryType as any) : 'general';
+  console.log('getSafeCategoryType result:', result);
+  return result;
 };
 
 // Form data type that supports all category types
@@ -29,19 +40,26 @@ type FormData = {
 };
 
 // Initial form state that guarantees valid category_type
-const getInitialFormState = (): FormData => ({
-  name: '',
-  slug: '',
-  description: '',
-  category_type: 'general',
-  display_order: 0,
-  is_active: true
-});
+const getInitialFormState = (): FormData => {
+  const initialState = {
+    name: '',
+    slug: '',
+    description: '',
+    category_type: 'general' as const,
+    display_order: 0,
+    is_active: true
+  };
+  console.log('Initial form state:', initialState);
+  return initialState;
+};
 
 const GalleryCategories: React.FC = () => {
   const [editingCategory, setEditingCategory] = useState<GalleryCategory | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>(getInitialFormState());
+
+  console.log('Current formData:', formData);
+  console.log('Current formData.category_type:', formData.category_type);
 
   const queryClient = useQueryClient();
 
@@ -93,30 +111,40 @@ const GalleryCategories: React.FC = () => {
   });
 
   const resetForm = () => {
-    setFormData(getInitialFormState());
+    const newFormData = getInitialFormState();
+    console.log('Resetting form to:', newFormData);
+    setFormData(newFormData);
   };
 
   const handleEdit = (category: GalleryCategory) => {
+    console.log('Editing category:', category);
     setEditingCategory(category);
     const safeCategoryType = getSafeCategoryType(category.category_type);
+    console.log('Safe category type for edit:', safeCategoryType);
     
-    setFormData({
+    const editFormData = {
       name: category.name,
       slug: category.slug,
       description: category.description || '',
       category_type: safeCategoryType,
       display_order: category.display_order,
       is_active: category.is_active
-    });
+    };
+    console.log('Setting edit form data:', editFormData);
+    setFormData(editFormData);
     setIsDialogOpen(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('Submitting form data:', formData);
+    
     // Ensure we always have a valid category type
     const validCategoryType = getSafeCategoryType(formData.category_type);
     const submitData = { ...formData, category_type: validCategoryType };
+    
+    console.log('Submit data with safe category type:', submitData);
     
     if (editingCategory) {
       updateMutation.mutate({ id: editingCategory.id, updates: submitData });
@@ -162,6 +190,10 @@ const GalleryCategories: React.FC = () => {
   if (isLoading) {
     return <div>Ładowanie kategorii...</div>;
   }
+
+  // Ensure we never pass an empty string to the Select
+  const selectValue = formData.category_type || 'general';
+  console.log('Select value being used:', selectValue);
 
   return (
     <div className="space-y-6">
@@ -217,10 +249,11 @@ const GalleryCategories: React.FC = () => {
               <div>
                 <Label htmlFor="category_type">Typ kategorii</Label>
                 <Select
-                  value={formData.category_type}
-                  onValueChange={(value: 'lip_modeling' | 'anti_aging' | 'general' | 'before_after') => 
-                    setFormData(prev => ({ ...prev, category_type: value }))
-                  }
+                  value={selectValue}
+                  onValueChange={(value: 'lip_modeling' | 'anti_aging' | 'general' | 'before_after') => {
+                    console.log('Select onValueChange called with:', value);
+                    setFormData(prev => ({ ...prev, category_type: value }));
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Wybierz typ kategorii" />
