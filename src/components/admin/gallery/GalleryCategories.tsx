@@ -87,11 +87,17 @@ const GalleryCategories: React.FC = () => {
 
   const handleEdit = (category: GalleryCategory) => {
     setEditingCategory(category);
+    // Ensure category_type has a valid value, fallback to 'general' if empty or invalid
+    const validCategoryType = category.category_type && 
+      ['lip_modeling', 'anti_aging', 'general', 'before_after'].includes(category.category_type) 
+      ? category.category_type 
+      : 'general';
+    
     setFormData({
       name: category.name,
       slug: category.slug,
       description: category.description || '',
-      category_type: category.category_type,
+      category_type: validCategoryType,
       display_order: category.display_order,
       is_active: category.is_active
     });
@@ -129,6 +135,16 @@ const GalleryCategories: React.FC = () => {
       .replace(/[^a-z0-9]/g, '-')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
+  };
+
+  const getCategoryTypeLabel = (type: string) => {
+    switch (type) {
+      case 'lip_modeling': return 'Modelowanie ust';
+      case 'anti_aging': return 'Terapie przeciwstarzeniowe';
+      case 'general': return 'Ogólne';
+      case 'before_after': return 'Przed i po';
+      default: return 'Nieznany typ';
+    }
   };
 
   if (isLoading) {
@@ -249,7 +265,7 @@ const GalleryCategories: React.FC = () => {
             <CardContent>
               <div className="text-sm text-gray-600">
                 <p>Slug: /{category.slug}</p>
-                <p>Typ: {category.category_type}</p>
+                <p>Typ: {getCategoryTypeLabel(category.category_type)}</p>
                 <p>Kolejność: {category.display_order}</p>
                 <p>Status: {category.is_active ? 'Aktywna' : 'Nieaktywna'}</p>
               </div>
