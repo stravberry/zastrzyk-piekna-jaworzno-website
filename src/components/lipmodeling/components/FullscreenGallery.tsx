@@ -40,19 +40,26 @@ const FullscreenGallery: React.FC<FullscreenGalleryProps> = ({
   const [isInfoVisible, setIsInfoVisible] = useState(true);
   
   const currentImage = images[currentIndex];
+  console.log('FullscreenGallery render - currentIndex:', currentIndex, 'currentImage:', currentImage?.title);
 
-  // Handle navigation with proper bounds checking
+  // Handle navigation with direct calls to parent functions
   const handlePrevious = useCallback(() => {
     console.log('Previous clicked, current index:', currentIndex, 'total images:', images.length);
     if (currentIndex > 0) {
+      console.log('Calling onPrevious');
       onPrevious();
+    } else {
+      console.log('Already at first image');
     }
   }, [currentIndex, onPrevious, images.length]);
 
   const handleNext = useCallback(() => {
     console.log('Next clicked, current index:', currentIndex, 'total images:', images.length);
     if (currentIndex < images.length - 1) {
+      console.log('Calling onNext');
       onNext();
+    } else {
+      console.log('Already at last image');
     }
   }, [currentIndex, onNext, images.length]);
 
@@ -103,7 +110,10 @@ const FullscreenGallery: React.FC<FullscreenGalleryProps> = ({
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [isOpen, handlePrevious, handleNext, onClose, currentIndex]);
 
-  if (!currentImage) return null;
+  if (!currentImage) {
+    console.log('No current image found for index:', currentIndex);
+    return null;
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -154,6 +164,7 @@ const FullscreenGallery: React.FC<FullscreenGalleryProps> = ({
           <div className="relative w-full h-full flex items-center justify-center p-16">
             <div className="relative max-w-full max-h-full flex items-center justify-center">
               <ImageWithLoading
+                key={`${currentImage.id}-${currentIndex}`}
                 src={currentImage.after}
                 webpSrc={currentImage.webp_url}
                 thumbnailSrc={currentImage.medium_url}
