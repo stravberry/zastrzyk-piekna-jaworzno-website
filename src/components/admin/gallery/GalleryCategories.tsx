@@ -1,4 +1,5 @@
 
+
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GalleryService } from "@/services/galleryService";
@@ -38,6 +39,14 @@ type FormData = {
   display_order: number;
   is_active: boolean;
 };
+
+// Category options with guaranteed non-empty values
+const CATEGORY_OPTIONS = [
+  { value: 'general', label: 'Ogólne' },
+  { value: 'lip_modeling', label: 'Modelowanie ust' },
+  { value: 'anti_aging', label: 'Terapie przeciwstarzeniowe' },
+  { value: 'before_after', label: 'Przed i po' }
+] as const;
 
 // Initial form state that guarantees valid category_type
 const getInitialFormState = (): FormData => {
@@ -178,13 +187,8 @@ const GalleryCategories: React.FC = () => {
 
   const getCategoryTypeLabel = (type: string) => {
     const safeType = getSafeCategoryType(type);
-    switch (safeType) {
-      case 'lip_modeling': return 'Modelowanie ust';
-      case 'anti_aging': return 'Terapie przeciwstarzeniowe';
-      case 'general': return 'Ogólne';
-      case 'before_after': return 'Przed i po';
-      default: return 'Ogólne';
-    }
+    const option = CATEGORY_OPTIONS.find(opt => opt.value === safeType);
+    return option ? option.label : 'Ogólne';
   };
 
   if (isLoading) {
@@ -259,10 +263,17 @@ const GalleryCategories: React.FC = () => {
                     <SelectValue placeholder="Wybierz typ kategorii" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="general">Ogólne</SelectItem>
-                    <SelectItem value="lip_modeling">Modelowanie ust</SelectItem>
-                    <SelectItem value="anti_aging">Terapie przeciwstarzeniowe</SelectItem>
-                    <SelectItem value="before_after">Przed i po</SelectItem>
+                    {CATEGORY_OPTIONS.map((option) => {
+                      console.log('Rendering SelectItem with value:', option.value);
+                      return (
+                        <SelectItem 
+                          key={option.value} 
+                          value={option.value}
+                        >
+                          {option.label}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>
@@ -323,3 +334,4 @@ const GalleryCategories: React.FC = () => {
 };
 
 export default GalleryCategories;
+
