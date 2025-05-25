@@ -63,7 +63,15 @@ export class GalleryService {
     const { data, error } = await query;
     
     if (error) throw error;
-    return data || [];
+    
+    // Map data to include required fields with defaults for compatibility
+    return (data || []).map(item => ({
+      ...item,
+      file_type: (item as any).file_type || 'image',
+      video_url: (item as any).video_url || undefined,
+      video_duration: (item as any).video_duration || undefined,
+      video_provider: (item as any).video_provider || undefined
+    })) as GalleryImage[];
   }
 
   static async uploadImage(request: ImageUploadRequest): Promise<GalleryImage> {
@@ -72,7 +80,13 @@ export class GalleryService {
     });
 
     if (error) throw error;
-    return data.data;
+    return {
+      ...data.data,
+      file_type: 'image',
+      video_url: undefined,
+      video_duration: undefined,
+      video_provider: undefined
+    } as GalleryImage;
   }
 
   static async uploadVideoLink(request: VideoUploadRequest): Promise<GalleryImage> {
@@ -84,7 +98,6 @@ export class GalleryService {
       const videoId = request.video_url?.split('v=')[1]?.split('&')[0];
       if (videoId) {
         thumbnailUrl = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
-        // For now, we don't extract duration - would need YouTube API
       }
     }
 
@@ -92,16 +105,19 @@ export class GalleryService {
       title: request.title,
       description: request.description,
       category_id: request.category_id,
-      file_type: 'video' as const,
-      video_url: request.video_url,
-      video_provider: request.video_provider,
-      video_duration: videoDuration,
-      thumbnail_url: thumbnailUrl,
       original_url: request.video_url || '',
+      thumbnail_url: thumbnailUrl,
       tags: request.tags || [],
       display_order: 0,
       is_featured: false,
-      is_active: true
+      is_active: true,
+      // Add video-specific fields if supported by database
+      ...(request.video_url && { 
+        file_type: 'video',
+        video_url: request.video_url,
+        video_provider: request.video_provider,
+        video_duration: videoDuration
+      })
     };
 
     const { data, error } = await supabase
@@ -114,7 +130,14 @@ export class GalleryService {
       .single();
 
     if (error) throw error;
-    return data;
+    
+    return {
+      ...data,
+      file_type: (data as any).file_type || 'video',
+      video_url: (data as any).video_url || request.video_url,
+      video_duration: (data as any).video_duration || undefined,
+      video_provider: (data as any).video_provider || request.video_provider
+    } as GalleryImage;
   }
 
   static async updateImage(id: string, updates: Partial<GalleryImage>): Promise<GalleryImage> {
@@ -129,28 +152,35 @@ export class GalleryService {
       .single();
     
     if (error) throw error;
-    return data;
+    
+    return {
+      ...data,
+      file_type: (data as any).file_type || 'image',
+      video_url: (data as any).video_url || undefined,
+      video_duration: (data as any).video_duration || undefined,
+      video_provider: (data as any).video_provider || undefined
+    } as GalleryImage;
   }
 
   static async deleteImage(id: string): Promise<void> {
     // First get the image to delete files from storage
     const { data: image, error: fetchError } = await supabase
       .from('gallery_images')
-      .select('original_url, webp_url, thumbnail_url, medium_url, file_type')
+      .select('original_url, webp_url, thumbnail_url, medium_url')
       .eq('id', id)
       .single();
 
     if (fetchError) throw fetchError;
 
-    // Delete files from storage only for uploaded files
-    if (image.file_type === 'image' || (image.file_type === 'video' && !image.original_url?.includes('http'))) {
+    // Delete files from storage only for uploaded files (not external links)
+    if (image && !image.original_url?.includes('http')) {
       const filesToDelete = [
         image.original_url,
         image.webp_url,
         image.thumbnail_url,
         image.medium_url
       ].filter(Boolean).map(url => {
-        const urlParts = url.split('/');
+        const urlParts = url!.split('/');
         return urlParts.slice(-2).join('/'); // Get folder/filename
       });
 
