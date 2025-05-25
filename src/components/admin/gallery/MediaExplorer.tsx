@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GalleryService } from "@/services/galleryService";
@@ -35,7 +34,7 @@ const MediaExplorer: React.FC = () => {
   const [fileTypeFilter, setFileTypeFilter] = useState<'all' | 'image' | 'video'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
-  const [selectedBulkCategory, setSelectedBulkCategory] = useState<string>('');
+  const [selectedBulkCategory, setSelectedBulkCategory] = useState<string>('none');
   const [editingItem, setEditingItem] = useState<GalleryImage | null>(null);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -66,12 +65,12 @@ const MediaExplorer: React.FC = () => {
 
   const bulkCategoryMutation = useMutation({
     mutationFn: ({ imageIds, categoryId }: { imageIds: string[]; categoryId: string }) =>
-      GalleryService.bulkUpdateCategory(imageIds, categoryId),
+      GalleryService.bulkUpdateCategory(imageIds, categoryId === 'none' ? null : categoryId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['gallery-images'] });
       toast.success(`Kategoria została przypisana do ${selectedItems.length} plików`);
       setSelectedItems([]);
-      setSelectedBulkCategory('');
+      setSelectedBulkCategory('none');
     },
     onError: () => {
       toast.error('Błąd podczas przypisywania kategorii');
@@ -112,9 +111,11 @@ const MediaExplorer: React.FC = () => {
   };
 
   const handleBulkCategoryAssign = () => {
-    if (selectedItems.length === 0 || !selectedBulkCategory) return;
+    if (selectedItems.length === 0 || selectedBulkCategory === 'none') return;
     
-    const categoryName = categories?.find(cat => cat.id === selectedBulkCategory)?.name || 'wybranej kategorii';
+    const categoryName = selectedBulkCategory === 'none' 
+      ? 'brak kategorii' 
+      : categories?.find(cat => cat.id === selectedBulkCategory)?.name || 'wybranej kategorii';
     
     if (confirm(`Czy na pewno chcesz przypisać ${selectedItems.length} plików do kategorii "${categoryName}"?`)) {
       bulkCategoryMutation.mutate({
@@ -376,6 +377,7 @@ const MediaExplorer: React.FC = () => {
                   <SelectValue placeholder="Wybierz kategorię..." />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">Brak kategorii</SelectItem>
                   {categories?.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
                       {category.name}
@@ -388,7 +390,7 @@ const MediaExplorer: React.FC = () => {
                   variant="outline"
                   size="sm"
                   onClick={handleBulkCategoryAssign}
-                  disabled={!selectedBulkCategory || bulkCategoryMutation.isPending}
+                  disabled={selectedBulkCategory === 'none' || bulkCategoryMutation.isPending}
                   className="flex-1 sm:flex-none"
                 >
                   <FolderOpen className="w-4 h-4 mr-2" />
@@ -400,7 +402,7 @@ const MediaExplorer: React.FC = () => {
                   size="sm"
                   onClick={() => {
                     setSelectedItems([]);
-                    setSelectedBulkCategory('');
+                    setSelectedBulkCategory('none');
                   }}
                   className="flex-1 sm:flex-none"
                 >

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { GalleryService } from "@/services/galleryService";
@@ -32,7 +31,7 @@ const MediaEditDialog: React.FC<MediaEditDialogProps> = ({
     description: '',
     alt_text: '',
     tags: '',
-    category_id: '',
+    category_id: 'none',
     is_featured: false,
     is_active: false,
     display_order: 0
@@ -50,7 +49,7 @@ const MediaEditDialog: React.FC<MediaEditDialogProps> = ({
         description: item.description || '',
         alt_text: item.alt_text || '',
         tags: item.tags?.join(', ') || '',
-        category_id: item.category_id || '',
+        category_id: item.category_id || 'none',
         is_featured: item.is_featured,
         is_active: item.is_active,
         display_order: item.display_order
@@ -78,7 +77,7 @@ const MediaEditDialog: React.FC<MediaEditDialogProps> = ({
       description: formData.description,
       alt_text: formData.alt_text,
       tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
-      category_id: formData.category_id || null,
+      category_id: formData.category_id === 'none' ? null : formData.category_id,
       is_featured: formData.is_featured,
       is_active: formData.is_active,
       display_order: formData.display_order
@@ -212,7 +211,7 @@ const MediaEditDialog: React.FC<MediaEditDialogProps> = ({
                   <SelectValue placeholder="Wybierz kategorię..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Brak kategorii</SelectItem>
+                  <SelectItem value="none">Brak kategorii</SelectItem>
                   {categories?.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
                       {category.name}

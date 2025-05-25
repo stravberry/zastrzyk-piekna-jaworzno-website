@@ -23,7 +23,7 @@ const MediaUploadDialog: React.FC<MediaUploadDialogProps> = ({ open, onClose, on
   const [previews, setPreviews] = useState<string[]>([]);
   const [videoUrl, setVideoUrl] = useState('');
   const [formData, setFormData] = useState({
-    category_id: '',
+    category_id: 'none',
     title: '',
     description: '',
     alt_text: '',
@@ -57,7 +57,7 @@ const MediaUploadDialog: React.FC<MediaUploadDialogProps> = ({ open, onClose, on
               await GalleryService.uploadImage({
                 file: base64,
                 filename: data.file.name,
-                category_id: formData.category_id,
+                category_id: formData.category_id === 'none' ? null : formData.category_id,
                 title: formData.title || data.file.name.replace(/\.[^/.]+$/, ''),
                 description: formData.description,
                 alt_text: formData.alt_text,
@@ -80,7 +80,7 @@ const MediaUploadDialog: React.FC<MediaUploadDialogProps> = ({ open, onClose, on
               await GalleryService.uploadVideoFile({
                 file: base64,
                 filename: data.file.name,
-                category_id: formData.category_id,
+                category_id: formData.category_id === 'none' ? null : formData.category_id,
                 title: formData.title || data.file.name.replace(/\.[^/.]+$/, ''),
                 description: formData.description,
                 alt_text: formData.alt_text,
@@ -99,7 +99,7 @@ const MediaUploadDialog: React.FC<MediaUploadDialogProps> = ({ open, onClose, on
         return GalleryService.uploadVideoLink({
           video_url: videoUrl,
           video_provider: getVideoProvider(videoUrl),
-          category_id: formData.category_id,
+          category_id: formData.category_id === 'none' ? null : formData.category_id,
           title: formData.title || getVideoTitle(videoUrl),
           description: formData.description,
           tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean)
@@ -174,7 +174,7 @@ const MediaUploadDialog: React.FC<MediaUploadDialogProps> = ({ open, onClose, on
     setPreviews([]);
     setVideoUrl('');
     setFormData({
-      category_id: '',
+      category_id: 'none',
       title: '',
       description: '',
       alt_text: '',
@@ -186,7 +186,7 @@ const MediaUploadDialog: React.FC<MediaUploadDialogProps> = ({ open, onClose, on
   };
 
   const handleSubmit = async () => {
-    if (!formData.category_id) {
+    if (formData.category_id === 'none') {
       toast.error('Wybierz kategorię');
       return;
     }
@@ -266,6 +266,7 @@ const MediaUploadDialog: React.FC<MediaUploadDialogProps> = ({ open, onClose, on
                   <SelectValue placeholder="Wybierz kategorię" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">Brak kategorii</SelectItem>
                   {validCategories.map((category) => {
                     console.log('Rendering category SelectItem:', category.id, category.name);
                     return (
