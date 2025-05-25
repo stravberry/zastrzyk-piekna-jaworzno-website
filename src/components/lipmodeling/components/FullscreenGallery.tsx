@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import ImageWithLoading from "@/components/ui/image-with-loading";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface GalleryImage {
   id: string;
@@ -41,6 +42,17 @@ const FullscreenGallery: React.FC<FullscreenGalleryProps> = ({
   
   const currentImage = images[currentIndex];
 
+  // Handle navigation with proper bounds checking
+  const handlePrevious = useCallback(() => {
+    console.log('Previous clicked, current index:', currentIndex);
+    onPrevious();
+  }, [currentIndex, onPrevious]);
+
+  const handleNext = useCallback(() => {
+    console.log('Next clicked, current index:', currentIndex);
+    onNext();
+  }, [currentIndex, onNext]);
+
   // Preload adjacent images for better UX
   useEffect(() => {
     if (!isOpen || !images.length) return;
@@ -62,18 +74,23 @@ const FullscreenGallery: React.FC<FullscreenGalleryProps> = ({
     if (!isOpen) return;
 
     const handleKeyPress = (e: KeyboardEvent) => {
+      console.log('Key pressed:', e.key);
       switch (e.key) {
         case 'ArrowLeft':
-          onPrevious();
+          e.preventDefault();
+          handlePrevious();
           break;
         case 'ArrowRight':
-          onNext();
+          e.preventDefault();
+          handleNext();
           break;
         case 'Escape':
+          e.preventDefault();
           onClose();
           break;
         case 'i':
         case 'I':
+          e.preventDefault();
           setIsInfoVisible(prev => !prev);
           break;
       }
@@ -81,13 +98,20 @@ const FullscreenGallery: React.FC<FullscreenGalleryProps> = ({
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [isOpen, onPrevious, onNext, onClose]);
+  }, [isOpen, handlePrevious, handleNext, onClose]);
 
   if (!currentImage) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] max-h-[95vh] w-full h-full p-0 bg-black/95 border-0">
+        <VisuallyHidden>
+          <DialogTitle>Galeria - {currentImage.description}</DialogTitle>
+          <DialogDescription>
+            Zdjęcie {currentIndex + 1} z {images.length} - {currentImage.technique}
+          </DialogDescription>
+        </VisuallyHidden>
+        
         <div className="relative w-full h-full flex items-center justify-center">
           {/* Close button */}
           <Button
@@ -95,6 +119,7 @@ const FullscreenGallery: React.FC<FullscreenGalleryProps> = ({
             size="sm"
             onClick={onClose}
             className="absolute top-4 right-4 z-20 text-white hover:bg-white/20"
+            aria-label="Zamknij galerię"
           >
             <X className="w-6 h-6" />
           </Button>
@@ -103,8 +128,10 @@ const FullscreenGallery: React.FC<FullscreenGalleryProps> = ({
           <Button
             variant="ghost"
             size="lg"
-            onClick={onPrevious}
-            className="absolute left-4 z-20 text-white hover:bg-white/20"
+            onClick={handlePrevious}
+            disabled={currentIndex <= 0}
+            className="absolute left-4 z-20 text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Poprzednie zdjęcie"
           >
             <ChevronLeft className="w-8 h-8" />
           </Button>
@@ -112,8 +139,10 @@ const FullscreenGallery: React.FC<FullscreenGalleryProps> = ({
           <Button
             variant="ghost"
             size="lg"
-            onClick={onNext}
-            className="absolute right-4 z-20 text-white hover:bg-white/20"
+            onClick={handleNext}
+            disabled={currentIndex >= images.length - 1}
+            className="absolute right-4 z-20 text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Następne zdjęcie"
           >
             <ChevronRight className="w-8 h-8" />
           </Button>
