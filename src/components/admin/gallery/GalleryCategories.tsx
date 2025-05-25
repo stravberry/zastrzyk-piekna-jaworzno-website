@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GalleryService } from "@/services/galleryService";
@@ -85,24 +84,21 @@ const GalleryCategories: React.FC = () => {
     });
   };
 
-  // Helper function to ensure valid category type for display
-  const getSafeCategoryType = (category: GalleryCategory): 'lip_modeling' | 'anti_aging' | 'general' | 'before_after' => {
-    if (!category.category_type || !['lip_modeling', 'anti_aging', 'general', 'before_after'].includes(category.category_type)) {
-      return 'general';
-    }
-    return category.category_type;
+  // Simplified helper function to ensure valid category type
+  const getSafeCategoryType = (categoryType?: string): 'lip_modeling' | 'anti_aging' | 'general' | 'before_after' => {
+    const validTypes = ['lip_modeling', 'anti_aging', 'general', 'before_after'] as const;
+    return validTypes.includes(categoryType as any) ? (categoryType as any) : 'general';
   };
 
   const handleEdit = (category: GalleryCategory) => {
     setEditingCategory(category);
-    // Ensure category_type has a valid value, fallback to 'general' if empty or invalid
-    const validCategoryType = getSafeCategoryType(category);
+    const safeCategoryType = getSafeCategoryType(category.category_type);
     
     setFormData({
       name: category.name,
       slug: category.slug,
       description: category.description || '',
-      category_type: validCategoryType,
+      category_type: safeCategoryType,
       display_order: category.display_order,
       is_active: category.is_active
     });
@@ -112,12 +108,8 @@ const GalleryCategories: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Ensure category_type is valid before submitting - double check our form data
-    const validCategoryType = formData.category_type && 
-      ['lip_modeling', 'anti_aging', 'general', 'before_after'].includes(formData.category_type) 
-      ? formData.category_type 
-      : 'general';
-    
+    // Ensure we always have a valid category type
+    const validCategoryType = getSafeCategoryType(formData.category_type);
     const submitData = { ...formData, category_type: validCategoryType };
     
     if (editingCategory) {
@@ -151,17 +143,13 @@ const GalleryCategories: React.FC = () => {
   };
 
   const getCategoryTypeLabel = (type: string) => {
-    // Handle empty, null, or invalid types
-    if (!type || typeof type !== 'string') {
-      return 'Ogólne';
-    }
-    
-    switch (type.trim()) {
+    const safeType = getSafeCategoryType(type);
+    switch (safeType) {
       case 'lip_modeling': return 'Modelowanie ust';
       case 'anti_aging': return 'Terapie przeciwstarzeniowe';
       case 'general': return 'Ogólne';
       case 'before_after': return 'Przed i po';
-      default: return 'Ogólne'; // Fallback to 'Ogólne' for any unknown type
+      default: return 'Ogólne';
     }
   };
 
@@ -169,11 +157,8 @@ const GalleryCategories: React.FC = () => {
     return <div>Ładowanie kategorii...</div>;
   }
 
-  // Ensure we always have a valid category_type value for the Select component
-  // This is the critical fix - ensure it's never empty
-  const currentCategoryType = formData.category_type || 'general';
-  const isValidCategoryType = ['lip_modeling', 'anti_aging', 'general', 'before_after'].includes(currentCategoryType);
-  const safeFormCategoryType = isValidCategoryType ? currentCategoryType : 'general';
+  // Ensure the form always has a valid category type - this is the critical fix
+  const currentCategoryType = getSafeCategoryType(formData.category_type);
 
   return (
     <div className="space-y-6">
@@ -229,7 +214,7 @@ const GalleryCategories: React.FC = () => {
               <div>
                 <Label htmlFor="category_type">Typ kategorii</Label>
                 <Select
-                  value={safeFormCategoryType}
+                  value={currentCategoryType}
                   onValueChange={(value: 'lip_modeling' | 'anti_aging' | 'general' | 'before_after') => 
                     setFormData(prev => ({ ...prev, category_type: value }))
                   }
@@ -289,7 +274,7 @@ const GalleryCategories: React.FC = () => {
             <CardContent>
               <div className="text-sm text-gray-600">
                 <p>Slug: /{category.slug}</p>
-                <p>Typ: {getCategoryTypeLabel(getSafeCategoryType(category))}</p>
+                <p>Typ: {getCategoryTypeLabel(category.category_type)}</p>
                 <p>Kolejność: {category.display_order}</p>
                 <p>Status: {category.is_active ? 'Aktywna' : 'Nieaktywna'}</p>
               </div>
