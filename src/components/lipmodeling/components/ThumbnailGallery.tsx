@@ -18,19 +18,22 @@ interface ThumbnailGalleryProps {
   images: GalleryImage[];
   currentIndex: number;
   onImageSelect: (index: number) => void;
+  onImageClick: (index: number) => void;
 }
 
 const ThumbnailGallery: React.FC<ThumbnailGalleryProps> = ({
   images,
   currentIndex,
-  onImageSelect
+  onImageSelect,
+  onImageClick
 }) => {
   return (
     <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-4">
       {images.map((image, index) => (
         <button
           key={image.id}
-          onClick={() => onImageSelect(index)}
+          onClick={() => onImageClick(index)}
+          onMouseEnter={() => onImageSelect(index)}
           className={`relative group rounded-lg overflow-hidden transition-all ${
             index === currentIndex 
               ? 'ring-2 ring-pink-500 shadow-lg' 

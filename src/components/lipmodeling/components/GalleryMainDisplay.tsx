@@ -3,7 +3,6 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface GalleryImage {
@@ -25,6 +24,7 @@ interface GalleryMainDisplayProps {
   onPrevious: () => void;
   onNext: () => void;
   onSetImage: (index: number) => void;
+  onImageClick: () => void;
 }
 
 const GalleryMainDisplay: React.FC<GalleryMainDisplayProps> = ({
@@ -33,7 +33,8 @@ const GalleryMainDisplay: React.FC<GalleryMainDisplayProps> = ({
   totalImages,
   onPrevious,
   onNext,
-  onSetImage
+  onSetImage,
+  onImageClick
 }) => {
   return (
     <Card className="max-w-2xl mx-auto shadow-xl border-0">
@@ -43,25 +44,16 @@ const GalleryMainDisplay: React.FC<GalleryMainDisplayProps> = ({
             <img
               src={currentImage.after}
               alt={currentImage.description}
-              className="w-full h-full object-cover rounded-lg shadow-md"
+              className="w-full h-full object-cover rounded-lg shadow-md cursor-pointer transition-transform hover:scale-105"
+              onClick={onImageClick}
             />
           </AspectRatio>
-          <Dialog>
-            <DialogTrigger asChild>
-              <button className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
-                <Eye className="w-8 h-8 text-white" />
-              </button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <AspectRatio ratio={9/16} className="w-full">
-                <img
-                  src={currentImage.after}
-                  alt={currentImage.description}
-                  className="w-full h-full object-cover rounded-lg"
-                />
-              </AspectRatio>
-            </DialogContent>
-          </Dialog>
+          <button 
+            onClick={onImageClick}
+            className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100"
+          >
+            <Eye className="w-8 h-8 text-white" />
+          </button>
         </div>
         
         <div className="text-center space-y-2">

@@ -6,11 +6,13 @@ import GalleryHeader from "./components/GalleryHeader";
 import GalleryMainDisplay from "./components/GalleryMainDisplay";
 import ThumbnailGallery from "./components/ThumbnailGallery";
 import GalleryCTA from "./components/GalleryCTA";
+import FullscreenGallery from "./components/FullscreenGallery";
 
 const LipModelingGallerySection: React.FC = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isVisible = useScrollAnimation(sectionRef);
   const [currentImage, setCurrentImage] = useState(0);
+  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
 
   const { data: galleryImages, isLoading } = useLipModelingImages();
 
@@ -24,7 +26,7 @@ const LipModelingGallerySection: React.FC = () => {
     before: img.webp_url || img.original_url, // For before/after if needed
     after: img.medium_url || img.webp_url || img.original_url,
     category: img.category?.name || 'Modelowanie ust',
-    technique: img.tags?.join(', ') || 'Kwas hialuronowy' // Add the missing technique property
+    technique: img.tags?.join(', ') || 'Kwas hialuronowy'
   })) || [];
 
   const nextImage = () => {
@@ -33,6 +35,17 @@ const LipModelingGallerySection: React.FC = () => {
 
   const prevImage = () => {
     setCurrentImage((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const openFullscreen = (index?: number) => {
+    if (index !== undefined) {
+      setCurrentImage(index);
+    }
+    setIsFullscreenOpen(true);
+  };
+
+  const closeFullscreen = () => {
+    setIsFullscreenOpen(false);
   };
 
   if (isLoading) {
@@ -79,6 +92,7 @@ const LipModelingGallerySection: React.FC = () => {
             onPrevious={prevImage}
             onNext={nextImage}
             onSetImage={setCurrentImage}
+            onImageClick={() => openFullscreen()}
           />
         </div>
 
@@ -93,10 +107,21 @@ const LipModelingGallerySection: React.FC = () => {
             images={images}
             currentIndex={currentImage}
             onImageSelect={setCurrentImage}
+            onImageClick={openFullscreen}
           />
         </div>
         
         <GalleryCTA isVisible={isVisible} />
+
+        {/* Fullscreen Gallery */}
+        <FullscreenGallery
+          images={images}
+          currentIndex={currentImage}
+          isOpen={isFullscreenOpen}
+          onClose={closeFullscreen}
+          onPrevious={prevImage}
+          onNext={nextImage}
+        />
       </div>
     </section>
   );
