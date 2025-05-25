@@ -1,16 +1,20 @@
 
-import { icons } from 'lucide-react';
-
 /**
- * Generates an SVG favicon using Lucide React icons
+ * Generates an SVG favicon with elegant letter Z for beauty industry
  * @returns SVG string in data URI format for direct use in link tags
  */
 export const generateZFavicon = (): string => {
-  // Create SVG manually without JSX
-  // Using the SVG path data from Lucide Z icon
+  // Create elegant SVG with letter Z using sophisticated typography
   const svgString = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#a33f96" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M3 3h18v4L7 17h14v4H3v-4l14-10H3z"></path>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+      <defs>
+        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#e91e63;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#9c27b0;stop-opacity:1" />
+        </linearGradient>
+      </defs>
+      <rect width="32" height="32" rx="6" fill="url(#grad1)"/>
+      <text x="16" y="23" font-family="serif" font-size="20" font-weight="bold" text-anchor="middle" fill="white" style="font-style: italic;">Z</text>
     </svg>
   `;
   
