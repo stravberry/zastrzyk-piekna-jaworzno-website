@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GalleryService } from "@/services/galleryService";
@@ -24,7 +23,7 @@ const getInitialFormState = () => ({
   name: '',
   slug: '',
   description: '',
-  category_type: getSafeCategoryType('general'), // Always use getSafeCategoryType
+  category_type: 'general' as const, // Always start with 'general' instead of using getSafeCategoryType
   display_order: 0,
   is_active: true
 });
@@ -154,9 +153,8 @@ const GalleryCategories: React.FC = () => {
     return <div>Ładowanie kategorii...</div>;
   }
 
-  // Ensure the form always has a valid category type and never empty string
-  const currentCategoryType = getSafeCategoryType(formData.category_type);
-  const selectValue = currentCategoryType && currentCategoryType.trim() !== '' ? currentCategoryType : 'general';
+  // Ensure the select always has a valid value (never empty string)
+  const selectValue = formData.category_type || 'general';
 
   return (
     <div className="space-y-6">
@@ -214,7 +212,7 @@ const GalleryCategories: React.FC = () => {
                 <Select
                   value={selectValue}
                   onValueChange={(value: 'lip_modeling' | 'anti_aging' | 'general' | 'before_after') => 
-                    setFormData(prev => ({ ...prev, category_type: getSafeCategoryType(value) }))
+                    setFormData(prev => ({ ...prev, category_type: value }))
                   }
                 >
                   <SelectTrigger>
