@@ -1,3 +1,4 @@
+
 import { PriceCategory } from "@/components/pricing/PriceCard";
 
 export const priceCategories: PriceCategory[] = [
