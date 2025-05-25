@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 const Gallery = () => {
   // Categories of before/after images
@@ -149,26 +150,30 @@ const Gallery = () => {
 
               {categories.map((category) => (
                 <TabsContent key={category.id} value={category.id}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                     {category.images.map((image) => (
                       <div key={image.id} className="flex flex-col">
                         <div className="flex flex-col sm:flex-row gap-4">
                           <div className="flex-1 relative">
-                            <img
-                              src={image.before}
-                              alt={`Przed zabiegiem - ${image.description}`}
-                              className="w-full h-64 object-cover rounded-lg shadow-md"
-                            />
+                            <AspectRatio ratio={9/16}>
+                              <img
+                                src={image.before}
+                                alt={`Przed zabiegiem - ${image.description}`}
+                                className="w-full h-full object-cover rounded-lg shadow-md"
+                              />
+                            </AspectRatio>
                             <div className="absolute top-4 left-4 bg-pink-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                               Przed
                             </div>
                           </div>
                           <div className="flex-1 relative">
-                            <img
-                              src={image.after}
-                              alt={`Po zabiegu - ${image.description}`}
-                              className="w-full h-64 object-cover rounded-lg shadow-md"
-                            />
+                            <AspectRatio ratio={9/16}>
+                              <img
+                                src={image.after}
+                                alt={`Po zabiegu - ${image.description}`}
+                                className="w-full h-full object-cover rounded-lg shadow-md"
+                              />
+                            </AspectRatio>
                             <div className="absolute top-4 right-4 bg-gold-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                               Po
                             </div>

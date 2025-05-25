@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface GalleryImage {
   id: string;
@@ -35,26 +36,30 @@ const GalleryMainDisplay: React.FC<GalleryMainDisplayProps> = ({
   onSetImage
 }) => {
   return (
-    <Card className="max-w-4xl mx-auto shadow-xl border-0">
+    <Card className="max-w-2xl mx-auto shadow-xl border-0">
       <CardContent className="p-6">
         <div className="relative group mb-6">
-          <img
-            src={currentImage.after}
-            alt={currentImage.description}
-            className="w-full h-96 object-cover rounded-lg shadow-md"
-          />
+          <AspectRatio ratio={9/16} className="w-full max-w-md mx-auto">
+            <img
+              src={currentImage.after}
+              alt={currentImage.description}
+              className="w-full h-full object-cover rounded-lg shadow-md"
+            />
+          </AspectRatio>
           <Dialog>
             <DialogTrigger asChild>
               <button className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
                 <Eye className="w-8 h-8 text-white" />
               </button>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl">
-              <img
-                src={currentImage.after}
-                alt={currentImage.description}
-                className="w-full h-auto rounded-lg"
-              />
+            <DialogContent className="max-w-2xl">
+              <AspectRatio ratio={9/16} className="w-full">
+                <img
+                  src={currentImage.after}
+                  alt={currentImage.description}
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              </AspectRatio>
             </DialogContent>
           </Dialog>
         </div>
