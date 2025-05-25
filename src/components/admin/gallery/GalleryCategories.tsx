@@ -107,10 +107,14 @@ const GalleryCategories: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Ensure category_type is valid before submitting
+    const validCategoryType = formData.category_type || 'general';
+    const submitData = { ...formData, category_type: validCategoryType };
+    
     if (editingCategory) {
-      updateMutation.mutate({ id: editingCategory.id, updates: formData });
+      updateMutation.mutate({ id: editingCategory.id, updates: submitData });
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(submitData);
     }
   };
 
@@ -150,6 +154,9 @@ const GalleryCategories: React.FC = () => {
   if (isLoading) {
     return <div>Ładowanie kategorii...</div>;
   }
+
+  // Ensure we always have a valid category_type value for the Select component
+  const safeFormCategoryType = formData.category_type || 'general';
 
   return (
     <div className="space-y-6">
@@ -205,7 +212,7 @@ const GalleryCategories: React.FC = () => {
               <div>
                 <Label htmlFor="category_type">Typ kategorii</Label>
                 <Select
-                  value={formData.category_type}
+                  value={safeFormCategoryType}
                   onValueChange={(value: 'lip_modeling' | 'anti_aging' | 'general' | 'before_after') => 
                     setFormData(prev => ({ ...prev, category_type: value }))
                   }
