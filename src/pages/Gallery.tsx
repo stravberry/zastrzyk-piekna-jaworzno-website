@@ -1,3 +1,4 @@
+
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -23,6 +24,36 @@ const Gallery = () => {
           before: "/lovable-uploads/4213b2f8-4c25-45f4-a2e0-b49b708c6d8c.png",
           after: "/lovable-uploads/8911cfd6-7a54-4b02-8722-20c61218807d.png",
           description: "Korekta asymetrii i zwiększenie objętości"
+        },
+        {
+          id: "lips-3",
+          before: "/lovable-uploads/image-jX9SrE3N7FjZCiGV8eA3M.png",
+          after: "/lovable-uploads/image-tLuEGz3WVNgJdDfexSFWl.png",
+          description: "Naturalne powiększenie i definiowanie konturu"
+        },
+        {
+          id: "lips-4",
+          before: "/lovable-uploads/image-EyY8U7m8IYpfXXz6RhUgF.png",
+          after: "/lovable-uploads/image-Vgb2HZjXhPgB8hJeLpKqU.png",
+          description: "Korekta proporcji i zwiększenie objętości"
+        },
+        {
+          id: "lips-5",
+          before: "/lovable-uploads/image-qA1J2Y6Q5pAqvdI8RbNsQ.png",
+          after: "/lovable-uploads/image-T5iQhSQShAmBFZjnUlvjJ.png",
+          description: "Profesjonalne modelowanie z zachowaniem naturalności"
+        },
+        {
+          id: "lips-6",
+          before: "/lovable-uploads/image-9uUgPr0qH1vVQOPsyJvNV.png",
+          after: "/lovable-uploads/image-I8xSxf8bMUJLVOtQGO4KV.png",
+          description: "Efekt natychmiastowy - widoczne powiększenie"
+        },
+        {
+          id: "lips-7",
+          before: "/lovable-uploads/image-cGXVAQLZdJeFIh41waPZK.png",
+          after: "/lovable-uploads/image-cGXVAQLZdJeFIh41waPZK.png",
+          description: "Proces aplikacji fillera podczas zabiegu"
         },
       ]
     },

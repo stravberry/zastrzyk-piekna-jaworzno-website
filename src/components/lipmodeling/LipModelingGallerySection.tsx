@@ -18,7 +18,7 @@ const galleryImages = [
     id: "lips-2",
     before: "/lovable-uploads/4213b2f8-4c25-45f4-a2e0-b49b708c6d8c.png",
     after: "/lovable-uploads/8911cfd6-7a54-4b02-8722-20c61218807d.png",
-    description: "Korekta asymetrii i zwiększenie objętości",
+    description: "Korekja asymetrii i zwiększenie objętości",
     technique: "Kwas hialuronowy 1,5ml"
   },
   {
@@ -34,6 +34,41 @@ const galleryImages = [
     after: "/lovable-uploads/a49b2ad5-04a2-47df-b4f5-9c377ef464a3.png",
     description: "Modelowanie z uwzględnieniem proporcji twarzy",
     technique: "Kwas hialuronowy 1,2ml"
+  },
+  {
+    id: "lips-5",
+    before: "/lovable-uploads/image-jX9SrE3N7FjZCiGV8eA3M.png",
+    after: "/lovable-uploads/image-tLuEGz3WVNgJdDfexSFWl.png",
+    description: "Naturalne powiększenie i definiowanie konturu",
+    technique: "Kwas hialuronowy 1ml"
+  },
+  {
+    id: "lips-6",
+    before: "/lovable-uploads/image-EyY8U7m8IYpfXXz6RhUgF.png",
+    after: "/lovable-uploads/image-Vgb2HZjXhPgB8hJeLpKqU.png",
+    description: "Korekta proporcji i zwiększenie objętości",
+    technique: "Kwas hialuronowy 1,3ml"
+  },
+  {
+    id: "lips-7",
+    before: "/lovable-uploads/image-qA1J2Y6Q5pAqvdI8RbNsQ.png",
+    after: "/lovable-uploads/image-T5iQhSQShAmBFZjnUlvjJ.png",
+    description: "Profesjonalne modelowanie z zachowaniem naturalności",
+    technique: "Kwas hialuronowy 1,1ml"
+  },
+  {
+    id: "lips-8",
+    before: "/lovable-uploads/image-9uUgPr0qH1vVQOPsyJvNV.png",
+    after: "/lovable-uploads/image-I8xSxf8bMUJLVOtQGO4KV.png",
+    description: "Efekt natychmiastowy - widoczne powiększenie",
+    technique: "Kwas hialuronowy 0,9ml"
+  },
+  {
+    id: "lips-9",
+    before: "/lovable-uploads/image-cGXVAQLZdJeFIh41waPZK.png",
+    after: "/lovable-uploads/image-cGXVAQLZdJeFIh41waPZK.png",
+    description: "Proces aplikacji fillera podczas zabiegu",
+    technique: "Precyzyjna technika wstrzykiwania"
   }
 ];
 
@@ -175,7 +210,7 @@ const LipModelingGallerySection: React.FC = () => {
 
         {/* Thumbnail Gallery */}
         <div 
-          className={`grid grid-cols-2 md:grid-cols-4 gap-4 transition-all duration-1000 ${
+          className={`grid grid-cols-3 md:grid-cols-5 gap-4 transition-all duration-1000 ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}
           style={{ transitionDelay: "600ms" }}
