@@ -1,7 +1,7 @@
 
 import React, { useRef, useState } from "react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { galleryImages } from "./data/galleryImages";
+import { useLipModelingImages } from "@/hooks/useGalleryImages";
 import GalleryHeader from "./components/GalleryHeader";
 import GalleryMainDisplay from "./components/GalleryMainDisplay";
 import ThumbnailGallery from "./components/ThumbnailGallery";
@@ -12,13 +12,52 @@ const LipModelingGallerySection: React.FC = () => {
   const isVisible = useScrollAnimation(sectionRef);
   const [currentImage, setCurrentImage] = useState(0);
 
+  const { data: galleryImages, isLoading } = useLipModelingImages();
+
+  // Convert gallery images to the format expected by existing components
+  const images = galleryImages?.map(img => ({
+    id: img.id,
+    src: img.webp_url || img.original_url,
+    alt: img.alt_text || img.title,
+    title: img.title,
+    description: img.description || '',
+    before: img.webp_url || img.original_url, // For before/after if needed
+    after: img.medium_url || img.webp_url || img.original_url,
+    category: img.category?.name || 'Modelowanie ust'
+  })) || [];
+
   const nextImage = () => {
-    setCurrentImage((prev) => (prev + 1) % galleryImages.length);
+    setCurrentImage((prev) => (prev + 1) % images.length);
   };
 
   const prevImage = () => {
-    setCurrentImage((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
+    setCurrentImage((prev) => (prev - 1 + images.length) % images.length);
   };
+
+  if (isLoading) {
+    return (
+      <section ref={sectionRef} className="py-16 bg-gradient-to-b from-pink-50/50 to-white">
+        <div className="container-custom">
+          <div className="text-center">
+            <p className="text-lg text-gray-600">Ładowanie galerii...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!images || images.length === 0) {
+    return (
+      <section ref={sectionRef} className="py-16 bg-gradient-to-b from-pink-50/50 to-white">
+        <div className="container-custom">
+          <GalleryHeader isVisible={isVisible} />
+          <div className="text-center">
+            <p className="text-lg text-gray-600">Brak zdjęć w galerii. Zdjęcia będą dostępne wkrótce.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section ref={sectionRef} id="lip-gallery" className="py-16 bg-gradient-to-b from-pink-50/50 to-white">
@@ -33,9 +72,9 @@ const LipModelingGallerySection: React.FC = () => {
           style={{ transitionDelay: "300ms" }}
         >
           <GalleryMainDisplay
-            currentImage={galleryImages[currentImage]}
+            currentImage={images[currentImage]}
             currentIndex={currentImage}
-            totalImages={galleryImages.length}
+            totalImages={images.length}
             onPrevious={prevImage}
             onNext={nextImage}
             onSetImage={setCurrentImage}
@@ -50,7 +89,7 @@ const LipModelingGallerySection: React.FC = () => {
           style={{ transitionDelay: "600ms" }}
         >
           <ThumbnailGallery
-            images={galleryImages}
+            images={images}
             currentIndex={currentImage}
             onImageSelect={setCurrentImage}
           />

@@ -81,6 +81,119 @@ export type Database = {
         }
         Relationships: []
       }
+      gallery_categories: {
+        Row: {
+          category_type: Database["public"]["Enums"]["gallery_category_type"]
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          name: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          category_type: Database["public"]["Enums"]["gallery_category_type"]
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          category_type?: Database["public"]["Enums"]["gallery_category_type"]
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      gallery_images: {
+        Row: {
+          alt_text: string | null
+          category_id: string | null
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          file_size: number | null
+          height: number | null
+          id: string
+          is_active: boolean | null
+          is_featured: boolean | null
+          medium_url: string | null
+          mime_type: string | null
+          original_url: string
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string | null
+          uploaded_by: string | null
+          webp_url: string | null
+          width: number | null
+        }
+        Insert: {
+          alt_text?: string | null
+          category_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          file_size?: number | null
+          height?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          medium_url?: string | null
+          mime_type?: string | null
+          original_url: string
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string | null
+          uploaded_by?: string | null
+          webp_url?: string | null
+          width?: number | null
+        }
+        Update: {
+          alt_text?: string | null
+          category_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          file_size?: number | null
+          height?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          medium_url?: string | null
+          mime_type?: string | null
+          original_url?: string
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string | null
+          uploaded_by?: string | null
+          webp_url?: string | null
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gallery_images_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "gallery_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pricing_categories: {
         Row: {
           id: string
@@ -152,7 +265,11 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      gallery_category_type:
+        | "lip_modeling"
+        | "anti_aging"
+        | "general"
+        | "before_after"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -267,6 +384,13 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      gallery_category_type: [
+        "lip_modeling",
+        "anti_aging",
+        "general",
+        "before_after",
+      ],
+    },
   },
 } as const

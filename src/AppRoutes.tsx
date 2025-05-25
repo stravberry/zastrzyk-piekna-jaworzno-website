@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Routes,
@@ -22,6 +23,7 @@ import AdminPostEditor from "./pages/admin/AdminPostEditor";
 import AdminWrapper from "./components/admin/AdminWrapper";
 import AdminCodeSettings from "./pages/admin/AdminCodeSettings";
 import AdminPricing from "./pages/admin/AdminPricing";
+import AdminGallery from "./pages/admin/AdminGallery";
 import AntiAgingTherapies from "./pages/AntiAgingTherapies";
 import LipModeling from "./pages/LipModeling";
 
@@ -70,6 +72,11 @@ const AppRoutes = () => {
         <Route path="posts/edit/:id" element={
           <AdminProtectedRoute>
             <AdminPostEditor />
+          </AdminProtectedRoute>
+        } />
+        <Route path="gallery" element={
+          <AdminProtectedRoute>
+            <AdminGallery />
           </AdminProtectedRoute>
         } />
         <Route path="pricing" element={

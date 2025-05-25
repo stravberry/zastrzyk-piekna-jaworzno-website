@@ -1,3 +1,4 @@
+
 import React, {
   useState,
   useEffect,
@@ -11,6 +12,7 @@ import {
   Menu,
   X,
   Tag,
+  Image,
 } from "lucide-react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 
@@ -91,6 +93,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, subtitle, children }) 
       label: 'Posty', 
       href: '/admin/posts', 
       current: location.pathname.includes('/admin/posts') 
+    },
+    { 
+      icon: <Image size={20} />, 
+      label: 'Galeria', 
+      href: '/admin/gallery', 
+      current: location.pathname.includes('/admin/gallery') 
     },
     { 
       icon: <Tag size={20} />, 
