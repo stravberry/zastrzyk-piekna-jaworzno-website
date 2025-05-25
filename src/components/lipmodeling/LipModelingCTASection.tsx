@@ -74,10 +74,9 @@ const LipModelingCTASection: React.FC = () => {
             </Button>
             
             <Button 
-              asChild 
-              variant="outline"
+              asChild
               size="lg" 
-              className={`border-white text-white hover:bg-white hover:text-pink-600 transition-all duration-500 ${
+              className={`bg-white/10 backdrop-blur-sm text-white border-2 border-white hover:bg-white hover:text-pink-600 transition-all duration-500 ${
                 isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"
               }`}
               style={{ transitionDelay: "450ms" }}
