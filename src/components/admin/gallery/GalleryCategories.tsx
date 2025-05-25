@@ -142,13 +142,26 @@ const GalleryCategories: React.FC = () => {
   };
 
   const getCategoryTypeLabel = (type: string) => {
-    switch (type) {
+    // Handle empty, null, or invalid types
+    if (!type || typeof type !== 'string') {
+      return 'Ogólne';
+    }
+    
+    switch (type.trim()) {
       case 'lip_modeling': return 'Modelowanie ust';
       case 'anti_aging': return 'Terapie przeciwstarzeniowe';
       case 'general': return 'Ogólne';
       case 'before_after': return 'Przed i po';
-      default: return 'Nieznany typ';
+      default: return 'Ogólne'; // Fallback to 'Ogólne' for any unknown type
     }
+  };
+
+  // Helper function to ensure valid category type for display
+  const getSafeCategoryType = (category: GalleryCategory): string => {
+    if (!category.category_type || !['lip_modeling', 'anti_aging', 'general', 'before_after'].includes(category.category_type)) {
+      return 'general';
+    }
+    return category.category_type;
   };
 
   if (isLoading) {
@@ -272,7 +285,7 @@ const GalleryCategories: React.FC = () => {
             <CardContent>
               <div className="text-sm text-gray-600">
                 <p>Slug: /{category.slug}</p>
-                <p>Typ: {getCategoryTypeLabel(category.category_type)}</p>
+                <p>Typ: {getCategoryTypeLabel(getSafeCategoryType(category))}</p>
                 <p>Kolejność: {category.display_order}</p>
                 <p>Status: {category.is_active ? 'Aktywna' : 'Nieaktywna'}</p>
               </div>
