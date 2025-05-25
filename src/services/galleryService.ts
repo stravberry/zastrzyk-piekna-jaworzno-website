@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import type { GalleryCategory, GalleryImage, ImageUploadRequest, VideoUploadRequest } from "@/types/gallery";
 
@@ -63,13 +64,33 @@ export class GalleryService {
     
     if (error) throw error;
     
-    // Map data to include required fields with defaults for compatibility
+    // Map data to ensure all required fields are present
     return (data || []).map(item => ({
-      ...item,
-      file_type: (item as any).file_type || 'image',
-      video_url: (item as any).video_url || undefined,
-      video_duration: (item as any).video_duration || undefined,
-      video_provider: (item as any).video_provider || undefined
+      id: item.id,
+      category_id: item.category_id,
+      title: item.title,
+      description: item.description,
+      alt_text: item.alt_text,
+      original_url: item.original_url,
+      webp_url: item.webp_url,
+      thumbnail_url: item.thumbnail_url,
+      medium_url: item.medium_url,
+      file_size: item.file_size,
+      width: item.width,
+      height: item.height,
+      mime_type: item.mime_type,
+      tags: item.tags || [],
+      display_order: item.display_order || 0,
+      is_featured: item.is_featured || false,
+      is_active: item.is_active !== false,
+      uploaded_by: item.uploaded_by,
+      file_type: item.file_type || 'image',
+      video_url: item.video_url,
+      video_duration: item.video_duration,
+      video_provider: item.video_provider,
+      created_at: item.created_at,
+      updated_at: item.updated_at,
+      category: item.category
     })) as GalleryImage[];
   }
 
@@ -208,10 +229,10 @@ export class GalleryService {
     
     return {
       ...data,
-      file_type: (data as any).file_type || 'image',
-      video_url: (data as any).video_url || undefined,
-      video_duration: (data as any).video_duration || undefined,
-      video_provider: (data as any).video_provider || undefined
+      file_type: data.file_type || 'image',
+      video_url: data.video_url || undefined,
+      video_duration: data.video_duration || undefined,
+      video_provider: data.video_provider || undefined
     } as GalleryImage;
   }
 

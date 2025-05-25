@@ -125,6 +125,7 @@ export type Database = {
           description: string | null
           display_order: number | null
           file_size: number | null
+          file_type: string
           height: number | null
           id: string
           is_active: boolean | null
@@ -137,6 +138,9 @@ export type Database = {
           title: string
           updated_at: string | null
           uploaded_by: string | null
+          video_duration: number | null
+          video_provider: string | null
+          video_url: string | null
           webp_url: string | null
           width: number | null
         }
@@ -147,6 +151,7 @@ export type Database = {
           description?: string | null
           display_order?: number | null
           file_size?: number | null
+          file_type?: string
           height?: number | null
           id?: string
           is_active?: boolean | null
@@ -159,6 +164,9 @@ export type Database = {
           title: string
           updated_at?: string | null
           uploaded_by?: string | null
+          video_duration?: number | null
+          video_provider?: string | null
+          video_url?: string | null
           webp_url?: string | null
           width?: number | null
         }
@@ -169,6 +177,7 @@ export type Database = {
           description?: string | null
           display_order?: number | null
           file_size?: number | null
+          file_type?: string
           height?: number | null
           id?: string
           is_active?: boolean | null
@@ -181,6 +190,9 @@ export type Database = {
           title?: string
           updated_at?: string | null
           uploaded_by?: string | null
+          video_duration?: number | null
+          video_provider?: string | null
+          video_url?: string | null
           webp_url?: string | null
           width?: number | null
         }
