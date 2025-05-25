@@ -57,5 +57,6 @@ export interface VideoUploadRequest {
   category_id: string;
   title: string;
   description?: string;
+  alt_text?: string;
   tags?: string[];
 }

@@ -65,7 +65,12 @@ export class GalleryService {
     const { data, error } = await query;
 
     if (error) throw error;
-    return data || [];
+    
+    // Type cast the data to ensure proper typing
+    return (data || []).map(item => ({
+      ...item,
+      file_type: item.file_type as 'image' | 'video'
+    })) as GalleryImage[];
   }
 
   static async uploadImage(request: ImageUploadRequest): Promise<GalleryImage> {
@@ -78,13 +83,16 @@ export class GalleryService {
         alt_text: request.alt_text,
         category_id: request.category_id || null,
         tags: request.tags || [],
-        file_type: 'image'
+        file_type: 'image' as const
       })
       .select()
       .single();
 
     if (error) throw error;
-    return data;
+    return {
+      ...data,
+      file_type: data.file_type as 'image' | 'video'
+    } as GalleryImage;
   }
 
   static async uploadVideoFile(request: VideoUploadRequest & { file: string; filename: string }): Promise<GalleryImage> {
@@ -96,14 +104,17 @@ export class GalleryService {
         description: request.description,
         category_id: request.category_id || null,
         tags: request.tags || [],
-        file_type: 'video',
+        file_type: 'video' as const,
         video_provider: 'upload'
       })
       .select()
       .single();
 
     if (error) throw error;
-    return data;
+    return {
+      ...data,
+      file_type: data.file_type as 'image' | 'video'
+    } as GalleryImage;
   }
 
   static async uploadVideoLink(request: VideoUploadRequest): Promise<GalleryImage> {
@@ -117,13 +128,16 @@ export class GalleryService {
         description: request.description,
         category_id: request.category_id || null,
         tags: request.tags || [],
-        file_type: 'video'
+        file_type: 'video' as const
       })
       .select()
       .single();
 
     if (error) throw error;
-    return data;
+    return {
+      ...data,
+      file_type: data.file_type as 'image' | 'video'
+    } as GalleryImage;
   }
 
   static async updateImage(id: string, updates: Partial<GalleryImage>): Promise<GalleryImage> {
@@ -135,7 +149,10 @@ export class GalleryService {
       .single();
 
     if (error) throw error;
-    return data;
+    return {
+      ...data,
+      file_type: data.file_type as 'image' | 'video'
+    } as GalleryImage;
   }
 
   static async deleteImage(id: string): Promise<void> {

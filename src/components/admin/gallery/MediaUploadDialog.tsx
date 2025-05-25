@@ -83,7 +83,6 @@ const MediaUploadDialog: React.FC<MediaUploadDialogProps> = ({ open, onClose, on
                 category_id: formData.category_id === 'none' ? null : formData.category_id,
                 title: formData.title || data.file.name.replace(/\.[^/.]+$/, ''),
                 description: formData.description,
-                alt_text: formData.alt_text,
                 tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean)
               });
               resolve();
