@@ -143,7 +143,7 @@ const MediaExplorer: React.FC = () => {
   };
 
   const GridView = () => (
-    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2 sm:gap-4">
       {filteredMedia.map((item) => (
         <Card 
           key={item.id} 
@@ -152,42 +152,42 @@ const MediaExplorer: React.FC = () => {
           }`}
           onClick={() => handleSelectItem(item.id)}
         >
-          <CardContent className="p-2">
+          <CardContent className="p-1 sm:p-2">
             <div className="relative aspect-square">
               <img
                 src={getMediaPreview(item)}
                 alt={item.title}
                 className="w-full h-full object-cover rounded"
               />
-              <div className="absolute top-1 left-1 flex gap-1">
+              <div className="absolute top-0.5 sm:top-1 left-0.5 sm:left-1 flex gap-0.5 sm:gap-1">
                 {item.file_type === 'video' && (
-                  <Badge variant="secondary" className="text-xs">
-                    <Video className="w-3 h-3 mr-1" />
-                    Video
+                  <Badge variant="secondary" className="text-[10px] sm:text-xs p-0.5 sm:p-1">
+                    <Video className="w-2 h-2 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
+                    <span className="hidden sm:inline">Video</span>
                   </Badge>
                 )}
                 {item.is_featured && (
-                  <Badge variant="default" className="text-xs">
-                    <Star className="w-3 h-3" />
+                  <Badge variant="default" className="text-[10px] sm:text-xs p-0.5 sm:p-1">
+                    <Star className="w-2 h-2 sm:w-3 sm:h-3" />
                   </Badge>
                 )}
               </div>
-              <div className="absolute top-1 right-1 flex gap-1">
+              <div className="absolute top-0.5 sm:top-1 right-0.5 sm:right-1 flex gap-0.5 sm:gap-1">
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="h-6 w-6 p-0"
+                  className="h-4 w-4 sm:h-6 sm:w-6 p-0"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleEdit(item);
                   }}
                 >
-                  <Edit className="w-3 h-3" />
+                  <Edit className="w-2 h-2 sm:w-3 sm:h-3" />
                 </Button>
                 <Button
                   variant="destructive"
                   size="sm"
-                  className="h-6 w-6 p-0"
+                  className="h-4 w-4 sm:h-6 sm:w-6 p-0"
                   onClick={(e) => {
                     e.stopPropagation();
                     if (confirm('Czy na pewno chcesz usunąć ten plik?')) {
@@ -195,18 +195,18 @@ const MediaExplorer: React.FC = () => {
                     }
                   }}
                 >
-                  <Trash2 className="w-3 h-3" />
+                  <Trash2 className="w-2 h-2 sm:w-3 sm:h-3" />
                 </Button>
               </div>
               {item.file_type === 'video' && (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <Play className="w-8 h-8 text-white bg-black bg-opacity-50 rounded-full p-2" />
+                  <Play className="w-4 h-4 sm:w-8 sm:h-8 text-white bg-black bg-opacity-50 rounded-full p-1 sm:p-2" />
                 </div>
               )}
             </div>
-            <div className="mt-2">
-              <p className="text-xs font-medium truncate">{item.title}</p>
-              <p className="text-xs text-gray-500">
+            <div className="mt-1 sm:mt-2">
+              <p className="text-[10px] sm:text-xs font-medium truncate">{item.title}</p>
+              <p className="text-[9px] sm:text-xs text-gray-500">
                 {item.file_type === 'image' ? 
                   `${item.width}x${item.height}` : 
                   `${Math.floor((item.video_duration || 0) / 60)}:${String((item.video_duration || 0) % 60).padStart(2, '0')}`
@@ -229,9 +229,9 @@ const MediaExplorer: React.FC = () => {
           }`}
           onClick={() => handleSelectItem(item.id)}
         >
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 flex-shrink-0">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0">
                 <img
                   src={getMediaPreview(item)}
                   alt={item.title}
@@ -239,41 +239,43 @@ const MediaExplorer: React.FC = () => {
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center space-x-2">
-                  <h3 className="font-medium truncate">{item.title}</h3>
-                  {item.file_type === 'video' && <Video className="w-4 h-4 text-blue-500" />}
-                  {item.is_featured && <Star className="w-4 h-4 text-yellow-500" />}
-                  {!item.is_active && <Eye className="w-4 h-4 text-gray-400" />}
+                <div className="flex items-center space-x-1 sm:space-x-2">
+                  <h3 className="font-medium truncate text-sm sm:text-base">{item.title}</h3>
+                  {item.file_type === 'video' && <Video className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />}
+                  {item.is_featured && <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-500" />}
+                  {!item.is_active && <Eye className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />}
                 </div>
-                <p className="text-sm text-gray-500 truncate">{item.description}</p>
-                <div className="flex items-center space-x-4 mt-1">
-                  <span className="text-xs text-gray-400">
+                <p className="text-xs sm:text-sm text-gray-500 truncate">{item.description}</p>
+                <div className="flex items-center space-x-2 sm:space-x-4 mt-1">
+                  <span className="text-[10px] sm:text-xs text-gray-400">
                     {item.file_type === 'image' ? 
                       `${item.width}x${item.height}` : 
                       `${Math.floor((item.video_duration || 0) / 60)}:${String((item.video_duration || 0) % 60).padStart(2, '0')}`
                     }
                   </span>
                   {item.category && (
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-[10px] sm:text-xs">
                       {item.category.name}
                     </Badge>
                   )}
                 </div>
               </div>
-              <div className="flex space-x-2">
+              <div className="flex space-x-1 sm:space-x-2">
                 <Button
                   variant="outline"
                   size="sm"
+                  className="h-6 w-6 sm:h-8 sm:w-8 p-0"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleEdit(item);
                   }}
                 >
-                  <Edit className="w-4 h-4" />
+                  <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
+                  className="h-6 w-6 sm:h-8 sm:w-8 p-0"
                   onClick={(e) => {
                     e.stopPropagation();
                     if (confirm('Czy na pewno chcesz usunąć ten plik?')) {
@@ -281,7 +283,7 @@ const MediaExplorer: React.FC = () => {
                     }
                   }}
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                 </Button>
               </div>
             </div>
@@ -296,30 +298,30 @@ const MediaExplorer: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 p-2 sm:p-0">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Eksplorator mediów</h2>
-        <Button onClick={() => setIsUploadOpen(true)}>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
+        <h2 className="text-xl sm:text-2xl font-bold">Eksplorator mediów</h2>
+        <Button onClick={() => setIsUploadOpen(true)} size="sm" className="w-full sm:w-auto">
           <Upload className="w-4 h-4 mr-2" />
           Dodaj media
         </Button>
       </div>
 
       {/* Filters and Search */}
-      <div className="flex flex-wrap gap-4 items-center">
-        <div className="flex items-center space-x-2">
+      <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4 items-stretch sm:items-center">
+        <div className="flex items-center space-x-2 flex-1 sm:flex-none">
           <Search className="w-4 h-4 text-gray-400" />
           <Input
             placeholder="Szukaj..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-64"
+            className="w-full sm:w-64"
           />
         </div>
 
         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="w-full sm:w-48">
             <SelectValue placeholder="Wszystkie kategorie" />
           </SelectTrigger>
           <SelectContent>
@@ -333,7 +335,7 @@ const MediaExplorer: React.FC = () => {
         </Select>
 
         <Select value={fileTypeFilter} onValueChange={(value: 'all' | 'image' | 'video') => setFileTypeFilter(value)}>
-          <SelectTrigger className="w-32">
+          <SelectTrigger className="w-full sm:w-32">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -343,7 +345,7 @@ const MediaExplorer: React.FC = () => {
           </SelectContent>
         </Select>
 
-        <div className="flex items-center space-x-2 ml-auto">
+        <div className="flex items-center space-x-2 justify-center sm:ml-auto">
           <Button
             variant={viewMode === 'grid' ? 'default' : 'outline'}
             size="sm"
@@ -363,14 +365,14 @@ const MediaExplorer: React.FC = () => {
 
       {/* Bulk Actions */}
       {selectedItems.length > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex justify-between items-center">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
             <span className="text-sm font-medium">
               Wybrano {selectedItems.length} plików
             </span>
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
               <Select value={selectedBulkCategory} onValueChange={setSelectedBulkCategory}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-full sm:w-48">
                   <SelectValue placeholder="Wybierz kategorię..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -381,33 +383,40 @@ const MediaExplorer: React.FC = () => {
                   ))}
                 </SelectContent>
               </Select>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleBulkCategoryAssign}
-                disabled={!selectedBulkCategory || bulkCategoryMutation.isPending}
-              >
-                <FolderOpen className="w-4 h-4 mr-2" />
-                Przypisz kategorię
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setSelectedItems([]);
-                  setSelectedBulkCategory('');
-                }}
-              >
-                Anuluj
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleBulkDelete}
-                disabled={deleteMutation.isPending}
-              >
-                Usuń wybrane
-              </Button>
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleBulkCategoryAssign}
+                  disabled={!selectedBulkCategory || bulkCategoryMutation.isPending}
+                  className="flex-1 sm:flex-none"
+                >
+                  <FolderOpen className="w-4 h-4 mr-2" />
+                  <span className="hidden sm:inline">Przypisz kategorię</span>
+                  <span className="sm:hidden">Przypisz</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedItems([]);
+                    setSelectedBulkCategory('');
+                  }}
+                  className="flex-1 sm:flex-none"
+                >
+                  Anuluj
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleBulkDelete}
+                  disabled={deleteMutation.isPending}
+                  className="flex-1 sm:flex-none"
+                >
+                  <span className="hidden sm:inline">Usuń wybrane</span>
+                  <span className="sm:hidden">Usuń</span>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -419,13 +428,13 @@ const MediaExplorer: React.FC = () => {
           <div className="text-center py-12">
             <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">Brak mediów</h3>
-            <p className="text-gray-500 mb-4">
+            <p className="text-gray-500 mb-4 text-sm sm:text-base px-4">
               {searchTerm || selectedCategory !== 'all' || fileTypeFilter !== 'all' 
                 ? 'Nie znaleziono mediów pasujących do filtrów'
                 : 'Dodaj pierwsze media do galerii'
               }
             </p>
-            <Button onClick={() => setIsUploadOpen(true)}>
+            <Button onClick={() => setIsUploadOpen(true)} size="sm">
               <Upload className="w-4 h-4 mr-2" />
               Dodaj media
             </Button>
