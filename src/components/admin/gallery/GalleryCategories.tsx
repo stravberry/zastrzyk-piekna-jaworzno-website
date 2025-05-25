@@ -12,17 +12,26 @@ import { Plus, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { GalleryCategory } from "@/types/gallery";
 
+// Helper function to ensure valid category type - moved outside component to avoid recreations
+const getSafeCategoryType = (categoryType?: string): 'lip_modeling' | 'anti_aging' | 'general' | 'before_after' => {
+  const validTypes = ['lip_modeling', 'anti_aging', 'general', 'before_after'] as const;
+  return validTypes.includes(categoryType as any) ? (categoryType as any) : 'general';
+};
+
+// Initial form state that guarantees valid category_type
+const getInitialFormState = () => ({
+  name: '',
+  slug: '',
+  description: '',
+  category_type: getSafeCategoryType('general'), // Always use getSafeCategoryType
+  display_order: 0,
+  is_active: true
+});
+
 const GalleryCategories: React.FC = () => {
   const [editingCategory, setEditingCategory] = useState<GalleryCategory | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    slug: '',
-    description: '',
-    category_type: 'general' as 'lip_modeling' | 'anti_aging' | 'general' | 'before_after',
-    display_order: 0,
-    is_active: true
-  });
+  const [formData, setFormData] = useState(getInitialFormState());
 
   const queryClient = useQueryClient();
 
@@ -74,20 +83,7 @@ const GalleryCategories: React.FC = () => {
   });
 
   const resetForm = () => {
-    setFormData({
-      name: '',
-      slug: '',
-      description: '',
-      category_type: 'general',
-      display_order: 0,
-      is_active: true
-    });
-  };
-
-  // Simplified helper function to ensure valid category type
-  const getSafeCategoryType = (categoryType?: string): 'lip_modeling' | 'anti_aging' | 'general' | 'before_after' => {
-    const validTypes = ['lip_modeling', 'anti_aging', 'general', 'before_after'] as const;
-    return validTypes.includes(categoryType as any) ? (categoryType as any) : 'general';
+    setFormData(getInitialFormState());
   };
 
   const handleEdit = (category: GalleryCategory) => {
