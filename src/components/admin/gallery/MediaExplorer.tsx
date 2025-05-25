@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GalleryService } from "@/services/galleryService";
@@ -30,7 +29,7 @@ import MediaEditDialog from "./MediaEditDialog";
 
 const MediaExplorer: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [fileTypeFilter, setFileTypeFilter] = useState<'all' | 'image' | 'video'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
@@ -47,7 +46,7 @@ const MediaExplorer: React.FC = () => {
 
   const { data: media, isLoading } = useQuery({
     queryKey: ['gallery-images', selectedCategory],
-    queryFn: () => GalleryService.getImages(selectedCategory || undefined)
+    queryFn: () => GalleryService.getImages(selectedCategory === 'all' ? undefined : selectedCategory)
   });
 
   const deleteMutation = useMutation({
@@ -294,7 +293,7 @@ const MediaExplorer: React.FC = () => {
             <SelectValue placeholder="Wszystkie kategorie" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Wszystkie kategorie</SelectItem>
+            <SelectItem value="all">Wszystkie kategorie</SelectItem>
             {categories?.map((category) => (
               <SelectItem key={category.id} value={category.id}>
                 {category.name}
@@ -366,7 +365,7 @@ const MediaExplorer: React.FC = () => {
             <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">Brak mediów</h3>
             <p className="text-gray-500 mb-4">
-              {searchTerm || selectedCategory || fileTypeFilter !== 'all' 
+              {searchTerm || selectedCategory !== 'all' || fileTypeFilter !== 'all' 
                 ? 'Nie znaleziono mediów pasujących do filtrów'
                 : 'Dodaj pierwsze media do galerii'
               }
