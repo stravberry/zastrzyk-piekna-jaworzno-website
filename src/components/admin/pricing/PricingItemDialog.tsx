@@ -19,7 +19,7 @@ const formSchema = z.object({
   price: z.string().min(1, "Cena jest wymagana"),
   description: z.string().optional(),
   categoryId: z.string().min(1, "Kategoria jest wymagana"),
-  badge: z.enum(["promotion", "new", ""]).optional(),
+  badge: z.enum(["promotion", "new", "none"]).optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -54,7 +54,7 @@ const PricingItemDialog: React.FC<PricingItemDialogProps> = ({
       price: item?.price || "",
       description: item?.description || "",
       categoryId: category?.id || "",
-      badge: item?.badge || "",
+      badge: item?.badge || "none",
     },
   });
 
@@ -66,7 +66,7 @@ const PricingItemDialog: React.FC<PricingItemDialogProps> = ({
         price: item?.price || "",
         description: item?.description || "",
         categoryId: category?.id || "",
-        badge: item?.badge || "",
+        badge: item?.badge || "none",
       });
     }
   }, [open, item, category, form]);
@@ -84,7 +84,7 @@ const PricingItemDialog: React.FC<PricingItemDialogProps> = ({
         name: data.name,
         price: data.price,
         ...(data.description ? { description: data.description } : {}),
-        ...(data.badge && data.badge !== "" ? { badge: data.badge as BadgeType } : {}),
+        ...(data.badge && data.badge !== "none" ? { badge: data.badge as BadgeType } : {}),
       };
       
       if (isEditing && typeof itemIndex === 'number') {
@@ -199,7 +199,7 @@ const PricingItemDialog: React.FC<PricingItemDialogProps> = ({
                         <SelectValue placeholder="Wybierz etykietę (opcjonalnie)" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Brak etykiety</SelectItem>
+                        <SelectItem value="none">Brak etykiety</SelectItem>
                         <SelectItem value="promotion">
                           <div className="flex items-center gap-2">
                             <ServiceBadge badge="promotion" size="sm" />
