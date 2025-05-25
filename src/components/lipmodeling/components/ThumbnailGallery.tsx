@@ -3,9 +3,13 @@ import React from "react";
 
 interface GalleryImage {
   id: string;
+  src: string;
+  alt: string;
+  title: string;
+  description: string;
   before: string;
   after: string;
-  description: string;
+  category: string;
   technique: string;
 }
 

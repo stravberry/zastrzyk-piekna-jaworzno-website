@@ -20,7 +20,7 @@ const GalleryCategories: React.FC = () => {
     name: '',
     slug: '',
     description: '',
-    category_type: 'general' as const,
+    category_type: 'general' as 'lip_modeling' | 'anti_aging' | 'general' | 'before_after',
     display_order: 0,
     is_active: true
   });
@@ -190,7 +190,9 @@ const GalleryCategories: React.FC = () => {
                 <Label htmlFor="category_type">Typ kategorii</Label>
                 <Select
                   value={formData.category_type}
-                  onValueChange={(value: any) => setFormData(prev => ({ ...prev, category_type: value }))}
+                  onValueChange={(value: 'lip_modeling' | 'anti_aging' | 'general' | 'before_after') => 
+                    setFormData(prev => ({ ...prev, category_type: value }))
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />

@@ -23,7 +23,8 @@ const LipModelingGallerySection: React.FC = () => {
     description: img.description || '',
     before: img.webp_url || img.original_url, // For before/after if needed
     after: img.medium_url || img.webp_url || img.original_url,
-    category: img.category?.name || 'Modelowanie ust'
+    category: img.category?.name || 'Modelowanie ust',
+    technique: img.tags?.join(', ') || 'Kwas hialuronowy' // Add the missing technique property
   })) || [];
 
   const nextImage = () => {
