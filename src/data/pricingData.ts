@@ -1,3 +1,4 @@
+
 import { PriceCategory } from "@/components/pricing/PriceCard";
 
 export const priceCategories: PriceCategory[] = [
@@ -29,9 +30,6 @@ export const priceCategories: PriceCategory[] = [
       { name: "Sisthema Hevo+T, Jalupro Super Hydro", price: "950 zł" },
       { name: "Ejal40, Neauvia Hydro Deluxe", price: "650 zł" },
       
-      // XELA REDERM (zastępuje Bursztynian sodu)
-      { name: "Xela Rederm 1,1%", price: "750 zł", description: "Możliwość regeneracji to przy Xela Rederm 1,1%" },
-      
       // PCL
       { name: "Ellanse S", price: "1400 zł" },
       { name: "Ellanse M", price: "1600 zł" },
@@ -60,6 +58,15 @@ export const priceCategories: PriceCategory[] = [
       { name: "Brwi Ombre", price: "850 zł" },
       { name: "Korekta (po 6 tyg.)", price: "100 zł" },
       { name: "Odświeżenie makijażu", price: "500 zł", badge: "promotion" },
+    ]
+  },
+  {
+    id: "lip-revitalization",
+    title: "Rewitalizacja ust bez trwałego efektu powiększenia",
+    items: [
+      { name: "Xela Rederm", price: "850 zł", description: "Możliwość regeneracji to przy Xela Rederm 1,1%" },
+      { name: "SkinFill Bacio", price: "850 zł" },
+      { name: "Osocze bogatopłytkowe", price: "700 zł" },
     ]
   },
   {
