@@ -12,12 +12,14 @@ import { PriceCategory, PriceItem } from "@/components/pricing/PriceCard";
 import { addItemToCategory, updateItemInCategory } from "@/services/pricing";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import ServiceBadge, { BadgeType } from "@/components/pricing/ServiceBadge";
 
 const formSchema = z.object({
   name: z.string().min(1, "Nazwa usługi jest wymagana"),
   price: z.string().min(1, "Cena jest wymagana"),
   description: z.string().optional(),
   categoryId: z.string().min(1, "Kategoria jest wymagana"),
+  badge: z.enum(["promotion", "new", ""]).optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -52,6 +54,7 @@ const PricingItemDialog: React.FC<PricingItemDialogProps> = ({
       price: item?.price || "",
       description: item?.description || "",
       categoryId: category?.id || "",
+      badge: item?.badge || "",
     },
   });
 
@@ -63,6 +66,7 @@ const PricingItemDialog: React.FC<PricingItemDialogProps> = ({
         price: item?.price || "",
         description: item?.description || "",
         categoryId: category?.id || "",
+        badge: item?.badge || "",
       });
     }
   }, [open, item, category, form]);
@@ -80,6 +84,7 @@ const PricingItemDialog: React.FC<PricingItemDialogProps> = ({
         name: data.name,
         price: data.price,
         ...(data.description ? { description: data.description } : {}),
+        ...(data.badge && data.badge !== "" ? { badge: data.badge as BadgeType } : {}),
       };
       
       if (isEditing && typeof itemIndex === 'number') {
@@ -112,7 +117,7 @@ const PricingItemDialog: React.FC<PricingItemDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent>
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? "Edytuj usługę" : "Dodaj nową usługę"}
@@ -176,6 +181,39 @@ const PricingItemDialog: React.FC<PricingItemDialogProps> = ({
                       placeholder="np. 100 zł" 
                       {...field}
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="badge"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Etykieta promocyjna</FormLabel>
+                  <FormControl>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Wybierz etykietę (opcjonalnie)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">Brak etykiety</SelectItem>
+                        <SelectItem value="promotion">
+                          <div className="flex items-center gap-2">
+                            <ServiceBadge badge="promotion" size="sm" />
+                            Super promocja
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="new">
+                          <div className="flex items-center gap-2">
+                            <ServiceBadge badge="new" size="sm" />
+                            Nowość
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

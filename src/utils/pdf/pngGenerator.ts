@@ -1,4 +1,3 @@
-
 import { PriceCategory } from "@/components/pricing/PriceCard";
 
 /**
@@ -14,6 +13,21 @@ export const createPdfLayoutForPng = (categories: PriceCategory[]): string => {
     }
     // Otherwise add "zł" with proper spacing
     return price.trim() + ' zł';
+  };
+
+  // Format badge for display
+  const formatBadge = (badge?: string): string => {
+    if (!badge) return '';
+    
+    const badgeConfig = {
+      promotion: { text: 'PROMOCJA', color: '#EC4899' },
+      new: { text: 'NOWOŚĆ', color: '#10B981' }
+    };
+    
+    const config = badgeConfig[badge as keyof typeof badgeConfig];
+    if (!config) return '';
+    
+    return `<span style="display: inline-block; background: ${config.color}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; margin-left: 8px;">${config.text}</span>`;
   };
 
   // Generate the HTML content for the PNG with explicit character encoding
@@ -44,6 +58,7 @@ export const createPdfLayoutForPng = (categories: PriceCategory[]): string => {
         }
         .title { color: #EC4899; text-align: center; margin-bottom: 30px; font-size: 28px; font-weight: bold; }
         .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+        .service-name { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
       </style>
       
       <h1 class="title">Cennik Usług</h1>
@@ -62,7 +77,11 @@ export const createPdfLayoutForPng = (categories: PriceCategory[]): string => {
             <tbody>
               ${category.items.map(item => `
                 <tr>
-                  <td>${item.name}</td>
+                  <td>
+                    <div class="service-name">
+                      ${item.name}${formatBadge(item.badge)}
+                    </div>
+                  </td>
                   <td>${item.description || ''}</td>
                   <td class="price">${formatPrice(item.price)}</td>
                 </tr>
@@ -90,6 +109,21 @@ export const createSingleCategoryLayoutForPng = (category: PriceCategory): strin
       return price;
     }
     return price.trim() + ' zł';
+  };
+
+  // Format badge for display
+  const formatBadge = (badge?: string): string => {
+    if (!badge) return '';
+    
+    const badgeConfig = {
+      promotion: { text: 'PROMOCJA', color: '#EC4899' },
+      new: { text: 'NOWOŚĆ', color: '#10B981' }
+    };
+    
+    const config = badgeConfig[badge as keyof typeof badgeConfig];
+    if (!config) return '';
+    
+    return `<div style="display: inline-block; background: ${config.color}; color: white; padding: 2px 6px; border-radius: 8px; font-size: 8px; font-weight: bold; margin-top: 2px;">${config.text}</div>`;
   };
 
   return `
@@ -122,6 +156,7 @@ export const createSingleCategoryLayoutForPng = (category: PriceCategory): strin
         .item-price { color: #EC4899; font-weight: bold; font-size: 14px; margin-bottom: 4px; }
         .item-description { color: #666; font-size: 12px; font-style: italic; line-height: 1.3; }
         .footer { text-align: center; color: #666; font-size: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #FCE7F3; }
+        .item-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px; }
       </style>
       
       <div class="container">
@@ -134,7 +169,10 @@ export const createSingleCategoryLayoutForPng = (category: PriceCategory): strin
         <div class="content">
           ${category.items.map(item => `
             <div class="item">
-              <div class="item-name">${item.name}</div>
+              <div class="item-header">
+                <div class="item-name">${item.name}</div>
+                ${formatBadge(item.badge)}
+              </div>
               <div class="item-price">${formatPrice(item.price)}</div>
               ${item.description ? `<div class="item-description">${item.description}</div>` : ''}
             </div>

@@ -1,10 +1,12 @@
 
 import React from "react";
+import ServiceBadge, { BadgeType } from "./ServiceBadge";
 
 export type PriceItem = {
   name: string;
   price: string;
   description?: string;
+  badge?: BadgeType;
 };
 
 interface PriceCardItemProps {
@@ -17,7 +19,10 @@ export const PriceCardItem: React.FC<PriceCardItemProps> = ({ item, index }) => 
     <React.Fragment>
       <tr className={index % 2 === 0 ? "bg-white" : "bg-pink-50/30"}>
         <td className="py-4 px-6">
-          <span className="font-medium">{item.name}</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-medium">{item.name}</span>
+            {item.badge && <ServiceBadge badge={item.badge} size="sm" />}
+          </div>
         </td>
         <td className="py-4 px-6 text-right text-pink-600 font-medium">
           {item.price}

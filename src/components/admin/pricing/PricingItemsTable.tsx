@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import ServiceBadge from "@/components/pricing/ServiceBadge";
 
 interface PricingItemsTableProps {
   category: PriceCategory;
@@ -39,7 +40,10 @@ const PricingItemsTable: React.FC<PricingItemsTableProps> = ({
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-grow pr-2">
-                    <h4 className="font-medium">{item.name}</h4>
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <h4 className="font-medium">{item.name}</h4>
+                      {item.badge && <ServiceBadge badge={item.badge} size="sm" />}
+                    </div>
                     <div className="text-pink-600 font-medium text-sm">{item.price}</div>
                     {item.description && (
                       <p className="text-gray-600 text-xs mt-1">{item.description}</p>
@@ -81,6 +85,7 @@ const PricingItemsTable: React.FC<PricingItemsTableProps> = ({
           <tr>
             <th className="px-4 py-3 text-left text-gray-700">Nazwa</th>
             <th className="px-4 py-3 text-left text-gray-700">Cena</th>
+            <th className="px-4 py-3 text-left text-gray-700">Etykieta</th>
             <th className="px-4 py-3 text-left text-gray-700">Opis</th>
             <th className="px-4 py-3 text-right text-gray-700">Akcje</th>
           </tr>
@@ -88,7 +93,7 @@ const PricingItemsTable: React.FC<PricingItemsTableProps> = ({
         <tbody>
           {category.items.length === 0 ? (
             <tr>
-              <td colSpan={4} className="px-4 py-3 text-center text-gray-500 italic">
+              <td colSpan={5} className="px-4 py-3 text-center text-gray-500 italic">
                 Brak usług w tej kategorii. Dodaj pierwszą usługę klikając przycisk "Dodaj usługę".
               </td>
             </tr>
@@ -97,6 +102,13 @@ const PricingItemsTable: React.FC<PricingItemsTableProps> = ({
               <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                 <td className="px-4 py-3">{item.name}</td>
                 <td className="px-4 py-3 text-pink-600 font-medium">{item.price}</td>
+                <td className="px-4 py-3">
+                  {item.badge ? (
+                    <ServiceBadge badge={item.badge} size="sm" />
+                  ) : (
+                    <span className="text-gray-400 italic text-sm">Brak</span>
+                  )}
+                </td>
                 <td className="px-4 py-3 text-gray-600 text-sm">
                   {item.description || <span className="text-gray-400 italic">Brak opisu</span>}
                 </td>

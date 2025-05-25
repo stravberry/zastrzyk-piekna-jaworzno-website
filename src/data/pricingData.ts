@@ -1,3 +1,4 @@
+
 import { PriceCategory } from "@/components/pricing/PriceCard";
 
 export const priceCategories: PriceCategory[] = [
@@ -6,19 +7,19 @@ export const priceCategories: PriceCategory[] = [
     title: "Stymulatory i redermalizatory tkankowe",
     items: [
       // KWAS POLIMLEKOWY
-      { name: "Sculptra (1 amp.)", price: "1800 zł", description: "Najsilniejszy dostępny na rynku stymulator kolagenu" },
+      { name: "Sculptra (1 amp.)", price: "1800 zł", description: "Najsilniejszy dostępny na rynku stymulator kolagenu", badge: "new" },
       
       // KOLAGEN
       { name: "Karisma", price: "1000 zł" },
       { name: "Linerase, Nithya, Collease+", price: "950 zł" },
       { name: "Monoderma Fillagen", price: "850 zł" },
-      { name: "Tropokolagen MD Tissue", price: "Od 400 zł", description: "1 amp. - 400 zł, 2 amp. - 700 zł, 3 amp. - 900 zł" },
+      { name: "Tropokolagen MD Tissue", price: "Od 400 zł", description: "1 amp. - 400 zł, 2 amp. - 700 zł, 3 amp. - 900 zł", badge: "promotion" },
       
       // AMINOKWASY
       { name: "Sunekos 1200", price: "1000 zł" },
       { name: "Jalupro", price: "800 zł" },
       { name: "Sunekos 200", price: "600 zł" },
-      { name: "Revok 50", price: "900 zł" },
+      { name: "Revok 50", price: "900 zł", badge: "new" },
       
       // POLINUKLEOTYDY
       { name: "Nucleofill (strong/medium)", price: "950 zł" },
@@ -51,7 +52,7 @@ export const priceCategories: PriceCategory[] = [
       { name: "Fibryna strukturalna", price: "800-1000 zł" },
       { name: "Fibryna bogatokomórkowa", price: "800-1000 zł" },
       { name: "Osocze bogatopłytkowe (wampirzy lifting)", price: "700 zł" },
-      { name: "PLASMOO", price: "1200 zł", description: "Innowacyjny zabieg wykorzystujący 4 frakcje materiału autologicznego" },
+      { name: "PLASMOO", price: "1200 zł", description: "Innowacyjny zabieg wykorzystujący 4 frakcje materiału autologicznego", badge: "new" },
       { name: "Full Face Natural", price: "1500 zł", description: "Autologiczny wypełniacz dający efekt naturalnej wolumetrii" },
     ]
   },
@@ -61,7 +62,7 @@ export const priceCategories: PriceCategory[] = [
     items: [
       { name: "Brwi Ombre", price: "850 zł" },
       { name: "Korekta (po 6 tyg.)", price: "100 zł" },
-      { name: "Odświeżenie makijażu", price: "500 zł" },
+      { name: "Odświeżenie makijażu", price: "500 zł", badge: "promotion" },
     ]
   },
   {
@@ -74,7 +75,7 @@ export const priceCategories: PriceCategory[] = [
       { name: "Wolumetria kwasem hialuronowym 2 ml", price: "1300 zł" },
       { name: "Wolumetria kwasem hialuronowym 3 ml", price: "1900 zł" },
       { name: "Korekta marionetek", price: "1000 zł", description: "Użycie usieciowanego kwasu hialuronowego w obszarze tzw. kokardki" },
-      { name: "Koktajl Monaco - lifting królewski", price: "950 zł" },
+      { name: "Koktajl Monaco - lifting królewski", price: "950 zł", badge: "new" },
     ]
   },
   {
@@ -93,7 +94,7 @@ export const priceCategories: PriceCategory[] = [
     id: "lipolysis",
     title: "Lipoliza iniekcyjna",
     items: [
-      { name: "Twarz (Lemonbottle)", price: "400 zł" },
+      { name: "Twarz (Lemonbottle)", price: "400 zł", badge: "promotion" },
       { name: "Ciało (Lipolax+)", price: "od 400 do 700 zł", description: "Redukcja lokalnej tkanki tłuszczowej. Podczas jednego zabiegu można podać max.20ml preparatu" },
     ]
   },
