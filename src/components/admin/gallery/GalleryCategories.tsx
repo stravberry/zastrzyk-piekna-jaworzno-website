@@ -195,7 +195,7 @@ const GalleryCategories: React.FC = () => {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Wybierz typ kategorii" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="lip_modeling">Modelowanie ust</SelectItem>
