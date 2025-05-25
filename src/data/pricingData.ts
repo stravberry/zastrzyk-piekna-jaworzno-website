@@ -1,4 +1,3 @@
-
 import { PriceCategory } from "@/components/pricing/PriceCard";
 
 export const priceCategories: PriceCategory[] = [
@@ -30,10 +29,8 @@ export const priceCategories: PriceCategory[] = [
       { name: "Sisthema Hevo+T, Jalupro Super Hydro", price: "950 zł" },
       { name: "Ejal40, Neauvia Hydro Deluxe", price: "650 zł" },
       
-      // BURSZTYNIAN SODU
-      { name: "Bursztynian sodu 2,2%", price: "850 zł", description: "Możliwość regeneracji i nawilżenia ust bez wpływu na ich wielkość/kształt" },
-      { name: "Bursztynian sodu 1,8%", price: "800 zł" },
-      { name: "Bursztynian sodu 1,1%", price: "750 zł" },
+      // XELA REDERM (zastępuje Bursztynian sodu)
+      { name: "Xela Rederm 1,1%", price: "750 zł", description: "Możliwość regeneracji to przy Xela Rederm 1,1%" },
       
       // PCL
       { name: "Ellanse S", price: "1400 zł" },
