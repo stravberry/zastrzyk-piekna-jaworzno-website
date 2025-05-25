@@ -85,6 +85,14 @@ const GalleryCategories: React.FC = () => {
     });
   };
 
+  // Helper function to ensure valid category type for display
+  const getSafeCategoryType = (category: GalleryCategory): 'lip_modeling' | 'anti_aging' | 'general' | 'before_after' => {
+    if (!category.category_type || !['lip_modeling', 'anti_aging', 'general', 'before_after'].includes(category.category_type)) {
+      return 'general';
+    }
+    return category.category_type;
+  };
+
   const handleEdit = (category: GalleryCategory) => {
     setEditingCategory(category);
     // Ensure category_type has a valid value, fallback to 'general' if empty or invalid
@@ -104,8 +112,12 @@ const GalleryCategories: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Ensure category_type is valid before submitting
-    const validCategoryType = formData.category_type || 'general';
+    // Ensure category_type is valid before submitting - double check our form data
+    const validCategoryType = formData.category_type && 
+      ['lip_modeling', 'anti_aging', 'general', 'before_after'].includes(formData.category_type) 
+      ? formData.category_type 
+      : 'general';
+    
     const submitData = { ...formData, category_type: validCategoryType };
     
     if (editingCategory) {
@@ -153,20 +165,15 @@ const GalleryCategories: React.FC = () => {
     }
   };
 
-  // Helper function to ensure valid category type for display
-  const getSafeCategoryType = (category: GalleryCategory): 'lip_modeling' | 'anti_aging' | 'general' | 'before_after' => {
-    if (!category.category_type || !['lip_modeling', 'anti_aging', 'general', 'before_after'].includes(category.category_type)) {
-      return 'general';
-    }
-    return category.category_type;
-  };
-
   if (isLoading) {
     return <div>Ładowanie kategorii...</div>;
   }
 
   // Ensure we always have a valid category_type value for the Select component
-  const safeFormCategoryType = formData.category_type || 'general';
+  // This is the critical fix - ensure it's never empty
+  const currentCategoryType = formData.category_type || 'general';
+  const isValidCategoryType = ['lip_modeling', 'anti_aging', 'general', 'before_after'].includes(currentCategoryType);
+  const safeFormCategoryType = isValidCategoryType ? currentCategoryType : 'general';
 
   return (
     <div className="space-y-6">
