@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GalleryService } from "@/services/galleryService";
@@ -18,12 +19,22 @@ const getSafeCategoryType = (categoryType?: string): 'lip_modeling' | 'anti_agin
   return validTypes.includes(categoryType as any) ? (categoryType as any) : 'general';
 };
 
+// Form data type that supports all category types
+type FormData = {
+  name: string;
+  slug: string;
+  description: string;
+  category_type: 'lip_modeling' | 'anti_aging' | 'general' | 'before_after';
+  display_order: number;
+  is_active: boolean;
+};
+
 // Initial form state that guarantees valid category_type
-const getInitialFormState = () => ({
+const getInitialFormState = (): FormData => ({
   name: '',
   slug: '',
   description: '',
-  category_type: 'general' as const, // Always start with 'general' instead of using getSafeCategoryType
+  category_type: 'general',
   display_order: 0,
   is_active: true
 });
@@ -31,7 +42,7 @@ const getInitialFormState = () => ({
 const GalleryCategories: React.FC = () => {
   const [editingCategory, setEditingCategory] = useState<GalleryCategory | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [formData, setFormData] = useState(getInitialFormState());
+  const [formData, setFormData] = useState<FormData>(getInitialFormState());
 
   const queryClient = useQueryClient();
 
