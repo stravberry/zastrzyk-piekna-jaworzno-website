@@ -210,9 +210,9 @@ const GalleryCategories: React.FC = () => {
               <div>
                 <Label htmlFor="category_type">Typ kategorii</Label>
                 <Select
-                  value={currentCategoryType}
+                  value={currentCategoryType || "general"}
                   onValueChange={(value: 'lip_modeling' | 'anti_aging' | 'general' | 'before_after') => 
-                    setFormData(prev => ({ ...prev, category_type: value }))
+                    setFormData(prev => ({ ...prev, category_type: getSafeCategoryType(value) }))
                   }
                 >
                   <SelectTrigger>
