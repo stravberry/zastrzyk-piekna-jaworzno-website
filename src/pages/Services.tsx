@@ -1,4 +1,3 @@
-
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -27,7 +26,7 @@ const Services = () => {
       description: "to nie tylko zabieg powiększenia ust, to precyzyjne, indywidualne dopasowanie kształtu oraz ich wielkości. Praca oparta nie na wyuczonych schematach, a oparta na wieloletnim doświadczeniu oraz jednostkowym podejściu do klienta",
       icon: <Heart size={36} />,
       link: "/zabiegi/modelowanie-ust",
-      features: ["Naturalne powiększenie", "Korekta asymetrii", "Hydratacja ust", "Wyraźny kontur"],
+      features: ["Naturalne powiększenie", "Korekja asymetrii", "Hydratacja ust", "Wyraźny kontur"],
       benefits: "Usta zyskują objętość, stają się nawilżone, a ich kontur staje się wyraźniejszy i bardziej proporcjonalny.",
       image: "/lovable-uploads/28e228b7-3605-4c15-9731-3c72e9585d6b.png"
     },

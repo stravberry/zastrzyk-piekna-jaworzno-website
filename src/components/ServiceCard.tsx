@@ -15,13 +15,15 @@ const ServiceCard = ({ title, description, icon, link }: ServiceCardProps) => {
   const displayTitle = title === "Peelingi chemiczne" ? "POZOSTAŁE ZABIEGI" : title;
   
   // Dla "Peelingi chemiczne" zmieniamy link na stronę cennika
-  // Dla "Terapie przeciwstarzeniowe" używamy naszej nowej strony
+  // Dla "Terapie przeciwstarzeniowe" i "Modelowanie ust" używamy dedykowanych stron
   let targetLink = link;
   
   if (title === "Peelingi chemiczne") {
     targetLink = "/pricing";
   } else if (title === "Terapie przeciwstarzeniowe") {
     targetLink = "/zabiegi/terapie-przeciwstarzeniowe";
+  } else if (title === "Modelowanie ust") {
+    targetLink = "/zabiegi/modelowanie-ust";
   }
 
   return (

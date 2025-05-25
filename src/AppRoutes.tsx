@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Routes,
@@ -24,6 +23,7 @@ import AdminWrapper from "./components/admin/AdminWrapper";
 import AdminCodeSettings from "./pages/admin/AdminCodeSettings";
 import AdminPricing from "./pages/admin/AdminPricing";
 import AntiAgingTherapies from "./pages/AntiAgingTherapies";
+import LipModeling from "./pages/LipModeling";
 
 const AppRoutes = () => {
   const { isAuthenticated } = useAdmin();
@@ -42,6 +42,7 @@ const AppRoutes = () => {
       <Route path="/contact" element={<Contact />} />
       <Route path="/gallery" element={<Gallery />} />
       <Route path="/zabiegi/terapie-przeciwstarzeniowe" element={<AntiAgingTherapies />} />
+      <Route path="/zabiegi/modelowanie-ust" element={<LipModeling />} />
       
       {/* Admin Routes */}
       {/* Redirect /admin (without slash) to /admin/ */}
