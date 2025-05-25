@@ -1,10 +1,8 @@
-
 import React, { useState, useEffect, useCallback } from "react";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription, VisuallyHidden } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import ImageWithLoading from "@/components/ui/image-with-loading";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface GalleryImage {
   id: string;
