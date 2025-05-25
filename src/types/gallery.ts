@@ -30,6 +30,10 @@ export interface GalleryImage {
   is_featured: boolean;
   is_active: boolean;
   uploaded_by?: string;
+  file_type: 'image' | 'video';
+  video_url?: string;
+  video_duration?: number;
+  video_provider?: 'youtube' | 'vimeo' | 'upload';
   created_at: string;
   updated_at: string;
   category?: GalleryCategory;
@@ -42,5 +46,16 @@ export interface ImageUploadRequest {
   title: string;
   description?: string;
   alt_text?: string;
+  tags?: string[];
+}
+
+export interface VideoUploadRequest {
+  video_url?: string;
+  video_provider?: 'youtube' | 'vimeo' | 'upload';
+  file?: string;
+  filename?: string;
+  category_id: string;
+  title: string;
+  description?: string;
   tags?: string[];
 }

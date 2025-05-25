@@ -3,30 +3,24 @@ import React, { useState } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import GalleryCategories from "@/components/admin/gallery/GalleryCategories";
-import GalleryImages from "@/components/admin/gallery/GalleryImages";
-import ImageUpload from "@/components/admin/gallery/ImageUpload";
+import MediaExplorer from "@/components/admin/gallery/MediaExplorer";
 
 const AdminGallery: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("upload");
+  const [activeTab, setActiveTab] = useState("media");
 
   return (
     <AdminLayout 
       title="Galeria" 
-      subtitle="Zarządzanie zdjęciami i kategoriami galerii"
+      subtitle="Zarządzanie mediami i kategoriami galerii"
     >
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="upload">Prześlij zdjęcia</TabsTrigger>
-          <TabsTrigger value="images">Zarządzaj zdjęciami</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="media">Eksplorator mediów</TabsTrigger>
           <TabsTrigger value="categories">Kategorie</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="upload" className="space-y-6">
-          <ImageUpload onUploadComplete={() => setActiveTab("images")} />
-        </TabsContent>
-        
-        <TabsContent value="images" className="space-y-6">
-          <GalleryImages />
+        <TabsContent value="media" className="space-y-6">
+          <MediaExplorer />
         </TabsContent>
         
         <TabsContent value="categories" className="space-y-6">

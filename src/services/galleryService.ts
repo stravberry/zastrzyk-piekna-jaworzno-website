@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import type { GalleryCategory, GalleryImage, ImageUploadRequest } from "@/types/gallery";
+import type { GalleryCategory, GalleryImage, ImageUploadRequest, VideoUploadRequest } from "@/types/gallery";
 
 export class GalleryService {
   // Categories
@@ -46,7 +46,7 @@ export class GalleryService {
     if (error) throw error;
   }
 
-  // Images
+  // Images and Videos
   static async getImages(categoryId?: string): Promise<GalleryImage[]> {
     let query = supabase
       .from('gallery_images')
@@ -68,11 +68,53 @@ export class GalleryService {
 
   static async uploadImage(request: ImageUploadRequest): Promise<GalleryImage> {
     const { data, error } = await supabase.functions.invoke('optimize-image', {
-      body: request
+      body: { ...request, file_type: 'image' }
     });
 
     if (error) throw error;
     return data.data;
+  }
+
+  static async uploadVideoLink(request: VideoUploadRequest): Promise<GalleryImage> {
+    // Extract video metadata
+    let videoDuration = 0;
+    let thumbnailUrl = '';
+
+    if (request.video_provider === 'youtube') {
+      const videoId = request.video_url?.split('v=')[1]?.split('&')[0];
+      if (videoId) {
+        thumbnailUrl = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+        // For now, we don't extract duration - would need YouTube API
+      }
+    }
+
+    const videoData = {
+      title: request.title,
+      description: request.description,
+      category_id: request.category_id,
+      file_type: 'video' as const,
+      video_url: request.video_url,
+      video_provider: request.video_provider,
+      video_duration: videoDuration,
+      thumbnail_url: thumbnailUrl,
+      original_url: request.video_url || '',
+      tags: request.tags || [],
+      display_order: 0,
+      is_featured: false,
+      is_active: true
+    };
+
+    const { data, error } = await supabase
+      .from('gallery_images')
+      .insert(videoData)
+      .select(`
+        *,
+        category:gallery_categories(*)
+      `)
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 
   static async updateImage(id: string, updates: Partial<GalleryImage>): Promise<GalleryImage> {
@@ -94,27 +136,29 @@ export class GalleryService {
     // First get the image to delete files from storage
     const { data: image, error: fetchError } = await supabase
       .from('gallery_images')
-      .select('original_url, webp_url, thumbnail_url, medium_url')
+      .select('original_url, webp_url, thumbnail_url, medium_url, file_type')
       .eq('id', id)
       .single();
 
     if (fetchError) throw fetchError;
 
-    // Delete files from storage
-    const filesToDelete = [
-      image.original_url,
-      image.webp_url,
-      image.thumbnail_url,
-      image.medium_url
-    ].filter(Boolean).map(url => {
-      const urlParts = url.split('/');
-      return urlParts.slice(-2).join('/'); // Get folder/filename
-    });
+    // Delete files from storage only for uploaded files
+    if (image.file_type === 'image' || (image.file_type === 'video' && !image.original_url?.includes('http'))) {
+      const filesToDelete = [
+        image.original_url,
+        image.webp_url,
+        image.thumbnail_url,
+        image.medium_url
+      ].filter(Boolean).map(url => {
+        const urlParts = url.split('/');
+        return urlParts.slice(-2).join('/'); // Get folder/filename
+      });
 
-    if (filesToDelete.length > 0) {
-      await supabase.storage
-        .from('gallery')
-        .remove(filesToDelete);
+      if (filesToDelete.length > 0) {
+        await supabase.storage
+          .from('gallery')
+          .remove(filesToDelete);
+      }
     }
 
     // Delete database record
