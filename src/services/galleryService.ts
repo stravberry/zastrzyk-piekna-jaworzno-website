@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import type { GalleryCategory, GalleryImage, ImageUploadRequest, VideoUploadRequest } from "@/types/gallery";
 
@@ -75,18 +74,75 @@ export class GalleryService {
   }
 
   static async uploadImage(request: ImageUploadRequest): Promise<GalleryImage> {
-    const { data, error } = await supabase.functions.invoke('optimize-image', {
-      body: { ...request, file_type: 'image' }
-    });
+    try {
+      console.log('GalleryService.uploadImage called with:', { ...request, file: '[FILE_DATA]' });
+      
+      const { data, error } = await supabase.functions.invoke('optimize-image', {
+        body: { 
+          ...request, 
+          file_type: 'image'
+        }
+      });
 
-    if (error) throw error;
-    return {
-      ...data.data,
-      file_type: 'image',
-      video_url: undefined,
-      video_duration: undefined,
-      video_provider: undefined
-    } as GalleryImage;
+      console.log('Edge function response:', { data, error });
+
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error(error.message || 'Failed to upload image');
+      }
+
+      if (!data?.success || !data?.data) {
+        console.error('Invalid response from edge function:', data);
+        throw new Error('Invalid response from server');
+      }
+
+      return {
+        ...data.data,
+        file_type: 'image',
+        video_url: undefined,
+        video_duration: undefined,
+        video_provider: undefined
+      } as GalleryImage;
+    } catch (error) {
+      console.error('Error in uploadImage:', error);
+      throw error;
+    }
+  }
+
+  static async uploadVideoFile(request: ImageUploadRequest): Promise<GalleryImage> {
+    try {
+      console.log('GalleryService.uploadVideoFile called with:', { ...request, file: '[FILE_DATA]' });
+      
+      const { data, error } = await supabase.functions.invoke('optimize-image', {
+        body: { 
+          ...request, 
+          file_type: 'video'
+        }
+      });
+
+      console.log('Edge function response:', { data, error });
+
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error(error.message || 'Failed to upload video');
+      }
+
+      if (!data?.success || !data?.data) {
+        console.error('Invalid response from edge function:', data);
+        throw new Error('Invalid response from server');
+      }
+
+      return {
+        ...data.data,
+        file_type: 'video',
+        video_url: data.data.video_url || data.data.original_url,
+        video_duration: data.data.video_duration || 0,
+        video_provider: 'upload'
+      } as GalleryImage;
+    } catch (error) {
+      console.error('Error in uploadVideoFile:', error);
+      throw error;
+    }
   }
 
   static async uploadVideoLink(request: VideoUploadRequest): Promise<GalleryImage> {
@@ -111,13 +167,10 @@ export class GalleryService {
       display_order: 0,
       is_featured: false,
       is_active: true,
-      // Add video-specific fields if supported by database
-      ...(request.video_url && { 
-        file_type: 'video',
-        video_url: request.video_url,
-        video_provider: request.video_provider,
-        video_duration: videoDuration
-      })
+      file_type: 'video',
+      video_url: request.video_url,
+      video_provider: request.video_provider,
+      video_duration: videoDuration
     };
 
     const { data, error } = await supabase
@@ -133,10 +186,10 @@ export class GalleryService {
     
     return {
       ...data,
-      file_type: (data as any).file_type || 'video',
-      video_url: (data as any).video_url || request.video_url,
-      video_duration: (data as any).video_duration || undefined,
-      video_provider: (data as any).video_provider || request.video_provider
+      file_type: 'video',
+      video_url: data.video_url || request.video_url,
+      video_duration: data.video_duration || undefined,
+      video_provider: data.video_provider || request.video_provider
     } as GalleryImage;
   }
 

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { GalleryService } from "@/services/galleryService";
@@ -49,13 +48,36 @@ const MediaUploadDialog: React.FC<MediaUploadDialogProps> = ({ open, onClose, on
 
   const uploadMutation = useMutation({
     mutationFn: async (data: any) => {
-      if (activeTab === 'image' || activeTab === 'video-file') {
+      if (activeTab === 'image') {
         return new Promise<void>((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = async () => {
             try {
               const base64 = (reader.result as string).split(',')[1];
               await GalleryService.uploadImage({
+                file: base64,
+                filename: data.file.name,
+                category_id: formData.category_id,
+                title: formData.title || data.file.name.replace(/\.[^/.]+$/, ''),
+                description: formData.description,
+                alt_text: formData.alt_text,
+                tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean)
+              });
+              resolve();
+            } catch (error) {
+              reject(error);
+            }
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(data.file);
+        });
+      } else if (activeTab === 'video-file') {
+        return new Promise<void>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = async () => {
+            try {
+              const base64 = (reader.result as string).split(',')[1];
+              await GalleryService.uploadVideoFile({
                 file: base64,
                 filename: data.file.name,
                 category_id: formData.category_id,
@@ -89,9 +111,9 @@ const MediaUploadDialog: React.FC<MediaUploadDialogProps> = ({ open, onClose, on
       resetForm();
       onSuccess();
     },
-    onError: (error) => {
-      toast.error('Błąd podczas przesyłania mediów');
-      console.error(error);
+    onError: (error: any) => {
+      console.error('Upload error:', error);
+      toast.error(`Błąd podczas przesyłania mediów: ${error.message || error}`);
     }
   });
 
@@ -316,7 +338,7 @@ const MediaUploadDialog: React.FC<MediaUploadDialogProps> = ({ open, onClose, on
                   <p className="text-lg mb-2">Przeciągnij i upuść filmy tutaj</p>
                   <p className="text-sm text-gray-500">lub kliknij, aby wybrać pliki</p>
                   <p className="text-xs text-gray-400 mt-2">Obsługiwane formaty: MP4, WebM, MOV</p>
-                  <p className="text-xs text-yellow-600 mt-1">Filmy będą automatycznie skompresowane</p>
+                  <p className="text-xs text-yellow-600 mt-1">Filmy będą automatycznie przesłane</p>
                 </DropZone>
               )}
             </TabsContent>
