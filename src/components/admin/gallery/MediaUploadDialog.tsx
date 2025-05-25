@@ -37,6 +37,16 @@ const MediaUploadDialog: React.FC<MediaUploadDialogProps> = ({ open, onClose, on
     queryFn: GalleryService.getCategories
   });
 
+  // Filter out any categories that might have empty or invalid IDs
+  const validCategories = categories?.filter(category => 
+    category.id && 
+    category.id.trim() !== '' && 
+    category.name && 
+    category.name.trim() !== ''
+  ) || [];
+
+  console.log('Valid categories for MediaUploadDialog:', validCategories);
+
   const uploadMutation = useMutation({
     mutationFn: async (data: any) => {
       if (activeTab === 'image' || activeTab === 'video-file') {
@@ -225,17 +235,23 @@ const MediaUploadDialog: React.FC<MediaUploadDialogProps> = ({ open, onClose, on
               <Label htmlFor="category">Kategoria *</Label>
               <Select
                 value={formData.category_id}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, category_id: value }))}
+                onValueChange={(value) => {
+                  console.log('MediaUploadDialog category selected:', value);
+                  setFormData(prev => ({ ...prev, category_id: value }));
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Wybierz kategorię" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories?.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
+                  {validCategories.map((category) => {
+                    console.log('Rendering category SelectItem:', category.id, category.name);
+                    return (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
