@@ -88,10 +88,7 @@ const GalleryCategories: React.FC = () => {
   const handleEdit = (category: GalleryCategory) => {
     setEditingCategory(category);
     // Ensure category_type has a valid value, fallback to 'general' if empty or invalid
-    const validCategoryType = category.category_type && 
-      ['lip_modeling', 'anti_aging', 'general', 'before_after'].includes(category.category_type) 
-      ? category.category_type 
-      : 'general';
+    const validCategoryType = getSafeCategoryType(category);
     
     setFormData({
       name: category.name,
@@ -157,7 +154,7 @@ const GalleryCategories: React.FC = () => {
   };
 
   // Helper function to ensure valid category type for display
-  const getSafeCategoryType = (category: GalleryCategory): string => {
+  const getSafeCategoryType = (category: GalleryCategory): 'lip_modeling' | 'anti_aging' | 'general' | 'before_after' => {
     if (!category.category_type || !['lip_modeling', 'anti_aging', 'general', 'before_after'].includes(category.category_type)) {
       return 'general';
     }
@@ -234,9 +231,9 @@ const GalleryCategories: React.FC = () => {
                     <SelectValue placeholder="Wybierz typ kategorii" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="general">Ogólne</SelectItem>
                     <SelectItem value="lip_modeling">Modelowanie ust</SelectItem>
                     <SelectItem value="anti_aging">Terapie przeciwstarzeniowe</SelectItem>
-                    <SelectItem value="general">Ogólne</SelectItem>
                     <SelectItem value="before_after">Przed i po</SelectItem>
                   </SelectContent>
                 </Select>
