@@ -1,9 +1,9 @@
 
-import React, { useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import ImageWithLoading from "@/components/ui/image-with-loading";
 
 interface GalleryImage {
   id: string;
@@ -15,6 +15,9 @@ interface GalleryImage {
   after: string;
   category: string;
   technique: string;
+  webp_url?: string;
+  thumbnail_url?: string;
+  medium_url?: string;
 }
 
 interface FullscreenGalleryProps {
@@ -34,143 +37,138 @@ const FullscreenGallery: React.FC<FullscreenGalleryProps> = ({
   onPrevious,
   onNext
 }) => {
+  const [isInfoVisible, setIsInfoVisible] = useState(true);
+  
   const currentImage = images[currentIndex];
 
+  // Preload adjacent images for better UX
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (!isOpen) return;
-      
-      switch (event.key) {
+    if (!isOpen || !images.length) return;
+
+    const preloadImage = (index: number) => {
+      if (index >= 0 && index < images.length) {
+        const img = new Image();
+        img.src = images[index].webp_url || images[index].after;
+      }
+    };
+
+    // Preload previous and next images
+    preloadImage(currentIndex - 1);
+    preloadImage(currentIndex + 1);
+  }, [currentIndex, isOpen, images]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyPress = (e: KeyboardEvent) => {
+      switch (e.key) {
         case 'ArrowLeft':
-          event.preventDefault();
           onPrevious();
           break;
         case 'ArrowRight':
-          event.preventDefault();
           onNext();
           break;
         case 'Escape':
-          event.preventDefault();
           onClose();
+          break;
+        case 'i':
+        case 'I':
+          setIsInfoVisible(prev => !prev);
           break;
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
   }, [isOpen, onPrevious, onNext, onClose]);
 
   if (!currentImage) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl w-full h-full max-h-screen p-0 bg-black/95 border-0">
-        {/* Navigation buttons */}
-        <div className="absolute top-4 right-4 z-50">
+      <DialogContent className="max-w-[95vw] max-h-[95vh] w-full h-full p-0 bg-black/95 border-0">
+        <div className="relative w-full h-full flex items-center justify-center">
+          {/* Close button */}
           <Button
             variant="ghost"
-            size="icon"
+            size="sm"
             onClick={onClose}
-            className="text-white hover:bg-white/20 h-12 w-12"
+            className="absolute top-4 right-4 z-20 text-white hover:bg-white/20"
           >
             <X className="w-6 h-6" />
           </Button>
-        </div>
 
-        <div className="absolute left-4 top-1/2 -translate-y-1/2 z-50">
+          {/* Navigation buttons */}
           <Button
             variant="ghost"
-            size="icon"
+            size="lg"
             onClick={onPrevious}
-            className="text-white hover:bg-white/20 h-12 w-12"
+            className="absolute left-4 z-20 text-white hover:bg-white/20"
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-8 h-8" />
           </Button>
-        </div>
-
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 z-50">
+          
           <Button
             variant="ghost"
-            size="icon"
+            size="lg"
             onClick={onNext}
-            className="text-white hover:bg-white/20 h-12 w-12"
+            className="absolute right-4 z-20 text-white hover:bg-white/20"
           >
-            <ChevronRight className="w-6 h-6" />
+            <ChevronRight className="w-8 h-8" />
           </Button>
-        </div>
 
-        {/* Main content */}
-        <div className="flex flex-col lg:flex-row h-full">
-          {/* Image section */}
-          <div className="flex-1 flex items-center justify-center p-4 lg:p-8">
-            <div className="w-full max-w-2xl">
-              <AspectRatio ratio={9/16}>
-                <img
-                  src={currentImage.after}
-                  alt={currentImage.description}
-                  className="w-full h-full object-cover rounded-lg"
-                />
-              </AspectRatio>
+          {/* Main image */}
+          <div className="relative w-full h-full flex items-center justify-center p-4">
+            <div className="relative max-w-full max-h-full">
+              <ImageWithLoading
+                src={currentImage.after}
+                webpSrc={currentImage.webp_url}
+                thumbnailSrc={currentImage.medium_url}
+                alt={currentImage.description}
+                className="max-w-full max-h-full object-contain"
+                priority={true}
+              />
             </div>
           </div>
 
-          {/* Description section - desktop */}
-          <div className="hidden lg:flex lg:w-80 lg:flex-col lg:justify-center bg-white p-8">
-            <div className="space-y-6">
+          {/* Image info panel */}
+          <div
+            className={`absolute bottom-0 left-0 right-0 md:right-auto md:top-0 md:w-80 
+              bg-black/80 backdrop-blur-sm text-white p-6 transition-transform duration-300 
+              ${isInfoVisible 
+                ? 'translate-y-0 md:translate-x-0' 
+                : 'translate-y-full md:translate-y-0 md:-translate-x-full'
+              }`}
+          >
+            <div className="space-y-4">
               <div>
-                <h2 className="text-2xl font-bold font-playfair mb-2">
-                  {currentImage.title || currentImage.description}
+                <h2 className="text-xl font-bold font-playfair mb-2">
+                  {currentImage.description}
                 </h2>
-                <p className="text-pink-600 font-medium">
+                <p className="text-pink-400 font-medium">
                   {currentImage.technique}
                 </p>
+                <p className="text-gray-300 text-sm">
+                  {currentImage.category}
+                </p>
               </div>
-
-              {currentImage.description && currentImage.title && (
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Opis zabiegu</h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    {currentImage.description}
-                  </p>
-                </div>
-              )}
-
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Kategoria</h3>
-                <p className="text-gray-600">{currentImage.category}</p>
-              </div>
-
-              <div className="flex items-center justify-between text-sm text-gray-500">
-                <span>{currentIndex + 1} / {images.length}</span>
+              
+              <div className="flex items-center justify-between text-sm text-gray-400">
+                <span>{currentIndex + 1} z {images.length}</span>
+                <button
+                  onClick={() => setIsInfoVisible(!isInfoVisible)}
+                  className="text-pink-400 hover:text-pink-300"
+                >
+                  {isInfoVisible ? 'Ukryj info' : 'Pokaż info'}
+                </button>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Description section - mobile */}
-        <div className="lg:hidden bg-white p-6 border-t">
-          <div className="space-y-4">
-            <div>
-              <h2 className="text-xl font-bold font-playfair mb-1">
-                {currentImage.title || currentImage.description}
-              </h2>
-              <p className="text-pink-600 font-medium">
-                {currentImage.technique}
-              </p>
-            </div>
-
-            {currentImage.description && currentImage.title && (
-              <div>
-                <p className="text-gray-600 text-sm">
-                  {currentImage.description}
-                </p>
-              </div>
-            )}
-
-            <div className="flex items-center justify-between text-sm text-gray-500">
-              <span>{currentImage.category}</span>
-              <span>{currentIndex + 1} / {images.length}</span>
-            </div>
+          {/* Touch/swipe indicators */}
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white/60 text-xs md:hidden">
+            Przesuń palcem lub użyj strzałek
           </div>
         </div>
       </DialogContent>

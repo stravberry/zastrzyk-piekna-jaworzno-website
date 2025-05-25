@@ -1,6 +1,7 @@
 
 import React from "react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import ImageWithLoading from "@/components/ui/image-with-loading";
 
 interface GalleryImage {
   id: string;
@@ -12,6 +13,9 @@ interface GalleryImage {
   after: string;
   category: string;
   technique: string;
+  webp_url?: string;
+  thumbnail_url?: string;
+  medium_url?: string;
 }
 
 interface ThumbnailGalleryProps {
@@ -41,10 +45,13 @@ const ThumbnailGallery: React.FC<ThumbnailGalleryProps> = ({
           }`}
         >
           <AspectRatio ratio={9/16}>
-            <img
+            <ImageWithLoading
               src={image.after}
+              webpSrc={image.webp_url}
+              thumbnailSrc={image.thumbnail_url}
               alt={`Miniatura - ${image.description}`}
               className="w-full h-full object-cover"
+              priority={index < 6} // Prioritize first 6 images
             />
           </AspectRatio>
           <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />

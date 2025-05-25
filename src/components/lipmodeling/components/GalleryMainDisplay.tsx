@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import ImageWithLoading from "@/components/ui/image-with-loading";
 
 interface GalleryImage {
   id: string;
@@ -15,6 +16,9 @@ interface GalleryImage {
   after: string;
   category: string;
   technique: string;
+  webp_url?: string;
+  thumbnail_url?: string;
+  medium_url?: string;
 }
 
 interface GalleryMainDisplayProps {
@@ -41,11 +45,13 @@ const GalleryMainDisplay: React.FC<GalleryMainDisplayProps> = ({
       <CardContent className="p-6">
         <div className="relative group mb-6">
           <AspectRatio ratio={9/16} className="w-full max-w-md mx-auto">
-            <img
+            <ImageWithLoading
               src={currentImage.after}
+              webpSrc={currentImage.webp_url}
+              thumbnailSrc={currentImage.medium_url}
               alt={currentImage.description}
               className="w-full h-full object-cover rounded-lg shadow-md cursor-pointer transition-transform hover:scale-105"
-              onClick={onImageClick}
+              priority={true} // Main image should load immediately
             />
           </AspectRatio>
           <button 

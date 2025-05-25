@@ -23,10 +23,13 @@ const LipModelingGallerySection: React.FC = () => {
     alt: img.alt_text || img.title,
     title: img.title,
     description: img.description || '',
-    before: img.webp_url || img.original_url, // For before/after if needed
+    before: img.webp_url || img.original_url,
     after: img.medium_url || img.webp_url || img.original_url,
     category: img.category?.name || 'Modelowanie ust',
-    technique: img.tags?.join(', ') || 'Kwas hialuronowy'
+    technique: img.tags?.join(', ') || 'Kwas hialuronowy',
+    webp_url: img.webp_url,
+    thumbnail_url: img.thumbnail_url,
+    medium_url: img.medium_url
   })) || [];
 
   const nextImage = () => {
@@ -53,7 +56,15 @@ const LipModelingGallerySection: React.FC = () => {
       <section ref={sectionRef} className="py-16 bg-gradient-to-b from-pink-50/50 to-white">
         <div className="container-custom">
           <div className="text-center">
-            <p className="text-lg text-gray-600">Ładowanie galerii...</p>
+            <div className="animate-pulse space-y-4">
+              <div className="h-8 bg-gray-200 rounded w-64 mx-auto"></div>
+              <div className="h-4 bg-gray-200 rounded w-96 mx-auto"></div>
+              <div className="mt-8 grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-4">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <div key={i} className="aspect-[9/16] bg-gray-200 rounded"></div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>

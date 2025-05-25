@@ -66,7 +66,6 @@ export class GalleryService {
 
     if (error) throw error;
     
-    // Type cast the data to ensure proper typing
     return (data || []).map(item => ({
       ...item,
       file_type: item.file_type as 'image' | 'video'
@@ -74,46 +73,49 @@ export class GalleryService {
   }
 
   static async uploadImage(request: ImageUploadRequest): Promise<GalleryImage> {
-    const { data, error } = await supabase
-      .from('gallery_images')
-      .insert({
-        original_url: `data:image/jpeg;base64,${request.file}`,
+    // Use the optimize-image edge function for better image processing
+    const { data, error } = await supabase.functions.invoke('optimize-image', {
+      body: {
+        file: request.file,
+        filename: request.filename,
         title: request.title,
         description: request.description,
         alt_text: request.alt_text,
-        category_id: request.category_id || null,
+        category_id: request.category_id,
         tags: request.tags || [],
-        file_type: 'image' as const
-      })
-      .select()
-      .single();
+        file_type: 'image'
+      }
+    });
 
     if (error) throw error;
+    if (!data.success) throw new Error(data.error || 'Upload failed');
+    
     return {
-      ...data,
-      file_type: data.file_type as 'image' | 'video'
+      ...data.data,
+      file_type: data.data.file_type as 'image' | 'video'
     } as GalleryImage;
   }
 
   static async uploadVideoFile(request: VideoUploadRequest & { file: string; filename: string }): Promise<GalleryImage> {
-    const { data, error } = await supabase
-      .from('gallery_images')
-      .insert({
-        original_url: `data:video/mp4;base64,${request.file}`,
+    // Use the optimize-image edge function for video uploads too
+    const { data, error } = await supabase.functions.invoke('optimize-image', {
+      body: {
+        file: request.file,
+        filename: request.filename,
         title: request.title,
         description: request.description,
-        category_id: request.category_id || null,
+        category_id: request.category_id,
         tags: request.tags || [],
-        file_type: 'video' as const,
-        video_provider: 'upload'
-      })
-      .select()
-      .single();
+        file_type: 'video'
+      }
+    });
 
     if (error) throw error;
+    if (!data.success) throw new Error(data.error || 'Upload failed');
+    
     return {
-      ...data,
-      file_type: data.file_type as 'image' | 'video'
+      ...data.data,
+      file_type: data.data.file_type as 'image' | 'video'
     } as GalleryImage;
   }
 
