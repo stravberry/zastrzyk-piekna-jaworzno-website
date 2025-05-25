@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GalleryService } from "@/services/galleryService";
@@ -164,9 +163,6 @@ const GalleryCategories: React.FC = () => {
     return <div>Ładowanie kategorii...</div>;
   }
 
-  // Ensure the select always has a valid value (never empty string)
-  const selectValue = formData.category_type || 'general';
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -221,7 +217,7 @@ const GalleryCategories: React.FC = () => {
               <div>
                 <Label htmlFor="category_type">Typ kategorii</Label>
                 <Select
-                  value={selectValue}
+                  value={formData.category_type}
                   onValueChange={(value: 'lip_modeling' | 'anti_aging' | 'general' | 'before_after') => 
                     setFormData(prev => ({ ...prev, category_type: value }))
                   }
