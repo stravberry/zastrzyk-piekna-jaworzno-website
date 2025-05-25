@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, VisuallyHidden } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -42,14 +43,18 @@ const FullscreenGallery: React.FC<FullscreenGalleryProps> = ({
 
   // Handle navigation with proper bounds checking
   const handlePrevious = useCallback(() => {
-    console.log('Previous clicked, current index:', currentIndex);
-    onPrevious();
-  }, [currentIndex, onPrevious]);
+    console.log('Previous clicked, current index:', currentIndex, 'total images:', images.length);
+    if (currentIndex > 0) {
+      onPrevious();
+    }
+  }, [currentIndex, onPrevious, images.length]);
 
   const handleNext = useCallback(() => {
-    console.log('Next clicked, current index:', currentIndex);
-    onNext();
-  }, [currentIndex, onNext]);
+    console.log('Next clicked, current index:', currentIndex, 'total images:', images.length);
+    if (currentIndex < images.length - 1) {
+      onNext();
+    }
+  }, [currentIndex, onNext, images.length]);
 
   // Preload adjacent images for better UX
   useEffect(() => {
@@ -72,7 +77,7 @@ const FullscreenGallery: React.FC<FullscreenGalleryProps> = ({
     if (!isOpen) return;
 
     const handleKeyPress = (e: KeyboardEvent) => {
-      console.log('Key pressed:', e.key);
+      console.log('Key pressed:', e.key, 'current index:', currentIndex);
       switch (e.key) {
         case 'ArrowLeft':
           e.preventDefault();
@@ -96,7 +101,7 @@ const FullscreenGallery: React.FC<FullscreenGalleryProps> = ({
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [isOpen, handlePrevious, handleNext, onClose]);
+  }, [isOpen, handlePrevious, handleNext, onClose, currentIndex]);
 
   if (!currentImage) return null;
 
@@ -128,7 +133,7 @@ const FullscreenGallery: React.FC<FullscreenGalleryProps> = ({
             size="lg"
             onClick={handlePrevious}
             disabled={currentIndex <= 0}
-            className="absolute left-4 z-20 text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="absolute left-4 z-20 text-white hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed"
             aria-label="Poprzednie zdjęcie"
           >
             <ChevronLeft className="w-8 h-8" />
@@ -139,21 +144,21 @@ const FullscreenGallery: React.FC<FullscreenGalleryProps> = ({
             size="lg"
             onClick={handleNext}
             disabled={currentIndex >= images.length - 1}
-            className="absolute right-4 z-20 text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="absolute right-4 z-20 text-white hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed"
             aria-label="Następne zdjęcie"
           >
             <ChevronRight className="w-8 h-8" />
           </Button>
 
-          {/* Main image */}
-          <div className="relative w-full h-full flex items-center justify-center p-4">
-            <div className="relative max-w-full max-h-full">
+          {/* Main image container with proper sizing */}
+          <div className="relative w-full h-full flex items-center justify-center p-16">
+            <div className="relative max-w-full max-h-full flex items-center justify-center">
               <ImageWithLoading
                 src={currentImage.after}
                 webpSrc={currentImage.webp_url}
                 thumbnailSrc={currentImage.medium_url}
                 alt={currentImage.description}
-                className="max-w-full max-h-full object-contain"
+                className="max-w-full max-h-full w-auto h-auto object-contain"
                 priority={true}
               />
             </div>
