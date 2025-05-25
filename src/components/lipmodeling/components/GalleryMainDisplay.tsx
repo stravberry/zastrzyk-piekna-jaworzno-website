@@ -37,56 +37,26 @@ const GalleryMainDisplay: React.FC<GalleryMainDisplayProps> = ({
   return (
     <Card className="max-w-4xl mx-auto shadow-xl border-0">
       <CardContent className="p-6">
-        <div className="grid md:grid-cols-2 gap-6 mb-6">
-          <div className="relative group">
-            <img
-              src={currentImage.before}
-              alt={`Przed zabiegiem - ${currentImage.description}`}
-              className="w-full h-80 object-cover rounded-lg shadow-md"
-            />
-            <div className="absolute top-4 left-4 bg-pink-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-              Przed
-            </div>
-            <Dialog>
-              <DialogTrigger asChild>
-                <button className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
-                  <Eye className="w-8 h-8 text-white" />
-                </button>
-              </DialogTrigger>
-              <DialogContent className="max-w-3xl">
-                <img
-                  src={currentImage.before}
-                  alt={`Przed zabiegiem - ${currentImage.description}`}
-                  className="w-full h-auto rounded-lg"
-                />
-              </DialogContent>
-            </Dialog>
-          </div>
-          
-          <div className="relative group">
-            <img
-              src={currentImage.after}
-              alt={`Po zabiegu - ${currentImage.description}`}
-              className="w-full h-80 object-cover rounded-lg shadow-md"
-            />
-            <div className="absolute top-4 right-4 bg-gold-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-              Po
-            </div>
-            <Dialog>
-              <DialogTrigger asChild>
-                <button className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
-                  <Eye className="w-8 h-8 text-white" />
-                </button>
-              </DialogTrigger>
-              <DialogContent className="max-w-3xl">
-                <img
-                  src={currentImage.after}
-                  alt={`Po zabiegu - ${currentImage.description}`}
-                  className="w-full h-auto rounded-lg"
-                />
-              </DialogContent>
-            </Dialog>
-          </div>
+        <div className="relative group mb-6">
+          <img
+            src={currentImage.after}
+            alt={currentImage.description}
+            className="w-full h-96 object-cover rounded-lg shadow-md"
+          />
+          <Dialog>
+            <DialogTrigger asChild>
+              <button className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
+                <Eye className="w-8 h-8 text-white" />
+              </button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl">
+              <img
+                src={currentImage.after}
+                alt={currentImage.description}
+                className="w-full h-auto rounded-lg"
+              />
+            </DialogContent>
+          </Dialog>
         </div>
         
         <div className="text-center space-y-2">
