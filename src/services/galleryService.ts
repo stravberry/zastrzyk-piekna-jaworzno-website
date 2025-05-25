@@ -236,6 +236,18 @@ export class GalleryService {
     } as GalleryImage;
   }
 
+  static async bulkUpdateCategory(imageIds: string[], categoryId: string): Promise<void> {
+    const { error } = await supabase
+      .from('gallery_images')
+      .update({ 
+        category_id: categoryId, 
+        updated_at: new Date().toISOString() 
+      })
+      .in('id', imageIds);
+    
+    if (error) throw error;
+  }
+
   static async deleteImage(id: string): Promise<void> {
     // First get the image to delete files from storage
     const { data: image, error: fetchError } = await supabase

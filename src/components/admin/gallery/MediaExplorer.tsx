@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { GalleryService } from "@/services/galleryService";
@@ -20,7 +21,8 @@ import {
   Filter,
   Star,
   Eye,
-  Play
+  Play,
+  FolderOpen
 } from "lucide-react";
 import { toast } from "sonner";
 import type { GalleryImage } from "@/types/gallery";
@@ -33,6 +35,7 @@ const MediaExplorer: React.FC = () => {
   const [fileTypeFilter, setFileTypeFilter] = useState<'all' | 'image' | 'video'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [selectedBulkCategory, setSelectedBulkCategory] = useState<string>('');
   const [editingItem, setEditingItem] = useState<GalleryImage | null>(null);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -58,6 +61,20 @@ const MediaExplorer: React.FC = () => {
     },
     onError: () => {
       toast.error('Błąd podczas usuwania pliku');
+    }
+  });
+
+  const bulkCategoryMutation = useMutation({
+    mutationFn: ({ imageIds, categoryId }: { imageIds: string[]; categoryId: string }) =>
+      GalleryService.bulkUpdateCategory(imageIds, categoryId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['gallery-images'] });
+      toast.success(`Kategoria została przypisana do ${selectedItems.length} plików`);
+      setSelectedItems([]);
+      setSelectedBulkCategory('');
+    },
+    onError: () => {
+      toast.error('Błąd podczas przypisywania kategorii');
     }
   });
 
@@ -90,6 +107,19 @@ const MediaExplorer: React.FC = () => {
     if (confirm(`Czy na pewno chcesz usunąć ${selectedItems.length} plików?`)) {
       selectedItems.forEach(id => {
         deleteMutation.mutate(id);
+      });
+    }
+  };
+
+  const handleBulkCategoryAssign = () => {
+    if (selectedItems.length === 0 || !selectedBulkCategory) return;
+    
+    const categoryName = categories?.find(cat => cat.id === selectedBulkCategory)?.name || 'wybranej kategorii';
+    
+    if (confirm(`Czy na pewno chcesz przypisać ${selectedItems.length} plików do kategorii "${categoryName}"?`)) {
+      bulkCategoryMutation.mutate({
+        imageIds: selectedItems,
+        categoryId: selectedBulkCategory
       });
     }
   };
@@ -338,11 +368,35 @@ const MediaExplorer: React.FC = () => {
             <span className="text-sm font-medium">
               Wybrano {selectedItems.length} plików
             </span>
-            <div className="space-x-2">
+            <div className="flex items-center space-x-2">
+              <Select value={selectedBulkCategory} onValueChange={setSelectedBulkCategory}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Wybierz kategorię..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories?.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setSelectedItems([])}
+                onClick={handleBulkCategoryAssign}
+                disabled={!selectedBulkCategory || bulkCategoryMutation.isPending}
+              >
+                <FolderOpen className="w-4 h-4 mr-2" />
+                Przypisz kategorię
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSelectedItems([]);
+                  setSelectedBulkCategory('');
+                }}
               >
                 Anuluj
               </Button>
@@ -350,6 +404,7 @@ const MediaExplorer: React.FC = () => {
                 variant="destructive"
                 size="sm"
                 onClick={handleBulkDelete}
+                disabled={deleteMutation.isPending}
               >
                 Usuń wybrane
               </Button>
