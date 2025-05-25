@@ -1,4 +1,3 @@
-
 import { PriceCategory } from "@/components/pricing/PriceCard";
 
 export const priceCategories: PriceCategory[] = [
@@ -13,7 +12,7 @@ export const priceCategories: PriceCategory[] = [
       { name: "Karisma", price: "1000 zł" },
       { name: "Linerase, Nithya, Collease+", price: "950 zł" },
       { name: "Monoderma Fillagen", price: "850 zł" },
-      { name: "Tropokolagen MD Tissue", price: "400-900 zł", description: "1 amp. - 400 zł, 2 amp. - 700 zł, 3 amp. - 900 zł" },
+      { name: "Tropokolagen MD Tissue", price: "Od 400 zł", description: "1 amp. - 400 zł, 2 amp. - 700 zł, 3 amp. - 900 zł" },
       
       // AMINOKWASY
       { name: "Sunekos 1200", price: "1000 zł" },
