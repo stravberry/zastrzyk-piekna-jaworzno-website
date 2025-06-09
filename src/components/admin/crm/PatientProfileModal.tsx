@@ -1,10 +1,19 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Tables } from "@/integrations/supabase/types";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,8 +30,10 @@ import {
   X,
   Plus,
   Download,
-  Edit
+  Edit,
+  Trash2
 } from "lucide-react";
+import { toast } from "sonner";
 import AppointmentForm from "./AppointmentForm";
 import PatientEditForm from "./PatientEditForm";
 
@@ -46,6 +57,8 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
 }) => {
   const [showAddAppointment, setShowAddAppointment] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [appointmentToDelete, setAppointmentToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch patient appointments
   const { data: appointments, refetch } = useQuery({
@@ -119,6 +132,38 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
       }
     } catch (error) {
       console.error('Error generating calendar event:', error);
+    }
+  };
+
+  const deleteAppointment = async (appointmentId: string) => {
+    setIsDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('patient_appointments')
+        .delete()
+        .eq('id', appointmentId);
+
+      if (error) throw error;
+
+      // Log the deletion activity
+      await supabase.rpc('log_admin_activity', {
+        _action: 'delete_appointment',
+        _resource_type: 'patient_appointment',
+        _resource_id: appointmentId,
+        _details: {
+          patient_id: patient?.id,
+          patient_name: `${patient?.first_name} ${patient?.last_name}`
+        }
+      });
+
+      toast.success("Wizyta została usunięta");
+      refetch();
+    } catch (error) {
+      console.error('Error deleting appointment:', error);
+      toast.error("Błąd podczas usuwania wizyty");
+    } finally {
+      setIsDeleting(false);
+      setAppointmentToDelete(null);
     }
   };
 
@@ -279,6 +324,14 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
                           <Download className="w-3 h-3 mr-1" />
                           .ics
                         </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => setAppointmentToDelete(appointment.id)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
                       </div>
                     </div>
                   </Card>
@@ -347,6 +400,28 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
           </Tabs>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Appointment Confirmation Dialog */}
+      <AlertDialog open={!!appointmentToDelete} onOpenChange={() => setAppointmentToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Potwierdź usunięcie wizyty</AlertDialogTitle>
+            <AlertDialogDescription>
+              Czy na pewno chcesz usunąć tę wizytę? Ta operacja jest nieodwracalna.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Anuluj</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => appointmentToDelete && deleteAppointment(appointmentToDelete)}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isDeleting ? "Usuwanie..." : "Usuń wizytę"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {isEditing && (
         <PatientEditForm

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,8 +6,19 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, User, Download, FileText, Search, Filter } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Calendar, User, Download, FileText, Search, Filter, Trash2 } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
+import { toast } from "sonner";
 
 type AppointmentWithDetails = Tables<"patient_appointments"> & {
   patients: Tables<"patients">;
@@ -21,9 +31,11 @@ const AppointmentsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [appointmentToDelete, setAppointmentToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const ITEMS_PER_PAGE = 15;
 
-  const { data: appointmentsData, isLoading } = useQuery({
+  const { data: appointmentsData, isLoading, refetch } = useQuery({
     queryKey: ['appointments-list', searchTerm, statusFilter, currentPage],
     queryFn: async () => {
       const from = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -123,159 +135,227 @@ const AppointmentsList: React.FC = () => {
     }
   };
 
+  const deleteAppointment = async (appointmentId: string) => {
+    setIsDeleting(true);
+    try {
+      // Get appointment details for logging
+      const appointmentToDelete = appointments.find(apt => apt.id === appointmentId);
+      
+      const { error } = await supabase
+        .from('patient_appointments')
+        .delete()
+        .eq('id', appointmentId);
+
+      if (error) throw error;
+
+      // Log the deletion activity
+      await supabase.rpc('log_admin_activity', {
+        _action: 'delete_appointment',
+        _resource_type: 'patient_appointment',
+        _resource_id: appointmentId,
+        _details: {
+          patient_id: appointmentToDelete?.patient_id,
+          patient_name: `${appointmentToDelete?.patients.first_name} ${appointmentToDelete?.patients.last_name}`,
+          treatment_name: appointmentToDelete?.treatments.name
+        }
+      });
+
+      toast.success("Wizyta została usunięta");
+      refetch();
+    } catch (error) {
+      console.error('Error deleting appointment:', error);
+      toast.error("Błąd podczas usuwania wizyty");
+    } finally {
+      setIsDeleting(false);
+      setAppointmentToDelete(null);
+    }
+  };
+
   if (isLoading) {
     return <div className="text-center py-8 text-sm">Ładowanie wizyt...</div>;
   }
 
   return (
-    <div className="space-y-3 sm:space-y-4">
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Szukaj po pacjencie lub zabiegu..."
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="pl-9 text-sm"
-          />
+    <>
+      <div className="space-y-3 sm:space-y-4">
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Szukaj po pacjencie lub zabiegu..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="pl-9 text-sm"
+            />
+          </div>
+          <Select value={statusFilter} onValueChange={(value: StatusFilter) => setStatusFilter(value)}>
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <Filter className="w-4 h-4 mr-2" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Wszystkie</SelectItem>
+              <SelectItem value="scheduled">Zaplanowane</SelectItem>
+              <SelectItem value="completed">Zakończone</SelectItem>
+              <SelectItem value="cancelled">Anulowane</SelectItem>
+              <SelectItem value="no_show">Nieobecność</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <Select value={statusFilter} onValueChange={(value: StatusFilter) => setStatusFilter(value)}>
-          <SelectTrigger className="w-full sm:w-[180px]">
-            <Filter className="w-4 h-4 mr-2" />
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Wszystkie</SelectItem>
-            <SelectItem value="scheduled">Zaplanowane</SelectItem>
-            <SelectItem value="completed">Zakończone</SelectItem>
-            <SelectItem value="cancelled">Anulowane</SelectItem>
-            <SelectItem value="no_show">Nieobecność</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
 
-      {/* Results info */}
-      <div className="text-xs sm:text-sm text-gray-600">
-        Znaleziono {totalCount} wizyt
-        {totalPages > 1 && (
-          <span> (strona {currentPage} z {totalPages})</span>
-        )}
-      </div>
+        {/* Results info */}
+        <div className="text-xs sm:text-sm text-gray-600">
+          Znaleziono {totalCount} wizyt
+          {totalPages > 1 && (
+            <span> (strona {currentPage} z {totalPages})</span>
+          )}
+        </div>
 
-      {/* Appointments List */}
-      <div className="space-y-2 sm:space-y-3 max-h-[500px] sm:max-h-[600px] overflow-y-auto">
-        {appointments.map((appointment) => {
-          const dateInfo = formatDate(appointment.scheduled_date);
-          
-          return (
-            <Card key={appointment.id} className={`p-3 sm:p-4 ${dateInfo.isUpcoming ? 'border-l-4 border-l-blue-500' : ''}`}>
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                    <h4 className="font-medium text-sm sm:text-base truncate">{appointment.treatments.name}</h4>
-                    <div className="flex gap-2 flex-wrap">
-                      <Badge className={`text-xs ${getStatusColor(appointment.status || 'scheduled')}`}>
-                        {getStatusText(appointment.status || 'scheduled')}
-                      </Badge>
-                      {dateInfo.isUpcoming && (
-                        <Badge variant="outline" className="text-blue-600 border-blue-600 text-xs">
-                          Nadchodząca
+        {/* Appointments List */}
+        <div className="space-y-2 sm:space-y-3 max-h-[500px] sm:max-h-[600px] overflow-y-auto">
+          {appointments.map((appointment) => {
+            const dateInfo = formatDate(appointment.scheduled_date);
+            
+            return (
+              <Card key={appointment.id} className={`p-3 sm:p-4 ${dateInfo.isUpcoming ? 'border-l-4 border-l-blue-500' : ''}`}>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                      <h4 className="font-medium text-sm sm:text-base truncate">{appointment.treatments.name}</h4>
+                      <div className="flex gap-2 flex-wrap">
+                        <Badge className={`text-xs ${getStatusColor(appointment.status || 'scheduled')}`}>
+                          {getStatusText(appointment.status || 'scheduled')}
                         </Badge>
-                      )}
+                        {dateInfo.isUpcoming && (
+                          <Badge variant="outline" className="text-blue-600 border-blue-600 text-xs">
+                            Nadchodząca
+                          </Badge>
+                        )}
+                      </div>
                     </div>
+                    
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 mb-2">
+                      <div className="flex items-center">
+                        <User className="w-3 h-3 mr-1 flex-shrink-0" />
+                        <span className="truncate">{appointment.patients.first_name} {appointment.patients.last_name}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Calendar className="w-3 h-3 mr-1 flex-shrink-0" />
+                        <span className="text-xs sm:text-sm">{dateInfo.formatted}</span>
+                      </div>
+                    </div>
+                    
+                    {appointment.cost && (
+                      <p className="text-xs sm:text-sm font-medium mb-2">
+                        Koszt: {appointment.cost} zł
+                      </p>
+                    )}
+                    
+                    {appointment.pre_treatment_notes && (
+                      <p className="text-xs text-gray-600 mb-1 line-clamp-2">
+                        <FileText className="w-3 h-3 inline mr-1" />
+                        Notatki przed: {appointment.pre_treatment_notes}
+                      </p>
+                    )}
+                    
+                    {appointment.post_treatment_notes && (
+                      <p className="text-xs text-gray-600 line-clamp-2">
+                        <FileText className="w-3 h-3 inline mr-1" />
+                        Notatki po: {appointment.post_treatment_notes}
+                      </p>
+                    )}
                   </div>
                   
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 mb-2">
-                    <div className="flex items-center">
-                      <User className="w-3 h-3 mr-1 flex-shrink-0" />
-                      <span className="truncate">{appointment.patients.first_name} {appointment.patients.last_name}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Calendar className="w-3 h-3 mr-1 flex-shrink-0" />
-                      <span className="text-xs sm:text-sm">{dateInfo.formatted}</span>
-                    </div>
+                  <div className="flex gap-2 justify-end sm:justify-start flex-shrink-0">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => downloadCalendarEvent(appointment.id)}
+                      className="text-xs px-2 py-1"
+                    >
+                      <Download className="w-3 h-3 mr-1" />
+                      .ics
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => setAppointmentToDelete(appointment.id)}
+                      className="text-xs px-2 py-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
                   </div>
-                  
-                  {appointment.cost && (
-                    <p className="text-xs sm:text-sm font-medium mb-2">
-                      Koszt: {appointment.cost} zł
-                    </p>
-                  )}
-                  
-                  {appointment.pre_treatment_notes && (
-                    <p className="text-xs text-gray-600 mb-1 line-clamp-2">
-                      <FileText className="w-3 h-3 inline mr-1" />
-                      Notatki przed: {appointment.pre_treatment_notes}
-                    </p>
-                  )}
-                  
-                  {appointment.post_treatment_notes && (
-                    <p className="text-xs text-gray-600 line-clamp-2">
-                      <FileText className="w-3 h-3 inline mr-1" />
-                      Notatki po: {appointment.post_treatment_notes}
-                    </p>
-                  )}
                 </div>
-                
-                <div className="flex gap-2 justify-end sm:justify-start flex-shrink-0">
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={() => downloadCalendarEvent(appointment.id)}
-                    className="text-xs px-2 py-1"
-                  >
-                    <Download className="w-3 h-3 mr-1" />
-                    .ics
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          );
-        })}
+              </Card>
+            );
+          })}
 
-        {appointments.length === 0 && (
-          <div className="text-center py-8 text-gray-500 text-sm">
-            {searchTerm || statusFilter !== "all" 
-              ? "Nie znaleziono wizyt spełniających kryteria"
-              : "Brak wizyt w systemie"
-            }
+          {appointments.length === 0 && (
+            <div className="text-center py-8 text-gray-500 text-sm">
+              {searchTerm || statusFilter !== "all" 
+                ? "Nie znaleziono wizyt spełniających kryteria"
+                : "Brak wizyt w systemie"
+              }
+            </div>
+          )}
+        </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-2 mt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage <= 1}
+              className="text-xs w-full sm:w-auto"
+            >
+              Poprzednia
+            </Button>
+            
+            <span className="flex items-center px-3 text-xs sm:text-sm order-first sm:order-none">
+              {currentPage} z {totalPages}
+            </span>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage >= totalPages}
+              className="text-xs w-full sm:w-auto"
+            >
+              Następna
+            </Button>
           </div>
         )}
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-2 mt-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-            disabled={currentPage <= 1}
-            className="text-xs w-full sm:w-auto"
-          >
-            Poprzednia
-          </Button>
-          
-          <span className="flex items-center px-3 text-xs sm:text-sm order-first sm:order-none">
-            {currentPage} z {totalPages}
-          </span>
-          
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-            disabled={currentPage >= totalPages}
-            className="text-xs w-full sm:w-auto"
-          >
-            Następna
-          </Button>
-        </div>
-      )}
-    </div>
+      {/* Delete Appointment Confirmation Dialog */}
+      <AlertDialog open={!!appointmentToDelete} onOpenChange={() => setAppointmentToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Potwierdź usunięcie wizyty</AlertDialogTitle>
+            <AlertDialogDescription>
+              Czy na pewno chcesz usunąć tę wizytę? Ta operacja jest nieodwracalna.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Anuluj</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => appointmentToDelete && deleteAppointment(appointmentToDelete)}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isDeleting ? "Usuwanie..." : "Usuń wizytę"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 
