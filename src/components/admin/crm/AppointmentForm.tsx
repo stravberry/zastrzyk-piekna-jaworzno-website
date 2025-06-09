@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -85,8 +84,11 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
       const { error } = await supabase
         .from('patient_appointments')
         .insert({
-          ...data,
-          status: 'scheduled',
+          patient_id: data.patient_id,
+          treatment_id: data.treatment_id,
+          scheduled_date: data.scheduled_date,
+          duration_minutes: data.duration_minutes,
+          pre_treatment_notes: data.pre_treatment_notes || null,
           cost: data.cost || null,
         });
 

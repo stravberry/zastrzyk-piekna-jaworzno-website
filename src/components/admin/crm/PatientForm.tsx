@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -48,9 +47,18 @@ const PatientForm: React.FC<PatientFormProps> = ({ isOpen, onClose, onSuccess })
       const { error } = await supabase
         .from('patients')
         .insert({
-          ...data,
+          first_name: data.first_name,
+          last_name: data.last_name,
+          phone: data.phone || null,
           email: data.email || null,
           date_of_birth: data.date_of_birth || null,
+          address: data.address || null,
+          skin_type: data.skin_type || null,
+          allergies: data.allergies || null,
+          contraindications: data.contraindications || null,
+          medical_notes: data.medical_notes || null,
+          source: data.source || 'other',
+          notes: data.notes || null,
         });
 
       if (error) throw error;

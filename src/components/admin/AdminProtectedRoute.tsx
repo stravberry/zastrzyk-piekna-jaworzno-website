@@ -1,18 +1,16 @@
 
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useAdmin } from "@/context/AdminContext";
 import { Loader2, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface AdminProtectedRouteProps {
-  children: React.ReactNode;
   requiredRole?: 'admin' | 'editor';
 }
 
 const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ 
-  children, 
   requiredRole = 'editor' 
 }) => {
   const { isAuthenticated, loading, isAdmin, isEditor, userRole, logout } = useAdmin();
@@ -100,7 +98,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({
   }
 
   // Only render children if authenticated and has permission
-  return isAuthenticated && hasRequiredPermission() ? <>{children}</> : null;
+  return isAuthenticated && hasRequiredPermission() ? <Outlet /> : null;
 };
 
 export default AdminProtectedRoute;
