@@ -29,12 +29,12 @@ const Navbar = () => {
 
   const navLinks = [
     { name: "Strona Główna", path: "/" },
-    { name: "O Mnie", path: "/about" },
-    { name: "Zabiegi", path: "/services" },
-    { name: "Cennik", path: "/pricing" },
-    { name: "Galeria", path: "/gallery" },
+    { name: "O Mnie", path: "/o-mnie" },
+    { name: "Zabiegi", path: "/uslugi" },
+    { name: "Cennik", path: "/cennik" },
+    { name: "Galeria", path: "/galeria" },
     { name: "Blog", path: "/blog" },
-    { name: "Kontakt", path: "/contact" },
+    { name: "Kontakt", path: "/kontakt" },
   ];
 
   return (
