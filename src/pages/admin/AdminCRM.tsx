@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 import PatientsList from "@/components/admin/crm/PatientsList";
-import PatientProfile from "@/components/admin/crm/PatientProfile";
+import PatientProfileModal from "@/components/admin/crm/PatientProfileModal";
 import AppointmentForm from "@/components/admin/crm/AppointmentForm";
 import TreatmentHistory from "@/components/admin/crm/TreatmentHistory";
 
@@ -22,11 +22,12 @@ type Treatment = Tables<"treatments">;
 const AdminCRM: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [showPatientModal, setShowPatientModal] = useState(false);
   const [showAddAppointment, setShowAddAppointment] = useState(false);
   const [activeTab, setActiveTab] = useState("patients");
 
   // Fetch stats
-  const { data: stats } = useQuery({
+  const { data: stats, refetch: refetchStats } = useQuery({
     queryKey: ['crm-stats'],
     queryFn: async () => {
       const [patientsResult, appointmentsResult, todayAppointmentsResult] = await Promise.all([
@@ -45,6 +46,20 @@ const AdminCRM: React.FC = () => {
       };
     }
   });
+
+  const handlePatientSelect = (patient: Patient) => {
+    setSelectedPatient(patient);
+    setShowPatientModal(true);
+  };
+
+  const handleClosePatientModal = () => {
+    setShowPatientModal(false);
+    setSelectedPatient(null);
+  };
+
+  const handlePatientUpdate = () => {
+    refetchStats(); // Refresh stats when patient is updated
+  };
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -121,18 +136,11 @@ const AdminCRM: React.FC = () => {
             <CardContent>
               <PatientsList 
                 searchTerm={searchTerm}
-                onPatientSelect={setSelectedPatient}
+                onPatientSelect={handlePatientSelect}
                 selectedPatient={selectedPatient}
               />
             </CardContent>
           </Card>
-
-          {selectedPatient && (
-            <PatientProfile 
-              patient={selectedPatient}
-              onClose={() => setSelectedPatient(null)}
-            />
-          )}
         </TabsContent>
 
         <TabsContent value="appointments" className="space-y-4">
@@ -153,6 +161,14 @@ const AdminCRM: React.FC = () => {
           <TreatmentHistory />
         </TabsContent>
       </Tabs>
+
+      {/* Patient Profile Modal */}
+      <PatientProfileModal
+        patient={selectedPatient}
+        isOpen={showPatientModal}
+        onClose={handleClosePatientModal}
+        onUpdate={handlePatientUpdate}
+      />
 
       {/* Add Appointment Dialog */}
       {showAddAppointment && (
