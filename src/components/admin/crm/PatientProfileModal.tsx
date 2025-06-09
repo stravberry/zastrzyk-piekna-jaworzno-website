@@ -60,11 +60,32 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
   const [appointmentToDelete, setAppointmentToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Fetch patient appointments
-  const { data: appointments, refetch } = useQuery({
-    queryKey: ['patient-appointments', patient?.id],
+  // Fetch current patient data to ensure we have the latest information
+  const { data: currentPatient, refetch: refetchPatient } = useQuery({
+    queryKey: ['current-patient', patient?.id],
     queryFn: async () => {
-      if (!patient?.id) return [];
+      if (!patient?.id) return null;
+      
+      const { data, error } = await supabase
+        .from('patients')
+        .select('*')
+        .eq('id', patient.id)
+        .single();
+
+      if (error) throw error;
+      return data as Patient;
+    },
+    enabled: !!patient?.id && isOpen
+  });
+
+  // Use current patient data if available, fallback to prop
+  const displayPatient = currentPatient || patient;
+
+  // Fetch patient appointments
+  const { data: appointments, refetch: refetchAppointments } = useQuery({
+    queryKey: ['patient-appointments', displayPatient?.id],
+    queryFn: async () => {
+      if (!displayPatient?.id) return [];
       
       const { data, error } = await supabase
         .from('patient_appointments')
@@ -72,13 +93,13 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
           *,
           treatments (*)
         `)
-        .eq('patient_id', patient.id)
+        .eq('patient_id', displayPatient.id)
         .order('scheduled_date', { ascending: false });
 
       if (error) throw error;
       return data as Appointment[];
     },
-    enabled: !!patient?.id
+    enabled: !!displayPatient?.id
   });
 
   const formatDate = (dateString: string) => {
@@ -151,13 +172,13 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
         _resource_type: 'patient_appointment',
         _resource_id: appointmentId,
         _details: {
-          patient_id: patient?.id,
-          patient_name: `${patient?.first_name} ${patient?.last_name}`
+          patient_id: displayPatient?.id,
+          patient_name: `${displayPatient?.first_name} ${displayPatient?.last_name}`
         }
       });
 
       toast.success("Wizyta została usunięta");
-      refetch();
+      refetchAppointments();
     } catch (error) {
       console.error('Error deleting appointment:', error);
       toast.error("Błąd podczas usuwania wizyty");
@@ -169,10 +190,16 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
 
   const handleEditSuccess = () => {
     setIsEditing(false);
-    onUpdate();
+    refetchPatient(); // Refresh patient data
+    onUpdate(); // Notify parent to refresh its data
   };
 
-  if (!patient) return null;
+  const handleAppointmentSuccess = () => {
+    refetchAppointments();
+    setShowAddAppointment(false);
+  };
+
+  if (!displayPatient) return null;
 
   return (
     <>
@@ -181,7 +208,7 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
           <div className="flex justify-between items-start mb-4">
             <div>
               <h2 className="text-2xl font-bold">
-                {patient.first_name} {patient.last_name}
+                {displayPatient.first_name} {displayPatient.last_name}
               </h2>
               <p className="text-gray-600">Profil pacjenta</p>
             </div>
@@ -221,31 +248,31 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
                     Dane kontaktowe
                   </h3>
                   
-                  {patient.phone && (
+                  {displayPatient.phone && (
                     <div className="flex items-center">
                       <Phone className="w-4 h-4 mr-2 text-gray-500" />
-                      <span>{patient.phone}</span>
+                      <span>{displayPatient.phone}</span>
                     </div>
                   )}
                   
-                  {patient.email && (
+                  {displayPatient.email && (
                     <div className="flex items-center">
                       <Mail className="w-4 h-4 mr-2 text-gray-500" />
-                      <span>{patient.email}</span>
+                      <span>{displayPatient.email}</span>
                     </div>
                   )}
                   
-                  {patient.address && (
+                  {displayPatient.address && (
                     <div className="flex items-center">
                       <MapPin className="w-4 h-4 mr-2 text-gray-500" />
-                      <span>{patient.address}</span>
+                      <span>{displayPatient.address}</span>
                     </div>
                   )}
                   
-                  {patient.date_of_birth && (
+                  {displayPatient.date_of_birth && (
                     <div className="flex items-center">
                       <Calendar className="w-4 h-4 mr-2 text-gray-500" />
-                      <span>{new Date(patient.date_of_birth).toLocaleDateString('pl-PL')}</span>
+                      <span>{new Date(displayPatient.date_of_birth).toLocaleDateString('pl-PL')}</span>
                     </div>
                   )}
                 </div>
@@ -254,23 +281,23 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
                   <h3 className="text-lg font-semibold">Dodatkowe informacje</h3>
                   
                   <div className="space-y-2">
-                    {patient.skin_type && (
+                    {displayPatient.skin_type && (
                       <Badge variant="secondary">
-                        Typ skóry: {patient.skin_type}
+                        Typ skóry: {displayPatient.skin_type}
                       </Badge>
                     )}
                     
-                    {patient.source && (
+                    {displayPatient.source && (
                       <Badge variant="outline">
-                        Źródło: {patient.source}
+                        Źródło: {displayPatient.source}
                       </Badge>
                     )}
                   </div>
 
-                  {patient.notes && (
+                  {displayPatient.notes && (
                     <div>
                       <h4 className="font-medium text-sm text-gray-700 mb-1">Notatki:</h4>
-                      <p className="text-sm">{patient.notes}</p>
+                      <p className="text-sm">{displayPatient.notes}</p>
                     </div>
                   )}
                 </div>
@@ -347,37 +374,37 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
 
             <TabsContent value="medical" className="space-y-4">
               <div className="grid gap-6">
-                {patient.allergies && (
+                {displayPatient.allergies && (
                   <div>
                     <h3 className="text-lg font-semibold flex items-center mb-2">
                       <AlertTriangle className="w-5 h-5 mr-2 text-orange-500" />
                       Alergie
                     </h3>
-                    <p className="text-sm bg-orange-50 p-3 rounded">{patient.allergies}</p>
+                    <p className="text-sm bg-orange-50 p-3 rounded">{displayPatient.allergies}</p>
                   </div>
                 )}
 
-                {patient.contraindications && (
+                {displayPatient.contraindications && (
                   <div>
                     <h3 className="text-lg font-semibold flex items-center mb-2">
                       <AlertTriangle className="w-5 h-5 mr-2 text-red-500" />
                       Przeciwwskazania
                     </h3>
-                    <p className="text-sm bg-red-50 p-3 rounded">{patient.contraindications}</p>
+                    <p className="text-sm bg-red-50 p-3 rounded">{displayPatient.contraindications}</p>
                   </div>
                 )}
 
-                {patient.medical_notes && (
+                {displayPatient.medical_notes && (
                   <div>
                     <h3 className="text-lg font-semibold flex items-center mb-2">
                       <Heart className="w-5 h-5 mr-2 text-pink-500" />
                       Notatki medyczne
                     </h3>
-                    <p className="text-sm bg-gray-50 p-3 rounded">{patient.medical_notes}</p>
+                    <p className="text-sm bg-gray-50 p-3 rounded">{displayPatient.medical_notes}</p>
                   </div>
                 )}
 
-                {!patient.allergies && !patient.contraindications && !patient.medical_notes && (
+                {!displayPatient.allergies && !displayPatient.contraindications && !displayPatient.medical_notes && (
                   <div className="text-center py-8 text-gray-500">
                     Brak informacji medycznych
                   </div>
@@ -423,9 +450,9 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
         </AlertDialogContent>
       </AlertDialog>
 
-      {isEditing && (
+      {isEditing && displayPatient && (
         <PatientEditForm
-          patient={patient}
+          patient={displayPatient}
           isOpen={isEditing}
           onClose={() => setIsEditing(false)}
           onSuccess={handleEditSuccess}
@@ -436,11 +463,8 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
         <AppointmentForm
           isOpen={showAddAppointment}
           onClose={() => setShowAddAppointment(false)}
-          selectedPatient={patient}
-          onSuccess={() => {
-            refetch();
-            setShowAddAppointment(false);
-          }}
+          selectedPatient={displayPatient}
+          onSuccess={handleAppointmentSuccess}
         />
       )}
     </>

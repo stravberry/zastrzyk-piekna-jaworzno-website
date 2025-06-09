@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Users, Clock, Search, Plus, FileText, Camera } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
@@ -25,6 +25,7 @@ const AdminCRM: React.FC = () => {
   const [showPatientModal, setShowPatientModal] = useState(false);
   const [showAddAppointment, setShowAddAppointment] = useState(false);
   const [activeTab, setActiveTab] = useState("patients");
+  const queryClient = useQueryClient();
 
   // Fetch stats
   const { data: stats, refetch: refetchStats } = useQuery({
@@ -58,7 +59,24 @@ const AdminCRM: React.FC = () => {
   };
 
   const handlePatientUpdate = () => {
-    refetchStats(); // Refresh stats when patient is updated
+    // Invalidate all related queries to ensure fresh data
+    queryClient.invalidateQueries({ queryKey: ['patients'] });
+    queryClient.invalidateQueries({ queryKey: ['current-patient'] });
+    queryClient.invalidateQueries({ queryKey: ['crm-stats'] });
+    
+    // Refetch stats
+    refetchStats();
+  };
+
+  const handleAppointmentSuccess = () => {
+    // Invalidate appointment-related queries
+    queryClient.invalidateQueries({ queryKey: ['patient-appointments'] });
+    queryClient.invalidateQueries({ queryKey: ['appointments-list'] });
+    queryClient.invalidateQueries({ queryKey: ['crm-stats'] });
+    
+    // Refetch stats
+    refetchStats();
+    setShowAddAppointment(false);
   };
 
   return (
@@ -141,6 +159,7 @@ const AdminCRM: React.FC = () => {
                 searchTerm={searchTerm}
                 onPatientSelect={handlePatientSelect}
                 selectedPatient={selectedPatient}
+                onPatientUpdate={handlePatientUpdate}
               />
             </CardContent>
           </Card>
@@ -165,6 +184,7 @@ const AdminCRM: React.FC = () => {
           isOpen={showAddAppointment}
           onClose={() => setShowAddAppointment(false)}
           selectedPatient={selectedPatient}
+          onSuccess={handleAppointmentSuccess}
         />
       )}
     </div>

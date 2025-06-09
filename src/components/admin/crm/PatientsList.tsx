@@ -1,6 +1,5 @@
-
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
@@ -17,6 +16,7 @@ interface PatientsListProps {
   searchTerm: string;
   onPatientSelect: (patient: Patient) => void;
   selectedPatient: Patient | null;
+  onPatientUpdate?: () => void;
 }
 
 const PATIENTS_PER_PAGE = 10;
@@ -24,10 +24,12 @@ const PATIENTS_PER_PAGE = 10;
 const PatientsList: React.FC<PatientsListProps> = ({ 
   searchTerm, 
   onPatientSelect, 
-  selectedPatient 
+  selectedPatient,
+  onPatientUpdate
 }) => {
   const [showAddPatient, setShowAddPatient] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const queryClient = useQueryClient();
 
   // Reset to first page when search term changes
   React.useEffect(() => {
@@ -85,6 +87,24 @@ const PatientsList: React.FC<PatientsListProps> = ({
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const handlePatientSuccess = () => {
+    // Invalidate and refetch patients data
+    queryClient.invalidateQueries({ queryKey: ['patients'] });
+    queryClient.invalidateQueries({ queryKey: ['crm-stats'] });
+    refetch();
+    setShowAddPatient(false);
+    toast.success('Pacjent został dodany');
+    
+    // Notify parent component
+    if (onPatientUpdate) {
+      onPatientUpdate();
+    }
+  };
+
+  const handlePatientSelect = (patient: Patient) => {
+    onPatientSelect(patient);
   };
 
   const renderPaginationItems = () => {
@@ -153,7 +173,7 @@ const PatientsList: React.FC<PatientsListProps> = ({
             className={`cursor-pointer transition-colors hover:bg-gray-50 ${
               selectedPatient?.id === patient.id ? 'ring-2 ring-pink-500' : ''
             }`}
-            onClick={() => onPatientSelect(patient)}
+            onClick={() => handlePatientSelect(patient)}
           >
             <CardContent className="p-3 sm:p-4">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
@@ -248,11 +268,7 @@ const PatientsList: React.FC<PatientsListProps> = ({
         <PatientForm 
           isOpen={showAddPatient}
           onClose={() => setShowAddPatient(false)}
-          onSuccess={() => {
-            refetch();
-            setShowAddPatient(false);
-            toast.success('Pacjent został dodany');
-          }}
+          onSuccess={handlePatientSuccess}
         />
       )}
     </div>

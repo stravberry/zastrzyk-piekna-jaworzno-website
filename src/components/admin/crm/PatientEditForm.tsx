@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -45,25 +44,48 @@ const PatientEditForm: React.FC<PatientEditFormProps> = ({
   onClose, 
   onSuccess 
 }) => {
+  const [isLoading, setIsLoading] = React.useState(false);
+
   const form = useForm<PatientFormData>({
     resolver: zodResolver(patientSchema),
     defaultValues: {
-      first_name: patient.first_name,
-      last_name: patient.last_name,
-      phone: patient.phone || "",
-      email: patient.email || "",
-      date_of_birth: patient.date_of_birth || "",
-      address: patient.address || "",
-      skin_type: patient.skin_type || undefined,
-      allergies: patient.allergies || "",
-      contraindications: patient.contraindications || "",
-      medical_notes: patient.medical_notes || "",
-      source: patient.source || "other",
-      notes: patient.notes || "",
+      first_name: "",
+      last_name: "",
+      phone: "",
+      email: "",
+      date_of_birth: "",
+      address: "",
+      skin_type: undefined,
+      allergies: "",
+      contraindications: "",
+      medical_notes: "",
+      source: "other",
+      notes: "",
     }
   });
 
+  // Reset form when patient changes
+  useEffect(() => {
+    if (patient && isOpen) {
+      form.reset({
+        first_name: patient.first_name || "",
+        last_name: patient.last_name || "",
+        phone: patient.phone || "",
+        email: patient.email || "",
+        date_of_birth: patient.date_of_birth || "",
+        address: patient.address || "",
+        skin_type: patient.skin_type || undefined,
+        allergies: patient.allergies || "",
+        contraindications: patient.contraindications || "",
+        medical_notes: patient.medical_notes || "",
+        source: patient.source || "other",
+        notes: patient.notes || "",
+      });
+    }
+  }, [patient, isOpen, form]);
+
   const onSubmit = async (data: PatientFormData) => {
+    setIsLoading(true);
     try {
       const { error } = await supabase
         .from('patients')
@@ -80,15 +102,30 @@ const PatientEditForm: React.FC<PatientEditFormProps> = ({
           medical_notes: data.medical_notes || null,
           source: data.source || 'other',
           notes: data.notes || null,
+          updated_at: new Date().toISOString(),
         })
         .eq('id', patient.id);
 
       if (error) throw error;
       
+      // Log the update activity
+      await supabase.rpc('log_admin_activity', {
+        _action: 'update_patient',
+        _resource_type: 'patient',
+        _resource_id: patient.id,
+        _details: {
+          patient_name: `${data.first_name} ${data.last_name}`,
+          updated_fields: Object.keys(data)
+        }
+      });
+      
       toast.success('Dane pacjenta zostały zaktualizowane');
       onSuccess();
     } catch (error: any) {
-      toast.error('Błąd podczas aktualizacji pacjenta: ' + error.message);
+      console.error('Error updating patient:', error);
+      toast.error('Błąd podczas aktualizacji pacjenta: ' + (error.message || 'Nieznany błąd'));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -109,7 +146,7 @@ const PatientEditForm: React.FC<PatientEditFormProps> = ({
                   <FormItem>
                     <FormLabel>Imię *</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} disabled={isLoading} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -123,7 +160,7 @@ const PatientEditForm: React.FC<PatientEditFormProps> = ({
                   <FormItem>
                     <FormLabel>Nazwisko *</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} disabled={isLoading} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -299,11 +336,20 @@ const PatientEditForm: React.FC<PatientEditFormProps> = ({
             />
 
             <div className="flex justify-end space-x-2 pt-4">
-              <Button type="button" variant="outline" onClick={onClose}>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={onClose}
+                disabled={isLoading}
+              >
                 Anuluj
               </Button>
-              <Button type="submit" className="bg-pink-500 hover:bg-pink-600">
-                Zapisz zmiany
+              <Button 
+                type="submit" 
+                className="bg-pink-500 hover:bg-pink-600"
+                disabled={isLoading}
+              >
+                {isLoading ? "Zapisywanie..." : "Zapisz zmiany"}
               </Button>
             </div>
           </form>
