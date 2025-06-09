@@ -7,7 +7,7 @@ import CategoryFilter from "@/components/blog/CategoryFilter";
 import BlogCard from "@/components/blog/BlogCard";
 import BlogPagination from "@/components/blog/BlogPagination";
 import BlogNewsletter from "@/components/blog/BlogNewsletter";
-import { getAllBlogPosts } from "@/services/blogService";
+import { getAllBlogPosts } from "@/services/blog/blogPosts";
 import { BlogPost } from "@/types/admin";
 
 const Blog = () => {
@@ -15,7 +15,7 @@ const Blog = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 6; // Number of posts to display per page
+  const postsPerPage = 6;
 
   useEffect(() => {
     const fetchPosts = async () => {

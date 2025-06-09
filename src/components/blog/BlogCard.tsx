@@ -6,7 +6,7 @@ import { BlogPost } from "@/types/admin";
 
 // Create a simplified type that only includes the props needed for display
 type BlogCardProps = {
-  post: Pick<BlogPost, 'id' | 'title' | 'excerpt' | 'date' | 'category' | 'image' | 'readTime' | 'slug'>;
+  post: Pick<BlogPost, 'id' | 'title' | 'excerpt' | 'date' | 'category' | 'image' | 'readTime' | 'slug' | 'stats'>;
 }
 
 const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
@@ -37,9 +37,12 @@ const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
         </Link>
         <p className="text-sm md:text-base text-gray-600 mb-4 flex-grow line-clamp-3">{post.excerpt}</p>
         <div className="flex justify-between items-center">
-          <div className="flex items-center text-gray-500 text-xs">
-            <Eye size={12} className="mr-1" />
-            {post.readTime} czytania
+          <div className="flex items-center gap-3 text-gray-500 text-xs">
+            <div className="flex items-center">
+              <Eye size={12} className="mr-1" />
+              <span>{post.stats?.views || 0} wyświetleń</span>
+            </div>
+            <span>{post.readTime} czytania</span>
           </div>
           <Link
             to={post.slug}

@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { BlogPost, BlogPostDraft } from "@/types/admin";
 import { blogPosts } from "@/data/blogData";
 import { mapDbPostToFrontend, seedBlogPosts } from "./blogCore";
+import { incrementBlogPostViews, getAllPostViews } from "./blogViews";
 
 // Get all blog posts
 export const getAllBlogPosts = async (): Promise<BlogPost[]> => {
@@ -20,7 +21,17 @@ export const getAllBlogPosts = async (): Promise<BlogPost[]> => {
       throw error;
     }
 
-    return data.map(mapDbPostToFrontend);
+    // Get all view counts
+    const viewsMap = await getAllPostViews();
+
+    return data.map(post => {
+      const mappedPost = mapDbPostToFrontend(post);
+      // Use real view count from database
+      if (mappedPost.stats) {
+        mappedPost.stats.views = viewsMap[post.id] || 0;
+      }
+      return mappedPost;
+    });
   } catch (error) {
     console.error('Error in getAllBlogPosts:', error);
     // Fall back to sample data if database access fails
@@ -34,7 +45,7 @@ export const getAllBlogPosts = async (): Promise<BlogPost[]> => {
       },
       stats: {
         id: post.id,
-        views: Math.floor(Math.random() * 1000) + 100,
+        views: 0, // Use 0 instead of random for fallback
         clicks: Math.floor(Math.random() * 200) + 20,
         timeSpent: Math.floor(Math.random() * 180) + 60,
       }
@@ -42,7 +53,7 @@ export const getAllBlogPosts = async (): Promise<BlogPost[]> => {
   }
 };
 
-// Get a single blog post by ID
+// Get a single blog post by ID and increment view count
 export const getBlogPostById = async (id: number): Promise<BlogPost | null> => {
   try {
     const { data, error } = await supabase
@@ -56,7 +67,20 @@ export const getBlogPostById = async (id: number): Promise<BlogPost | null> => {
       throw error;
     }
 
-    return data ? mapDbPostToFrontend(data) : null;
+    if (!data) return null;
+
+    // Increment view count when post is accessed
+    await incrementBlogPostViews(id);
+
+    const mappedPost = mapDbPostToFrontend(data);
+    
+    // Get updated view count after increment
+    const viewsMap = await getAllPostViews();
+    if (mappedPost.stats) {
+      mappedPost.stats.views = viewsMap[id] || 0;
+    }
+
+    return mappedPost;
   } catch (error) {
     console.error('Error in getBlogPostById:', error);
     
@@ -73,14 +97,13 @@ export const getBlogPostById = async (id: number): Promise<BlogPost | null> => {
         },
         stats: {
           id: samplePost.id,
-          views: Math.floor(Math.random() * 1000) + 100,
+          views: 0, // Use 0 instead of random for fallback
           clicks: Math.floor(Math.random() * 200) + 20,
           timeSpent: Math.floor(Math.random() * 180) + 60,
         }
       };
     }
     
-    // Return null rather than undefined to fix the issue with the React Query
     return null;
   }
 };

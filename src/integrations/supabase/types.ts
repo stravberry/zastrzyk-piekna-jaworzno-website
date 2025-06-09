@@ -9,6 +9,41 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      blog_post_views: {
+        Row: {
+          created_at: string | null
+          id: string
+          post_id: number
+          unique_views: number
+          updated_at: string | null
+          views: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          post_id: number
+          unique_views?: number
+          updated_at?: string | null
+          views?: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          post_id?: number
+          unique_views?: number
+          updated_at?: string | null
+          views?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_post_views_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_posts: {
         Row: {
           author_id: string | null
@@ -24,6 +59,7 @@ export type Database = {
           read_time: string
           slug: string | null
           title: string
+          view_count: number | null
         }
         Insert: {
           author_id?: string | null
@@ -39,6 +75,7 @@ export type Database = {
           read_time: string
           slug?: string | null
           title: string
+          view_count?: number | null
         }
         Update: {
           author_id?: string | null
@@ -54,6 +91,7 @@ export type Database = {
           read_time?: string
           slug?: string | null
           title?: string
+          view_count?: number | null
         }
         Relationships: []
       }
@@ -270,6 +308,10 @@ export type Database = {
           head_code: string
           body_code: string
         }[]
+      }
+      increment_blog_post_views: {
+        Args: { post_id: number }
+        Returns: undefined
       }
       update_code_settings: {
         Args: { p_head_code: string; p_body_code: string }

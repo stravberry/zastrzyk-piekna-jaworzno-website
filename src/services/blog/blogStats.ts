@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { BlogPost } from "@/types/admin";
 import { blogPosts } from "@/data/blogData";
 import { mapDbPostToFrontend, seedBlogPosts } from "./blogCore";
+import { getTotalBlogViews, getAllPostViews } from "./blogViews";
 
 // Get blog statistics
 export const getBlogStats = async (): Promise<{
@@ -41,28 +42,37 @@ export const getBlogStats = async (): Promise<{
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
     
-    // Get recent posts with error handling
+    // Get recent posts with real view counts
     let recentPosts: BlogPost[] = [];
     try {
-      // Sort posts by date with error handling
+      // Sort posts by date
       const sortedPosts = [...posts].sort((a, b) => {
         try {
           return new Date(b.date).getTime() - new Date(a.date).getTime();
         } catch (error) {
           console.error('Error sorting by date:', error);
-          return 0; // Keep original order if there's an error
+          return 0;
         }
       });
       
-      recentPosts = sortedPosts.slice(0, 5).map(mapDbPostToFrontend);
+      // Get view counts for all posts
+      const viewsMap = await getAllPostViews();
+      
+      recentPosts = sortedPosts.slice(0, 5).map(post => {
+        const mappedPost = mapDbPostToFrontend(post);
+        // Use real view count from database
+        if (mappedPost.stats) {
+          mappedPost.stats.views = viewsMap[post.id] || 0;
+        }
+        return mappedPost;
+      });
     } catch (error) {
       console.error('Error processing recent posts:', error);
-      // Return empty array if there was an error
       recentPosts = [];
     }
     
-    // Calculate total views (sum of all post views)
-    const totalViews = posts.length * (Math.floor(Math.random() * 500) + 100);
+    // Get real total views from database
+    const totalViews = await getTotalBlogViews();
     
     return {
       totalPosts: posts.length,
@@ -73,7 +83,7 @@ export const getBlogStats = async (): Promise<{
   } catch (error) {
     console.error('Error in getBlogStats:', error);
     
-    // Fall back to sample data with better error handling
+    // Fall back to sample data
     const samplePosts = blogPosts;
     
     // Calculate categories from sample data
@@ -92,7 +102,7 @@ export const getBlogStats = async (): Promise<{
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
     
-    // Get recent posts with mock stats and better error handling
+    // Get recent posts with 0 views for fallback
     const recentPosts = samplePosts
       .slice(0, 5)
       .map(post => ({
@@ -105,7 +115,7 @@ export const getBlogStats = async (): Promise<{
         },
         stats: {
           id: post.id,
-          views: Math.floor(Math.random() * 1000) + 100,
+          views: 0, // Use 0 instead of random for fallback
           clicks: Math.floor(Math.random() * 200) + 20,
           timeSpent: Math.floor(Math.random() * 180) + 60,
         }
@@ -113,7 +123,7 @@ export const getBlogStats = async (): Promise<{
     
     return {
       totalPosts: samplePosts.length,
-      totalViews: samplePosts.length * (Math.floor(Math.random() * 500) + 100),
+      totalViews: 0, // Use 0 instead of random for fallback
       popularCategories,
       recentPosts,
     };
