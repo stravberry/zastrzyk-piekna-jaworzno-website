@@ -1,46 +1,17 @@
+
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { useIsMobile } from "@/hooks/use-mobile";
+import ComparisonSection from "@/components/about/ComparisonSection";
+
 const AboutMe = () => {
   const isMobile = useIsMobile();
-  const comparisonData = [{
-    category: "Podejście do klienta",
-    others: "Standardowe, często schematyczne",
-    clinic: "Indywidualne, holistyczne podejście"
-  }, {
-    category: "Doświadczenie",
-    others: "Różne poziomy",
-    clinic: "Laureatka Kosmetologa Roku woj. śląskiego"
-  }, {
-    category: "Wykształcenie",
-    others: "Kursy i szkolenia",
-    clinic: "Magister kosmetologii, studentka pielęgniarstwa"
-  }, {
-    category: "Specjalizacja",
-    others: "Ogólna",
-    clinic: "Anti-aging, usta, makijaż permanentny brwi"
-  }, {
-    category: "Jakość preparatów",
-    others: "Niejednokrotnie niska",
-    clinic: "Tylko sprawdzone, certyfikowane preparaty"
-  }, {
-    category: "Efekty zabiegów",
-    others: "Niekiedy powierzchowne",
-    clinic: "Widoczne, precyzyjne i trwałe rezultaty"
-  }, {
-    category: "Wiedza i rozwój",
-    others: "Rzadko aktualizowana",
-    clinic: "Ciągłe szkolenia, aktualna wiedza branżowa"
-  }, {
-    category: "Komunikacja z klientem",
-    others: "Głównie telefoniczna",
-    clinic: "Dostępność online, Instagram, rolki edukacyjne"
-  }];
-  return <div className="min-h-screen flex flex-col">
+
+  return (
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow pt-24">
         {/* Hero Section */}
@@ -109,34 +80,8 @@ Zapraszam na mój Instagram @zastrzyk_piekna oraz zachęcam do obejrzenia wszyst
           </div>
         </section>
 
-        {/* Comparison Table */}
-        <section className="py-16 bg-pink-50">
-          <div className="container-custom">
-            <h2 className="text-3xl font-bold mb-8 font-playfair text-center">
-              <span>Dlaczego warto wybrać </span>
-              <span className="text-pink-500">mój gabinet?</span>
-            </h2>
-            
-            <div className="bg-white rounded-lg shadow-md overflow-hidden max-w-4xl mx-auto">
-              <Table className="w-full text-sm md:text-base">
-                <TableHeader>
-                  <TableRow className="bg-pink-500 text-white">
-                    <TableHead className="py-3 px-2 md:px-4 text-left font-medium text-white">Kategoria</TableHead>
-                    <TableHead className="py-3 px-2 md:px-4 text-left font-medium text-white">Inne gabinety</TableHead>
-                    <TableHead className="py-3 px-2 md:px-4 text-left font-medium text-white">Zastrzyk Piękna – Anna Gajęcka</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {comparisonData.map((item, index) => <TableRow key={index} className={index % 2 === 0 ? 'bg-pink-50/30' : 'bg-white'}>
-                      <TableCell className="py-2 px-2 md:px-4 font-medium text-xs md:text-sm">{item.category}</TableCell>
-                      <TableCell className="py-2 px-2 md:px-4 text-gray-600 text-xs md:text-sm">{item.others}</TableCell>
-                      <TableCell className="py-2 px-2 md:px-4 text-pink-600 font-medium text-xs md:text-sm">{item.clinic}</TableCell>
-                    </TableRow>)}
-                </TableBody>
-              </Table>
-            </div>
-          </div>
-        </section>
+        {/* Interactive Comparison Section */}
+        <ComparisonSection />
 
         {/* CTA Section */}
         <section className="py-16 bg-gradient-to-r from-pink-500 to-pink-600 text-white">
@@ -155,6 +100,8 @@ Zapraszam na mój Instagram @zastrzyk_piekna oraz zachęcam do obejrzenia wszyst
         </section>
       </main>
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default AboutMe;
