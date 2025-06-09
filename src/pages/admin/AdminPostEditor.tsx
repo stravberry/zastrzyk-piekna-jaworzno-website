@@ -1,9 +1,8 @@
+
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 
-import AdminLayout from "@/components/admin/AdminLayout";
-import AdminProtectedRoute from "@/components/admin/AdminProtectedRoute";
 import { getBlogPostById, createBlogPost, updateBlogPost } from "@/services/blogService";
 import { BlogPostDraft } from "@/types/admin";
 import { useToast } from "@/hooks/use-toast";
@@ -142,21 +141,19 @@ const AdminPostEditor: React.FC = () => {
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
   return (
-    <AdminProtectedRoute>
-      <AdminLayout title={isEditing ? "Edytuj Post" : "Utwórz Nowy Post"}>
-        <div className={isMobile ? "mb-4" : ""}>
-          <BackButton />
-        </div>
-        
-        <EditorForm
-          defaultValues={defaultValues}
-          isSubmitting={isSubmitting}
-          onSubmit={handleSubmit}
-          post={post}
-          isEditing={isEditing}
-        />
-      </AdminLayout>
-    </AdminProtectedRoute>
+    <div>
+      <div className={isMobile ? "mb-4" : ""}>
+        <BackButton />
+      </div>
+      
+      <EditorForm
+        defaultValues={defaultValues}
+        isSubmitting={isSubmitting}
+        onSubmit={handleSubmit}
+        post={post}
+        isEditing={isEditing}
+      />
+    </div>
   );
 };
 

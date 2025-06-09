@@ -6,7 +6,6 @@ import { FileText, Eye, Clock, Info } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import AdminLayout from "@/components/admin/AdminLayout";
 import { getBlogStats } from "@/services/blogService";
 
 const AdminDashboard: React.FC = () => {
@@ -43,7 +42,7 @@ const AdminDashboard: React.FC = () => {
   if (error) {
     console.error('Dashboard error:', error);
     return (
-      <AdminLayout title="Dashboard">
+      <div>
         <Alert variant="destructive" className="mb-6">
           <Info className="h-4 w-4" />
           <AlertDescription>
@@ -51,12 +50,12 @@ const AdminDashboard: React.FC = () => {
           </AlertDescription>
         </Alert>
         <Button onClick={() => refetch()}>Spróbuj ponownie</Button>
-      </AdminLayout>
+      </div>
     );
   }
 
   return (
-    <AdminLayout title="Dashboard">
+    <div>
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-pulse">
           {[...Array(3)].map((_, i) => (
@@ -166,7 +165,7 @@ const AdminDashboard: React.FC = () => {
           <Button onClick={() => refetch()} className="mt-4">Spróbuj ponownie</Button>
         </div>
       )}
-    </AdminLayout>
+    </div>
   );
 };
 

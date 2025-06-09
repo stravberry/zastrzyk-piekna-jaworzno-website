@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
@@ -63,7 +62,7 @@ const AdminCodeSettings: React.FC = () => {
 
   if (error) {
     return (
-      <AdminLayout title="Ustawienia kodu" subtitle="Dodaj kod śledzenia lub inne skrypty do nagłówka i treści strony">
+      <div>
         <Alert variant="destructive" className="mb-6">
           <InfoIcon className="h-4 w-4" />
           <AlertDescription>
@@ -71,12 +70,12 @@ const AdminCodeSettings: React.FC = () => {
           </AlertDescription>
         </Alert>
         <Button onClick={() => refetch()}>Spróbuj ponownie</Button>
-      </AdminLayout>
+      </div>
     );
   }
 
   return (
-    <AdminLayout title="Ustawienia kodu" subtitle="Dodaj kod śledzenia lub inne skrypty do nagłówka i treści strony">
+    <div>
       <Alert className="mb-6 border-blue-200 bg-blue-50">
         <InfoIcon className="h-5 w-5 text-blue-500" />
         <AlertTitle>Optymalizacja dla Google Tag Manager</AlertTitle>
@@ -178,7 +177,7 @@ const AdminCodeSettings: React.FC = () => {
           )}
         </CardContent>
       </Card>
-    </AdminLayout>
+    </div>
   );
 };
 

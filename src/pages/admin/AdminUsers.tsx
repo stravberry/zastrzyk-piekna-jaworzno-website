@@ -3,8 +3,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Users, RefreshCw } from "lucide-react";
-import AdminLayout from "@/components/admin/AdminLayout";
-import AdminProtectedRoute from "@/components/admin/AdminProtectedRoute";
 import UserManagementTable from "@/components/admin/users/UserManagementTable";
 import UserInviteDialog from "@/components/admin/users/UserInviteDialog";
 import { Button } from "@/components/ui/button";
@@ -99,98 +97,91 @@ const AdminUsers: React.FC = () => {
   }
 
   return (
-    <AdminProtectedRoute requiredRole="admin">
-      <AdminLayout 
-        title="Zarządzanie użytkownikami" 
-        subtitle="Zarządzaj kontami użytkowników i ich uprawnieniami"
-      >
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Users className="h-6 w-6 text-pink-500" />
-              <h2 className="text-xl font-semibold">Lista użytkowników</h2>
-            </div>
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                onClick={loadUsers}
-                disabled={isLoading}
-                className="flex items-center gap-2"
-              >
-                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-                Odśwież
-              </Button>
-              <UserInviteDialog onUserInvited={handleUserInvited} />
-            </div>
-          </div>
-
-          {/* Statystyki */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500">
-                  Wszystkich użytkowników
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{users.length}</div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500">
-                  Administratorzy
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-red-600">
-                  {users.filter(u => u.roles.includes('admin')).length}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500">
-                  Edytorzy
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-blue-600">
-                  {users.filter(u => u.roles.includes('editor')).length}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500">
-                  Aktywni użytkownicy
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600">
-                  {users.filter(u => u.last_sign_in_at).length}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Tabela użytkowników */}
-          <Card>
-            <CardContent className="p-6">
-              <UserManagementTable 
-                users={users}
-                onRoleChange={handleRoleChange}
-                isLoading={isLoading}
-              />
-            </CardContent>
-          </Card>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Users className="h-6 w-6 text-pink-500" />
+          <h2 className="text-xl font-semibold">Lista użytkowników</h2>
         </div>
-      </AdminLayout>
-    </AdminProtectedRoute>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={loadUsers}
+            disabled={isLoading}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            Odśwież
+          </Button>
+          <UserInviteDialog onUserInvited={handleUserInvited} />
+        </div>
+      </div>
+
+      {/* Statystyki */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-500">
+              Wszystkich użytkowników
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{users.length}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-500">
+              Administratorzy
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-600">
+              {users.filter(u => u.roles.includes('admin')).length}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-500">
+              Edytorzy
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">
+              {users.filter(u => u.roles.includes('editor')).length}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-500">
+              Aktywni użytkownicy
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {users.filter(u => u.last_sign_in_at).length}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Tabela użytkowników */}
+      <Card>
+        <CardContent className="p-6">
+          <UserManagementTable 
+            users={users}
+            onRoleChange={handleRoleChange}
+            isLoading={isLoading}
+          />
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
