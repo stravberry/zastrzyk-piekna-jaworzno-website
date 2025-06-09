@@ -1,7 +1,7 @@
 
-import React, { useState, useRef } from "react";
-import { CheckCircle, Star, Award, Heart, Zap, Shield, Trophy, Users } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import React, { useState, useRef, useEffect } from "react";
+import { CheckCircle, X, ArrowRight, Sparkles, Award, Heart, Star, Shield } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 interface ComparisonItem {
@@ -9,7 +9,8 @@ interface ComparisonItem {
   others: string;
   clinic: string;
   icon: React.ElementType;
-  color: string;
+  badAspect: string;
+  goodAspect: string;
 }
 
 const comparisonData: ComparisonItem[] = [
@@ -18,158 +19,193 @@ const comparisonData: ComparisonItem[] = [
     others: "Standardowe, często schematyczne",
     clinic: "Indywidualne, holistyczne podejście",
     icon: Heart,
-    color: "from-pink-500 to-rose-500"
+    badAspect: "Brak personalnej uwagi",
+    goodAspect: "Każdy klient jest wyjątkowy"
   },
   {
     category: "Doświadczenie",
-    others: "Różne poziomy",
+    others: "Różne poziomy umiejętności",
     clinic: "Laureatka Kosmetologa Roku woj. śląskiego",
-    icon: Trophy,
-    color: "from-gold-500 to-yellow-500"
+    icon: Award,
+    badAspect: "Niepewne efekty",
+    goodAspect: "Gwarancja wysokiej jakości"
   },
   {
     category: "Wykształcenie",
-    others: "Kursy i szkolenia",
+    others: "Kursy i podstawowe szkolenia",
     clinic: "Magister kosmetologii, studentka pielęgniarstwa",
-    icon: Award,
-    color: "from-blue-500 to-indigo-500"
+    icon: Star,
+    badAspect: "Powierzchowna wiedza",
+    goodAspect: "Dogłębna wiedza naukowa"
   },
   {
     category: "Specjalizacja",
-    others: "Ogólna",
+    others: "Ogólne podejście",
     clinic: "Anti-aging, usta, makijaż permanentny brwi",
-    icon: Star,
-    color: "from-purple-500 to-violet-500"
+    icon: Sparkles,
+    badAspect: "Przeciętne rezultaty",
+    goodAspect: "Eksperckie specjalizacje"
   },
   {
     category: "Jakość preparatów",
-    others: "Niejednokrotnie niska",
+    others: "Niejednokrotnie niska jakość",
     clinic: "Tylko sprawdzone, certyfikowane preparaty",
     icon: Shield,
-    color: "from-green-500 to-emerald-500"
-  },
-  {
-    category: "Efekty zabiegów",
-    others: "Niekiedy powierzchowne",
-    clinic: "Widoczne, precyzyjne i trwałe rezultaty",
-    icon: Zap,
-    color: "from-orange-500 to-red-500"
-  },
-  {
-    category: "Wiedza i rozwój",
-    others: "Rzadko aktualizowana",
-    clinic: "Ciągłe szkolenia, aktualna wiedza branżowa",
-    icon: CheckCircle,
-    color: "from-teal-500 to-cyan-500"
-  },
-  {
-    category: "Komunikacja z klientem",
-    others: "Głównie telefoniczna",
-    clinic: "Dostępność online, Instagram, rolki edukacyjne",
-    icon: Users,
-    color: "from-pink-500 to-purple-500"
+    badAspect: "Ryzyko podrażnień",
+    goodAspect: "Bezpieczne, premium produkty"
   }
 ];
 
-const ComparisonCard = ({ item, index }: { item: ComparisonItem; index: number }) => {
-  const [isFlipped, setIsFlipped] = useState(false);
+const AnimatedIcon = ({ icon: Icon, isActive, delay = 0 }: { 
+  icon: React.ElementType; 
+  isActive: boolean; 
+  delay?: number;
+}) => (
+  <div 
+    className={`transition-all duration-700 ${isActive ? 'scale-110 rotate-12' : 'scale-100 rotate-0'}`}
+    style={{ transitionDelay: `${delay}ms` }}
+  >
+    <Icon className={`w-8 h-8 ${isActive ? 'text-pink-500' : 'text-gray-400'}`} />
+  </div>
+);
+
+const SplitScreenCard = ({ item, index, activeIndex }: { 
+  item: ComparisonItem; 
+  index: number; 
+  activeIndex: number;
+}) => {
+  const isActive = activeIndex === index;
   const cardRef = useRef<HTMLDivElement>(null);
   const isVisible = useScrollAnimation(cardRef, { threshold: 0.3 });
 
   return (
     <div
       ref={cardRef}
-      className={`transform transition-all duration-700 ${
-        isVisible 
-          ? 'translate-y-0 opacity-100' 
-          : 'translate-y-8 opacity-0'
-      }`}
-      style={{ transitionDelay: `${index * 100}ms` }}
+      className={`relative overflow-hidden rounded-xl transition-all duration-1000 ${
+        isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+      } ${isActive ? 'scale-105 z-10' : 'scale-100'}`}
+      style={{ transitionDelay: `${index * 150}ms` }}
     >
-      <Card
-        className="relative h-64 cursor-pointer group hover:scale-105 transition-all duration-300 overflow-hidden"
-        onMouseEnter={() => setIsFlipped(true)}
-        onMouseLeave={() => setIsFlipped(false)}
-      >
-        <div className="absolute inset-0 bg-gradient-to-br opacity-10 group-hover:opacity-20 transition-opacity duration-300" 
-             style={{ backgroundImage: `linear-gradient(135deg, var(--tw-gradient-stops))` }} />
-        
-        {/* Front Card */}
-        <div className={`absolute inset-0 transition-transform duration-700 transform-gpu ${
-          isFlipped ? 'rotateY-180' : 'rotateY-0'
+      {/* Background gradient */}
+      <div className={`absolute inset-0 bg-gradient-to-r transition-opacity duration-500 ${
+        isActive 
+          ? 'from-red-50 via-gray-50 to-green-50 opacity-100' 
+          : 'from-gray-50 to-gray-100 opacity-70'
+      }`} />
+      
+      {/* Split screen container */}
+      <div className="relative grid grid-cols-1 md:grid-cols-2 min-h-[200px]">
+        {/* Left side - Others */}
+        <div className={`p-6 transition-all duration-700 ${
+          isActive ? 'bg-red-100/50 border-r-2 border-red-200' : 'bg-gray-100/30'
         }`}>
-          <CardContent className="p-6 h-full flex flex-col justify-center items-center text-center">
-            <div className={`w-16 h-16 rounded-full bg-gradient-to-r ${item.color} flex items-center justify-center mb-4 shadow-lg`}>
-              <item.icon className="w-8 h-8 text-white" />
+          <div className="flex items-center gap-3 mb-4">
+            <div className={`p-2 rounded-full transition-all duration-500 ${
+              isActive ? 'bg-red-200 scale-110' : 'bg-gray-200'
+            }`}>
+              <X className={`w-5 h-5 transition-colors duration-300 ${
+                isActive ? 'text-red-600' : 'text-gray-500'
+              }`} />
             </div>
-            <h3 className="text-lg font-semibold mb-3 text-gray-800">{item.category}</h3>
-            <div className="w-12 h-1 bg-gradient-to-r from-pink-400 to-pink-600 rounded-full"></div>
-          </CardContent>
+            <h4 className="font-semibold text-gray-800">Inne gabinety</h4>
+          </div>
+          <p className={`text-sm transition-all duration-300 ${
+            isActive ? 'text-red-700 font-medium' : 'text-gray-600'
+          }`}>
+            {item.others}
+          </p>
+          <div className={`mt-3 text-xs transition-all duration-500 ${
+            isActive ? 'text-red-600 opacity-100' : 'text-gray-500 opacity-0'
+          }`}>
+            → {item.badAspect}
+          </div>
         </div>
 
-        {/* Back Card */}
-        <div className={`absolute inset-0 transition-transform duration-700 transform-gpu ${
-          isFlipped ? 'rotateY-0' : 'rotateY-180'
+        {/* Right side - My clinic */}
+        <div className={`p-6 transition-all duration-700 ${
+          isActive ? 'bg-green-100/50' : 'bg-gray-100/30'
         }`}>
-          <CardContent className="p-4 h-full flex flex-col justify-between">
-            <div className="space-y-4">
-              <div className="bg-red-50 border-l-4 border-red-400 p-3 rounded">
-                <p className="text-xs font-medium text-red-600 mb-1">Inne gabinety:</p>
-                <p className="text-sm text-red-700">{item.others}</p>
-              </div>
-              
-              <div className="bg-green-50 border-l-4 border-green-400 p-3 rounded">
-                <p className="text-xs font-medium text-green-600 mb-1">Zastrzyk Piękna:</p>
-                <p className="text-sm text-green-700 font-medium">{item.clinic}</p>
-              </div>
+          <div className="flex items-center gap-3 mb-4">
+            <div className={`p-2 rounded-full transition-all duration-500 ${
+              isActive ? 'bg-green-200 scale-110' : 'bg-gray-200'
+            }`}>
+              <CheckCircle className={`w-5 h-5 transition-colors duration-300 ${
+                isActive ? 'text-green-600' : 'text-gray-500'
+              }`} />
             </div>
-            
-            <div className="flex justify-center">
-              <div className="flex space-x-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-gold-400 text-gold-400" />
-                ))}
-              </div>
-            </div>
-          </CardContent>
+            <h4 className="font-semibold text-gray-800">Zastrzyk Piękna</h4>
+          </div>
+          <p className={`text-sm transition-all duration-300 ${
+            isActive ? 'text-green-700 font-medium' : 'text-gray-600'
+          }`}>
+            {item.clinic}
+          </p>
+          <div className={`mt-3 text-xs transition-all duration-500 ${
+            isActive ? 'text-green-600 opacity-100' : 'text-gray-500 opacity-0'
+          }`}>
+            → {item.goodAspect}
+          </div>
         </div>
-      </Card>
+
+        {/* Animated arrow in the middle */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+          <div className={`transition-all duration-700 ${
+            isActive ? 'scale-125 rotate-0' : 'scale-100 rotate-180'
+          }`}>
+            <div className={`p-3 rounded-full shadow-lg transition-colors duration-500 ${
+              isActive ? 'bg-pink-500 text-white' : 'bg-white text-gray-400'
+            }`}>
+              <ArrowRight className="w-6 h-6" />
+            </div>
+          </div>
+        </div>
+
+        {/* Category label and icon */}
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2">
+          <div className={`flex items-center gap-2 px-4 py-2 rounded-full shadow-sm transition-all duration-500 ${
+            isActive ? 'bg-pink-500 text-white scale-110' : 'bg-white text-gray-600'
+          }`}>
+            <AnimatedIcon icon={item.icon} isActive={isActive} />
+            <span className="text-sm font-medium">{item.category}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Progress indicator */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200">
+        <div className={`h-full bg-gradient-to-r from-pink-400 to-pink-600 transition-all duration-1000 ${
+          isActive ? 'w-full' : 'w-0'
+        }`} />
+      </div>
     </div>
   );
 };
 
-const FloatingElement = ({ children, className = "", delay = 0 }: { 
-  children: React.ReactNode; 
-  className?: string; 
-  delay?: number; 
-}) => (
-  <div 
-    className={`absolute opacity-20 animate-pulse ${className}`}
-    style={{ animationDelay: `${delay}s`, animationDuration: '3s' }}
-  >
-    {children}
-  </div>
-);
-
 const ComparisonSection = () => {
+  const [activeIndex, setActiveIndex] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
   const isVisible = useScrollAnimation(sectionRef, { threshold: 0.1 });
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % comparisonData.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section ref={sectionRef} className="py-16 bg-gradient-to-br from-pink-50 via-white to-purple-50 relative overflow-hidden">
-      {/* Floating Background Elements */}
-      <FloatingElement className="top-10 left-10" delay={0}>
+      {/* Floating background elements */}
+      <div className="absolute top-10 left-10 animate-bounce opacity-20 delay-0">
         <Heart className="w-8 h-8 text-pink-300" />
-      </FloatingElement>
-      <FloatingElement className="top-20 right-20" delay={1}>
+      </div>
+      <div className="absolute top-20 right-20 animate-bounce opacity-20 delay-1000">
         <Star className="w-6 h-6 text-gold-300" />
-      </FloatingElement>
-      <FloatingElement className="bottom-20 left-1/4" delay={2}>
+      </div>
+      <div className="absolute bottom-20 left-1/4 animate-bounce opacity-20 delay-2000">
         <Award className="w-7 h-7 text-purple-300" />
-      </FloatingElement>
-      <FloatingElement className="bottom-10 right-10" delay={0.5}>
-        <Trophy className="w-8 h-8 text-pink-300" />
-      </FloatingElement>
+      </div>
 
       <div className="container-custom relative z-10">
         <div className={`text-center mb-12 transform transition-all duration-1000 ${
@@ -181,53 +217,57 @@ const ComparisonSection = () => {
               mój gabinet?
             </span>
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-            Najedź na karty poniżej, aby zobaczyć szczegółowe porównanie z innymi gabinetami
+          <p className="text-gray-600 max-w-2xl mx-auto text-lg mb-8">
+            Zobacz różnice między standardowym podejściem a profesjonalną opieką w moim gabinecie
           </p>
           
-          {/* Animated underline */}
-          <div className="flex justify-center mt-6">
-            <div className={`h-1 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full transition-all duration-1000 ${
-              isVisible ? 'w-24' : 'w-0'
-            }`}></div>
+          {/* Category navigation */}
+          <div className="flex flex-wrap justify-center gap-2 mb-8">
+            {comparisonData.map((item, index) => (
+              <Button
+                key={index}
+                variant={activeIndex === index ? "default" : "outline"}
+                size="sm"
+                onClick={() => setActiveIndex(index)}
+                className={`transition-all duration-300 ${
+                  activeIndex === index 
+                    ? 'bg-pink-500 hover:bg-pink-600 scale-105' 
+                    : 'hover:bg-pink-50 hover:border-pink-300'
+                }`}
+              >
+                <item.icon className="w-4 h-4 mr-2" />
+                {item.category}
+              </Button>
+            ))}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="space-y-6 max-w-4xl mx-auto">
           {comparisonData.map((item, index) => (
-            <ComparisonCard key={index} item={item} index={index} />
+            <SplitScreenCard 
+              key={index} 
+              item={item} 
+              index={index} 
+              activeIndex={activeIndex}
+            />
           ))}
         </div>
 
-        {/* Achievement Badge */}
-        <div className={`text-center transform transition-all duration-1000 delay-500 ${
+        {/* Achievement badge */}
+        <div className={`text-center mt-12 transform transition-all duration-1000 delay-500 ${
           isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
         }`}>
-          <div className="inline-flex items-center bg-gradient-to-r from-gold-400 to-gold-600 text-white px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <Trophy className="w-6 h-6 mr-3" />
+          <div className="inline-flex items-center bg-gradient-to-r from-gold-400 to-gold-600 text-white px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+            <Award className="w-6 h-6 mr-3" />
             <span className="font-semibold text-lg">Kosmetolog Roku Województwa Śląskiego</span>
             <div className="ml-3 flex space-x-1">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-4 h-4 fill-white" />
+                <Star key={i} className="w-4 h-4 fill-white animate-pulse" style={{ animationDelay: `${i * 200}ms` }} />
               ))}
             </div>
           </div>
         </div>
       </div>
-
-      {/* Custom styles for 3D flip effect */}
-      <style jsx>{`
-        .rotateY-0 {
-          transform: rotateY(0deg);
-        }
-        .rotateY-180 {
-          transform: rotateY(180deg);
-        }
-        .transform-gpu {
-          transform-style: preserve-3d;
-          backface-visibility: hidden;
-        }
-      `}</style>
     </section>
   );
 };
