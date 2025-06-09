@@ -1,7 +1,7 @@
 
 import React, { useRef } from "react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import BentoGrid from "./BentoGrid";
+import FloatingCards from "./FloatingCards";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Award, Star } from "lucide-react";
@@ -12,8 +12,17 @@ const ComparisonSection = () => {
 
   return (
     <section ref={sectionRef} className="py-16 bg-gradient-to-br from-pink-50 via-white to-purple-50 relative overflow-hidden">
+      {/* Particle background */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-10 left-10 w-2 h-2 bg-pink-300 rounded-full animate-pulse opacity-50"></div>
+        <div className="absolute top-32 right-20 w-1 h-1 bg-purple-400 rounded-full animate-bounce opacity-60"></div>
+        <div className="absolute bottom-40 left-1/4 w-3 h-3 bg-gold-300 rounded-full animate-pulse opacity-40"></div>
+        <div className="absolute top-64 right-1/3 w-2 h-2 bg-pink-400 rounded-full animate-bounce opacity-50"></div>
+        <div className="absolute bottom-20 right-10 w-1 h-1 bg-purple-300 rounded-full animate-pulse opacity-60"></div>
+      </div>
+
       <div className="container-custom relative z-10">
-        <div className={`text-center mb-12 transform transition-all duration-1000 ${
+        <div className={`text-center mb-16 transform transition-all duration-1000 ${
           isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
         }`}>
           <h2 className="text-4xl md:text-5xl font-bold mb-6 font-playfair">
@@ -23,17 +32,21 @@ const ComparisonSection = () => {
             </span>
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto text-lg mb-8">
-            Poznaj przewagi profesjonalnej opieki w moim gabinecie
+            Odkryj przewagi profesjonalnej opieki w moim gabinecie
           </p>
         </div>
 
-        <BentoGrid />
+        <FloatingCards />
 
         {/* Achievement badge */}
-        <div className={`text-center mt-12 transform transition-all duration-1000 delay-500 ${
+        <div className={`text-center mt-16 transform transition-all duration-1000 delay-500 ${
           isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
         }`}>
-          <div className="inline-flex items-center bg-gradient-to-r from-gold-400 to-gold-600 text-white px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+          <div className="inline-flex items-center bg-gradient-to-r from-gold-400 to-gold-600 text-white px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 relative overflow-hidden">
+            {/* Floating particles around badge */}
+            <div className="absolute -top-2 -left-2 w-1 h-1 bg-white rounded-full animate-ping"></div>
+            <div className="absolute -bottom-1 -right-1 w-1 h-1 bg-white rounded-full animate-pulse"></div>
+            
             <Award className="w-6 h-6 mr-3" />
             <span className="font-semibold text-lg">Kosmetolog Roku Województwa Śląskiego</span>
             <div className="ml-3 flex space-x-1">
