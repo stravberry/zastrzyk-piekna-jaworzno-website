@@ -576,6 +576,66 @@ export type Database = {
         }
         Relationships: []
       }
+      security_audit_log: {
+        Row: {
+          created_at: string | null
+          details: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          severity: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          details?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          severity: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          details?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      security_blocks: {
+        Row: {
+          block_type: string
+          blocked_until: string
+          created_at: string | null
+          id: string
+          identifier: string
+          reason: string
+        }
+        Insert: {
+          block_type: string
+          blocked_until: string
+          created_at?: string | null
+          id?: string
+          identifier: string
+          reason: string
+        }
+        Update: {
+          block_type?: string
+          blocked_until?: string
+          created_at?: string | null
+          id?: string
+          identifier?: string
+          reason?: string
+        }
+        Relationships: []
+      }
       treatment_photos: {
         Row: {
           appointment_id: string
@@ -709,6 +769,16 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      enhanced_rate_limit_check: {
+        Args: {
+          _identifier: string
+          _action: string
+          _max_attempts?: number
+          _window_minutes?: number
+          _block_duration_minutes?: number
+        }
+        Returns: Json
+      }
       generate_ics_event: {
         Args: { appointment_id_param: string }
         Returns: string
@@ -763,6 +833,16 @@ export type Database = {
           _resource_type?: string
           _resource_id?: string
           _details?: Json
+        }
+        Returns: undefined
+      }
+      log_security_event: {
+        Args: {
+          _event_type: string
+          _severity?: string
+          _details?: Json
+          _ip_address?: unknown
+          _user_agent?: string
         }
         Returns: undefined
       }
