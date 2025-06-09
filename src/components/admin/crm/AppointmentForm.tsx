@@ -15,6 +15,10 @@ import { toast } from "sonner";
 
 type Patient = Tables<"patients">;
 type Treatment = Tables<"treatments">;
+type Appointment = Tables<"patient_appointments"> & {
+  patients: Pick<Tables<"patients">, "first_name" | "last_name" | "phone">;
+  treatments: Pick<Tables<"treatments">, "name" | "category">;
+};
 
 const appointmentSchema = z.object({
   patient_id: z.string().min(1, "Wybierz pacjenta"),
@@ -23,6 +27,7 @@ const appointmentSchema = z.object({
   duration_minutes: z.number().min(1, "Czas trwania musi być większy niż 0"),
   pre_treatment_notes: z.string().optional(),
   cost: z.number().optional(),
+  status: z.enum(['scheduled', 'completed', 'cancelled']).optional(),
 });
 
 type AppointmentFormData = z.infer<typeof appointmentSchema>;
@@ -32,21 +37,52 @@ interface AppointmentFormProps {
   onClose: () => void;
   selectedPatient?: Patient | null;
   onSuccess?: () => void;
+  editingAppointment?: Appointment | null;
 }
 
 const AppointmentForm: React.FC<AppointmentFormProps> = ({ 
   isOpen, 
   onClose, 
   selectedPatient,
-  onSuccess 
+  onSuccess,
+  editingAppointment 
 }) => {
+  const isEditing = !!editingAppointment;
+  
   const form = useForm<AppointmentFormData>({
     resolver: zodResolver(appointmentSchema),
     defaultValues: {
-      patient_id: selectedPatient?.id || "",
-      duration_minutes: 60,
+      patient_id: selectedPatient?.id || editingAppointment?.patient_id || "",
+      treatment_id: editingAppointment?.treatment_id || "",
+      scheduled_date: editingAppointment?.scheduled_date 
+        ? new Date(editingAppointment.scheduled_date).toISOString().slice(0, 16)
+        : "",
+      duration_minutes: editingAppointment?.duration_minutes || 60,
+      pre_treatment_notes: editingAppointment?.pre_treatment_notes || "",
+      cost: editingAppointment?.cost ? Number(editingAppointment.cost) : undefined,
+      status: (editingAppointment?.status as 'scheduled' | 'completed' | 'cancelled') || 'scheduled',
     }
   });
+
+  // Reset form when editingAppointment changes
+  React.useEffect(() => {
+    if (editingAppointment) {
+      form.reset({
+        patient_id: editingAppointment.patient_id,
+        treatment_id: editingAppointment.treatment_id,
+        scheduled_date: new Date(editingAppointment.scheduled_date).toISOString().slice(0, 16),
+        duration_minutes: editingAppointment.duration_minutes || 60,
+        pre_treatment_notes: editingAppointment.pre_treatment_notes || "",
+        cost: editingAppointment.cost ? Number(editingAppointment.cost) : undefined,
+        status: (editingAppointment.status as 'scheduled' | 'completed' | 'cancelled') || 'scheduled',
+      });
+    } else if (selectedPatient) {
+      form.reset({
+        patient_id: selectedPatient.id,
+        duration_minutes: 60,
+      });
+    }
+  }, [editingAppointment, selectedPatient, form]);
 
   // Fetch treatments
   const { data: treatments } = useQuery({
@@ -81,25 +117,45 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
 
   const onSubmit = async (data: AppointmentFormData) => {
     try {
-      const { error } = await supabase
-        .from('patient_appointments')
-        .insert({
-          patient_id: data.patient_id,
-          treatment_id: data.treatment_id,
-          scheduled_date: data.scheduled_date,
-          duration_minutes: data.duration_minutes,
-          pre_treatment_notes: data.pre_treatment_notes || null,
-          cost: data.cost || null,
-        });
+      if (isEditing && editingAppointment) {
+        // Update existing appointment
+        const { error } = await supabase
+          .from('patient_appointments')
+          .update({
+            patient_id: data.patient_id,
+            treatment_id: data.treatment_id,
+            scheduled_date: data.scheduled_date,
+            duration_minutes: data.duration_minutes,
+            pre_treatment_notes: data.pre_treatment_notes || null,
+            cost: data.cost || null,
+            status: data.status || 'scheduled',
+          })
+          .eq('id', editingAppointment.id);
 
-      if (error) throw error;
+        if (error) throw error;
+        toast.success('Wizyta została zaktualizowana');
+      } else {
+        // Create new appointment
+        const { error } = await supabase
+          .from('patient_appointments')
+          .insert({
+            patient_id: data.patient_id,
+            treatment_id: data.treatment_id,
+            scheduled_date: data.scheduled_date,
+            duration_minutes: data.duration_minutes,
+            pre_treatment_notes: data.pre_treatment_notes || null,
+            cost: data.cost || null,
+          });
+
+        if (error) throw error;
+        toast.success('Wizyta została umówiona');
+      }
       
-      toast.success('Wizyta została umówiona');
       form.reset();
       onSuccess?.();
       onClose();
     } catch (error: any) {
-      toast.error('Błąd podczas umówienia wizyty: ' + error.message);
+      toast.error('Błąd podczas ' + (isEditing ? 'aktualizacji' : 'umówienia') + ' wizyty: ' + error.message);
     }
   };
 
@@ -125,12 +181,12 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Umów wizytę</DialogTitle>
+          <DialogTitle>{isEditing ? 'Edytuj wizytę' : 'Umów wizytę'}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {!selectedPatient && (
+            {!selectedPatient && !isEditing && (
               <FormField
                 control={form.control}
                 name="patient_id"
@@ -157,10 +213,13 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
               />
             )}
 
-            {selectedPatient && (
+            {(selectedPatient || isEditing) && (
               <div className="p-3 bg-gray-50 rounded">
                 <p className="font-medium">
-                  Pacjent: {selectedPatient.first_name} {selectedPatient.last_name}
+                  Pacjent: {selectedPatient ? 
+                    `${selectedPatient.first_name} ${selectedPatient.last_name}` : 
+                    `${editingAppointment?.patients.first_name} ${editingAppointment?.patients.last_name}`
+                  }
                 </p>
               </div>
             )}
@@ -171,7 +230,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Zabieg *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Wybierz zabieg" />
@@ -231,6 +290,31 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
               />
             </div>
 
+            {isEditing && (
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Wybierz status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="scheduled">Zaplanowana</SelectItem>
+                        <SelectItem value="completed">Zakończona</SelectItem>
+                        <SelectItem value="cancelled">Anulowana</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
             <FormField
               control={form.control}
               name="cost"
@@ -276,7 +360,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                 Anuluj
               </Button>
               <Button type="submit" className="bg-pink-500 hover:bg-pink-600">
-                Umów wizytę
+                {isEditing ? 'Zaktualizuj wizytę' : 'Umów wizytę'}
               </Button>
             </div>
           </form>
