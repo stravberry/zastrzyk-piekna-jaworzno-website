@@ -33,14 +33,14 @@ const COLORS = [
 const TreatmentChart: React.FC<TreatmentChartProps> = ({ data, isLoading, compact = false }) => {
   if (isLoading) {
     return (
-      <Card className={compact ? "h-80" : ""}>
-        <CardHeader>
-          <CardTitle>Popularność zabiegów</CardTitle>
-          <CardDescription>Ładowanie danych...</CardDescription>
+      <Card className={compact ? "h-72 sm:h-80" : ""}>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base sm:text-lg">Popularność zabiegów</CardTitle>
+          <CardDescription className="text-sm">Ładowanie danych...</CardDescription>
         </CardHeader>
-        <CardContent className="h-64">
+        <CardContent className={compact ? "h-48 sm:h-56" : "h-56 sm:h-64"}>
           <div className="flex items-center justify-center h-full">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500"></div>
+            <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-pink-500"></div>
           </div>
         </CardContent>
       </Card>
@@ -66,33 +66,50 @@ const TreatmentChart: React.FC<TreatmentChartProps> = ({ data, isLoading, compac
     fill: COLORS[index % COLORS.length]
   }));
 
+  // Truncate treatment names for mobile
+  const truncateName = (name: string, maxLength: number) => {
+    return name.length > maxLength ? name.substring(0, maxLength) + '...' : name;
+  };
+
+  const processedData = topTreatments.map(treatment => ({
+    ...treatment,
+    shortName: truncateName(treatment.name, compact ? 15 : 20)
+  }));
+
   return (
-    <Card className={compact ? "h-80" : ""}>
-      <CardHeader>
-        <CardTitle>Popularność zabiegów</CardTitle>
-        <CardDescription>
+    <Card className={compact ? "h-72 sm:h-80" : ""}>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base sm:text-lg">Popularność zabiegów</CardTitle>
+        <CardDescription className="text-xs sm:text-sm">
           Najczęściej wykonywane zabiegi (Top {topTreatments.length})
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className={`grid ${compact ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'} gap-6`}>
+      <CardContent className="space-y-4 sm:space-y-6">
+        <div className={`grid ${compact ? 'grid-cols-1' : 'grid-cols-1 xl:grid-cols-2'} gap-4 sm:gap-6`}>
           {/* Bar Chart */}
-          <div className={compact ? "h-48" : "h-80"}>
+          <div className={compact ? "h-32 sm:h-40" : "h-48 sm:h-64 lg:h-72"}>
             <ChartContainer config={chartConfig} className="h-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={topTreatments} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                <BarChart data={processedData} margin={{ 
+                  top: 5, 
+                  right: 10, 
+                  left: 10, 
+                  bottom: compact ? 40 : 60 
+                }}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis 
-                    dataKey="name" 
-                    className="text-xs"
-                    tick={{ fontSize: 10 }}
+                    dataKey="shortName" 
+                    className="text-[8px] sm:text-[10px]"
+                    tick={{ fontSize: compact ? 8 : 10 }}
                     angle={-45}
                     textAnchor="end"
-                    height={60}
+                    height={compact ? 40 : 60}
+                    interval={0}
                   />
                   <YAxis 
-                    className="text-xs"
-                    tick={{ fontSize: 12 }}
+                    className="text-[10px] sm:text-xs"
+                    tick={{ fontSize: compact ? 10 : 12 }}
+                    width={compact ? 30 : 40}
                   />
                   <ChartTooltip 
                     content={<ChartTooltipContent 
@@ -105,16 +122,16 @@ const TreatmentChart: React.FC<TreatmentChartProps> = ({ data, isLoading, compac
                   <Bar 
                     dataKey="count" 
                     fill="var(--color-count)"
-                    radius={[4, 4, 0, 0]}
+                    radius={[2, 2, 0, 0]}
                   />
                 </BarChart>
               </ResponsiveContainer>
             </ChartContainer>
           </div>
 
-          {/* Pie Chart - only show if not compact */}
+          {/* Pie Chart - only show if not compact and on larger screens */}
           {!compact && (
-            <div className="h-80">
+            <div className="hidden xl:block h-48 sm:h-64 lg:h-72">
               <ChartContainer config={chartConfig} className="h-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -123,7 +140,7 @@ const TreatmentChart: React.FC<TreatmentChartProps> = ({ data, isLoading, compac
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percentage }) => `${name} (${percentage}%)`}
+                      label={({ percentage }) => `${percentage}%`}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
@@ -148,24 +165,24 @@ const TreatmentChart: React.FC<TreatmentChartProps> = ({ data, isLoading, compac
         </div>
 
         {/* Treatment Statistics Table */}
-        <div className="mt-6">
-          <h4 className="text-sm font-medium mb-3">Szczegóły zabiegów</h4>
-          <div className="space-y-2">
+        <div className="space-y-2 sm:space-y-3">
+          <h4 className="text-xs sm:text-sm font-medium">Szczegóły zabiegów</h4>
+          <div className="space-y-1 sm:space-y-2 max-h-48 sm:max-h-64 overflow-y-auto">
             {topTreatments.slice(0, compact ? 3 : 5).map((treatment, index) => (
-              <div key={treatment.name} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                <div className="flex items-center space-x-3">
+              <div key={treatment.name} className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded text-xs sm:text-sm">
+                <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
                   <div 
-                    className="w-3 h-3 rounded-full" 
+                    className="w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0" 
                     style={{ backgroundColor: COLORS[index % COLORS.length] }}
                   ></div>
-                  <div>
-                    <p className="text-sm font-medium">{treatment.name}</p>
-                    <p className="text-xs text-gray-500">{treatment.category}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium truncate">{treatment.name}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500 truncate">{treatment.category}</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium">{treatment.count} zabiegów</p>
-                  <p className="text-xs text-gray-500">{formatCurrency(treatment.revenue)}</p>
+                <div className="text-right flex-shrink-0 ml-2">
+                  <p className="font-medium">{treatment.count} zabiegów</p>
+                  <p className="text-[10px] sm:text-xs text-gray-500">{formatCurrency(treatment.revenue)}</p>
                 </div>
               </div>
             ))}

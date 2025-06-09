@@ -38,16 +38,16 @@ const KPICards: React.FC<KPICardsProps> = ({ revenueStats, patientStats, isLoadi
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Card key={i}>
+          <Card key={i} className="min-h-[120px] sm:min-h-[140px]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Ładowanie...</CardTitle>
-              <div className="h-4 w-4 bg-gray-200 rounded"></div>
+              <CardTitle className="text-xs sm:text-sm font-medium">Ładowanie...</CardTitle>
+              <div className="h-3 w-3 sm:h-4 sm:w-4 bg-gray-200 rounded"></div>
             </CardHeader>
-            <CardContent>
-              <div className="h-8 bg-gray-200 rounded mb-2"></div>
-              <div className="h-4 bg-gray-100 rounded w-2/3"></div>
+            <CardContent className="space-y-2">
+              <div className="h-6 sm:h-8 bg-gray-200 rounded"></div>
+              <div className="h-3 sm:h-4 bg-gray-100 rounded w-2/3"></div>
             </CardContent>
           </Card>
         ))}
@@ -56,78 +56,78 @@ const KPICards: React.FC<KPICardsProps> = ({ revenueStats, patientStats, isLoadi
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <Card>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+      <Card className="min-h-[120px] sm:min-h-[140px]">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Przychód tego miesiąca</CardTitle>
-          <DollarSign className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-xs sm:text-sm font-medium leading-tight">Przychód tego miesiąca</CardTitle>
+          <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
+        <CardContent className="space-y-1 sm:space-y-2">
+          <div className="text-lg sm:text-2xl font-bold leading-tight">
             {formatCurrency(revenueStats?.thisMonthRevenue || 0)}
           </div>
-          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+          <div className="flex items-center space-x-1 sm:space-x-2 text-xs text-muted-foreground">
             {revenueTrend >= 0 ? (
-              <TrendingUp className="h-3 w-3 text-green-500" />
+              <TrendingUp className="h-2 w-2 sm:h-3 sm:w-3 text-green-500" />
             ) : (
-              <TrendingDown className="h-3 w-3 text-red-500" />
+              <TrendingDown className="h-2 w-2 sm:h-3 sm:w-3 text-red-500" />
             )}
-            <Badge variant={revenueTrend >= 0 ? "default" : "destructive"} className="text-xs">
+            <Badge variant={revenueTrend >= 0 ? "default" : "destructive"} className="text-[10px] sm:text-xs px-1 py-0">
               {revenueTrend >= 0 ? '+' : ''}{revenueTrend}%
             </Badge>
-            <span>vs poprzedni miesiąc</span>
+            <span className="text-[10px] sm:text-xs">vs poprzedni</span>
           </div>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="min-h-[120px] sm:min-h-[140px]">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Nowi pacjenci</CardTitle>
-          <Users className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-xs sm:text-sm font-medium leading-tight">Nowi pacjenci</CardTitle>
+          <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
+        <CardContent className="space-y-1 sm:space-y-2">
+          <div className="text-lg sm:text-2xl font-bold leading-tight">
             {patientStats?.newPatientsThisMonth || 0}
           </div>
-          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+          <div className="flex items-center space-x-1 sm:space-x-2 text-xs text-muted-foreground">
             {patientTrend >= 0 ? (
-              <TrendingUp className="h-3 w-3 text-green-500" />
+              <TrendingUp className="h-2 w-2 sm:h-3 sm:w-3 text-green-500" />
             ) : (
-              <TrendingDown className="h-3 w-3 text-red-500" />
+              <TrendingDown className="h-2 w-2 sm:h-3 sm:w-3 text-red-500" />
             )}
-            <Badge variant={patientTrend >= 0 ? "default" : "destructive"} className="text-xs">
+            <Badge variant={patientTrend >= 0 ? "default" : "destructive"} className="text-[10px] sm:text-xs px-1 py-0">
               {patientTrend >= 0 ? '+' : ''}{patientTrend}%
             </Badge>
-            <span>vs poprzedni miesiąc</span>
+            <span className="text-[10px] sm:text-xs">vs poprzedni</span>
           </div>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="min-h-[120px] sm:min-h-[140px]">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Prognoza miesięczna</CardTitle>
-          <Calendar className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-xs sm:text-sm font-medium leading-tight">Prognoza miesięczna</CardTitle>
+          <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
+        <CardContent className="space-y-1 sm:space-y-2">
+          <div className="text-lg sm:text-2xl font-bold leading-tight">
             {formatCurrency(revenueStats?.projectedMonthlyRevenue || 0)}
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight">
             Na podstawie obecnych trendów
           </p>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="min-h-[120px] sm:min-h-[140px]">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Średnia wartość wizyty</CardTitle>
-          <Activity className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-xs sm:text-sm font-medium leading-tight">Średnia wartość wizyty</CardTitle>
+          <Activity className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
+        <CardContent className="space-y-1 sm:space-y-2">
+          <div className="text-lg sm:text-2xl font-bold leading-tight">
             {formatCurrency(revenueStats?.averageAppointmentValue || 0)}
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight">
             Aktywni pacjenci: {patientStats?.activePatients || 0}
           </p>
         </CardContent>

@@ -34,14 +34,14 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ data, isLoading, compact = 
 
   if (isLoading) {
     return (
-      <Card className={compact ? "h-80" : ""}>
-        <CardHeader>
-          <CardTitle>Przychody miesięczne</CardTitle>
-          <CardDescription>Ładowanie danych...</CardDescription>
+      <Card className={compact ? "h-72 sm:h-80" : ""}>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base sm:text-lg">Przychody miesięczne</CardTitle>
+          <CardDescription className="text-sm">Ładowanie danych...</CardDescription>
         </CardHeader>
-        <CardContent className="h-64">
+        <CardContent className={compact ? "h-48 sm:h-56" : "h-56 sm:h-64"}>
           <div className="flex items-center justify-center h-full">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-500"></div>
+            <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-pink-500"></div>
           </div>
         </CardContent>
       </Card>
@@ -52,28 +52,36 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ data, isLoading, compact = 
   const averageMonthlyRevenue = data.length > 0 ? totalRevenue / data.length : 0;
 
   return (
-    <Card className={compact ? "h-80" : ""}>
-      <CardHeader>
-        <CardTitle>Przychody miesięczne</CardTitle>
-        <CardDescription>
-          Łącznie: {formatCurrency(totalRevenue)} | 
-          Średnio: {formatCurrency(averageMonthlyRevenue)}/miesiąc
+    <Card className={compact ? "h-72 sm:h-80" : ""}>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base sm:text-lg">Przychody miesięczne</CardTitle>
+        <CardDescription className="text-xs sm:text-sm leading-tight">
+          <span className="block sm:inline">Łącznie: {formatCurrency(totalRevenue)}</span>
+          <span className="hidden sm:inline"> | </span>
+          <span className="block sm:inline">Średnio: {formatCurrency(averageMonthlyRevenue)}/miesiąc</span>
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className={compact ? "h-48" : "h-80"}>
+        <ChartContainer config={chartConfig} className={compact ? "h-40 sm:h-48" : "h-56 sm:h-72 lg:h-80"}>
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+            <LineChart data={data} margin={{ 
+              top: 5, 
+              right: 10, 
+              left: 10, 
+              bottom: compact ? 5 : 20 
+            }}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis 
                 dataKey="month" 
-                className="text-xs"
-                tick={{ fontSize: 12 }}
+                className="text-[10px] sm:text-xs"
+                tick={{ fontSize: compact ? 10 : 12 }}
+                interval={compact && data.length > 6 ? 1 : 0}
               />
               <YAxis 
-                className="text-xs"
-                tick={{ fontSize: 12 }}
+                className="text-[10px] sm:text-xs"
+                tick={{ fontSize: compact ? 10 : 12 }}
                 tickFormatter={formatCurrency}
+                width={compact ? 60 : 80}
               />
               <ChartTooltip 
                 content={<ChartTooltipContent 
@@ -87,9 +95,9 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ data, isLoading, compact = 
                 type="monotone" 
                 dataKey="revenue" 
                 stroke="var(--color-revenue)" 
-                strokeWidth={3}
-                dot={{ fill: "var(--color-revenue)", strokeWidth: 2, r: 4 }}
-                activeDot={{ r: 6, stroke: "var(--color-revenue)", strokeWidth: 2 }}
+                strokeWidth={compact ? 2 : 3}
+                dot={{ fill: "var(--color-revenue)", strokeWidth: 2, r: compact ? 3 : 4 }}
+                activeDot={{ r: compact ? 5 : 6, stroke: "var(--color-revenue)", strokeWidth: 2 }}
               />
             </LineChart>
           </ResponsiveContainer>
