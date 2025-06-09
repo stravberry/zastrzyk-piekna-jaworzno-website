@@ -15,9 +15,11 @@ type AppointmentWithDetails = Tables<"patient_appointments"> & {
   treatments: Tables<"treatments">;
 };
 
+type StatusFilter = "all" | "scheduled" | "completed" | "cancelled" | "no_show";
+
 const AppointmentsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 15;
 
@@ -141,7 +143,7 @@ const AppointmentsList: React.FC = () => {
             className="pl-9"
           />
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
+        <Select value={statusFilter} onValueChange={(value: StatusFilter) => setStatusFilter(value)}>
           <SelectTrigger className="w-[180px]">
             <Filter className="w-4 h-4 mr-2" />
             <SelectValue />
