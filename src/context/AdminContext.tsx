@@ -21,18 +21,20 @@ interface AdminContextType {
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
-// Clean up auth state
+// Clean up auth state - less aggressive
 const cleanupAuthState = () => {
-  Object.keys(localStorage).forEach((key) => {
-    if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
-      localStorage.removeItem(key);
-    }
-  });
-  Object.keys(sessionStorage || {}).forEach((key) => {
-    if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
-      sessionStorage.removeItem(key);
-    }
-  });
+  console.log('[AUTH] Cleaning up auth state');
+  try {
+    const keys = Object.keys(localStorage);
+    keys.forEach((key) => {
+      if (key.startsWith('supabase.auth.token') || key.includes('sb-auth-token')) {
+        localStorage.removeItem(key);
+        console.log('[AUTH] Removed key:', key);
+      }
+    });
+  } catch (error) {
+    console.error('[AUTH] Error cleaning auth state:', error);
+  }
 };
 
 export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -46,16 +48,20 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const navigate = useNavigate();
   const sessionCheckInterval = useRef<NodeJS.Timeout | null>(null);
   const lastActivityRef = useRef<number>(Date.now());
+  const initializingRef = useRef<boolean>(false);
 
   // Session timeout (30 minutes)
   const SESSION_TIMEOUT = 30 * 60 * 1000;
 
-  // Check user permissions
-  const checkPermissions = async (): Promise<boolean> => {
+  // Check user permissions with retry
+  const checkPermissions = async (retries = 2): Promise<boolean> => {
+    console.log('[AUTH] Checking permissions, retries left:', retries);
     try {
       const adminStatus = await isAdmin();
       const role = await getCurrentUserRole();
       const editorStatus = await hasRole('editor');
+      
+      console.log('[AUTH] Permissions check result:', { adminStatus, role, editorStatus });
       
       setIsAdminUser(adminStatus);
       setIsEditor(editorStatus);
@@ -63,22 +69,37 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       
       return adminStatus || editorStatus;
     } catch (error) {
-      console.error('Error checking permissions:', error);
+      console.error('[AUTH] Error checking permissions:', error);
+      if (retries > 0) {
+        console.log('[AUTH] Retrying permissions check...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return checkPermissions(retries - 1);
+      }
       return false;
     }
   };
 
-  // Update last activity
-  const updateActivity = () => {
-    lastActivityRef.current = Date.now();
-  };
+  // Update last activity with debouncing
+  const updateActivity = useRef(
+    (() => {
+      let timeout: NodeJS.Timeout;
+      return () => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          lastActivityRef.current = Date.now();
+        }, 1000);
+      };
+    })()
+  ).current;
 
-  // Check session validity and timeout
+  // Check session validity with improved error handling
   const checkSessionValidity = async () => {
     try {
+      console.log('[AUTH] Checking session validity');
+      
       // Check session timeout
       if (Date.now() - lastActivityRef.current > SESSION_TIMEOUT) {
-        console.log("Session timed out");
+        console.log("[AUTH] Session timed out");
         await handleInvalidSession();
         return;
       }
@@ -86,34 +107,43 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const { data: { session: currentSession }, error } = await supabase.auth.getSession();
       
       if (error) {
-        console.error("Session check error:", error);
+        console.error("[AUTH] Session check error:", error);
+        // Don't immediately invalidate on network errors
+        if (error.message?.includes('network') || error.message?.includes('fetch')) {
+          console.log("[AUTH] Network error, keeping current session");
+          return;
+        }
         await handleInvalidSession();
         return;
       }
 
       if (!currentSession && isAuthenticated) {
-        console.log("Session expired, logging out user");
+        console.log("[AUTH] Session expired, logging out user");
         await handleInvalidSession();
         return;
       }
 
       if (currentSession && (!session || session.access_token !== currentSession.access_token)) {
-        console.log("Session updated, refreshing user state");
+        console.log("[AUTH] Session updated, refreshing user state");
         setSession(currentSession);
         setUser(currentSession.user);
         setIsAuthenticated(true);
         await checkPermissions();
       }
     } catch (error) {
-      console.error("Error checking session validity:", error);
+      console.error("[AUTH] Error checking session validity:", error);
     }
   };
 
-  // Handle invalid session
+  // Handle invalid session with better UX
   const handleInvalidSession = async () => {
     try {
-      cleanupAuthState();
-      await supabase.auth.signOut({ scope: 'global' });
+      console.log('[AUTH] Handling invalid session');
+      
+      // Stop session checking first
+      stopSessionCheck();
+      
+      // Clean up state
       setUser(null);
       setSession(null);
       setIsAuthenticated(false);
@@ -121,26 +151,39 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setIsAdminUser(false);
       setIsEditor(false);
       
-      if (window.location.pathname.startsWith('/admin') && window.location.pathname !== '/admin/login') {
+      // Clean up storage (less aggressive)
+      cleanupAuthState();
+      
+      // Try to sign out
+      try {
+        await supabase.auth.signOut({ scope: 'local' });
+      } catch (error) {
+        console.error('[AUTH] Error during signOut:', error);
+      }
+      
+      // Only redirect if we're in admin area and not already on login
+      if (window.location.pathname.startsWith('/admin') && 
+          window.location.pathname !== '/admin/login') {
+        console.log('[AUTH] Redirecting to login');
         toast.error('Sesja wygasła. Zostaniesz przekierowany do logowania.');
         navigate("/admin/login");
       }
     } catch (error) {
-      console.error('Error during invalid session handling:', error);
+      console.error('[AUTH] Error during invalid session handling:', error);
     }
   };
 
-  // Start session checking
+  // Start session checking with better intervals
   const startSessionCheck = () => {
     if (sessionCheckInterval.current) {
       clearInterval(sessionCheckInterval.current);
     }
 
     sessionCheckInterval.current = setInterval(() => {
-      if (isAuthenticated) {
+      if (isAuthenticated && !initializingRef.current) {
         checkSessionValidity();
       }
-    }, 60000); // Check every minute
+    }, 2 * 60 * 1000); // Check every 2 minutes instead of 1
   };
 
   // Stop session checking
@@ -151,69 +194,95 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  // Initialize auth state
+  // Improved initialization
   useEffect(() => {
     const initAuth = async () => {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        async (event, session) => {
-          console.log("Auth state change", event, session);
-          setSession(session);
-          setUser(session?.user ?? null);
-          setIsAuthenticated(!!session?.user);
-
-          if (session?.user) {
-            await checkPermissions();
-            updateActivity();
-            startSessionCheck();
-          } else {
-            setUserRole(null);
-            setIsAdminUser(false);
-            setIsEditor(false);
-            stopSessionCheck();
-          }
-        }
-      );
-
-      const { data } = await supabase.auth.getSession();
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
-      setIsAuthenticated(!!data.session?.user);
-      
-      if (data.session?.user) {
-        await checkPermissions();
-        updateActivity();
-        startSessionCheck();
+      if (initializingRef.current) {
+        console.log('[AUTH] Already initializing, skipping');
+        return;
       }
       
-      setLoading(false);
+      initializingRef.current = true;
+      console.log('[AUTH] Initializing auth state');
 
-      return () => subscription.unsubscribe();
+      try {
+        // Set up auth state listener first
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+          async (event, session) => {
+            console.log("[AUTH] Auth state change:", event, !!session);
+            
+            // Update state immediately
+            setSession(session);
+            setUser(session?.user ?? null);
+            setIsAuthenticated(!!session?.user);
+
+            if (session?.user) {
+              updateActivity();
+              // Use setTimeout to avoid blocking the auth state change
+              setTimeout(async () => {
+                await checkPermissions();
+                startSessionCheck();
+              }, 100);
+            } else {
+              setUserRole(null);
+              setIsAdminUser(false);
+              setIsEditor(false);
+              stopSessionCheck();
+            }
+          }
+        );
+
+        // Then check for existing session
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        console.log('[AUTH] Initial session check:', !!currentSession);
+        
+        if (currentSession) {
+          setSession(currentSession);
+          setUser(currentSession.user);
+          setIsAuthenticated(true);
+          updateActivity();
+          
+          // Check permissions after state is set
+          setTimeout(async () => {
+            await checkPermissions();
+            startSessionCheck();
+          }, 100);
+        }
+
+        setLoading(false);
+        initializingRef.current = false;
+
+        // Activity listeners
+        const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+        activityEvents.forEach(event => {
+          document.addEventListener(event, updateActivity, { passive: true });
+        });
+
+        return () => {
+          subscription.unsubscribe();
+          stopSessionCheck();
+          activityEvents.forEach(event => {
+            document.removeEventListener(event, updateActivity);
+          });
+        };
+      } catch (error) {
+        console.error('[AUTH] Error during initialization:', error);
+        setLoading(false);
+        initializingRef.current = false;
+      }
     };
 
     initAuth();
-
-    // Activity listeners
-    const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
-    activityEvents.forEach(event => {
-      document.addEventListener(event, updateActivity, true);
-    });
-
-    return () => {
-      stopSessionCheck();
-      activityEvents.forEach(event => {
-        document.removeEventListener(event, updateActivity, true);
-      });
-    };
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
+    console.log('[AUTH] Starting login process');
     try {
-      cleanupAuthState();
-      
+      // Minimal cleanup before login
       try {
-        await supabase.auth.signOut({ scope: 'global' });
+        await supabase.auth.signOut({ scope: 'local' });
       } catch (err) {
-        // Continue even if this fails
+        console.log('[AUTH] No existing session to sign out');
       }
       
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -221,13 +290,18 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         password,
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('[AUTH] Login error:', error);
+        throw error;
+      }
       
       if (data.user) {
-        // Check if user has admin/editor permissions
+        console.log('[AUTH] Login successful, checking permissions');
+        // Check permissions with retry
         const hasPermissions = await checkPermissions();
         
         if (!hasPermissions) {
+          console.log('[AUTH] User lacks admin permissions');
           await supabase.auth.signOut();
           throw new Error('Brak uprawnień do panelu administracyjnego');
         }
@@ -239,33 +313,37 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           _details: { email }
         });
 
+        console.log('[AUTH] Login completed successfully');
         toast.success('Zalogowano pomyślnie');
         updateActivity();
         return true;
       }
       return false;
     } catch (error: any) {
-      console.error('Login error:', error);
+      console.error('[AUTH] Login error:', error);
       toast.error(error.message || 'Wystąpił błąd podczas logowania');
       return false;
     }
   };
 
   const logout = async () => {
+    console.log('[AUTH] Starting logout process');
     try {
       stopSessionCheck();
       
       // Log admin activity before logout
       if (isAuthenticated) {
-        await supabase.rpc('log_admin_activity', {
-          _action: 'logout',
-          _resource_type: 'auth'
-        });
+        try {
+          await supabase.rpc('log_admin_activity', {
+            _action: 'logout',
+            _resource_type: 'auth'
+          });
+        } catch (error) {
+          console.error('[AUTH] Error logging logout activity:', error);
+        }
       }
       
-      cleanupAuthState();
-      await supabase.auth.signOut({ scope: 'global' });
-      
+      // Clean state first
       setUser(null);
       setSession(null);
       setIsAuthenticated(false);
@@ -273,10 +351,15 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setIsAdminUser(false);
       setIsEditor(false);
       
+      // Then sign out
+      await supabase.auth.signOut({ scope: 'local' });
+      cleanupAuthState();
+      
       toast.success('Wylogowano pomyślnie');
       navigate("/admin/login");
+      console.log('[AUTH] Logout completed successfully');
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('[AUTH] Logout error:', error);
       toast.error('Wystąpił błąd podczas wylogowywania');
     }
   };

@@ -24,26 +24,25 @@ const AdminLogin: React.FC = () => {
 
   // Check if already authenticated and redirect to dashboard
   useEffect(() => {
+    console.log('[LOGIN] Auth state check:', { isAuthenticated, loading });
     if (isAuthenticated && !loading) {
-      navigate("/admin/dashboard");
+      console.log('[LOGIN] User already authenticated, redirecting to dashboard');
+      navigate("/admin/dashboard", { replace: true });
     }
   }, [isAuthenticated, navigate, loading]);
 
   // If still loading auth state, show loading
   if (loading) {
+    console.log('[LOGIN] Still loading auth state');
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
         <Card className="w-full max-w-md shadow-lg">
           <CardHeader className="space-y-2 text-center">
             <div className="flex justify-center">
-              <img 
-                src="/lovable-uploads/3b19512b-b68a-4530-ac22-e8c824bf3cf3.png" 
-                alt="Zastrzyk Piękna - Logo" 
-                className="h-16 mb-2"
-              />
+              <Shield className="h-16 w-16 text-pink-500 mb-2" />
             </div>
             <CardTitle className="text-2xl font-bold text-pink-500">Panel Administracyjny</CardTitle>
-            <CardDescription>Ładowanie...</CardDescription>
+            <CardDescription>Sprawdzanie stanu autoryzacji...</CardDescription>
           </CardHeader>
           <CardContent className="flex justify-center py-8">
             <Loader2 className="h-8 w-8 animate-spin text-pink-500" />
@@ -69,18 +68,9 @@ const AdminLogin: React.FC = () => {
     return Math.ceil(remainingTime / 60000); // in minutes
   };
 
-  // Validate password strength
-  const validatePassword = (password: string): string[] => {
-    const errors: string[] = [];
-    if (password.length < 8) errors.push("Hasło musi mieć co najmniej 8 znaków");
-    if (!/[A-Z]/.test(password)) errors.push("Hasło musi zawierać wielką literę");
-    if (!/[a-z]/.test(password)) errors.push("Hasło musi zawierać małą literę");
-    if (!/[0-9]/.test(password)) errors.push("Hasło musi zawierać cyfrę");
-    return errors;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('[LOGIN] Form submitted');
 
     // Check lockout
     if (isLockedOut()) {
@@ -106,14 +96,17 @@ const AdminLogin: React.FC = () => {
         return;
       }
 
+      console.log('[LOGIN] Attempting login for:', email);
       const success = await login(email, password);
       
       if (success) {
+        console.log('[LOGIN] Login successful');
         // Reset attempts on successful login
         setLoginAttempts(0);
         setLastAttemptTime(0);
-        navigate("/admin/dashboard");
+        // Navigation is handled in the useEffect above
       } else {
+        console.log('[LOGIN] Login failed');
         // Increment failed attempts
         setLoginAttempts(prev => prev + 1);
         setLastAttemptTime(Date.now());
@@ -125,7 +118,7 @@ const AdminLogin: React.FC = () => {
         }
       }
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("[LOGIN] Login error:", error);
       toast.error("Wystąpił błąd podczas logowania");
     } finally {
       setIsLoading(false);
@@ -155,7 +148,7 @@ const AdminLogin: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@twojadomena.pl"
                 autoComplete="email"
-                disabled={isLockedOut()}
+                disabled={isLockedOut() || isLoading}
                 required
               />
             </div>
@@ -171,7 +164,7 @@ const AdminLogin: React.FC = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   autoComplete="current-password"
-                  disabled={isLockedOut()}
+                  disabled={isLockedOut() || isLoading}
                   required
                 />
                 <Button
@@ -180,7 +173,7 @@ const AdminLogin: React.FC = () => {
                   size="icon"
                   className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                   onClick={() => setShowPassword(!showPassword)}
-                  disabled={isLockedOut()}
+                  disabled={isLockedOut() || isLoading}
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4 text-gray-500" />

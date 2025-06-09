@@ -8,7 +8,6 @@ import { HelmetProvider } from "react-helmet-async";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import AppRoutes from "./AppRoutes";
-import { AdminProvider } from "./context/AdminContext";
 
 const queryClient = new QueryClient();
 
@@ -19,9 +18,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <AdminProvider>
-            <AppRoutes />
-          </AdminProvider>
+          <AppRoutes />
         </BrowserRouter>
         <Analytics />
         <SpeedInsights />
