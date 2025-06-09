@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -45,6 +44,7 @@ import { getAllBlogPosts, deleteBlogPost } from "@/services/blogService";
 import { BlogPost } from "@/types/admin";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdminPosts: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -65,15 +65,23 @@ const AdminPosts: React.FC = () => {
     if (deleteId !== null) {
       try {
         await deleteBlogPost(deleteId);
+        
+        // Log admin activity
+        await supabase.rpc('log_admin_activity', {
+          _action: 'delete_blog_post',
+          _resource_type: 'blog_post',
+          _resource_id: deleteId.toString()
+        });
+        
         toast({
-          title: "Post deleted",
-          description: "The blog post has been successfully deleted",
+          title: "Post usunięty",
+          description: "Post został pomyślnie usunięty",
         });
         refetch();
       } catch (error) {
         toast({
-          title: "Error",
-          description: "Failed to delete the post",
+          title: "Błąd",
+          description: "Nie udało się usunąć posta",
           variant: "destructive",
         });
       }
@@ -114,7 +122,7 @@ const AdminPosts: React.FC = () => {
               <DropdownMenuItem asChild>
                 <Link to={`/admin/posts/edit/${post.id}`} className="flex items-center cursor-pointer">
                   <Edit className="h-4 w-4 mr-2" />
-                  Edit
+                  Edytuj
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem 
@@ -122,7 +130,7 @@ const AdminPosts: React.FC = () => {
                 onClick={() => confirmDelete(post.id)}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
-                Delete
+                Usuń
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -145,14 +153,14 @@ const AdminPosts: React.FC = () => {
   );
 
   return (
-    <AdminProtectedRoute>
-      <AdminLayout title="Manage Blog Posts">
+    <AdminProtectedRoute requiredRole="editor">
+      <AdminLayout title="Zarządzanie postami bloga">
         <div className="mb-6">
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-6">
             <div className="relative w-full sm:w-64 md:w-80">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input 
-                placeholder="Search posts..." 
+                placeholder="Szukaj postów..." 
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -170,13 +178,13 @@ const AdminPosts: React.FC = () => {
           {isMobile && (
             <div>
               {isLoading ? (
-                <div className="text-center py-8">Loading posts...</div>
+                <div className="text-center py-8">Ładowanie postów...</div>
               ) : filteredPosts && filteredPosts.length > 0 ? (
                 filteredPosts.map(post => (
                   <MobilePostCard key={post.id} post={post} />
                 ))
               ) : (
-                <div className="text-center py-8">No posts found</div>
+                <div className="text-center py-8">Nie znaleziono postów</div>
               )}
             </div>
           )}
@@ -189,18 +197,18 @@ const AdminPosts: React.FC = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-12">ID</TableHead>
-                      <TableHead>Title</TableHead>
-                      <TableHead className="hidden md:table-cell">Category</TableHead>
-                      <TableHead className="hidden lg:table-cell">Date</TableHead>
-                      <TableHead className="text-center">Stats</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead>Tytuł</TableHead>
+                      <TableHead className="hidden md:table-cell">Kategoria</TableHead>
+                      <TableHead className="hidden lg:table-cell">Data</TableHead>
+                      <TableHead className="text-center">Statystyki</TableHead>
+                      <TableHead className="text-right">Akcje</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {isLoading ? (
                       <TableRow>
                         <TableCell colSpan={6} className="text-center py-8">
-                          Loading posts...
+                          Ładowanie postów...
                         </TableCell>
                       </TableRow>
                     ) : filteredPosts && filteredPosts.length > 0 ? (
@@ -250,7 +258,7 @@ const AdminPosts: React.FC = () => {
                               >
                                 <Link to={`/admin/posts/edit/${post.id}`}>
                                   <Edit className="h-4 w-4" />
-                                  <span className="sr-only">Edit</span>
+                                  <span className="sr-only">Edytuj</span>
                                 </Link>
                               </Button>
                               <Button
@@ -260,7 +268,7 @@ const AdminPosts: React.FC = () => {
                                 onClick={() => confirmDelete(post.id)}
                               >
                                 <Trash2 className="h-4 w-4" />
-                                <span className="sr-only">Delete</span>
+                                <span className="sr-only">Usuń</span>
                               </Button>
                             </div>
                           </TableCell>
@@ -269,7 +277,7 @@ const AdminPosts: React.FC = () => {
                     ) : (
                       <TableRow>
                         <TableCell colSpan={6} className="text-center py-8">
-                          No posts found
+                          Nie znaleziono postów
                         </TableCell>
                       </TableRow>
                     )}
@@ -283,16 +291,16 @@ const AdminPosts: React.FC = () => {
         <AlertDialog open={deleteId !== null} onOpenChange={() => setDeleteId(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogTitle>Czy na pewno chcesz usunąć ten post?</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the post
-                and remove it from our servers.
+                Ta akcja nie może zostać cofnięta. Post zostanie permanentnie
+                usunięty z serwera.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>Anuluj</AlertDialogCancel>
               <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
-                Delete
+                Usuń
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

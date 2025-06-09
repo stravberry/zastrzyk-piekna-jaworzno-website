@@ -6,15 +6,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff, Shield } from "lucide-react";
 
 const AdminLogin: React.FC = () => {
-  const [email, setEmail] = useState("admin@test.pl"); // Updated to admin@test.pl
-  const [password, setPassword] = useState("Admin123"); // Updated to Admin123
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loginAttempts, setLoginAttempts] = useState(0);
+  const [lastAttemptTime, setLastAttemptTime] = useState<number>(0);
   const { login, isAuthenticated, loading } = useAdmin();
   const navigate = useNavigate();
   
+  // Rate limiting
+  const MAX_ATTEMPTS = 5;
+  const LOCKOUT_TIME = 15 * 60 * 1000; // 15 minutes
+
   // Check if already authenticated and redirect to dashboard
   useEffect(() => {
     if (isAuthenticated && !loading) {
@@ -46,8 +53,41 @@ const AdminLogin: React.FC = () => {
     );
   }
 
+  // Check if user is locked out
+  const isLockedOut = () => {
+    if (loginAttempts >= MAX_ATTEMPTS) {
+      const timeSinceLastAttempt = Date.now() - lastAttemptTime;
+      return timeSinceLastAttempt < LOCKOUT_TIME;
+    }
+    return false;
+  };
+
+  // Get remaining lockout time
+  const getRemainingLockoutTime = () => {
+    const timeSinceLastAttempt = Date.now() - lastAttemptTime;
+    const remainingTime = LOCKOUT_TIME - timeSinceLastAttempt;
+    return Math.ceil(remainingTime / 60000); // in minutes
+  };
+
+  // Validate password strength
+  const validatePassword = (password: string): string[] => {
+    const errors: string[] = [];
+    if (password.length < 8) errors.push("Hasło musi mieć co najmniej 8 znaków");
+    if (!/[A-Z]/.test(password)) errors.push("Hasło musi zawierać wielką literę");
+    if (!/[a-z]/.test(password)) errors.push("Hasło musi zawierać małą literę");
+    if (!/[0-9]/.test(password)) errors.push("Hasło musi zawierać cyfrę");
+    return errors;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check lockout
+    if (isLockedOut()) {
+      toast.error(`Konto zablokowane. Spróbuj ponownie za ${getRemainingLockoutTime()} minut.`);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -58,13 +98,31 @@ const AdminLogin: React.FC = () => {
         return;
       }
 
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        toast.error("Proszę wprowadzić prawidłowy adres email");
+        setIsLoading(false);
+        return;
+      }
+
       const success = await login(email, password);
       
       if (success) {
+        // Reset attempts on successful login
+        setLoginAttempts(0);
+        setLastAttemptTime(0);
         navigate("/admin/dashboard");
       } else {
-        // This should not happen as errors should be caught in login function
-        toast.error("Nie udało się zalogować. Spróbuj ponownie.");
+        // Increment failed attempts
+        setLoginAttempts(prev => prev + 1);
+        setLastAttemptTime(Date.now());
+        
+        if (loginAttempts + 1 >= MAX_ATTEMPTS) {
+          toast.error(`Zbyt wiele nieudanych prób logowania. Konto zablokowane na ${LOCKOUT_TIME / 60000} minut.`);
+        } else {
+          toast.error(`Nieprawidłowe dane logowania. Pozostało prób: ${MAX_ATTEMPTS - loginAttempts - 1}`);
+        }
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -74,38 +132,30 @@ const AdminLogin: React.FC = () => {
     }
   };
 
-  const fillTestCredentials = () => {
-    setEmail("admin@test.pl");
-    setPassword("Admin123");
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-2 text-center">
           <div className="flex justify-center">
-            <img 
-              src="/lovable-uploads/3b19512b-b68a-4530-ac22-e8c824bf3cf3.png" 
-              alt="Zastrzyk Piękna - Logo" 
-              className="h-16 mb-2"
-            />
+            <Shield className="h-16 w-16 text-pink-500 mb-2" />
           </div>
           <CardTitle className="text-2xl font-bold text-pink-500">Panel Administracyjny</CardTitle>
-          <CardDescription>Zaloguj się, aby zarządzać treścią bloga</CardDescription>
+          <CardDescription>Zaloguj się aby uzyskać dostęp do systemu zarządzania</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium">
-                Email
+                Email administratora
               </label>
               <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@test.pl"
+                placeholder="admin@twojadomena.pl"
                 autoComplete="email"
+                disabled={isLockedOut()}
                 required
               />
             </div>
@@ -113,35 +163,59 @@ const AdminLogin: React.FC = () => {
               <label htmlFor="password" className="text-sm font-medium">
                 Hasło
               </label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                autoComplete="current-password"
-                required
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  disabled={isLockedOut()}
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                  disabled={isLockedOut()}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 text-gray-500" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-gray-500" />
+                  )}
+                </Button>
+              </div>
             </div>
+
+            {isLockedOut() && (
+              <div className="text-center text-sm text-red-600 bg-red-50 p-3 rounded">
+                Konto zablokowane na {getRemainingLockoutTime()} minut z powodu zbyt wielu nieudanych prób logowania.
+              </div>
+            )}
+
             <Button 
               type="submit" 
               className="w-full bg-pink-500 hover:bg-pink-600" 
-              disabled={isLoading}
+              disabled={isLoading || isLockedOut()}
             >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Logowanie...
+                  Sprawdzanie uprawnień...
                 </>
               ) : "Zaloguj się"}
             </Button>
             
-            <div className="text-center text-sm mt-4">
+            <div className="text-center text-sm mt-4 space-y-2">
               <p className="text-gray-500">
-                Aby zalogować się do panelu, musisz najpierw stworzyć konto w Supabase
+                Dostęp tylko dla autoryzowanych administratorów
               </p>
-              <p className="text-gray-500 font-medium mt-2">
-                Używaj danych: <span className="text-pink-500 font-bold">admin@test.pl / Admin123</span>
+              <p className="text-xs text-gray-400">
+                Wszystkie próby logowania są monitorowane i rejestrowane
               </p>
             </div>
           </form>
