@@ -142,20 +142,81 @@ class RateLimiter {
 
 export const rateLimiter = new RateLimiter();
 
-// Input sanitization helpers
+// Enhanced input sanitization helpers
 export const sanitizeInput = (input: string): string => {
+  if (!input) return '';
+  
   return input
     .replace(/[<>]/g, '') // Remove potential XSS characters
+    .replace(/javascript:/gi, '') // Remove javascript: protocols
+    .replace(/on\w+=/gi, '') // Remove event handlers
     .trim()
     .slice(0, 1000); // Limit length
 };
 
+export const sanitizeHtml = (html: string): string => {
+  if (!html) return '';
+  
+  // Basic HTML sanitization - remove script tags and dangerous attributes
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/on\w+="[^"]*"/gi, '')
+    .replace(/on\w+='[^']*'/gi, '')
+    .replace(/javascript:/gi, '')
+    .trim();
+};
+
 export const validateEmail = (email: string): boolean => {
   const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-  return emailRegex.test(email);
+  return emailRegex.test(email) && email.length <= 255;
 };
 
 export const validatePhone = (phone: string): boolean => {
   const cleanPhone = phone.replace(/\D/g, '');
-  return cleanPhone.length >= 9;
+  return cleanPhone.length >= 9 && cleanPhone.length <= 15;
+};
+
+export const validateRequired = (value: string, fieldName: string): string | null => {
+  if (!value || value.trim().length === 0) {
+    return `${fieldName} is required`;
+  }
+  return null;
+};
+
+export const validateLength = (value: string, min: number, max: number, fieldName: string): string | null => {
+  if (value.length < min) {
+    return `${fieldName} must be at least ${min} characters`;
+  }
+  if (value.length > max) {
+    return `${fieldName} must be no more than ${max} characters`;
+  }
+  return null;
+};
+
+// Security monitoring helpers
+export const detectSuspiciousActivity = (formData: any): boolean => {
+  // Check for common spam/bot patterns
+  const suspiciousPatterns = [
+    /viagra|cialis|loan|casino|bitcoin/gi,
+    /http[s]?:\/\//gi, // URLs in unexpected places
+    /<[^>]*>/gi, // HTML tags
+    /\b[A-Z]{10,}\b/gi, // Long strings of capitals
+  ];
+  
+  const textToCheck = Object.values(formData).join(' ');
+  
+  return suspiciousPatterns.some(pattern => pattern.test(textToCheck));
+};
+
+export const logSecurityIncident = async (
+  incidentType: string,
+  severity: 'low' | 'medium' | 'high' | 'critical',
+  details: any
+): Promise<void> => {
+  await logSecurityEvent(`security_incident_${severity}`, {
+    incident_type: incidentType,
+    severity,
+    details,
+    timestamp: new Date().toISOString()
+  });
 };

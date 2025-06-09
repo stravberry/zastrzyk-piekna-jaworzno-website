@@ -205,6 +205,51 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_submissions: {
+        Row: {
+          consent_given: boolean
+          created_at: string | null
+          email: string
+          id: string
+          ip_address: unknown | null
+          message: string
+          name: string
+          phone: string | null
+          status: string | null
+          subject: string
+          updated_at: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          consent_given?: boolean
+          created_at?: string | null
+          email: string
+          id?: string
+          ip_address?: unknown | null
+          message: string
+          name: string
+          phone?: string | null
+          status?: string | null
+          subject: string
+          updated_at?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          consent_given?: boolean
+          created_at?: string | null
+          email?: string
+          id?: string
+          ip_address?: unknown | null
+          message?: string
+          name?: string
+          phone?: string | null
+          status?: string | null
+          subject?: string
+          updated_at?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       gallery_categories: {
         Row: {
           category_type: Database["public"]["Enums"]["gallery_category_type"]
@@ -498,6 +543,39 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limits: {
+        Row: {
+          action: string
+          attempts: number
+          blocked_until: string | null
+          created_at: string | null
+          id: string
+          identifier: string
+          updated_at: string | null
+          window_start: string | null
+        }
+        Insert: {
+          action: string
+          attempts?: number
+          blocked_until?: string | null
+          created_at?: string | null
+          id?: string
+          identifier: string
+          updated_at?: string | null
+          window_start?: string | null
+        }
+        Update: {
+          action?: string
+          attempts?: number
+          blocked_until?: string | null
+          created_at?: string | null
+          id?: string
+          identifier?: string
+          updated_at?: string | null
+          window_start?: string | null
+        }
+        Relationships: []
+      }
       treatment_photos: {
         Row: {
           appointment_id: string
@@ -612,6 +690,15 @@ export type Database = {
     Functions: {
       can_manage_users: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      check_rate_limit: {
+        Args: {
+          _identifier: string
+          _action: string
+          _max_attempts?: number
+          _window_minutes?: number
+        }
         Returns: boolean
       }
       create_code_settings_table_directly: {
