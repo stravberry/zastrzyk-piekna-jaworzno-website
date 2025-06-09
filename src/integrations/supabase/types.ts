@@ -354,6 +354,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_manage_users: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       create_code_settings_table_directly: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -361,6 +365,17 @@ export type Database = {
       create_code_settings_table_if_not_exists: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      get_all_users_with_roles: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          user_id: string
+          email: string
+          created_at: string
+          last_sign_in_at: string
+          email_confirmed_at: string
+          roles: string[]
+        }[]
       }
       get_code_settings: {
         Args: Record<PropertyKey, never>
@@ -384,6 +399,13 @@ export type Database = {
         Args: { post_id: number }
         Returns: undefined
       }
+      invite_user: {
+        Args: {
+          user_email: string
+          user_role?: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: string
+      }
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -396,6 +418,13 @@ export type Database = {
           _details?: Json
         }
         Returns: undefined
+      }
+      remove_user_role: {
+        Args: {
+          target_user_id: string
+          target_role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
       }
       update_code_settings: {
         Args: { p_head_code: string; p_body_code: string }

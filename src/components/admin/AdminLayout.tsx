@@ -15,6 +15,7 @@ import {
   Image,
   Shield,
   Clock,
+  Users,
 } from "lucide-react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 
@@ -134,6 +135,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, subtitle, children }) 
       label: 'Cennik', 
       href: '/admin/pricing', 
       current: location.pathname.includes('/admin/pricing'),
+      requiredRole: 'admin'
+    },
+    { 
+      icon: <Users size={20} />, 
+      label: 'Użytkownicy', 
+      href: '/admin/users', 
+      current: location.pathname.includes('/admin/users'),
       requiredRole: 'admin'
     },
     { 
