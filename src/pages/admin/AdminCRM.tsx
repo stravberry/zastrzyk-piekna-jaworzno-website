@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import PatientsList from "@/components/admin/crm/PatientsList";
 import PatientProfileModal from "@/components/admin/crm/PatientProfileModal";
 import AppointmentForm from "@/components/admin/crm/AppointmentForm";
-import TreatmentHistory from "@/components/admin/crm/TreatmentHistory";
+import AppointmentsCalendarView from "@/components/admin/crm/AppointmentsCalendarView";
 
 type Patient = Tables<"patients">;
 type Appointment = Tables<"patient_appointments">;
@@ -112,10 +112,9 @@ const AdminCRM: React.FC = () => {
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="patients">Pacjenci</TabsTrigger>
-          <TabsTrigger value="appointments">Wizyty</TabsTrigger>
-          <TabsTrigger value="history">Historia zabiegów</TabsTrigger>
+          <TabsTrigger value="appointments">Wizyty i Historia</TabsTrigger>
         </TabsList>
 
         <TabsContent value="patients" className="space-y-4">
@@ -144,21 +143,7 @@ const AdminCRM: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="appointments" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Nadchodzące wizyty</CardTitle>
-              <CardDescription>Przeglądaj i zarządzaj wizytami</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-gray-500">
-                Lista wizyt będzie wyświetlana tutaj
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="history" className="space-y-4">
-          <TreatmentHistory />
+          <AppointmentsCalendarView onAddAppointment={() => setShowAddAppointment(true)} />
         </TabsContent>
       </Tabs>
 
