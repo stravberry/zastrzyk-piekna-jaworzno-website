@@ -91,7 +91,22 @@ export const getContactSubmissions = async (): Promise<ContactSubmission[]> => {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    
+    // Transform the data to match our interface, handling the ip_address type properly
+    return (data || []).map(item => ({
+      id: item.id,
+      name: item.name,
+      email: item.email,
+      phone: item.phone,
+      subject: item.subject,
+      message: item.message,
+      consent_given: item.consent_given,
+      ip_address: item.ip_address ? String(item.ip_address) : undefined,
+      user_agent: item.user_agent,
+      status: item.status as 'new' | 'reviewed' | 'responded',
+      created_at: item.created_at,
+      updated_at: item.updated_at
+    }));
   } catch (error) {
     console.error('Failed to fetch contact submissions:', error);
     throw error;
