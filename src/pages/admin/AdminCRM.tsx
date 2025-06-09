@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Users, Clock, Search, Plus, FileText, Camera } from "lucide-react";
+import { Calendar, Users, Clock, Search, Plus, FileText, Camera, List } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
@@ -14,6 +14,7 @@ import PatientsList from "@/components/admin/crm/PatientsList";
 import PatientProfileModal from "@/components/admin/crm/PatientProfileModal";
 import AppointmentForm from "@/components/admin/crm/AppointmentForm";
 import AppointmentsCalendarView from "@/components/admin/crm/AppointmentsCalendarView";
+import AllAppointmentsList from "@/components/admin/crm/AllAppointmentsList";
 
 type Patient = Tables<"patients">;
 type Appointment = Tables<"patient_appointments">;
@@ -63,6 +64,7 @@ const AdminCRM: React.FC = () => {
     queryClient.invalidateQueries({ queryKey: ['patients'] });
     queryClient.invalidateQueries({ queryKey: ['current-patient'] });
     queryClient.invalidateQueries({ queryKey: ['crm-stats'] });
+    queryClient.invalidateQueries({ queryKey: ['all-appointments'] });
     
     // Refetch stats
     refetchStats();
@@ -72,11 +74,22 @@ const AdminCRM: React.FC = () => {
     // Invalidate appointment-related queries
     queryClient.invalidateQueries({ queryKey: ['patient-appointments'] });
     queryClient.invalidateQueries({ queryKey: ['appointments-list'] });
+    queryClient.invalidateQueries({ queryKey: ['all-appointments'] });
     queryClient.invalidateQueries({ queryKey: ['crm-stats'] });
     
     // Refetch stats
     refetchStats();
     setShowAddAppointment(false);
+  };
+
+  const handleDataUpdate = () => {
+    // Unified function for all data updates
+    queryClient.invalidateQueries({ queryKey: ['patients'] });
+    queryClient.invalidateQueries({ queryKey: ['patient-appointments'] });
+    queryClient.invalidateQueries({ queryKey: ['appointments-list'] });
+    queryClient.invalidateQueries({ queryKey: ['all-appointments'] });
+    queryClient.invalidateQueries({ queryKey: ['crm-stats'] });
+    refetchStats();
   };
 
   return (
@@ -134,9 +147,22 @@ const AdminCRM: React.FC = () => {
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 h-auto">
-          <TabsTrigger value="patients" className="text-xs sm:text-sm">Pacjenci</TabsTrigger>
-          <TabsTrigger value="appointments" className="text-xs sm:text-sm">Wizyty i Historia</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 h-auto">
+          <TabsTrigger value="patients" className="text-xs sm:text-sm">
+            <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Pacjenci</span>
+            <span className="sm:hidden">P</span>
+          </TabsTrigger>
+          <TabsTrigger value="appointments" className="text-xs sm:text-sm">
+            <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Kalendarz</span>
+            <span className="sm:hidden">K</span>
+          </TabsTrigger>
+          <TabsTrigger value="all-appointments" className="text-xs sm:text-sm">
+            <List className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Wszystkie wizyty</span>
+            <span className="sm:hidden">W</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="patients" className="space-y-4 mt-4">
@@ -167,6 +193,18 @@ const AdminCRM: React.FC = () => {
 
         <TabsContent value="appointments" className="space-y-4 mt-4">
           <AppointmentsCalendarView onAddAppointment={() => setShowAddAppointment(true)} />
+        </TabsContent>
+
+        <TabsContent value="all-appointments" className="space-y-4 mt-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg sm:text-xl">Wszystkie wizyty</CardTitle>
+              <CardDescription className="text-sm">Chronologiczny spis wszystkich wizyt w systemie</CardDescription>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <AllAppointmentsList onUpdate={handleDataUpdate} />
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 
