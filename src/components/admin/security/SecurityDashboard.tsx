@@ -27,13 +27,22 @@ const SecurityDashboard: React.FC = () => {
     queryKey: ['security-events'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('security_events')
+        .from('admin_activity_log')
         .select('*')
+        .eq('resource_type', 'security')
         .order('created_at', { ascending: false })
         .limit(50);
 
       if (error) throw error;
-      return data as SecurityEvent[];
+      
+      // Transform admin_activity_log to SecurityEvent format
+      return (data || []).map(item => ({
+        id: item.id,
+        event_type: item.action,
+        user_id: item.user_id,
+        metadata: item.details,
+        created_at: item.created_at
+      })) as SecurityEvent[];
     }
   });
 

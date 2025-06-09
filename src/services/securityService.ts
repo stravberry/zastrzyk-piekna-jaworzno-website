@@ -11,15 +11,18 @@ export interface SecurityEvent {
   created_at: string;
 }
 
-// Log security events
+// Log security events using admin_activity_log table for now
 export const logSecurityEvent = async (
   eventType: string,
   metadata: any = {}
 ): Promise<void> => {
   try {
-    await supabase.rpc('log_security_event', {
-      _event_type: eventType,
-      _metadata: metadata
+    // Use the existing log_admin_activity function
+    await supabase.rpc('log_admin_activity', {
+      _action: eventType,
+      _resource_type: 'security',
+      _resource_id: null,
+      _details: metadata
     });
   } catch (error) {
     console.error('Failed to log security event:', error);
@@ -27,19 +30,30 @@ export const logSecurityEvent = async (
   }
 };
 
-// Get security events (admin only)
+// Get security events from admin_activity_log table
 export const getSecurityEvents = async (
   limit: number = 50
 ): Promise<SecurityEvent[]> => {
   try {
     const { data, error } = await supabase
-      .from('security_events')
+      .from('admin_activity_log')
       .select('*')
+      .eq('resource_type', 'security')
       .order('created_at', { ascending: false })
       .limit(limit);
 
     if (error) throw error;
-    return data || [];
+    
+    // Transform admin_activity_log to SecurityEvent format
+    return (data || []).map(item => ({
+      id: item.id,
+      event_type: item.action,
+      user_id: item.user_id,
+      metadata: item.details,
+      ip_address: item.ip_address?.toString(),
+      user_agent: item.user_agent,
+      created_at: item.created_at
+    }));
   } catch (error) {
     console.error('Failed to fetch security events:', error);
     throw error;

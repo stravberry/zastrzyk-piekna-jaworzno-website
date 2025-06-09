@@ -88,6 +88,17 @@ const AdminUsers: React.FC = () => {
     }
   };
 
+  const handleRemoveRole = async (userId: string, role: UserRole) => {
+    try {
+      await removeRole(userId, role);
+      toast.success(`Rola ${role} została usunięta`);
+      await loadUsers();
+    } catch (error: any) {
+      console.error("Error removing user role:", error);
+      toast.error(error.message || "Wystąpił błąd podczas usuwania roli");
+    }
+  };
+
   const handleUserInvited = () => {
     loadUsers(); // Odśwież listę po zaproszeniu użytkownika
   };
@@ -177,6 +188,8 @@ const AdminUsers: React.FC = () => {
           <UserManagementTable 
             users={users}
             onRoleChange={handleRoleChange}
+            onRemoveRole={handleRemoveRole}
+            canManage={canManage}
             isLoading={isLoading}
           />
         </CardContent>
