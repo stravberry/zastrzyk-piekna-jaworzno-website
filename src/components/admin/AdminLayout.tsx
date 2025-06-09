@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useAdmin } from "@/context/AdminContext";
@@ -14,7 +13,8 @@ import {
   LogOut,
   UserCheck,
   Code,
-  Stethoscope
+  Stethoscope,
+  BarChart3
 } from "lucide-react";
 import {
   Sidebar,
@@ -45,6 +45,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, subtitle, children }) 
   const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
     { name: 'CRM Pacjentów', href: '/admin/crm', icon: Stethoscope },
+    { name: 'Analityka', href: '/admin/analytics', icon: BarChart3 },
     { name: 'Posty', href: '/admin/posts', icon: FileText },
     { name: 'Galeria', href: '/admin/gallery', icon: Image },
     { name: 'Cennik', href: '/admin/pricing', icon: DollarSign },
