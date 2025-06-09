@@ -70,10 +70,49 @@ export const checkRateLimit = async (
       return { allowed: true };
     }
 
-    return data || { allowed: true };
+    // Handle the case where data might be null or not match expected type
+    if (!data || typeof data !== 'object') {
+      return { allowed: true };
+    }
+
+    // Safely extract the expected properties
+    const result = data as any;
+    return {
+      allowed: result.allowed ?? true,
+      blocked: result.blocked ?? false,
+      reason: result.reason,
+      blockedUntil: result.blocked_until
+    };
   } catch (error) {
     console.error('Rate limit check error:', error);
     return { allowed: true }; // Fail open for availability
+  }
+};
+
+// Simple rate limiter for client-side use (fallback)
+export const rateLimiter = {
+  attempts: new Map<string, { count: number; lastAttempt: number }>(),
+  
+  canAttempt(key: string, maxAttempts: number = 5, windowMs: number = 60000): boolean {
+    const now = Date.now();
+    const attempt = this.attempts.get(key);
+    
+    if (!attempt || now - attempt.lastAttempt > windowMs) {
+      this.attempts.set(key, { count: 1, lastAttempt: now });
+      return true;
+    }
+    
+    if (attempt.count >= maxAttempts) {
+      return false;
+    }
+    
+    attempt.count++;
+    attempt.lastAttempt = now;
+    return true;
+  },
+  
+  reset(key: string): void {
+    this.attempts.delete(key);
   }
 };
 

@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Phone, Mail, MapPin, Send, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { submitContactForm, ContactFormData } from "@/services/contactService";
-import { rateLimiter, detectSuspiciousActivity } from "@/services/securityService";
+import { detectSuspiciousActivity, checkRateLimit } from "@/services/securityService";
 
 const ContactForm = () => {
   const [formData, setFormData] = useState<ContactFormData>({
@@ -62,14 +62,15 @@ const ContactForm = () => {
       return;
     }
 
-    // Rate limiting check
-    if (!rateLimiter.canAttempt('contact_form', 3, 60 * 60 * 1000)) {
+    // Rate limiting check using the enhanced system
+    const rateLimitResult = await checkRateLimit('contact_form', 'contact_form_submission', 3, 60);
+    if (!rateLimitResult.allowed) {
       toast.error("Zbyt wiele prób. Spróbuj ponownie za godzinę.");
       return;
     }
 
     // Detect suspicious activity
-    if (detectSuspiciousActivity(formData)) {
+    if (detectSuspiciousActivity(formData, 'contact_form')) {
       toast.error("Wykryto podejrzaną aktywność. Sprawdź swoją wiadomość.");
       return;
     }
@@ -91,7 +92,6 @@ const ContactForm = () => {
           consent_given: false
         });
         setErrors({});
-        rateLimiter.reset('contact_form');
       } else {
         toast.error(result.message);
       }
