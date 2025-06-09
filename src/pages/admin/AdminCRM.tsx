@@ -62,49 +62,53 @@ const AdminCRM: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-7xl">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4 sm:mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">CRM Pacjentów</h1>
-          <p className="text-gray-600">Zarządzanie pacjentami i wizytami</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">CRM Pacjentów</h1>
+          <p className="text-sm sm:text-base text-gray-600">Zarządzanie pacjentami i wizytami</p>
         </div>
-        <Button onClick={() => setShowAddAppointment(true)} className="bg-pink-500 hover:bg-pink-600">
+        <Button 
+          onClick={() => setShowAddAppointment(true)} 
+          className="bg-pink-500 hover:bg-pink-600 text-sm sm:text-base w-full sm:w-auto"
+          size="sm"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Umów wizytę
         </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6 mb-4 sm:mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Wszyscy pacjenci</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs sm:text-sm font-medium">Wszyscy pacjenci</CardTitle>
+            <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalPatients || 0}</div>
+            <div className="text-xl sm:text-2xl font-bold">{stats?.totalPatients || 0}</div>
             <p className="text-xs text-muted-foreground">Aktywni pacjenci w systemie</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Dzisiejsze wizyty</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs sm:text-sm font-medium">Dzisiejsze wizyty</CardTitle>
+            <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.todayAppointments || 0}</div>
+            <div className="text-xl sm:text-2xl font-bold">{stats?.todayAppointments || 0}</div>
             <p className="text-xs text-muted-foreground">Zaplanowanych na dziś</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="sm:col-span-2 md:col-span-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Wszystkich wizyt</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs sm:text-sm font-medium">Wszystkich wizyt</CardTitle>
+            <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalAppointments || 0}</div>
+            <div className="text-xl sm:text-2xl font-bold">{stats?.totalAppointments || 0}</div>
             <p className="text-xs text-muted-foreground">W całej historii</p>
           </CardContent>
         </Card>
@@ -112,27 +116,27 @@ const AdminCRM: React.FC = () => {
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="patients">Pacjenci</TabsTrigger>
-          <TabsTrigger value="appointments">Wizyty i Historia</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 h-auto">
+          <TabsTrigger value="patients" className="text-xs sm:text-sm">Pacjenci</TabsTrigger>
+          <TabsTrigger value="appointments" className="text-xs sm:text-sm">Wizyty i Historia</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="patients" className="space-y-4">
+        <TabsContent value="patients" className="space-y-4 mt-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Lista pacjentów</CardTitle>
-              <CardDescription>Zarządzaj pacjentami i ich danymi</CardDescription>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg sm:text-xl">Lista pacjentów</CardTitle>
+              <CardDescription className="text-sm">Zarządzaj pacjentami i ich danymi</CardDescription>
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Szukaj po imieniu, nazwisku, telefonie..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8"
+                  className="pl-8 text-sm"
                 />
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
               <PatientsList 
                 searchTerm={searchTerm}
                 onPatientSelect={handlePatientSelect}
@@ -142,7 +146,7 @@ const AdminCRM: React.FC = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="appointments" className="space-y-4">
+        <TabsContent value="appointments" className="space-y-4 mt-4">
           <AppointmentsCalendarView onAddAppointment={() => setShowAddAppointment(true)} />
         </TabsContent>
       </Tabs>

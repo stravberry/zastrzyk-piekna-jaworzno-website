@@ -16,6 +16,21 @@ import {
   Code,
   Stethoscope
 } from "lucide-react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+  SidebarInset,
+} from "@/components/ui/sidebar";
 
 interface AdminLayoutProps {
   title?: string;
@@ -37,71 +52,80 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ title, subtitle, children }) 
     { name: 'Ustawienia kodu', href: '/admin/settings/code', icon: Code },
   ];
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg">
-        <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="flex items-center justify-center h-16 px-4 border-b">
+  function AppSidebar() {
+    return (
+      <Sidebar>
+        <SidebarHeader>
+          <div className="flex items-center justify-center h-16 px-4">
             <h1 className="text-xl font-bold text-pink-600">Panel Admin</h1>
           </div>
+        </SidebarHeader>
+        
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Aplikacja</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {navigation.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = location.pathname === item.href;
+                  
+                  return (
+                    <SidebarMenuItem key={item.name}>
+                      <SidebarMenuButton asChild isActive={isActive}>
+                        <Link to={item.href}>
+                          <Icon className="w-5 h-5" />
+                          <span>{item.name}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
 
-          {/* Navigation */}
-          <nav className="flex-1 px-4 py-6 space-y-2">
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.href;
-              
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={cn(
-                    "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                    isActive
-                      ? "bg-pink-100 text-pink-700"
-                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+        <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={logout}>
+                <LogOut className="w-4 h-4" />
+                <span>Wyloguj się</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      </Sidebar>
+    );
+  }
+
+  return (
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-gray-50">
+        <AppSidebar />
+        <SidebarInset className="flex-1">
+          <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-white px-2 sm:px-4">
+            <SidebarTrigger className="-ml-1" />
+            <div className="flex-1">
+              {title && (
+                <div>
+                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">{title}</h1>
+                  {subtitle && (
+                    <p className="text-sm text-gray-600 mt-1 hidden sm:block">{subtitle}</p>
                   )}
-                >
-                  <Icon className="w-5 h-5 mr-3" />
-                  {item.name}
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Logout button */}
-          <div className="p-4 border-t">
-            <Button
-              onClick={logout}
-              variant="outline"
-              className="w-full justify-start"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Wyloguj się
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Main content */}
-      <div className="pl-64">
-        <main className="min-h-screen">
-          {title && (
-            <div className="bg-white border-b px-6 py-4">
-              <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
-              {subtitle && (
-                <p className="text-gray-600 mt-1">{subtitle}</p>
+                </div>
               )}
             </div>
-          )}
-          <div className="p-6">
-            {children || <Outlet />}
-          </div>
-        </main>
+          </header>
+          <main className="flex-1 overflow-auto">
+            <div className="p-2 sm:p-4 lg:p-6">
+              {children || <Outlet />}
+            </div>
+          </main>
+        </SidebarInset>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 

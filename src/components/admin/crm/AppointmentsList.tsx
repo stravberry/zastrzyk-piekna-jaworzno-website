@@ -124,13 +124,13 @@ const AppointmentsList: React.FC = () => {
   };
 
   if (isLoading) {
-    return <div className="text-center py-8">Ładowanie wizyt...</div>;
+    return <div className="text-center py-8 text-sm">Ładowanie wizyt...</div>;
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {/* Filters */}
-      <div className="flex gap-4 items-center">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -140,11 +140,11 @@ const AppointmentsList: React.FC = () => {
               setSearchTerm(e.target.value);
               setCurrentPage(1);
             }}
-            className="pl-9"
+            className="pl-9 text-sm"
           />
         </div>
         <Select value={statusFilter} onValueChange={(value: StatusFilter) => setStatusFilter(value)}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <Filter className="w-4 h-4 mr-2" />
             <SelectValue />
           </SelectTrigger>
@@ -159,7 +159,7 @@ const AppointmentsList: React.FC = () => {
       </div>
 
       {/* Results info */}
-      <div className="text-sm text-gray-600">
+      <div className="text-xs sm:text-sm text-gray-600">
         Znaleziono {totalCount} wizyt
         {totalPages > 1 && (
           <span> (strona {currentPage} z {totalPages})</span>
@@ -167,63 +167,66 @@ const AppointmentsList: React.FC = () => {
       </div>
 
       {/* Appointments List */}
-      <div className="space-y-3 max-h-[600px] overflow-y-auto">
+      <div className="space-y-2 sm:space-y-3 max-h-[500px] sm:max-h-[600px] overflow-y-auto">
         {appointments.map((appointment) => {
           const dateInfo = formatDate(appointment.scheduled_date);
           
           return (
-            <Card key={appointment.id} className={`p-4 ${dateInfo.isUpcoming ? 'border-l-4 border-l-blue-500' : ''}`}>
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h4 className="font-medium">{appointment.treatments.name}</h4>
-                    <Badge className={getStatusColor(appointment.status || 'scheduled')}>
-                      {getStatusText(appointment.status || 'scheduled')}
-                    </Badge>
-                    {dateInfo.isUpcoming && (
-                      <Badge variant="outline" className="text-blue-600 border-blue-600">
-                        Nadchodząca
+            <Card key={appointment.id} className={`p-3 sm:p-4 ${dateInfo.isUpcoming ? 'border-l-4 border-l-blue-500' : ''}`}>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                    <h4 className="font-medium text-sm sm:text-base truncate">{appointment.treatments.name}</h4>
+                    <div className="flex gap-2 flex-wrap">
+                      <Badge className={`text-xs ${getStatusColor(appointment.status || 'scheduled')}`}>
+                        {getStatusText(appointment.status || 'scheduled')}
                       </Badge>
-                    )}
+                      {dateInfo.isUpcoming && (
+                        <Badge variant="outline" className="text-blue-600 border-blue-600 text-xs">
+                          Nadchodząca
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                   
-                  <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 mb-2">
                     <div className="flex items-center">
-                      <User className="w-3 h-3 mr-1" />
-                      {appointment.patients.first_name} {appointment.patients.last_name}
+                      <User className="w-3 h-3 mr-1 flex-shrink-0" />
+                      <span className="truncate">{appointment.patients.first_name} {appointment.patients.last_name}</span>
                     </div>
                     <div className="flex items-center">
-                      <Calendar className="w-3 h-3 mr-1" />
-                      {dateInfo.formatted}
+                      <Calendar className="w-3 h-3 mr-1 flex-shrink-0" />
+                      <span className="text-xs sm:text-sm">{dateInfo.formatted}</span>
                     </div>
                   </div>
                   
                   {appointment.cost && (
-                    <p className="text-sm font-medium mb-2">
+                    <p className="text-xs sm:text-sm font-medium mb-2">
                       Koszt: {appointment.cost} zł
                     </p>
                   )}
                   
                   {appointment.pre_treatment_notes && (
-                    <p className="text-sm text-gray-600 mb-1">
+                    <p className="text-xs text-gray-600 mb-1 line-clamp-2">
                       <FileText className="w-3 h-3 inline mr-1" />
                       Notatki przed: {appointment.pre_treatment_notes}
                     </p>
                   )}
                   
                   {appointment.post_treatment_notes && (
-                    <p className="text-sm text-gray-600">
+                    <p className="text-xs text-gray-600 line-clamp-2">
                       <FileText className="w-3 h-3 inline mr-1" />
                       Notatki po: {appointment.post_treatment_notes}
                     </p>
                   )}
                 </div>
                 
-                <div className="flex gap-2">
+                <div className="flex gap-2 justify-end sm:justify-start flex-shrink-0">
                   <Button 
                     size="sm" 
                     variant="outline"
                     onClick={() => downloadCalendarEvent(appointment.id)}
+                    className="text-xs px-2 py-1"
                   >
                     <Download className="w-3 h-3 mr-1" />
                     .ics
@@ -235,7 +238,7 @@ const AppointmentsList: React.FC = () => {
         })}
 
         {appointments.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-gray-500 text-sm">
             {searchTerm || statusFilter !== "all" 
               ? "Nie znaleziono wizyt spełniających kryteria"
               : "Brak wizyt w systemie"
@@ -246,17 +249,18 @@ const AppointmentsList: React.FC = () => {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex justify-center gap-2 mt-4">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-2 mt-4">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
             disabled={currentPage <= 1}
+            className="text-xs w-full sm:w-auto"
           >
             Poprzednia
           </Button>
           
-          <span className="flex items-center px-3 text-sm">
+          <span className="flex items-center px-3 text-xs sm:text-sm order-first sm:order-none">
             {currentPage} z {totalPages}
           </span>
           
@@ -265,6 +269,7 @@ const AppointmentsList: React.FC = () => {
             size="sm"
             onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage >= totalPages}
+            className="text-xs w-full sm:w-auto"
           >
             Następna
           </Button>
