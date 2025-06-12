@@ -64,8 +64,9 @@ const AppointmentsList: React.FC = () => {
         const validAppointmentStatuses: AppointmentStatus[] = ["scheduled", "completed", "cancelled", "no_show"];
         const isValidStatus = validAppointmentStatuses.includes(statusFilter as AppointmentStatus);
         if (isValidStatus) {
-          // Now TypeScript knows statusFilter is a valid AppointmentStatus
-          query = query.eq('status', statusFilter);
+          // Explicitly cast to AppointmentStatus since we've validated it
+          const validStatus = statusFilter as AppointmentStatus;
+          query = query.eq('status', validStatus);
         }
       }
 
