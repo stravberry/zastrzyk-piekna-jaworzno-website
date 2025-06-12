@@ -29,6 +29,7 @@ type AppointmentWithDetails = Tables<"patient_appointments"> & {
 };
 
 type StatusFilter = "all" | "scheduled" | "completed" | "cancelled" | "no_show";
+type AppointmentStatus = "scheduled" | "completed" | "cancelled" | "no_show";
 
 const AppointmentsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -59,8 +60,8 @@ const AppointmentsList: React.FC = () => {
         .range(from, to);
 
       if (statusFilter !== "all") {
-        // Only apply status filter for valid appointment statuses
-        query = query.eq('status', statusFilter);
+        // Type assertion is safe here because we validate in handleStatusFilterChange
+        query = query.eq('status', statusFilter as AppointmentStatus);
       }
 
       if (searchTerm.trim()) {
@@ -178,8 +179,9 @@ const AppointmentsList: React.FC = () => {
   };
 
   const handleStatusFilterChange = (value: string) => {
-    // Fix: Properly validate and cast the value to StatusFilter type
-    if (value === "all" || value === "scheduled" || value === "completed" || value === "cancelled" || value === "no_show") {
+    // Validate the value is a valid StatusFilter before setting it
+    const validFilters: StatusFilter[] = ["all", "scheduled", "completed", "cancelled", "no_show"];
+    if (validFilters.includes(value as StatusFilter)) {
       setStatusFilter(value as StatusFilter);
       setCurrentPage(1);
     }
