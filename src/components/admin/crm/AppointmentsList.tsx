@@ -1,4 +1,5 @@
 
+
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -180,8 +181,8 @@ const AppointmentsList: React.FC = () => {
   };
 
   const handleStatusFilterChange = (value: string) => {
-    const validStatuses: StatusFilter[] = ["all", "scheduled", "completed", "cancelled", "no_show"];
-    if (validStatuses.includes(value as StatusFilter)) {
+    // Fix: Properly validate and cast the value to StatusFilter type
+    if (value === "all" || value === "scheduled" || value === "completed" || value === "cancelled" || value === "no_show") {
       setStatusFilter(value as StatusFilter);
       setCurrentPage(1);
     }
