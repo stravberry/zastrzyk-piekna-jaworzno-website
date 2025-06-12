@@ -2,17 +2,37 @@
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import PatientsList from "@/components/admin/crm/PatientsList";
 import AppointmentsCalendarView from "@/components/admin/crm/AppointmentsCalendarView";
 import AllAppointmentsList from "@/components/admin/crm/AllAppointmentsList";
 import PatientForm from "@/components/admin/crm/PatientForm";
 import AppointmentForm from "@/components/admin/crm/AppointmentForm";
 import IntegrationsPanel from "@/components/admin/crm/IntegrationsPanel";
-import { Users, Calendar, ClipboardList, Settings } from "lucide-react";
+import { Users, Calendar, ClipboardList, Settings, Search } from "lucide-react";
+import { Tables } from "@/integrations/supabase/types";
+
+type Patient = Tables<"patients">;
 
 const AdminCRM: React.FC = () => {
   const [isPatientFormOpen, setIsPatientFormOpen] = useState(false);
   const [isAppointmentFormOpen, setIsAppointmentFormOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+
+  const handlePatientSelect = (patient: Patient) => {
+    setSelectedPatient(patient);
+  };
+
+  const handlePatientUpdate = () => {
+    // Refresh patient data when patient is updated
+    setSelectedPatient(null);
+  };
+
+  const handlePatientFormSuccess = () => {
+    setIsPatientFormOpen(false);
+    handlePatientUpdate();
+  };
 
   return (
     <div className="space-y-6">
@@ -52,7 +72,23 @@ const AdminCRM: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <PatientsList onAddPatient={() => setIsPatientFormOpen(true)} />
+              <div className="mb-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Szukaj pacjentów..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+              <PatientsList 
+                searchTerm={searchTerm}
+                onPatientSelect={handlePatientSelect}
+                selectedPatient={selectedPatient}
+                onPatientUpdate={handlePatientUpdate}
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -95,6 +131,7 @@ const AdminCRM: React.FC = () => {
       <PatientForm
         isOpen={isPatientFormOpen}
         onClose={() => setIsPatientFormOpen(false)}
+        onSuccess={handlePatientFormSuccess}
       />
 
       <AppointmentForm
