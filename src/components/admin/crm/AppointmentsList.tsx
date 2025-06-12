@@ -62,8 +62,10 @@ const AppointmentsList: React.FC = () => {
       if (statusFilter !== "all") {
         // Only apply filter for valid appointment statuses, excluding "all"
         const validAppointmentStatuses: AppointmentStatus[] = ["scheduled", "completed", "cancelled", "no_show"];
-        if (validAppointmentStatuses.includes(statusFilter as AppointmentStatus)) {
-          query = query.eq('status', statusFilter as AppointmentStatus);
+        const isValidStatus = validAppointmentStatuses.includes(statusFilter as AppointmentStatus);
+        if (isValidStatus) {
+          // Now TypeScript knows statusFilter is a valid AppointmentStatus
+          query = query.eq('status', statusFilter);
         }
       }
 
