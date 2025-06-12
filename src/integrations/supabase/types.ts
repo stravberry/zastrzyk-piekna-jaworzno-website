@@ -45,6 +45,104 @@ export type Database = {
         }
         Relationships: []
       }
+      appointment_calendar_events: {
+        Row: {
+          appointment_id: string
+          created_at: string | null
+          event_url: string | null
+          external_event_id: string
+          id: string
+          integration_id: string
+          last_synced_at: string | null
+          sync_status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          appointment_id: string
+          created_at?: string | null
+          event_url?: string | null
+          external_event_id: string
+          id?: string
+          integration_id: string
+          last_synced_at?: string | null
+          sync_status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          appointment_id?: string
+          created_at?: string | null
+          event_url?: string | null
+          external_event_id?: string
+          id?: string
+          integration_id?: string
+          last_synced_at?: string | null
+          sync_status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_calendar_events_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "patient_appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointment_calendar_events_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      appointment_reminders: {
+        Row: {
+          appointment_id: string
+          created_at: string | null
+          email_sent: boolean | null
+          error_message: string | null
+          id: string
+          reminder_type: string
+          scheduled_at: string
+          sent_at: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          appointment_id: string
+          created_at?: string | null
+          email_sent?: boolean | null
+          error_message?: string | null
+          id?: string
+          reminder_type: string
+          scheduled_at: string
+          sent_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          appointment_id?: string
+          created_at?: string | null
+          email_sent?: boolean | null
+          error_message?: string | null
+          id?: string
+          reminder_type?: string
+          scheduled_at?: string
+          sent_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_reminders_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "patient_appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_post_views: {
         Row: {
           created_at: string | null
@@ -181,6 +279,45 @@ export type Database = {
           },
         ]
       }
+      calendar_integrations: {
+        Row: {
+          access_token: string | null
+          calendar_id: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          owner_email: string
+          provider: string
+          refresh_token: string | null
+          token_expires_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          access_token?: string | null
+          calendar_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          owner_email: string
+          provider: string
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          access_token?: string | null
+          calendar_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          owner_email?: string
+          provider?: string
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       code_settings: {
         Row: {
           body_code: string | null
@@ -247,6 +384,42 @@ export type Database = {
           subject?: string
           updated_at?: string | null
           user_agent?: string | null
+        }
+        Relationships: []
+      }
+      email_templates: {
+        Row: {
+          created_at: string | null
+          html_content: string
+          id: string
+          is_active: boolean | null
+          name: string
+          subject: string
+          template_type: string
+          text_content: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          html_content: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          subject: string
+          template_type: string
+          text_content?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          html_content?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          subject?: string
+          template_type?: string
+          text_content?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -377,45 +550,54 @@ export type Database = {
       }
       patient_appointments: {
         Row: {
+          calendar_sync_enabled: boolean | null
           cost: number | null
           created_at: string | null
           created_by: string | null
           duration_minutes: number | null
+          email_reminders_enabled: boolean | null
           id: string
           patient_id: string
           post_treatment_notes: string | null
           pre_treatment_notes: string | null
           products_used: string | null
+          reminder_preferences: Json | null
           scheduled_date: string
           status: Database["public"]["Enums"]["appointment_status"] | null
           treatment_id: string
           updated_at: string | null
         }
         Insert: {
+          calendar_sync_enabled?: boolean | null
           cost?: number | null
           created_at?: string | null
           created_by?: string | null
           duration_minutes?: number | null
+          email_reminders_enabled?: boolean | null
           id?: string
           patient_id: string
           post_treatment_notes?: string | null
           pre_treatment_notes?: string | null
           products_used?: string | null
+          reminder_preferences?: Json | null
           scheduled_date: string
           status?: Database["public"]["Enums"]["appointment_status"] | null
           treatment_id: string
           updated_at?: string | null
         }
         Update: {
+          calendar_sync_enabled?: boolean | null
           cost?: number | null
           created_at?: string | null
           created_by?: string | null
           duration_minutes?: number | null
+          email_reminders_enabled?: boolean | null
           id?: string
           patient_id?: string
           post_treatment_notes?: string | null
           pre_treatment_notes?: string | null
           products_used?: string | null
+          reminder_preferences?: Json | null
           scheduled_date?: string
           status?: Database["public"]["Enums"]["appointment_status"] | null
           treatment_id?: string
@@ -761,6 +943,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      create_appointment_reminders: {
+        Args: { appointment_id_param: string }
+        Returns: undefined
+      }
       create_code_settings_table_directly: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -804,6 +990,20 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
+      }
+      get_pending_reminders: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          appointment_id: string
+          reminder_type: string
+          patient_name: string
+          patient_email: string
+          treatment_name: string
+          scheduled_date: string
+          duration_minutes: number
+          pre_treatment_notes: string
+        }[]
       }
       has_role: {
         Args: {
