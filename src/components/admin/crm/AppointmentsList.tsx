@@ -177,8 +177,8 @@ const AppointmentsList: React.FC = () => {
   };
 
   const handleStatusFilterChange = (value: string) => {
-    // Fix TypeScript error by ensuring proper type conversion
-    if (value === "all" || value === "scheduled" || value === "completed" || value === "cancelled" || value === "no_show") {
+    const validStatuses: StatusFilter[] = ["all", "scheduled", "completed", "cancelled", "no_show"];
+    if (validStatuses.includes(value as StatusFilter)) {
       setStatusFilter(value as StatusFilter);
       setCurrentPage(1);
     }

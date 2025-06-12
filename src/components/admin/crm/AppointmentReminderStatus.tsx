@@ -22,30 +22,18 @@ const AppointmentReminderStatus: React.FC<AppointmentReminderStatusProps> = ({ a
   return (
     <div className="flex gap-1 flex-wrap">
       {reminderStatus.map((reminder, index: number) => {
-        const getStatusColor = (status: string, deliveryStatus?: string | null) => {
-          if (status === 'sent' && deliveryStatus === 'delivered') {
-            return 'bg-green-100 text-green-800';
-          }
-          if (status === 'sent' && deliveryStatus === 'failed') {
-            return 'bg-red-100 text-red-800';
-          }
+        const getStatusColor = (status: string) => {
           switch (status) {
-            case 'sent': return 'bg-blue-100 text-blue-800';
+            case 'sent': return 'bg-green-100 text-green-800';
             case 'pending': return 'bg-yellow-100 text-yellow-800';
             case 'failed': return 'bg-red-100 text-red-800';
             default: return 'bg-gray-100 text-gray-800';
           }
         };
 
-        const getStatusIcon = (status: string, deliveryStatus?: string | null) => {
-          if (status === 'sent' && deliveryStatus === 'delivered') {
-            return <CheckCircle className="w-3 h-3" />;
-          }
-          if (status === 'sent' && deliveryStatus === 'failed') {
-            return <XCircle className="w-3 h-3" />;
-          }
+        const getStatusIcon = (status: string) => {
           switch (status) {
-            case 'sent': return <Mail className="w-3 h-3" />;
+            case 'sent': return <CheckCircle className="w-3 h-3" />;
             case 'pending': return <Clock className="w-3 h-3" />;
             case 'failed': return <XCircle className="w-3 h-3" />;
             default: return <AlertCircle className="w-3 h-3" />;
@@ -68,10 +56,10 @@ const AppointmentReminderStatus: React.FC<AppointmentReminderStatusProps> = ({ a
         return (
           <Badge 
             key={index}
-            className={`text-xs flex items-center gap-1 ${getStatusColor(reminder.status, reminder.delivery_status)}`}
+            className={`text-xs flex items-center gap-1 ${getStatusColor(reminder.status)}`}
             title={getTooltipText(reminder)}
           >
-            {getStatusIcon(reminder.status, reminder.delivery_status)}
+            {getStatusIcon(reminder.status)}
             {reminder.reminder_type}
           </Badge>
         );
