@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +8,7 @@ import AllAppointmentsList from "@/components/admin/crm/AllAppointmentsList";
 import PatientForm from "@/components/admin/crm/PatientForm";
 import AppointmentForm from "@/components/admin/crm/AppointmentForm";
 import IntegrationsPanel from "@/components/admin/crm/IntegrationsPanel";
+import PatientProfileModal from "@/components/admin/crm/PatientProfileModal";
 import { Users, Calendar, ClipboardList, Settings, Search } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 
@@ -19,9 +19,11 @@ const AdminCRM: React.FC = () => {
   const [isAppointmentFormOpen, setIsAppointmentFormOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [isPatientProfileOpen, setIsPatientProfileOpen] = useState(false);
 
   const handlePatientSelect = (patient: Patient) => {
     setSelectedPatient(patient);
+    setIsPatientProfileOpen(true);
   };
 
   const handlePatientUpdate = () => {
@@ -31,6 +33,15 @@ const AdminCRM: React.FC = () => {
 
   const handlePatientFormSuccess = () => {
     setIsPatientFormOpen(false);
+    handlePatientUpdate();
+  };
+
+  const handleProfileClose = () => {
+    setIsPatientProfileOpen(false);
+    setSelectedPatient(null);
+  };
+
+  const handleProfileUpdate = () => {
     handlePatientUpdate();
   };
 
@@ -137,6 +148,13 @@ const AdminCRM: React.FC = () => {
       <AppointmentForm
         isOpen={isAppointmentFormOpen}
         onClose={() => setIsAppointmentFormOpen(false)}
+      />
+
+      <PatientProfileModal
+        patient={selectedPatient}
+        isOpen={isPatientProfileOpen}
+        onClose={handleProfileClose}
+        onUpdate={handleProfileUpdate}
       />
     </div>
   );

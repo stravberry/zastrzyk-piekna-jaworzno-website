@@ -1,14 +1,14 @@
+
 import React, { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { Phone, Mail, Calendar, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import PatientForm from "./PatientForm";
+import EnhancedPatientCard from "./EnhancedPatientCard";
 
 type Patient = Tables<"patients">;
 
@@ -77,14 +77,6 @@ const PatientsList: React.FC<PatientsListProps> = ({
   const totalCount = patientsData?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / PATIENTS_PER_PAGE);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pl-PL', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -103,7 +95,8 @@ const PatientsList: React.FC<PatientsListProps> = ({
     }
   };
 
-  const handlePatientSelect = (patient: Patient) => {
+  const handlePatientEdit = (patient: Patient) => {
+    // Open patient profile modal for editing
     onPatientSelect(patient);
   };
 
@@ -166,62 +159,15 @@ const PatientsList: React.FC<PatientsListProps> = ({
         </Button>
       </div>
 
-      <div className="grid gap-2 sm:gap-4">
+      <div className="grid gap-3 sm:gap-4">
         {patients.map((patient) => (
-          <Card 
-            key={patient.id} 
-            className={`cursor-pointer transition-colors hover:bg-gray-50 ${
-              selectedPatient?.id === patient.id ? 'ring-2 ring-pink-500' : ''
-            }`}
-            onClick={() => handlePatientSelect(patient)}
-          >
-            <CardContent className="p-3 sm:p-4">
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-semibold text-base sm:text-lg truncate">
-                    {patient.first_name} {patient.last_name}
-                  </h4>
-                  
-                  <div className="flex flex-col sm:flex-row sm:flex-wrap gap-1 sm:gap-2 mt-2">
-                    {patient.phone && (
-                      <div className="flex items-center text-xs sm:text-sm text-gray-600">
-                        <Phone className="w-3 h-3 mr-1 flex-shrink-0" />
-                        <span className="truncate">{patient.phone}</span>
-                      </div>
-                    )}
-                    
-                    {patient.email && (
-                      <div className="flex items-center text-xs sm:text-sm text-gray-600">
-                        <Mail className="w-3 h-3 mr-1 flex-shrink-0" />
-                        <span className="truncate">{patient.email}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mt-3">
-                    {patient.skin_type && (
-                      <Badge variant="secondary" className="text-xs self-start sm:self-auto">
-                        Skóra: {patient.skin_type}
-                      </Badge>
-                    )}
-                    
-                    {patient.source && (
-                      <Badge variant="outline" className="text-xs self-start sm:self-auto">
-                        Źródło: {patient.source}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-
-                <div className="text-right text-xs sm:text-sm text-gray-500 flex-shrink-0">
-                  <div className="flex items-center justify-end sm:justify-start">
-                    <Calendar className="w-3 h-3 mr-1" />
-                    {formatDate(patient.created_at!)}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <EnhancedPatientCard
+            key={patient.id}
+            patient={patient}
+            isSelected={selectedPatient?.id === patient.id}
+            onSelect={onPatientSelect}
+            onEdit={handlePatientEdit}
+          />
         ))}
 
         {patients.length === 0 && (
