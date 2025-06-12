@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -158,6 +157,10 @@ const AppointmentsList: React.FC = () => {
     updateStatusMutation.mutate({ appointmentId, newStatus });
   };
 
+  const handleStatusFilterChange = (value: string) => {
+    setStatusFilter(value as StatusFilter);
+  };
+
   const downloadCalendarEvent = async (appointmentId: string) => {
     try {
       const { data, error } = await supabase.rpc('generate_ics_event', {
@@ -237,7 +240,7 @@ const AppointmentsList: React.FC = () => {
               className="pl-9 text-sm"
             />
           </div>
-          <Select value={statusFilter} onValueChange={(value: StatusFilter) => setStatusFilter(value)}>
+          <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
             <SelectTrigger className="w-full sm:w-[180px]">
               <Filter className="w-4 h-4 mr-2" />
               <SelectValue />
