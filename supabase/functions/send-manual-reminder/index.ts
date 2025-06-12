@@ -120,21 +120,44 @@ const handler = async (req: Request): Promise<Response> => {
     const processedHtmlContent = processTemplate(template.html_content, templateData);
     const processedTextContent = processTemplate(template.text_content || '', templateData);
 
+    // Determine recipient and subject based on email restrictions
+    const verifiedEmail = 'zastrzykpiekna.kontakt@gmail.com';
+    const patientEmail = appointment.patients.email;
+    
+    let recipient = patientEmail;
+    let finalSubject = processedSubject;
+    
+    // If patient email is not the verified one, send to verified email with modified subject
+    if (patientEmail !== verifiedEmail) {
+      recipient = verifiedEmail;
+      finalSubject = `[Dla: ${patientEmail}] ${processedSubject}`;
+      console.log(`Sending to verified email due to Resend restrictions. Original recipient: ${patientEmail}`);
+    }
+
     // Send email
     const emailResponse = await resend.emails.send({
-      from: "Zastrzyk Piękna <onboarding@resend.dev>",
-      to: [appointment.patients.email],
-      subject: processedSubject,
+      from: "Zastrzyk Piękna <zastrzykpiekna.kontakt@gmail.com>",
+      to: [recipient],
+      subject: finalSubject,
       html: processedHtmlContent,
       text: processedTextContent || undefined,
     });
 
     if (emailResponse.error) {
       console.error('Resend error:', emailResponse.error);
-      throw new Error(`Błąd wysyłania: ${emailResponse.error.message}`);
+      
+      // Handle specific Resend errors
+      if (emailResponse.error.message?.includes('validation_error')) {
+        throw new Error(`Błąd walidacji email: ${emailResponse.error.message}`);
+      } else if (emailResponse.error.message?.includes('domain')) {
+        throw new Error(`Błąd domeny: ${emailResponse.error.message}. Sprawdź konfigurację domeny w Resend.`);
+      } else {
+        throw new Error(`Błąd wysyłania: ${emailResponse.error.message}`);
+      }
     }
 
     console.log('Manual reminder sent successfully:', emailResponse.data?.id);
+    console.log('Sent to:', recipient, 'Original patient email:', patientEmail);
 
     // Log the manual reminder
     await supabase
@@ -152,7 +175,11 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({
         success: true,
         messageId: emailResponse.data?.id,
-        message: 'Przypomnienie zostało wysłane pomyślnie'
+        message: recipient === patientEmail 
+          ? 'Przypomnienie zostało wysłane pomyślnie' 
+          : `Przypomnienie wysłane na adres testowy (${verifiedEmail}) - oryginalni odbiorca: ${patientEmail}`,
+        sentTo: recipient,
+        originalRecipient: patientEmail
       }),
       {
         status: 200,

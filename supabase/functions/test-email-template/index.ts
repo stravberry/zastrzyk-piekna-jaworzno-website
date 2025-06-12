@@ -80,27 +80,53 @@ const handler = async (req: Request): Promise<Response> => {
     const processedHtmlContent = processTemplate(template.html_content, testData);
     const processedTextContent = processTemplate(template.text_content || '', testData);
 
+    // Determine recipient and subject based on email restrictions
+    const verifiedEmail = 'zastrzykpiekna.kontakt@gmail.com';
+    
+    let recipient = recipientEmail;
+    let finalSubject = `[TEST] ${processedSubject}`;
+    
+    // If recipient email is not the verified one, send to verified email with modified subject
+    if (recipientEmail !== verifiedEmail) {
+      recipient = verifiedEmail;
+      finalSubject = `[TEST - Dla: ${recipientEmail}] ${processedSubject}`;
+      console.log(`Sending to verified email due to Resend restrictions. Original recipient: ${recipientEmail}`);
+    }
+
     // Send test email
     const emailResponse = await resend.emails.send({
-      from: "Zastrzyk Piękna <onboarding@resend.dev>",
-      to: [recipientEmail],
-      subject: `[TEST] ${processedSubject}`,
+      from: "Zastrzyk Piękna <zastrzykpiekna.kontakt@gmail.com>",
+      to: [recipient],
+      subject: finalSubject,
       html: processedHtmlContent,
       text: processedTextContent || undefined,
     });
 
     if (emailResponse.error) {
       console.error('Resend error:', emailResponse.error);
-      throw new Error(`Błąd wysyłania: ${emailResponse.error.message}`);
+      
+      // Handle specific Resend errors
+      if (emailResponse.error.message?.includes('validation_error')) {
+        throw new Error(`Błąd walidacji email: ${emailResponse.error.message}`);
+      } else if (emailResponse.error.message?.includes('domain')) {
+        throw new Error(`Błąd domeny: ${emailResponse.error.message}. Sprawdź konfigurację domeny w Resend.`);
+      } else {
+        throw new Error(`Błąd wysyłania: ${emailResponse.error.message}`);
+      }
     }
 
     console.log('Test email sent successfully:', emailResponse.data?.id);
+    console.log('Sent to:', recipient, 'Original recipient:', recipientEmail);
 
     return new Response(
       JSON.stringify({
         success: true,
         messageId: emailResponse.data?.id,
-        message: 'Email testowy został wysłany pomyślnie'
+        message: recipient === recipientEmail 
+          ? 'Email testowy został wysłany pomyślnie' 
+          : `Email testowy wysłany na adres testowy (${verifiedEmail}) - oryginalny odbiorca: ${recipientEmail}`,
+        sentTo: recipient,
+        originalRecipient: recipientEmail
       }),
       {
         status: 200,
