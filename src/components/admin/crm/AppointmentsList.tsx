@@ -59,12 +59,12 @@ const AppointmentsList: React.FC = () => {
         .range(from, to);
 
       if (statusFilter !== "all") {
-        // Fix: Only apply status filter for valid appointment statuses
+        // Fix: Only apply status filter for valid appointment statuses with proper type casting
         const validAppointmentStatuses = ["scheduled", "completed", "cancelled", "no_show"] as const;
         type AppointmentStatus = typeof validAppointmentStatuses[number];
         
         if (validAppointmentStatuses.includes(statusFilter as AppointmentStatus)) {
-          query = query.eq('status', statusFilter);
+          query = query.eq('status', statusFilter as AppointmentStatus);
         }
       }
 
