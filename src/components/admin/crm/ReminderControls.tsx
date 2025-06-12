@@ -15,11 +15,19 @@ const ReminderControls: React.FC = () => {
   const createMissingReminders = async () => {
     setIsCreatingMissing(true);
     try {
-      const { data, error } = await supabase.rpc('create_missing_reminders');
+      // Use a direct function call since create_missing_reminders might not be in the types yet
+      const { data, error } = await supabase.rpc('create_missing_reminders' as any);
       if (error) throw error;
       
-      const totalCreated = data?.reduce((sum: number, item: any) => sum + item.reminders_created, 0) || 0;
-      toast.success(`Utworzono ${totalCreated} brakujących przypomnień dla ${data?.length || 0} wizyt`);
+      // Type the response data properly
+      const results = data as Array<{
+        appointment_id: string;
+        appointment_date: string;
+        reminders_created: number;
+      }>;
+      
+      const totalCreated = results?.reduce((sum, item) => sum + item.reminders_created, 0) || 0;
+      toast.success(`Utworzono ${totalCreated} brakujących przypomnień dla ${results?.length || 0} wizyt`);
       
       // Refresh the reminders list
       window.location.reload();
