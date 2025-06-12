@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Edit, Eye, Save, Plus, Mail, Code, FileText, Sparkles } from "lucide-react";
 import TemplateRefreshButton from "@/components/admin/email-templates/TemplateRefreshButton";
+import EmailTestingPanel from "@/components/admin/email-templates/EmailTestingPanel";
 
 interface EmailTemplate {
   id: string;
@@ -302,10 +302,11 @@ const AdminEmailTemplates: React.FC = () => {
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="preview" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
+                <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="preview">Podgląd</TabsTrigger>
                   <TabsTrigger value="content">Treść</TabsTrigger>
                   <TabsTrigger value="settings">Ustawienia</TabsTrigger>
+                  <TabsTrigger value="test">Test</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="preview" className="mt-4">
@@ -434,6 +435,10 @@ const AdminEmailTemplates: React.FC = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                </TabsContent>
+
+                <TabsContent value="test" className="mt-4">
+                  <EmailTestingPanel templates={templates || []} />
                 </TabsContent>
               </Tabs>
             </CardContent>

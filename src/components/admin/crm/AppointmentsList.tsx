@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import AppointmentReminderStatus from "./AppointmentReminderStatus";
 import AppointmentForm from "./AppointmentForm";
 import QuickStatusChange from "./QuickStatusChange";
+import ManualReminderButton from "./ManualReminderButton";
 
 type AppointmentWithDetails = Tables<"patient_appointments"> & {
   patients: Tables<"patients">;
@@ -388,6 +389,11 @@ const AppointmentsList: React.FC = () => {
                       <Edit className="w-3 h-3 mr-1" />
                       Edytuj
                     </Button>
+                    <ManualReminderButton
+                      appointmentId={appointment.id}
+                      patientEmail={appointment.patients.email}
+                      disabled={updateStatusMutation.isPending}
+                    />
                     <Button 
                       size="sm" 
                       variant="outline"
