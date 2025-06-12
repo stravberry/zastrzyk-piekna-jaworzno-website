@@ -2,6 +2,7 @@
 import React from "react";
 import { Outlet, useLocation, Navigate } from "react-router-dom";
 import { AdminProvider } from "@/context/AdminContext";
+import AdminLayout from "@/components/admin/AdminLayout";
 
 const AdminWrapper: React.FC = () => {
   const location = useLocation();
@@ -15,9 +16,21 @@ const AdminWrapper: React.FC = () => {
     );
   }
 
+  // Don't wrap login page with AdminLayout
+  if (location.pathname === "/admin/login") {
+    return (
+      <AdminProvider>
+        <Outlet />
+      </AdminProvider>
+    );
+  }
+
+  // Wrap all other admin pages with AdminLayout
   return (
     <AdminProvider>
-      <Outlet />
+      <AdminLayout>
+        <Outlet />
+      </AdminLayout>
     </AdminProvider>
   );
 };
