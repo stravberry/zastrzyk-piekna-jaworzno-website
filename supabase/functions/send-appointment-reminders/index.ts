@@ -22,6 +22,13 @@ interface ReminderData {
   pre_treatment_notes: string;
 }
 
+interface EmailTemplate {
+  name: string;
+  subject: string;
+  html_content: string;
+  text_content: string;
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -33,7 +40,7 @@ const handler = async (req: Request): Promise<Response> => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    console.log("Fetching pending reminders...");
+    console.log("Starting reminder sending process...");
 
     // Pobierz przypomnienia do wysłania
     const { data: reminders, error: remindersError } = await supabase
@@ -48,7 +55,10 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (!reminders || reminders.length === 0) {
       return new Response(
-        JSON.stringify({ message: "No pending reminders" }),
+        JSON.stringify({ 
+          message: "No pending reminders",
+          sent_reminders: []
+        }),
         {
           status: 200,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -56,7 +66,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Pobierz szablon maila
+    // Pobierz szablony maili
     const { data: templates, error: templateError } = await supabase
       .from('email_templates')
       .select('*')
@@ -68,54 +78,93 @@ const handler = async (req: Request): Promise<Response> => {
       throw templateError;
     }
 
+    console.log(`Found ${templates?.length || 0} email templates`);
+
     const sentCount = [];
+    const failedCount = [];
 
     for (const reminder of reminders as ReminderData[]) {
       try {
         console.log(`Processing reminder ${reminder.id} for ${reminder.patient_email}`);
 
-        // Znajdź odpowiedni szablon
-        const template = templates?.find(t => t.name === `reminder_${reminder.reminder_type}`);
-        if (!template) {
-          console.error(`Template not found for reminder type: ${reminder.reminder_type}`);
+        if (!reminder.patient_email) {
+          console.log(`Skipping reminder ${reminder.id} - no email address`);
           continue;
         }
 
-        // Przygotuj dane do szablonu
-        const appointmentDate = new Date(reminder.scheduled_date);
-        const templateData = {
-          patient_name: reminder.patient_name,
-          treatment_name: reminder.treatment_name,
-          date: appointmentDate.toLocaleDateString('pl-PL'),
-          time: appointmentDate.toLocaleTimeString('pl-PL', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
-          }),
-          duration: reminder.duration_minutes,
-          pre_treatment_notes: reminder.pre_treatment_notes
-        };
+        // Znajdź odpowiedni szablon
+        const template = templates?.find(t => t.name === `reminder_${reminder.reminder_type}`) as EmailTemplate;
+        
+        let htmlContent: string;
+        let textContent: string;
+        let subject: string;
 
-        // Zastąp zmienne w szablonie
-        let htmlContent = template.html_content;
-        let textContent = template.text_content || '';
-        let subject = template.subject;
+        if (!template) {
+          console.log(`Template not found for reminder type: ${reminder.reminder_type}, using fallback`);
+          
+          // Fallback template
+          subject = `Przypomnienie o wizycie - ${reminder.patient_name}`;
+          htmlContent = `
+            <h2>Przypomnienie o wizycie</h2>
+            <p>Dzień dobry ${reminder.patient_name},</p>
+            <p>Przypominamy o zaplanowanej wizycie:</p>
+            <ul>
+              <li><strong>Zabieg:</strong> ${reminder.treatment_name}</li>
+              <li><strong>Data:</strong> ${new Date(reminder.scheduled_date).toLocaleDateString('pl-PL')}</li>
+              <li><strong>Godzina:</strong> ${new Date(reminder.scheduled_date).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}</li>
+              <li><strong>Czas trwania:</strong> ${reminder.duration_minutes || 60} minut</li>
+            </ul>
+            ${reminder.pre_treatment_notes ? `<p><strong>Uwagi:</strong> ${reminder.pre_treatment_notes}</p>` : ''}
+            <p>Pozdrawiamy,<br>Zastrzyk Piękna</p>
+          `;
+          textContent = `
+            Przypomnienie o wizycie - ${reminder.patient_name}
+            
+            Zabieg: ${reminder.treatment_name}
+            Data: ${new Date(reminder.scheduled_date).toLocaleDateString('pl-PL')}
+            Godzina: ${new Date(reminder.scheduled_date).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}
+            Czas trwania: ${reminder.duration_minutes || 60} minut
+            
+            ${reminder.pre_treatment_notes ? `Uwagi: ${reminder.pre_treatment_notes}` : ''}
+            
+            Pozdrawiamy,
+            Zastrzyk Piękna
+          `;
+        } else {
+          // Przygotuj dane do szablonu
+          const appointmentDate = new Date(reminder.scheduled_date);
+          const templateData = {
+            patient_name: reminder.patient_name,
+            treatment_name: reminder.treatment_name,
+            date: appointmentDate.toLocaleDateString('pl-PL'),
+            time: appointmentDate.toLocaleTimeString('pl-PL', { 
+              hour: '2-digit', 
+              minute: '2-digit' 
+            }),
+            duration: reminder.duration_minutes || 60,
+            pre_treatment_notes: reminder.pre_treatment_notes || ''
+          };
 
-        Object.entries(templateData).forEach(([key, value]) => {
-          const placeholder = `{{${key}}}`;
-          htmlContent = htmlContent.replace(new RegExp(placeholder, 'g'), value || '');
-          textContent = textContent.replace(new RegExp(placeholder, 'g'), value || '');
-          subject = subject.replace(new RegExp(placeholder, 'g'), value || '');
-        });
+          // Zastąp zmienne w szablonie
+          htmlContent = template.html_content;
+          textContent = template.text_content || '';
+          subject = template.subject;
 
-        // Obsługa warunków {{#if}}
-        htmlContent = htmlContent.replace(
-          /\{\{#if pre_treatment_notes\}\}(.*?)\{\{\/if\}\}/gs,
-          reminder.pre_treatment_notes ? '$1' : ''
-        );
-        textContent = textContent.replace(
-          /\{\{#if pre_treatment_notes\}\}(.*?)\{\{\/if\}\}/gs,
-          reminder.pre_treatment_notes ? '$1' : ''
-        );
+          Object.entries(templateData).forEach(([key, value]) => {
+            const placeholder = `{{${key}}}`;
+            htmlContent = htmlContent.replace(new RegExp(placeholder, 'g'), String(value));
+            textContent = textContent.replace(new RegExp(placeholder, 'g'), String(value));
+            subject = subject.replace(new RegExp(placeholder, 'g'), String(value));
+          });
+
+          // Obsługa warunków {{#if}}
+          const ifRegex = /\{\{#if pre_treatment_notes\}\}(.*?)\{\{\/if\}\}/gs;
+          const replacement = reminder.pre_treatment_notes ? '$1' : '';
+          htmlContent = htmlContent.replace(ifRegex, replacement);
+          textContent = textContent.replace(ifRegex, replacement);
+        }
+
+        console.log(`Sending email to ${reminder.patient_email} with subject: ${subject}`);
 
         // Wyślij email
         const emailResponse = await resend.emails.send({
@@ -126,24 +175,33 @@ const handler = async (req: Request): Promise<Response> => {
           text: textContent,
         });
 
-        console.log("Email sent:", emailResponse);
+        console.log("Email sent successfully:", emailResponse);
+
+        if (emailResponse.error) {
+          throw new Error(emailResponse.error.message);
+        }
 
         // Oznacz przypomnienie jako wysłane i zapisz message_id
-        await supabase
+        const { error: updateError } = await supabase
           .from('appointment_reminders')
           .update({
             status: 'sent',
             sent_at: new Date().toISOString(),
             email_sent: true,
             resend_message_id: emailResponse.data?.id || null,
-            delivery_status: emailResponse.error ? 'failed' : 'delivered'
+            delivery_status: 'delivered'
           })
           .eq('id', reminder.id);
+
+        if (updateError) {
+          console.error(`Error updating reminder ${reminder.id}:`, updateError);
+        }
 
         sentCount.push(reminder.id);
 
       } catch (error) {
         console.error(`Error sending reminder ${reminder.id}:`, error);
+        failedCount.push(reminder.id);
         
         // Oznacz jako błąd
         await supabase
@@ -157,10 +215,14 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
+    console.log(`Sent ${sentCount.length} reminders successfully, ${failedCount.length} failed`);
+
     return new Response(
       JSON.stringify({ 
         message: `Sent ${sentCount.length} reminders`,
-        sent_reminders: sentCount
+        sent_reminders: sentCount,
+        failed_reminders: failedCount,
+        total_processed: reminders.length
       }),
       {
         status: 200,
@@ -171,7 +233,10 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error in send-appointment-reminders function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.toString()
+      }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

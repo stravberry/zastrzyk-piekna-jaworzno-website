@@ -6,7 +6,8 @@ interface ReminderStatus {
   reminder_type: string;
   status: string;
   sent_at: string | null;
-  delivery_status: string;
+  delivery_status: string | null;
+  error_message: string | null;
 }
 
 export const useReminderStatus = (appointmentId: string) => {
@@ -15,18 +16,18 @@ export const useReminderStatus = (appointmentId: string) => {
     queryFn: async (): Promise<ReminderStatus[]> => {
       const { data, error } = await supabase
         .from('appointment_reminders')
-        .select('reminder_type, status, sent_at')
+        .select('reminder_type, status, sent_at, delivery_status, error_message')
         .eq('appointment_id', appointmentId)
         .order('scheduled_at');
       
       if (error) throw error;
       
-      // Map the data to include delivery_status with a default value
       return (data || []).map(reminder => ({
         ...reminder,
-        delivery_status: reminder.status === 'sent' ? 'delivered' : 'pending'
+        delivery_status: reminder.delivery_status || (reminder.status === 'sent' ? 'delivered' : 'pending')
       }));
     },
-    enabled: !!appointmentId
+    enabled: !!appointmentId,
+    refetchInterval: 30000 // Refresh every 30 seconds
   });
 };

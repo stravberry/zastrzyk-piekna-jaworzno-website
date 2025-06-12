@@ -107,6 +107,25 @@ const AppointmentsList: React.FC = () => {
     }
   });
 
+  // Manual reminder sending mutation
+  const sendRemindersMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke('send-appointment-reminders');
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      console.log('Reminders sent:', data);
+      toast.success(`Wysłano ${data.sent_reminders?.length || 0} przypomnień`);
+      queryClient.invalidateQueries({ queryKey: ['appointments-list'] });
+      queryClient.invalidateQueries({ queryKey: ['reminder-status'] });
+    },
+    onError: (error: any) => {
+      console.error('Error sending reminders:', error);
+      toast.error(`Błąd wysyłania przypomnień: ${error.message}`);
+    }
+  });
+
   const appointments = appointmentsData?.appointments || [];
   const totalCount = appointmentsData?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
@@ -158,8 +177,11 @@ const AppointmentsList: React.FC = () => {
   };
 
   const handleStatusFilterChange = (value: string) => {
-    setStatusFilter(value as StatusFilter);
-    setCurrentPage(1);
+    // Fix TypeScript error by ensuring proper type conversion
+    if (value === "all" || value === "scheduled" || value === "completed" || value === "cancelled" || value === "no_show") {
+      setStatusFilter(value as StatusFilter);
+      setCurrentPage(1);
+    }
   };
 
   const downloadCalendarEvent = async (appointmentId: string) => {
@@ -227,7 +249,7 @@ const AppointmentsList: React.FC = () => {
   return (
     <>
       <div className="space-y-3 sm:space-y-4">
-        {/* Filters */}
+        {/* Filters and Manual Reminder Button */}
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -254,6 +276,13 @@ const AppointmentsList: React.FC = () => {
               <SelectItem value="no_show">Nieobecność</SelectItem>
             </SelectContent>
           </Select>
+          <Button
+            onClick={() => sendRemindersMutation.mutate()}
+            disabled={sendRemindersMutation.isPending}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            {sendRemindersMutation.isPending ? "Wysyłanie..." : "Wyślij przypomnienia"}
+          </Button>
         </div>
 
         {/* Results info */}
