@@ -60,8 +60,11 @@ const AppointmentsList: React.FC = () => {
         .range(from, to);
 
       if (statusFilter !== "all") {
-        // Type assertion is safe here because we validate in handleStatusFilterChange
-        query = query.eq('status', statusFilter as AppointmentStatus);
+        // Only apply filter for valid appointment statuses, excluding "all"
+        const validAppointmentStatuses: AppointmentStatus[] = ["scheduled", "completed", "cancelled", "no_show"];
+        if (validAppointmentStatuses.includes(statusFilter as AppointmentStatus)) {
+          query = query.eq('status', statusFilter as AppointmentStatus);
+        }
       }
 
       if (searchTerm.trim()) {
