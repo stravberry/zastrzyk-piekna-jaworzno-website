@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Edit, Eye, Save, Plus, Mail, Code, FileText } from "lucide-react";
+import TemplateRefreshButton from "@/components/admin/email-templates/TemplateRefreshButton";
 
 interface EmailTemplate {
   id: string;
@@ -97,17 +97,29 @@ const AdminEmailTemplates: React.FC = () => {
     }
   };
 
+  const getTemplateDescription = (name: string) => {
+    switch (name) {
+      case 'reminder_24h': return 'Wysyłane 24 godziny przed wizytą';
+      case 'reminder_2h': return 'Wysyłane 2 godziny przed wizytą';
+      case 'appointment_confirmation': return 'Wysyłane po potwierdzeniu wizyty';
+      default: return 'Szablon email';
+    }
+  };
+
   if (isLoading) {
     return <div className="p-6 text-center">Ładowanie szablonów...</div>;
   }
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Szablony Email</h1>
-        <p className="text-muted-foreground">
-          Zarządzaj szablonami wiadomości email wysyłanych do pacjentów
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Szablony Email</h1>
+          <p className="text-muted-foreground">
+            Zarządzaj eleganckich szablonów wiadomości email wysyłanych do pacjentów
+          </p>
+        </div>
+        <TemplateRefreshButton onRefresh={() => setSelectedTemplate(null)} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -151,6 +163,7 @@ const AdminEmailTemplates: React.FC = () => {
                   </div>
                 </div>
                 <p className="text-sm text-gray-600 mb-2">{template.subject}</p>
+                <p className="text-xs text-gray-500 mb-3">{getTemplateDescription(template.name)}</p>
                 <div className="flex gap-2">
                   <Button 
                     size="sm" 
@@ -192,7 +205,7 @@ const AdminEmailTemplates: React.FC = () => {
                     {isEditing ? 'Edycja szablonu' : 'Podgląd szablonu'}
                   </CardTitle>
                   <CardDescription>
-                    {selectedTemplate.name}
+                    {selectedTemplate.name} - {getTemplateDescription(selectedTemplate.name)}
                   </CardDescription>
                 </div>
                 <div className="flex gap-2">
@@ -232,12 +245,42 @@ const AdminEmailTemplates: React.FC = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="content" className="w-full">
+              <Tabs defaultValue="preview" className="w-full">
                 <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="content">Treść</TabsTrigger>
                   <TabsTrigger value="preview">Podgląd</TabsTrigger>
+                  <TabsTrigger value="content">Treść</TabsTrigger>
                   <TabsTrigger value="settings">Ustawienia</TabsTrigger>
                 </TabsList>
+
+                <TabsContent value="preview" className="mt-4">
+                  <div className="space-y-4">
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <p className="text-sm font-medium mb-2">Przykładowe dane:</p>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        {Object.entries(previewData).map(([key, value]) => (
+                          <div key={key}>
+                            <span className="font-medium">{key}:</span> {value}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="border rounded-lg">
+                      <div className="p-3 border-b bg-gray-50">
+                        <p className="font-medium text-sm">
+                          Temat: {processTemplate(selectedTemplate.subject, previewData)}
+                        </p>
+                      </div>
+                      <div className="max-h-96 overflow-y-auto">
+                        <iframe
+                          srcDoc={processTemplate(selectedTemplate.html_content, previewData)}
+                          className="w-full h-96 border-0"
+                          title="Email Preview"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
 
                 <TabsContent value="content" className="space-y-4 mt-4">
                   <div className="space-y-2">
@@ -298,35 +341,6 @@ const AdminEmailTemplates: React.FC = () => {
                     <p className="text-xs text-gray-500 mt-2">
                       Warunki: {'{{#if pre_treatment_notes}}'}tekst{'{{/if}}'} 
                     </p>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="preview" className="mt-4">
-                  <div className="space-y-4">
-                    <div className="p-3 bg-gray-50 rounded-lg">
-                      <p className="text-sm font-medium mb-2">Przykładowe dane:</p>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        {Object.entries(previewData).map(([key, value]) => (
-                          <div key={key}>
-                            <span className="font-medium">{key}:</span> {value}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div className="border rounded-lg">
-                      <div className="p-3 border-b bg-gray-50">
-                        <p className="font-medium text-sm">
-                          Temat: {processTemplate(selectedTemplate.subject, previewData)}
-                        </p>
-                      </div>
-                      <div 
-                        className="p-4 prose prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{
-                          __html: processTemplate(selectedTemplate.html_content, previewData)
-                        }}
-                      />
-                    </div>
                   </div>
                 </TabsContent>
 
