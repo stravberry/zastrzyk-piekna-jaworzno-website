@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Edit, Eye, Save, Plus, Mail, Code, FileText } from "lucide-react";
+import { Edit, Eye, Save, Plus, Mail, Code, FileText, Sparkles } from "lucide-react";
 import TemplateRefreshButton from "@/components/admin/email-templates/TemplateRefreshButton";
 
 interface EmailTemplate {
@@ -38,18 +39,31 @@ const AdminEmailTemplates: React.FC = () => {
 
   const queryClient = useQueryClient();
 
-  const { data: templates, isLoading } = useQuery({
+  const { data: templates, isLoading, refetch } = useQuery({
     queryKey: ['email-templates'],
     queryFn: async () => {
+      console.log('Fetching email templates...');
       const { data, error } = await supabase
         .from('email_templates')
         .select('*')
         .order('template_type', { ascending: true });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching templates:', error);
+        throw error;
+      }
+      
+      console.log('Templates fetched:', data);
       return data as EmailTemplate[];
-    }
+    },
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
   });
+
+  // Auto-refresh templates when component mounts
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   const updateTemplate = useMutation({
     mutationFn: async (template: Partial<EmailTemplate>) => {
@@ -106,20 +120,42 @@ const AdminEmailTemplates: React.FC = () => {
     }
   };
 
+  const getTemplateIcon = (name: string) => {
+    switch (name) {
+      case 'reminder_24h': return '📅';
+      case 'reminder_2h': return '⏰';
+      case 'appointment_confirmation': return '✅';
+      default: return '📧';
+    }
+  };
+
   if (isLoading) {
-    return <div className="p-6 text-center">Ładowanie szablonów...</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Ładowanie szablonów...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Szablony Email</h1>
+          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+            <Sparkles className="w-8 h-8 text-pink-500" />
+            Szablony Email
+          </h1>
           <p className="text-muted-foreground">
-            Zarządzaj eleganckich szablonów wiadomości email wysyłanych do pacjentów
+            Zarządzaj eleganckimi szablonami wiadomości email wysyłanych do pacjentów
           </p>
         </div>
-        <TemplateRefreshButton onRefresh={() => setSelectedTemplate(null)} />
+        <TemplateRefreshButton onRefresh={() => {
+          setSelectedTemplate(null);
+          refetch();
+        }} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -146,23 +182,28 @@ const AdminEmailTemplates: React.FC = () => {
             {templates?.map((template) => (
               <div
                 key={template.id}
-                className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                  selectedTemplate?.id === template.id ? 'border-pink-300 bg-pink-50' : 'hover:bg-gray-50'
+                className={`p-4 border rounded-lg cursor-pointer transition-all hover:shadow-md ${
+                  selectedTemplate?.id === template.id 
+                    ? 'border-pink-300 bg-gradient-to-r from-pink-50 to-rose-50 shadow-sm' 
+                    : 'hover:bg-gray-50 border-gray-200'
                 }`}
                 onClick={() => setSelectedTemplate(template)}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium">{template.name}</h4>
                   <div className="flex items-center gap-2">
-                    <Badge variant={template.is_active ? "default" : "secondary"}>
+                    <span className="text-2xl">{getTemplateIcon(template.name)}</span>
+                    <h4 className="font-medium">{template.name}</h4>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant={template.is_active ? "default" : "secondary"} className="text-xs">
                       {template.is_active ? "Aktywny" : "Nieaktywny"}
                     </Badge>
-                    <Badge variant="outline">
+                    <Badge variant="outline" className="text-xs">
                       {getTemplateTypeLabel(template.template_type)}
                     </Badge>
                   </div>
                 </div>
-                <p className="text-sm text-gray-600 mb-2">{template.subject}</p>
+                <p className="text-sm text-gray-600 mb-2 font-medium">{template.subject}</p>
                 <p className="text-xs text-gray-500 mb-3">{getTemplateDescription(template.name)}</p>
                 <div className="flex gap-2">
                   <Button 
@@ -173,6 +214,7 @@ const AdminEmailTemplates: React.FC = () => {
                       setSelectedTemplate(template);
                       setIsEditing(true);
                     }}
+                    className="text-xs"
                   >
                     <Edit className="w-3 h-3 mr-1" />
                     Edytuj
@@ -184,6 +226,7 @@ const AdminEmailTemplates: React.FC = () => {
                       e.stopPropagation();
                       setSelectedTemplate(template);
                     }}
+                    className="text-xs"
                   >
                     <Eye className="w-3 h-3 mr-1" />
                     Podgląd
@@ -191,6 +234,16 @@ const AdminEmailTemplates: React.FC = () => {
                 </div>
               </div>
             ))}
+            
+            {(!templates || templates.length === 0) && (
+              <div className="text-center py-8 text-gray-500">
+                <Mail className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>Brak dostępnych szablonów</p>
+                <Button onClick={() => refetch()} className="mt-2" size="sm">
+                  Odśwież
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -203,6 +256,7 @@ const AdminEmailTemplates: React.FC = () => {
                   <CardTitle className="flex items-center gap-2">
                     {isEditing ? <Edit className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     {isEditing ? 'Edycja szablonu' : 'Podgląd szablonu'}
+                    <span className="text-2xl ml-2">{getTemplateIcon(selectedTemplate.name)}</span>
                   </CardTitle>
                   <CardDescription>
                     {selectedTemplate.name} - {getTemplateDescription(selectedTemplate.name)}
@@ -227,6 +281,7 @@ const AdminEmailTemplates: React.FC = () => {
                           is_active: selectedTemplate.is_active
                         })}
                         disabled={updateTemplate.isPending}
+                        className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600"
                       >
                         <Save className="w-4 h-4 mr-2" />
                         Zapisz
@@ -236,6 +291,7 @@ const AdminEmailTemplates: React.FC = () => {
                     <Button 
                       size="sm"
                       onClick={() => setIsEditing(true)}
+                      className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600"
                     >
                       <Edit className="w-4 h-4 mr-2" />
                       Edytuj
@@ -254,21 +310,21 @@ const AdminEmailTemplates: React.FC = () => {
 
                 <TabsContent value="preview" className="mt-4">
                   <div className="space-y-4">
-                    <div className="p-3 bg-gray-50 rounded-lg">
-                      <p className="text-sm font-medium mb-2">Przykładowe dane:</p>
+                    <div className="p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border">
+                      <p className="text-sm font-medium mb-2 text-blue-800">📋 Przykładowe dane:</p>
                       <div className="grid grid-cols-2 gap-2 text-xs">
                         {Object.entries(previewData).map(([key, value]) => (
-                          <div key={key}>
+                          <div key={key} className="text-blue-700">
                             <span className="font-medium">{key}:</span> {value}
                           </div>
                         ))}
                       </div>
                     </div>
                     
-                    <div className="border rounded-lg">
-                      <div className="p-3 border-b bg-gray-50">
-                        <p className="font-medium text-sm">
-                          Temat: {processTemplate(selectedTemplate.subject, previewData)}
+                    <div className="border rounded-lg overflow-hidden shadow-lg">
+                      <div className="p-3 border-b bg-gradient-to-r from-gray-50 to-gray-100">
+                        <p className="font-medium text-sm text-gray-800">
+                          📧 Temat: {processTemplate(selectedTemplate.subject, previewData)}
                         </p>
                       </div>
                       <div className="max-h-96 overflow-y-auto">
