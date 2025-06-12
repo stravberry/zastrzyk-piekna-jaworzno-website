@@ -15,12 +15,17 @@ export const useReminderStatus = (appointmentId: string) => {
     queryFn: async (): Promise<ReminderStatus[]> => {
       const { data, error } = await supabase
         .from('appointment_reminders')
-        .select('reminder_type, status, sent_at, delivery_status')
+        .select('reminder_type, status, sent_at')
         .eq('appointment_id', appointmentId)
         .order('scheduled_at');
       
       if (error) throw error;
-      return data || [];
+      
+      // Map the data to include delivery_status with a default value
+      return (data || []).map(reminder => ({
+        ...reminder,
+        delivery_status: reminder.status === 'sent' ? 'delivered' : 'pending'
+      }));
     },
     enabled: !!appointmentId
   });
