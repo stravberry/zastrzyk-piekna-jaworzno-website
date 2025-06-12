@@ -52,6 +52,23 @@ interface AppointmentFormProps {
   editingAppointment?: Appointment | null;
 }
 
+// Helper function to format date for datetime-local input (keeps local timezone)
+const formatDateTimeLocal = (date: string | Date) => {
+  const d = new Date(date);
+  // Get timezone offset in minutes
+  const timezoneOffset = d.getTimezoneOffset();
+  // Adjust for timezone to get local time
+  const localTime = new Date(d.getTime() - (timezoneOffset * 60000));
+  return localTime.toISOString().slice(0, 16);
+};
+
+// Helper function to convert datetime-local to UTC for database
+const convertToUTC = (localDateString: string) => {
+  // Create date object from local datetime string
+  const localDate = new Date(localDateString);
+  return localDate.toISOString();
+};
+
 const AppointmentForm: React.FC<AppointmentFormProps> = ({ 
   isOpen, 
   onClose, 
@@ -68,7 +85,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
       patient_id: selectedPatient?.id || editingAppointment?.patient_id || "",
       treatment_id: editingAppointment?.treatment_id || "",
       scheduled_date: editingAppointment?.scheduled_date 
-        ? new Date(editingAppointment.scheduled_date).toISOString().slice(0, 16)
+        ? formatDateTimeLocal(editingAppointment.scheduled_date)
         : "",
       duration_minutes: editingAppointment?.duration_minutes || 60,
       pre_treatment_notes: editingAppointment?.pre_treatment_notes || "",
@@ -88,7 +105,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
       form.reset({
         patient_id: editingAppointment.patient_id,
         treatment_id: editingAppointment.treatment_id,
-        scheduled_date: new Date(editingAppointment.scheduled_date).toISOString().slice(0, 16),
+        scheduled_date: formatDateTimeLocal(editingAppointment.scheduled_date),
         duration_minutes: editingAppointment.duration_minutes || 60,
         pre_treatment_notes: editingAppointment.pre_treatment_notes || "",
         post_treatment_notes: editingAppointment.post_treatment_notes || "",
@@ -145,6 +162,9 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     try {
       let appointmentId;
 
+      // Convert local datetime to UTC for database storage
+      const utcScheduledDate = convertToUTC(data.scheduled_date);
+
       if (isEditing && editingAppointment) {
         // Update existing appointment
         const { error } = await supabase
@@ -152,7 +172,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
           .update({
             patient_id: data.patient_id,
             treatment_id: data.treatment_id,
-            scheduled_date: data.scheduled_date,
+            scheduled_date: utcScheduledDate,
             duration_minutes: data.duration_minutes,
             pre_treatment_notes: data.pre_treatment_notes || null,
             post_treatment_notes: data.post_treatment_notes || null,
@@ -177,7 +197,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
             patient_id: data.patient_id,
             treatment_id: data.treatment_id,
             status: data.status,
-            scheduled_date: data.scheduled_date
+            scheduled_date: utcScheduledDate
           }
         });
         
@@ -189,7 +209,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
           .insert({
             patient_id: data.patient_id,
             treatment_id: data.treatment_id,
-            scheduled_date: data.scheduled_date,
+            scheduled_date: utcScheduledDate,
             duration_minutes: data.duration_minutes,
             pre_treatment_notes: data.pre_treatment_notes || null,
             post_treatment_notes: data.post_treatment_notes || null,

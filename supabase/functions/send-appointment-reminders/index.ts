@@ -1,4 +1,5 @@
 
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 import { Resend } from "npm:resend@2.0.0";
@@ -42,51 +43,10 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Starting reminder sending process...");
 
-    // Sprawdź czy są wizyty w systemie
-    const { data: allAppointments, error: appointmentsError } = await supabase
-      .from('patient_appointments')
-      .select(`
-        id,
-        scheduled_date,
-        patients(first_name, last_name, email),
-        treatments(name)
-      `)
-      .order('scheduled_date');
+    // Pobierz przypomnienia do wysłania - używamy funkcji get_pending_reminders
+    const { data: reminders, error: remindersError } = await supabase.rpc('get_pending_reminders');
 
-    console.log(`Total appointments in system: ${allAppointments?.length || 0}`);
-    if (allAppointments) {
-      allAppointments.forEach(apt => {
-        console.log(`Appointment ${apt.id}: ${apt.scheduled_date}, Patient: ${apt.patients?.email}`);
-      });
-    }
-
-    // Sprawdź przypomnienia w tabeli
-    const { data: allReminders, error: remindersTableError } = await supabase
-      .from('appointment_reminders')
-      .select('*')
-      .order('scheduled_at');
-
-    console.log(`Total reminders in table: ${allReminders?.length || 0}`);
-    if (allReminders) {
-      allReminders.forEach(reminder => {
-        console.log(`Reminder ${reminder.id}: type=${reminder.reminder_type}, scheduled_at=${reminder.scheduled_at}, status=${reminder.status}`);
-      });
-    }
-
-    // Pobierz przypomnienia do wysłania - używamy prostszego zapytania
-    const { data: reminders, error: remindersError } = await supabase
-      .from('appointment_reminders')
-      .select(`
-        id,
-        appointment_id,
-        reminder_type,
-        scheduled_at,
-        status
-      `)
-      .eq('status', 'pending')
-      .lte('scheduled_at', new Date().toISOString());
-
-    console.log(`Pending reminders query result:`, { reminders, error: remindersError });
+    console.log(`get_pending_reminders query result:`, { reminders, error: remindersError });
 
     if (remindersError) {
       console.error("Error fetching reminders:", remindersError);
@@ -95,6 +55,35 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (!reminders || reminders.length === 0) {
       console.log("No pending reminders found");
+      
+      // Sprawdź wszystkie wizyty i przypomnienia w systemie dla debugowania
+      const { data: allAppointments } = await supabase
+        .from('patient_appointments')
+        .select(`
+          id,
+          scheduled_date,
+          email_reminders_enabled,
+          status,
+          patients(first_name, last_name, email),
+          treatments(name)
+        `)
+        .order('scheduled_date');
+
+      const { data: allReminders } = await supabase
+        .from('appointment_reminders')
+        .select('*')
+        .order('scheduled_at');
+
+      console.log(`Debug info - Total appointments: ${allAppointments?.length || 0}`);
+      console.log(`Debug info - Total reminders: ${allReminders?.length || 0}`);
+      
+      // Pokaż szczegóły pierwszych kilku wizyt
+      if (allAppointments) {
+        allAppointments.slice(0, 3).forEach(apt => {
+          console.log(`Appointment ${apt.id}: ${apt.scheduled_date}, reminders_enabled: ${apt.email_reminders_enabled}, status: ${apt.status}, patient: ${apt.patients?.email}`);
+        });
+      }
+
       return new Response(
         JSON.stringify({ 
           message: "No pending reminders",
@@ -114,42 +103,6 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Found ${reminders.length} pending reminders to process`);
 
-    // Dla każdego przypomnienia pobierz szczegóły
-    const reminderDetails = [];
-    for (const reminder of reminders) {
-      const { data: appointmentData, error: appointmentError } = await supabase
-        .from('patient_appointments')
-        .select(`
-          id,
-          scheduled_date,
-          duration_minutes,
-          pre_treatment_notes,
-          patients(first_name, last_name, email),
-          treatments(name)
-        `)
-        .eq('id', reminder.appointment_id)
-        .single();
-
-      if (appointmentError || !appointmentData) {
-        console.error(`Error fetching appointment ${reminder.appointment_id}:`, appointmentError);
-        continue;
-      }
-
-      reminderDetails.push({
-        id: reminder.id,
-        appointment_id: reminder.appointment_id,
-        reminder_type: reminder.reminder_type,
-        patient_name: `${appointmentData.patients.first_name} ${appointmentData.patients.last_name}`,
-        patient_email: appointmentData.patients.email,
-        treatment_name: appointmentData.treatments.name,
-        scheduled_date: appointmentData.scheduled_date,
-        duration_minutes: appointmentData.duration_minutes,
-        pre_treatment_notes: appointmentData.pre_treatment_notes
-      });
-    }
-
-    console.log(`Successfully processed ${reminderDetails.length} reminder details`);
-
     // Pobierz szablony maili
     const { data: templates, error: templateError } = await supabase
       .from('email_templates')
@@ -167,7 +120,7 @@ const handler = async (req: Request): Promise<Response> => {
     const sentCount = [];
     const failedCount = [];
 
-    for (const reminder of reminderDetails as ReminderData[]) {
+    for (const reminder of reminders as ReminderData[]) {
       try {
         console.log(`Processing reminder ${reminder.id} for ${reminder.patient_email}`);
 
@@ -250,7 +203,7 @@ const handler = async (req: Request): Promise<Response> => {
 
         console.log(`Sending email to ${reminder.patient_email} with subject: ${subject}`);
 
-        // Wyślij email - używamy zweryfikowanej domeny
+        // Wyślij email - używamy zweryfikowanej domeny onboarding@resend.dev
         const emailResponse = await resend.emails.send({
           from: "Zastrzyk Piękna <onboarding@resend.dev>",
           to: [reminder.patient_email],
@@ -265,7 +218,7 @@ const handler = async (req: Request): Promise<Response> => {
           throw new Error(emailResponse.error.message);
         }
 
-        // Oznacz przypomnienie jako wysłane i zapisz message_id
+        // Oznacz przypomnienie jako wysłane
         const { error: updateError } = await supabase
           .from('appointment_reminders')
           .update({
@@ -303,12 +256,7 @@ const handler = async (req: Request): Promise<Response> => {
         message: `Sent ${sentCount.length} reminders`,
         sent_reminders: sentCount,
         failed_reminders: failedCount,
-        total_processed: reminderDetails.length,
-        debug_info: {
-          total_appointments: allAppointments?.length || 0,
-          total_reminders_in_db: allReminders?.length || 0,
-          pending_reminders_found: reminders?.length || 0
-        }
+        total_processed: reminders.length
       }),
       {
         status: 200,
@@ -332,3 +280,4 @@ const handler = async (req: Request): Promise<Response> => {
 };
 
 serve(handler);
+

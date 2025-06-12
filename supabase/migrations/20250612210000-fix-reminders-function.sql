@@ -1,4 +1,5 @@
 
+
 -- Poprawa funkcji get_pending_reminders
 CREATE OR REPLACE FUNCTION public.get_pending_reminders()
 RETURNS TABLE(
@@ -120,3 +121,4 @@ BEGIN
   END LOOP;
 END;
 $$;
+

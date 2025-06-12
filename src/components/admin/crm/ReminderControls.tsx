@@ -3,11 +3,33 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Send, Clock, AlertCircle } from "lucide-react";
+import { Mail, Send, Clock, AlertCircle, RefreshCw } from "lucide-react";
 import { useAppointmentReminders } from "@/hooks/useAppointmentReminders";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const ReminderControls: React.FC = () => {
   const { pendingReminders, isLoading, sendReminders, isSending } = useAppointmentReminders();
+  const [isCreatingMissing, setIsCreatingMissing] = React.useState(false);
+
+  const createMissingReminders = async () => {
+    setIsCreatingMissing(true);
+    try {
+      const { data, error } = await supabase.rpc('create_missing_reminders');
+      if (error) throw error;
+      
+      const totalCreated = data?.reduce((sum: number, item: any) => sum + item.reminders_created, 0) || 0;
+      toast.success(`Utworzono ${totalCreated} brakujących przypomnień dla ${data?.length || 0} wizyt`);
+      
+      // Refresh the reminders list
+      window.location.reload();
+    } catch (error: any) {
+      console.error('Error creating missing reminders:', error);
+      toast.error(`Błąd podczas tworzenia przypomnień: ${error.message}`);
+    } finally {
+      setIsCreatingMissing(false);
+    }
+  };
 
   return (
     <Card>
@@ -66,14 +88,26 @@ const ReminderControls: React.FC = () => {
           </div>
         )}
 
-        <Button 
-          onClick={() => sendReminders()}
-          disabled={isSending || isLoading}
-          className="w-full"
-        >
-          <Send className="w-4 h-4 mr-2" />
-          {isSending ? "Wysyłanie..." : "Wyślij wszystkie przypomnienia"}
-        </Button>
+        <div className="space-y-2">
+          <Button 
+            onClick={() => sendReminders()}
+            disabled={isSending || isLoading}
+            className="w-full"
+          >
+            <Send className="w-4 h-4 mr-2" />
+            {isSending ? "Wysyłanie..." : "Wyślij wszystkie przypomnienia"}
+          </Button>
+          
+          <Button 
+            onClick={createMissingReminders}
+            disabled={isCreatingMissing || isLoading}
+            variant="outline"
+            className="w-full"
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            {isCreatingMissing ? "Tworzenie..." : "Utwórz brakujące przypomnienia"}
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
