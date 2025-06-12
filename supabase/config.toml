@@ -1,1 +1,50 @@
+
 project_id = "rtudfimxbmokjmncinuj"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+
+[studio]
+enabled = true
+port = 54323
+
+[ingest]
+enabled = false
+
+[auth]
+enabled = true
+port = 54324
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["https://localhost:3000"]
+jwt_expiry = 3600
+refresh_token_rotation_enabled = true
+security_update_password_require_reauthentication = true
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+
+[[auth.email.smtp]]
+host = "smtp.gmail.com"
+port = 587
+user = "your-email@gmail.com"
+pass = "your-app-password"
+admin_email = "admin@example.com"
+max_frequency = "1s"
+
+[functions.send-appointment-reminders]
+verify_jwt = false
+
+[functions.google-calendar-auth]
+verify_jwt = true
+
+[functions.sync-google-calendar]
+verify_jwt = true
