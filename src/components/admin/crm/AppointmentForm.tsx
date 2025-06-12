@@ -30,8 +30,10 @@ const appointmentSchema = z.object({
   scheduled_date: z.string().min(1, "Wybierz datę i godzinę"),
   duration_minutes: z.number().min(1, "Czas trwania musi być większy niż 0"),
   pre_treatment_notes: z.string().optional(),
+  post_treatment_notes: z.string().optional(),
+  products_used: z.string().optional(),
   cost: z.number().optional(),
-  status: z.enum(['scheduled', 'completed', 'cancelled']).optional(),
+  status: z.enum(['scheduled', 'completed', 'cancelled', 'no_show']).optional(),
   email_reminders_enabled: z.boolean().default(true),
   calendar_sync_enabled: z.boolean().default(true),
   reminder_preferences: z.object({
@@ -70,8 +72,10 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
         : "",
       duration_minutes: editingAppointment?.duration_minutes || 60,
       pre_treatment_notes: editingAppointment?.pre_treatment_notes || "",
+      post_treatment_notes: editingAppointment?.post_treatment_notes || "",
+      products_used: editingAppointment?.products_used || "",
       cost: editingAppointment?.cost ? Number(editingAppointment.cost) : undefined,
-      status: (editingAppointment?.status as 'scheduled' | 'completed' | 'cancelled') || 'scheduled',
+      status: (editingAppointment?.status as 'scheduled' | 'completed' | 'cancelled' | 'no_show') || 'scheduled',
       email_reminders_enabled: editingAppointment?.email_reminders_enabled ?? true,
       calendar_sync_enabled: editingAppointment?.calendar_sync_enabled ?? true,
       reminder_preferences: editingAppointment?.reminder_preferences as any || { "24h": true, "2h": true }
@@ -87,8 +91,10 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
         scheduled_date: new Date(editingAppointment.scheduled_date).toISOString().slice(0, 16),
         duration_minutes: editingAppointment.duration_minutes || 60,
         pre_treatment_notes: editingAppointment.pre_treatment_notes || "",
+        post_treatment_notes: editingAppointment.post_treatment_notes || "",
+        products_used: editingAppointment.products_used || "",
         cost: editingAppointment.cost ? Number(editingAppointment.cost) : undefined,
-        status: (editingAppointment.status as 'scheduled' | 'completed' | 'cancelled') || 'scheduled',
+        status: (editingAppointment.status as 'scheduled' | 'completed' | 'cancelled' | 'no_show') || 'scheduled',
         email_reminders_enabled: editingAppointment.email_reminders_enabled ?? true,
         calendar_sync_enabled: editingAppointment.calendar_sync_enabled ?? true,
         reminder_preferences: editingAppointment.reminder_preferences as any || { "24h": true, "2h": true }
@@ -149,6 +155,8 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
             scheduled_date: data.scheduled_date,
             duration_minutes: data.duration_minutes,
             pre_treatment_notes: data.pre_treatment_notes || null,
+            post_treatment_notes: data.post_treatment_notes || null,
+            products_used: data.products_used || null,
             cost: data.cost || null,
             status: data.status || 'scheduled',
             email_reminders_enabled: data.email_reminders_enabled,
@@ -159,6 +167,20 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
 
         if (error) throw error;
         appointmentId = editingAppointment.id;
+        
+        // Log the update activity
+        await supabase.rpc('log_admin_activity', {
+          _action: 'update_appointment',
+          _resource_type: 'patient_appointment',
+          _resource_id: editingAppointment.id,
+          _details: {
+            patient_id: data.patient_id,
+            treatment_id: data.treatment_id,
+            status: data.status,
+            scheduled_date: data.scheduled_date
+          }
+        });
+        
         toast.success('Wizyta została zaktualizowana');
       } else {
         // Create new appointment
@@ -170,6 +192,8 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
             scheduled_date: data.scheduled_date,
             duration_minutes: data.duration_minutes,
             pre_treatment_notes: data.pre_treatment_notes || null,
+            post_treatment_notes: data.post_treatment_notes || null,
+            products_used: data.products_used || null,
             cost: data.cost || null,
             email_reminders_enabled: data.email_reminders_enabled,
             calendar_sync_enabled: data.calendar_sync_enabled,
@@ -347,6 +371,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                             <SelectItem value="scheduled">Zaplanowana</SelectItem>
                             <SelectItem value="completed">Zakończona</SelectItem>
                             <SelectItem value="cancelled">Anulowana</SelectItem>
+                            <SelectItem value="no_show">Nieobecność</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -387,6 +412,38 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                     </FormItem>
                   )}
                 />
+
+                {isEditing && (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="products_used"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Produkty użyte podczas zabiegu</FormLabel>
+                          <FormControl>
+                            <Textarea {...field} placeholder="Lista produktów użytych podczas zabiegu..." />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="post_treatment_notes"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Notatki po zabiegu</FormLabel>
+                          <FormControl>
+                            <Textarea {...field} placeholder="Przebieg zabiegu, obserwacje, zalecenia..." />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </>
+                )}
               </div>
 
               {/* Konfiguracja przypomnień i integracji */}

@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,10 +17,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Calendar, User, Download, FileText, Search, Filter, Trash2 } from "lucide-react";
+import { Calendar, User, Download, FileText, Search, Filter, Trash2, Edit, Clock, CheckCircle } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 import AppointmentReminderStatus from "./AppointmentReminderStatus";
+import AppointmentForm from "./AppointmentForm";
+import QuickStatusChange from "./QuickStatusChange";
 
 type AppointmentWithDetails = Tables<"patient_appointments"> & {
   patients: Tables<"patients">;
@@ -34,8 +36,12 @@ const AppointmentsList: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [appointmentToDelete, setAppointmentToDelete] = useState<string | null>(null);
+  const [editingAppointment, setEditingAppointment] = useState<AppointmentWithDetails | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const ITEMS_PER_PAGE = 15;
+
+  const queryClient = useQueryClient();
 
   const { data: appointmentsData, isLoading, refetch } = useQuery({
     queryKey: ['appointments-list', searchTerm, statusFilter, currentPage],
@@ -58,7 +64,6 @@ const AppointmentsList: React.FC = () => {
       }
 
       if (searchTerm.trim()) {
-        // Search by patient name or treatment name
         query = query.or(`patients.first_name.ilike.%${searchTerm}%,patients.last_name.ilike.%${searchTerm}%,treatments.name.ilike.%${searchTerm}%`);
       }
 
@@ -69,6 +74,37 @@ const AppointmentsList: React.FC = () => {
         appointments: data as AppointmentWithDetails[] || [],
         totalCount: count || 0
       };
+    }
+  });
+
+  // Mutation for quick status updates
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ appointmentId, newStatus }: { appointmentId: string, newStatus: string }) => {
+      const { error } = await supabase
+        .from('patient_appointments')
+        .update({ 
+          status: newStatus,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', appointmentId);
+
+      if (error) throw error;
+
+      // Log the activity
+      await supabase.rpc('log_admin_activity', {
+        _action: 'update_appointment_status',
+        _resource_type: 'patient_appointment',
+        _resource_id: appointmentId,
+        _details: { new_status: newStatus }
+      });
+    },
+    onSuccess: () => {
+      toast.success("Status wizyty został zaktualizowany");
+      queryClient.invalidateQueries({ queryKey: ['appointments-list'] });
+    },
+    onError: (error) => {
+      console.error('Error updating appointment status:', error);
+      toast.error("Błąd podczas aktualizacji statusu");
     }
   });
 
@@ -113,6 +149,15 @@ const AppointmentsList: React.FC = () => {
     }
   };
 
+  const handleEditAppointment = (appointment: AppointmentWithDetails) => {
+    setEditingAppointment(appointment);
+    setIsEditFormOpen(true);
+  };
+
+  const handleQuickStatusChange = (appointmentId: string, newStatus: string) => {
+    updateStatusMutation.mutate({ appointmentId, newStatus });
+  };
+
   const downloadCalendarEvent = async (appointmentId: string) => {
     try {
       const { data, error } = await supabase.rpc('generate_ics_event', {
@@ -140,7 +185,6 @@ const AppointmentsList: React.FC = () => {
   const deleteAppointment = async (appointmentId: string) => {
     setIsDeleting(true);
     try {
-      // Get appointment details for logging
       const appointmentToDelete = appointments.find(apt => apt.id === appointmentId);
       
       const { error } = await supabase
@@ -150,7 +194,6 @@ const AppointmentsList: React.FC = () => {
 
       if (error) throw error;
 
-      // Log the deletion activity
       await supabase.rpc('log_admin_activity', {
         _action: 'delete_appointment',
         _resource_type: 'patient_appointment',
@@ -251,6 +294,15 @@ const AppointmentsList: React.FC = () => {
                       </div>
                     </div>
                     
+                    {/* Quick Status Change */}
+                    <div className="mb-2">
+                      <QuickStatusChange 
+                        currentStatus={appointment.status || 'scheduled'}
+                        onStatusChange={(newStatus) => handleQuickStatusChange(appointment.id, newStatus)}
+                        disabled={updateStatusMutation.isPending}
+                      />
+                    </div>
+                    
                     {/* Reminder Status */}
                     <div className="mb-2">
                       <AppointmentReminderStatus appointmentId={appointment.id} />
@@ -278,6 +330,15 @@ const AppointmentsList: React.FC = () => {
                   </div>
                   
                   <div className="flex gap-2 justify-end sm:justify-start flex-shrink-0">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => handleEditAppointment(appointment)}
+                      className="text-xs px-2 py-1"
+                    >
+                      <Edit className="w-3 h-3 mr-1" />
+                      Edytuj
+                    </Button>
                     <Button 
                       size="sm" 
                       variant="outline"
@@ -340,6 +401,21 @@ const AppointmentsList: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Edit Appointment Form */}
+      <AppointmentForm
+        isOpen={isEditFormOpen}
+        onClose={() => {
+          setIsEditFormOpen(false);
+          setEditingAppointment(null);
+        }}
+        editingAppointment={editingAppointment}
+        onSuccess={() => {
+          setIsEditFormOpen(false);
+          setEditingAppointment(null);
+          refetch();
+        }}
+      />
 
       {/* Delete Appointment Confirmation Dialog */}
       <AlertDialog open={!!appointmentToDelete} onOpenChange={() => setAppointmentToDelete(null)}>
