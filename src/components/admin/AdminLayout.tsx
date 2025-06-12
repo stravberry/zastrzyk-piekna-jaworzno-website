@@ -13,7 +13,7 @@ import {
   Shield,
   Code,
   Calendar,
-  MailTemplate
+  FileEdit
 } from "lucide-react";
 
 const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -26,7 +26,7 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     { name: "Galeria", href: "/admin/gallery", icon: Image },
     { name: "Cennik", href: "/admin/pricing", icon: DollarSign },
     { name: "Kontakty", href: "/admin/contacts", icon: Mail },
-    { name: "Szablony Email", href: "/admin/email-templates", icon: MailTemplate },
+    { name: "Szablony Email", href: "/admin/email-templates", icon: FileEdit },
     { name: "Analityka", href: "/admin/analytics", icon: BarChart3 },
     { name: "Użytkownicy", href: "/admin/users", icon: Users },
     { name: "Bezpieczeństwo", href: "/admin/security", icon: Shield },

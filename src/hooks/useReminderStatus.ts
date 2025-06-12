@@ -2,13 +2,22 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+interface ReminderStatus {
+  reminder_type: string;
+  status: string;
+  sent_at: string | null;
+  delivery_status: string;
+}
+
 export const useReminderStatus = (appointmentId: string) => {
   return useQuery({
     queryKey: ['reminder-status', appointmentId],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_appointment_reminder_status', {
-        appointment_id_param: appointmentId
-      });
+    queryFn: async (): Promise<ReminderStatus[]> => {
+      const { data, error } = await supabase
+        .from('appointment_reminders')
+        .select('reminder_type, status, sent_at, delivery_status')
+        .eq('appointment_id', appointmentId)
+        .order('scheduled_at');
       
       if (error) throw error;
       return data || [];

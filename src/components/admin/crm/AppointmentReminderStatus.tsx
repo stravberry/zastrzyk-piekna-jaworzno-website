@@ -21,7 +21,7 @@ const AppointmentReminderStatus: React.FC<AppointmentReminderStatusProps> = ({ a
 
   return (
     <div className="flex gap-1 flex-wrap">
-      {reminderStatus.map((reminder: any, index: number) => {
+      {reminderStatus.map((reminder, index: number) => {
         const getStatusColor = (status: string) => {
           switch (status) {
             case 'sent': return 'bg-green-100 text-green-800';
