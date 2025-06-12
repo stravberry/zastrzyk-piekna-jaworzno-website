@@ -86,7 +86,7 @@ const AppointmentsList: React.FC = () => {
 
   // Mutation for quick status updates
   const updateStatusMutation = useMutation({
-    mutationFn: async ({ appointmentId, newStatus }: { appointmentId: string, newStatus: string }) => {
+    mutationFn: async ({ appointmentId, newStatus }: { appointmentId: string, newStatus: AppointmentStatus }) => {
       const { error } = await supabase
         .from('patient_appointments')
         .update({ 
@@ -181,7 +181,14 @@ const AppointmentsList: React.FC = () => {
   };
 
   const handleQuickStatusChange = (appointmentId: string, newStatus: string) => {
-    updateStatusMutation.mutate({ appointmentId, newStatus });
+    // Validate that newStatus is a valid AppointmentStatus
+    const validStatuses: AppointmentStatus[] = ["scheduled", "completed", "cancelled", "no_show"];
+    if (!validStatuses.includes(newStatus as AppointmentStatus)) {
+      toast.error("Nieprawidłowy status wizyty");
+      return;
+    }
+    
+    updateStatusMutation.mutate({ appointmentId, newStatus: newStatus as AppointmentStatus });
   };
 
   const handleStatusFilterChange = (value: string) => {
