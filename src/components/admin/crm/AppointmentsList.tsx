@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -59,7 +60,9 @@ const AppointmentsList: React.FC = () => {
         .range(from, to);
 
       if (statusFilter !== "all") {
-        query = query.eq('status', statusFilter);
+        // Fix: Ensure proper type casting for the status filter
+        const appointmentStatus = statusFilter as "scheduled" | "completed" | "cancelled" | "no_show";
+        query = query.eq('status', appointmentStatus);
       }
 
       if (searchTerm.trim()) {
