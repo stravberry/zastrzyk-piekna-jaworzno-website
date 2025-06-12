@@ -159,6 +159,7 @@ const AppointmentsList: React.FC = () => {
 
   const handleStatusFilterChange = (value: string) => {
     setStatusFilter(value as StatusFilter);
+    setCurrentPage(1);
   };
 
   const downloadCalendarEvent = async (appointmentId: string) => {
