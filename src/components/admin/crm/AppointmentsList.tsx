@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +20,7 @@ import {
 import { Calendar, User, Download, FileText, Search, Filter, Trash2 } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
+import AppointmentReminderStatus from "./AppointmentReminderStatus";
 
 type AppointmentWithDetails = Tables<"patient_appointments"> & {
   patients: Tables<"patients">;
@@ -247,6 +249,11 @@ const AppointmentsList: React.FC = () => {
                         <Calendar className="w-3 h-3 mr-1 flex-shrink-0" />
                         <span className="text-xs sm:text-sm">{dateInfo.formatted}</span>
                       </div>
+                    </div>
+                    
+                    {/* Reminder Status */}
+                    <div className="mb-2">
+                      <AppointmentReminderStatus appointmentId={appointment.id} />
                     </div>
                     
                     {appointment.cost && (

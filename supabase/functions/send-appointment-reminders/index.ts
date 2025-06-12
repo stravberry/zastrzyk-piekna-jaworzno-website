@@ -119,7 +119,7 @@ const handler = async (req: Request): Promise<Response> => {
 
         // Wyślij email
         const emailResponse = await resend.emails.send({
-          from: "Zastrzyk Piękna <przypomnienia@zastrzykpiekna.pl>",
+          from: "Zastrzyk Piękna <noreply@zastrzykpiekna.pl>",
           to: [reminder.patient_email],
           subject: subject,
           html: htmlContent,
@@ -128,13 +128,15 @@ const handler = async (req: Request): Promise<Response> => {
 
         console.log("Email sent:", emailResponse);
 
-        // Oznacz przypomnienie jako wysłane
+        // Oznacz przypomnienie jako wysłane i zapisz message_id
         await supabase
           .from('appointment_reminders')
           .update({
             status: 'sent',
             sent_at: new Date().toISOString(),
-            email_sent: true
+            email_sent: true,
+            resend_message_id: emailResponse.data?.id || null,
+            delivery_status: emailResponse.error ? 'failed' : 'delivered'
           })
           .eq('id', reminder.id);
 
@@ -148,7 +150,8 @@ const handler = async (req: Request): Promise<Response> => {
           .from('appointment_reminders')
           .update({
             status: 'failed',
-            error_message: error.message
+            error_message: error.message,
+            delivery_status: 'failed'
           })
           .eq('id', reminder.id);
       }

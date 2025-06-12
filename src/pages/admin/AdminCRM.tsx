@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +10,8 @@ import PatientForm from "@/components/admin/crm/PatientForm";
 import AppointmentForm from "@/components/admin/crm/AppointmentForm";
 import IntegrationsPanel from "@/components/admin/crm/IntegrationsPanel";
 import PatientProfileModal from "@/components/admin/crm/PatientProfileModal";
-import { Users, Calendar, ClipboardList, Settings, Search } from "lucide-react";
+import ReminderControls from "@/components/admin/crm/ReminderControls";
+import { Users, Calendar, ClipboardList, Settings, Search, Mail } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 
 type Patient = Tables<"patients">;
@@ -55,7 +57,7 @@ const AdminCRM: React.FC = () => {
       </div>
 
       <Tabs defaultValue="patients" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="patients" className="flex items-center gap-2">
             <Users className="w-4 h-4" />
             Pacjenci
@@ -67,6 +69,10 @@ const AdminCRM: React.FC = () => {
           <TabsTrigger value="all-appointments" className="flex items-center gap-2">
             <ClipboardList className="w-4 h-4" />
             Wszystkie wizyty
+          </TabsTrigger>
+          <TabsTrigger value="reminders" className="flex items-center gap-2">
+            <Mail className="w-4 h-4" />
+            Przypomnienia
           </TabsTrigger>
           <TabsTrigger value="integrations" className="flex items-center gap-2">
             <Settings className="w-4 h-4" />
@@ -113,13 +119,19 @@ const AdminCRM: React.FC = () => {
             <CardHeader>
               <CardTitle>Wszystkie wizyty</CardTitle>
               <CardDescription>
-                Pełna lista wszystkich wizyt w systemie
+                Pełna lista wszystkich wizyt w systemie z statusem przypomnień
               </CardDescription>
             </CardHeader>
             <CardContent>
               <AllAppointmentsList />
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="reminders">
+          <div className="space-y-6">
+            <ReminderControls />
+          </div>
         </TabsContent>
 
         <TabsContent value="integrations">

@@ -1,132 +1,84 @@
+
 import React from "react";
-import { Outlet, Link, useLocation } from "react-router-dom";
-import { useAdmin } from "@/context/AdminContext";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import {
-  LayoutDashboard,
-  Users,
-  FileText,
-  Image,
-  DollarSign,
+import { 
+  BarChart3, 
+  Users, 
+  FileText, 
+  Image, 
+  DollarSign, 
+  Mail, 
   Settings,
-  LogOut,
-  UserCheck,
+  Shield,
   Code,
-  Stethoscope,
-  BarChart3
+  Calendar,
+  MailTemplate
 } from "lucide-react";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-  SidebarInset,
-} from "@/components/ui/sidebar";
 
-interface AdminLayoutProps {
-  title?: string;
-  subtitle?: string;
-  children?: React.ReactNode;
-}
-
-const AdminLayout: React.FC<AdminLayoutProps> = ({ title, subtitle, children }) => {
-  const { logout } = useAdmin();
+const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
 
   const navigation = [
-    { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
-    { name: 'CRM Pacjentów', href: '/admin/crm', icon: Stethoscope },
-    { name: 'Analityka', href: '/admin/analytics', icon: BarChart3 },
-    { name: 'Posty', href: '/admin/posts', icon: FileText },
-    { name: 'Galeria', href: '/admin/gallery', icon: Image },
-    { name: 'Cennik', href: '/admin/pricing', icon: DollarSign },
-    { name: 'Użytkownicy', href: '/admin/users', icon: UserCheck },
-    { name: 'Ustawienia kodu', href: '/admin/settings/code', icon: Code },
+    { name: "Dashboard", href: "/admin", icon: BarChart3 },
+    { name: "CRM", href: "/admin/crm", icon: Calendar },
+    { name: "Posty", href: "/admin/posts", icon: FileText },
+    { name: "Galeria", href: "/admin/gallery", icon: Image },
+    { name: "Cennik", href: "/admin/pricing", icon: DollarSign },
+    { name: "Kontakty", href: "/admin/contacts", icon: Mail },
+    { name: "Szablony Email", href: "/admin/email-templates", icon: MailTemplate },
+    { name: "Analityka", href: "/admin/analytics", icon: BarChart3 },
+    { name: "Użytkownicy", href: "/admin/users", icon: Users },
+    { name: "Bezpieczeństwo", href: "/admin/security", icon: Shield },
+    { name: "Kod", href: "/admin/code-settings", icon: Code },
   ];
 
-  function AppSidebar() {
-    return (
-      <Sidebar>
-        <SidebarHeader>
-          <div className="flex items-center justify-center h-16 px-4">
-            <h1 className="text-xl font-bold text-pink-600">Panel Admin</h1>
-          </div>
-        </SidebarHeader>
-        
-        <SidebarContent>
-          <SidebarGroup>
-            <SidebarGroupLabel>Aplikacja</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {navigation.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = location.pathname === item.href;
-                  
-                  return (
-                    <SidebarMenuItem key={item.name}>
-                      <SidebarMenuButton asChild isActive={isActive}>
-                        <Link to={item.href}>
-                          <Icon className="w-5 h-5" />
-                          <span>{item.name}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
-
-        <SidebarFooter>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton onClick={logout}>
-                <LogOut className="w-4 h-4" />
-                <span>Wyloguj się</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarFooter>
-      </Sidebar>
-    );
-  }
+  const isActive = (href: string) => {
+    if (href === "/admin") {
+      return location.pathname === "/admin";
+    }
+    return location.pathname.startsWith(href);
+  };
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gray-50">
-        <AppSidebar />
-        <SidebarInset className="flex-1">
-          <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-white px-2 sm:px-4">
-            <SidebarTrigger className="-ml-1" />
-            <div className="flex-1">
-              {title && (
-                <div>
-                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">{title}</h1>
-                  {subtitle && (
-                    <p className="text-sm text-gray-600 mt-1 hidden sm:block">{subtitle}</p>
-                  )}
-                </div>
-              )}
-            </div>
-          </header>
-          <main className="flex-1 overflow-auto">
-            <div className="p-2 sm:p-4 lg:p-6">
-              {children || <Outlet />}
-            </div>
-          </main>
-        </SidebarInset>
+    <div className="flex h-screen bg-gray-50">
+      {/* Sidebar */}
+      <div className="w-64 bg-white shadow-sm border-r">
+        <div className="p-6">
+          <Link to="/" className="text-xl font-bold text-pink-600">
+            Zastrzyk Piękna
+          </Link>
+          <p className="text-sm text-gray-500 mt-1">Panel administracyjny</p>
+        </div>
+        
+        <nav className="px-4 space-y-1">
+          {navigation.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                  isActive(item.href)
+                    ? "bg-pink-50 text-pink-700 border-r-2 border-pink-500"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <Icon className="w-4 h-4 mr-3" />
+                {item.name}
+              </Link>
+            );
+          })}
+        </nav>
       </div>
-    </SidebarProvider>
+
+      {/* Main content */}
+      <div className="flex-1 overflow-auto">
+        <div className="p-8">
+          {children}
+        </div>
+      </div>
+    </div>
   );
 };
 
