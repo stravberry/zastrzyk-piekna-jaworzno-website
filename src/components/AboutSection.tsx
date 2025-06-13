@@ -2,8 +2,10 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+
 const AboutSection = () => {
-  return <section className="section-padding bg-white">
+  return (
+    <section className="section-padding bg-white">
       <div className="container-custom">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="order-2 lg:order-1">
@@ -32,13 +34,17 @@ const AboutSection = () => {
             </p>
 
             <Button asChild className="bg-pink-500 hover:bg-pink-600 text-white">
-              <Link to="/about">Poznaj mnie lepiej</Link>
+              <Link to="/o-mnie">Poznaj mnie lepiej</Link>
             </Button>
           </div>
 
           <div className="order-1 lg:order-2 relative">
             <div className="rounded-lg overflow-hidden shadow-xl">
-              <img alt="Anna Gajęcka - Kosmetolog" className="w-full h-auto object-cover" src="/lovable-uploads/2e819def-450f-472d-bf96-82773e78b080.jpg" />
+              <img 
+                alt="Anna Gajęcka - Kosmetolog" 
+                className="w-full h-auto object-cover" 
+                src="/lovable-uploads/2e819def-450f-472d-bf96-82773e78b080.jpg" 
+              />
             </div>
             <div className="absolute -bottom-5 -right-5 bg-white p-4 rounded-lg shadow-lg border border-pink-100">
               <span className="text-xl font-semibold text-gold-500 font-playfair">
@@ -49,6 +55,8 @@ const AboutSection = () => {
           </div>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
+
 export default AboutSection;

@@ -11,19 +11,24 @@ interface ServiceCardProps {
 }
 
 const ServiceCard = ({ title, description, icon, link }: ServiceCardProps) => {
-  // Jeśli tytuł to "Terapie przeciwstarzeniowe", używamy nowego linku
+  // Jeśli tytuł to "Peelingi chemiczne", używamy nowego linku
   const displayTitle = title === "Peelingi chemiczne" ? "POZOSTAŁE ZABIEGI" : title;
   
-  // Dla "Peelingi chemiczne" zmieniamy link na stronę cennika
-  // Dla "Terapie przeciwstarzeniowe" i "Modelowanie ust" używamy dedykowanych stron
+  // Mapowanie linków na prawidłowe ścieżki
   let targetLink = link;
   
   if (title === "Peelingi chemiczne") {
-    targetLink = "/pricing";
+    targetLink = "/cennik";
   } else if (title === "Terapie przeciwstarzeniowe") {
     targetLink = "/zabiegi/terapie-przeciwstarzeniowe";
   } else if (title === "Modelowanie ust") {
     targetLink = "/zabiegi/modelowanie-ust";
+  } else if (title === "Makijaż permanentny brwi") {
+    targetLink = "/uslugi";
+  } else if (title === "Mezoterapia igłowa") {
+    targetLink = "/uslugi";
+  } else if (title === "Lipoliza iniekcyjna") {
+    targetLink = "/uslugi";
   }
 
   return (
