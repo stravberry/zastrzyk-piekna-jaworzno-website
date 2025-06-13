@@ -11,25 +11,10 @@ interface ServiceCardProps {
 }
 
 const ServiceCard = ({ title, description, icon, link }: ServiceCardProps) => {
-  // Jeśli tytuł to "Peelingi chemiczne", używamy nowego linku
+  // Jeśli tytuł to "Peelingi chemiczne", używamy nowego linku i tytułu
   const displayTitle = title === "Peelingi chemiczne" ? "POZOSTAŁE ZABIEGI" : title;
-  
-  // Mapowanie linków na prawidłowe ścieżki
-  let targetLink = link;
-  
-  if (title === "Peelingi chemiczne") {
-    targetLink = "/cennik";
-  } else if (title === "Terapie przeciwstarzeniowe") {
-    targetLink = "/zabiegi/terapie-przeciwstarzeniowe";
-  } else if (title === "Modelowanie ust") {
-    targetLink = "/zabiegi/modelowanie-ust";
-  } else if (title === "Makijaż permanentny brwi") {
-    targetLink = "/uslugi";
-  } else if (title === "Mezoterapia igłowa") {
-    targetLink = "/uslugi";
-  } else if (title === "Lipoliza iniekcyjna") {
-    targetLink = "/uslugi";
-  }
+  const displayLink = title === "Peelingi chemiczne" ? "/cennik" : link;
+  const linkText = title === "Peelingi chemiczne" ? "Zobacz cennik" : "Dowiedz się więcej";
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 border border-pink-50 h-full flex flex-col">
@@ -37,10 +22,10 @@ const ServiceCard = ({ title, description, icon, link }: ServiceCardProps) => {
       <h3 className="text-xl font-semibold mb-3 font-playfair">{displayTitle}</h3>
       <p className="text-gray-600 mb-4 flex-1">{description}</p>
       <Link
-        to={targetLink}
+        to={displayLink}
         className="inline-flex items-center text-pink-500 font-medium hover:text-pink-600 transition-colors group mt-auto"
       >
-        {title === "Peelingi chemiczne" ? "Zobacz cennik" : "Dowiedz się więcej"}
+        {linkText}
         <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
       </Link>
     </div>

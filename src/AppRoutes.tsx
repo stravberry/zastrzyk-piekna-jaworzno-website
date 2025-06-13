@@ -38,8 +38,8 @@ const AppRoutes = () => {
       <Route path="/o-mnie" element={<AboutMe />} />
       <Route path="/blog" element={<Blog />} />
       <Route path="/kontakt" element={<Contact />} />
-      <Route path="/modelowanie-ust" element={<LipModeling />} />
-      <Route path="/terapie-antystarzeniowe" element={<AntiAgingTherapies />} />
+      <Route path="/zabiegi/modelowanie-ust" element={<LipModeling />} />
+      <Route path="/zabiegi/terapie-antystarzeniowe" element={<AntiAgingTherapies />} />
       
       {/* Admin routes */}
       <Route path="/admin/login" element={<AdminLogin />} />

@@ -13,7 +13,7 @@ const ServicesSection = () => {
     title: "Terapie przeciwstarzeniowe",
     description: "Zaawansowane zabiegi oparte na pobudzaniu istniejących fibroblastów do intensywniejszej produkcji kolagenu oraz zabiegi zwiększające liczbę fibroblastów (rozmnażanie/napływ)",
     icon: <Droplet size={36} />,
-    link: "/zabiegi/terapie-przeciwstarzeniowe"
+    link: "/zabiegi/terapie-antystarzeniowe"
   }, {
     id: 2,
     title: "Modelowanie ust",
@@ -25,19 +25,19 @@ const ServicesSection = () => {
     title: "Makijaż permanentny brwi",
     description: "intensywne, ale lekko wykończone brwi permanentne bez wyraźnych konturów z uniesioną końcówka dla efektu otwartego i wypoczętego spojrzenia - to moja wypracowana latami technika",
     icon: <User size={36} />,
-    link: "/zabiegi/makijaz-permanentny-brwi"
+    link: "/uslugi"
   }, {
     id: 4,
     title: "Mezoterapia igłowa",
     description: "niekwestionowana królowa technik dostarczania składników odżywczych w głąb skóry. Często mylona z konkretnym zabiegiem, tymczasem jest to metoda, a nie zabieg. Nie wszystkie preparaty można podać ta techniką, dobór koktajlu możliwy jest po ustaleniu oczekiwanych rezultatów",
     icon: <Syringe size={36} />,
-    link: "/zabiegi/mezoterapia-iglowa"
+    link: "/uslugi"
   }, {
     id: 5,
     title: "Lipoliza iniekcyjna",
     description: "zabieg pozwalający na redukcję lokalnie nagromadzonej tkanki tłuszczowej, zwłaszcza w okolicy twarzy",
     icon: <Syringe size={36} />,
-    link: "/zabiegi/lipoliza-iniekcyjna"
+    link: "/uslugi"
   }, {
     id: 6,
     title: "Peelingi chemiczne",
