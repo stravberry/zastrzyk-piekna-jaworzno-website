@@ -80,9 +80,9 @@ const handler = async (req: Request): Promise<Response> => {
     const processedHtmlContent = processTemplate(template.html_content, testData);
     const processedTextContent = processTemplate(template.text_content || '', testData);
 
-    // Send test email using Resend's default FROM address
+    // Send test email using verified domain
     const emailResponse = await resend.emails.send({
-      from: "Zastrzyk Piękna <onboarding@resend.dev>",
+      from: "Zastrzyk Piękna <noreply@zastrzykpiekna.eu>",
       to: [recipientEmail],
       reply_to: "zastrzykpiekna.kontakt@gmail.com",
       subject: `[TEST] ${processedSubject}`,

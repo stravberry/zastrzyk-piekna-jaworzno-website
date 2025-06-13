@@ -1,5 +1,4 @@
 
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 import { Resend } from "npm:resend@2.0.0";
@@ -203,9 +202,9 @@ const handler = async (req: Request): Promise<Response> => {
 
         console.log(`Sending email to ${reminder.patient_email} with subject: ${subject}`);
 
-        // Wyślij email - używamy zweryfikowanej domeny onboarding@resend.dev
+        // Wyślij email - używamy zweryfikowanej domeny
         const emailResponse = await resend.emails.send({
-          from: "Zastrzyk Piękna <onboarding@resend.dev>",
+          from: "Zastrzyk Piękna <noreply@zastrzykpiekna.eu>",
           to: [reminder.patient_email],
           subject: subject,
           html: htmlContent,
@@ -280,4 +279,3 @@ const handler = async (req: Request): Promise<Response> => {
 };
 
 serve(handler);
-
