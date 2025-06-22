@@ -37,12 +37,14 @@ const ContactForm = () => {
 
   const onSubmit = async (data: ContactFormData) => {
     try {
+      console.log("Submitting form with data:", data);
       const result = await submitContactForm(data);
       
       if (result.success) {
         toast.success("Wiadomość została wysłana pomyślnie!");
         form.reset();
       } else {
+        console.error("Form submission failed:", result.message);
         toast.error(result.message || "Wystąpił błąd podczas wysyłania wiadomości");
       }
     } catch (error) {

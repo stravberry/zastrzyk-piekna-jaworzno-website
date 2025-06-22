@@ -1,6 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { Resend } from "npm:resend@2.0.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -28,6 +29,8 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
+
     if (req.method !== 'POST') {
       return new Response(
         JSON.stringify({ error: 'Method not allowed' }),
@@ -39,6 +42,7 @@ serve(async (req) => {
     }
 
     const formData: ContactFormData = await req.json();
+    console.log('Received form data:', formData);
     
     // Get client IP and user agent for security tracking
     const clientIP = req.headers.get('x-forwarded-for') || 
@@ -46,31 +50,21 @@ serve(async (req) => {
                      'unknown';
     const userAgent = req.headers.get('user-agent') || 'unknown';
 
-    // Enhanced rate limiting with the new system
+    // Basic rate limiting check
     const { data: rateLimitCheck, error: rateLimitError } = await supabaseClient
       .rpc('enhanced_rate_limit_check', {
         _identifier: clientIP,
         _action: 'contact_form',
-        _max_attempts: 3,
+        _max_attempts: 5,
         _window_minutes: 60,
         _block_duration_minutes: 120
       });
 
     if (rateLimitError || !rateLimitCheck?.allowed) {
-      // Log security event for rate limit exceeded
-      await supabaseClient.rpc('log_security_event', {
-        _event_type: 'contact_form_rate_limited',
-        _severity: 'medium',
-        _details: { 
-          ip_address: clientIP,
-          user_agent: userAgent,
-          blocked_until: rateLimitCheck?.blocked_until
-        }
-      });
-
+      console.log('Rate limit exceeded for IP:', clientIP);
       return new Response(
         JSON.stringify({ 
-          error: 'Too many attempts. Please try again later.',
+          error: 'Zbyt wiele prób. Spróbuj ponownie później.',
           blocked_until: rateLimitCheck?.blocked_until
         }),
         { 
@@ -80,84 +74,37 @@ serve(async (req) => {
       );
     }
 
-    // Enhanced server-side validation with security logging
+    // Enhanced server-side validation
     const errors: string[] = [];
     
-    if (!formData.name || formData.name.trim().length === 0) {
-      errors.push('Name is required');
-    } else if (formData.name.trim().length < 2 || formData.name.trim().length > 100) {
-      errors.push('Name must be between 2 and 100 characters');
+    if (!formData.name || formData.name.trim().length < 2) {
+      errors.push('Imię jest wymagane (min. 2 znaki)');
     }
     
     if (!formData.email || !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(formData.email)) {
-      errors.push('Valid email is required');
+      errors.push('Prawidłowy email jest wymagany');
     }
     
     if (formData.phone && formData.phone.replace(/\D/g, '').length < 9) {
-      errors.push('Phone number must be at least 9 digits');
+      errors.push('Numer telefonu musi mieć co najmniej 9 cyfr');
     }
     
-    if (!formData.subject || formData.subject.trim().length === 0) {
-      errors.push('Subject is required');
-    } else if (formData.subject.trim().length < 3 || formData.subject.trim().length > 200) {
-      errors.push('Subject must be between 3 and 200 characters');
+    if (!formData.subject || formData.subject.trim().length < 3) {
+      errors.push('Temat jest wymagany (min. 3 znaki)');
     }
     
-    if (!formData.message || formData.message.trim().length === 0) {
-      errors.push('Message is required');
-    } else if (formData.message.trim().length < 10 || formData.message.trim().length > 2000) {
-      errors.push('Message must be between 10 and 2000 characters');
+    if (!formData.message || formData.message.trim().length < 10) {
+      errors.push('Wiadomość jest wymagana (min. 10 znaków)');
     }
     
     if (!formData.consent_given) {
-      errors.push('Consent is required');
-    }
-
-    // Check for suspicious content patterns
-    const suspiciousPatterns = [
-      /viagra|cialis|loan|casino|bitcoin/gi,
-      /http[s]?:\/\//gi,
-      /<[^>]*>/gi,
-      /\b[A-Z]{10,}\b/gi,
-      /(union|select|insert|delete|update|drop|create|alter|exec|execute)/gi
-    ];
-    
-    const allText = [formData.name, formData.email, formData.subject, formData.message].join(' ');
-    const suspiciousContent = suspiciousPatterns.some(pattern => pattern.test(allText));
-    
-    if (suspiciousContent) {
-      // Log security incident
-      await supabaseClient.rpc('log_security_event', {
-        _event_type: 'suspicious_contact_form',
-        _severity: 'high',
-        _details: { 
-          ip_address: clientIP,
-          user_agent: userAgent,
-          form_data: {
-            name_length: formData.name?.length || 0,
-            subject_length: formData.subject?.length || 0,
-            message_length: formData.message?.length || 0
-          }
-        }
-      });
-      
-      errors.push('Content contains suspicious patterns');
+      errors.push('Zgoda jest wymagana');
     }
 
     if (errors.length > 0) {
-      // Log validation failure
-      await supabaseClient.rpc('log_security_event', {
-        _event_type: 'contact_form_validation_failed',
-        _severity: 'low',
-        _details: { 
-          ip_address: clientIP,
-          user_agent: userAgent,
-          errors: errors
-        }
-      });
-
+      console.log('Validation errors:', errors);
       return new Response(
-        JSON.stringify({ error: 'Validation failed', details: errors }),
+        JSON.stringify({ error: 'Błędy walidacji', details: errors }),
         { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -165,46 +112,85 @@ serve(async (req) => {
       );
     }
 
-    // Enhanced input sanitization
+    // Sanitize input data
     const sanitizedData = {
-      name: formData.name.trim().slice(0, 100).replace(/[<>]/g, ''),
+      name: formData.name.trim().slice(0, 100),
       email: formData.email.trim().toLowerCase().slice(0, 255),
-      phone: formData.phone ? formData.phone.trim().slice(0, 20).replace(/[<>]/g, '') : null,
-      subject: formData.subject.trim().slice(0, 200).replace(/[<>]/g, ''),
-      message: formData.message.trim().slice(0, 2000).replace(/[<>]/g, ''),
+      phone: formData.phone ? formData.phone.trim().slice(0, 20) : null,
+      subject: formData.subject.trim().slice(0, 200),
+      message: formData.message.trim().slice(0, 2000),
       consent_given: formData.consent_given,
       ip_address: clientIP,
       user_agent: userAgent
     };
 
-    // Insert contact submission
-    const { data, error } = await supabaseClient
+    console.log('Sanitized data:', sanitizedData);
+
+    // Insert contact submission into database
+    const { data: submissionData, error: dbError } = await supabaseClient
       .from('contact_submissions')
       .insert([sanitizedData])
       .select()
       .single();
 
-    if (error) {
-      console.error('Database error:', error);
-      
-      // Log database error as security event
-      await supabaseClient.rpc('log_security_event', {
-        _event_type: 'contact_form_db_error',
-        _severity: 'high',
-        _details: { 
-          ip_address: clientIP,
-          user_agent: userAgent,
-          error: error.message
-        }
-      });
-
+    if (dbError) {
+      console.error('Database error:', dbError);
       return new Response(
-        JSON.stringify({ error: 'Failed to submit contact form' }),
+        JSON.stringify({ error: 'Błąd bazy danych' }),
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       );
+    }
+
+    console.log('Contact submission saved:', submissionData);
+
+    // Send email notification to clinic
+    try {
+      const emailResult = await resend.emails.send({
+        from: 'Formularz kontaktowy <noreply@zastrzykpiekna.pl>',
+        to: ['zastrzykpiekna.kontakt@gmail.com'],
+        subject: `Nowa wiadomość: ${sanitizedData.subject}`,
+        html: `
+          <h2>Nowa wiadomość z formularza kontaktowego</h2>
+          <p><strong>Imię i nazwisko:</strong> ${sanitizedData.name}</p>
+          <p><strong>Email:</strong> ${sanitizedData.email}</p>
+          ${sanitizedData.phone ? `<p><strong>Telefon:</strong> ${sanitizedData.phone}</p>` : ''}
+          <p><strong>Temat:</strong> ${sanitizedData.subject}</p>
+          <p><strong>Wiadomość:</strong></p>
+          <p>${sanitizedData.message.replace(/\n/g, '<br>')}</p>
+          <hr>
+          <p><small>IP: ${clientIP} | User Agent: ${userAgent}</small></p>
+        `,
+      });
+
+      console.log('Email sent successfully:', emailResult);
+    } catch (emailError) {
+      console.error('Email sending failed:', emailError);
+      // Continue without failing the request - the form submission was saved
+    }
+
+    // Send confirmation email to user
+    try {
+      await resend.emails.send({
+        from: 'Zastrzyk Piękna <noreply@zastrzykpiekna.pl>',
+        to: [sanitizedData.email],
+        subject: 'Potwierdzenie otrzymania wiadomości',
+        html: `
+          <h2>Dziękujemy za kontakt!</h2>
+          <p>Cześć ${sanitizedData.name},</p>
+          <p>Otrzymaliśmy Twoją wiadomość i skontaktujemy się z Tobą tak szybko, jak to możliwe.</p>
+          <p><strong>Temat Twojej wiadomości:</strong> ${sanitizedData.subject}</p>
+          <br>
+          <p>Pozdrawiamy,<br>Zespół Zastrzyk Piękna</p>
+          <hr>
+          <p><small>Grunwaldzka 106, 43-600 Jaworzno<br>Tel: 514 902 242</small></p>
+        `,
+      });
+    } catch (confirmEmailError) {
+      console.error('Confirmation email failed:', confirmEmailError);
+      // Continue without failing - this is not critical
     }
 
     // Log successful submission
@@ -214,7 +200,7 @@ serve(async (req) => {
       _details: { 
         ip_address: clientIP,
         user_agent: userAgent,
-        submission_id: data.id,
+        submission_id: submissionData.id,
         form_data: {
           name: sanitizedData.name,
           email: sanitizedData.email,
@@ -224,7 +210,7 @@ serve(async (req) => {
     });
 
     return new Response(
-      JSON.stringify({ success: true, message: 'Contact form submitted successfully' }),
+      JSON.stringify({ success: true, message: 'Wiadomość została wysłana pomyślnie!' }),
       { 
         status: 200, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -234,7 +220,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Contact form error:', error);
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ error: 'Błąd serwera' }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
