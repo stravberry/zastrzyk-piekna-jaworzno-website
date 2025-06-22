@@ -19,7 +19,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({
   const navigate = useNavigate();
   const [permissionChecked, setPermissionChecked] = useState(false);
 
-  // Check permissions
+  // Fast permission checking
   const hasRequiredPermission = () => {
     if (requiredRole === 'admin') {
       return isAdmin;
@@ -29,28 +29,24 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({
 
   useEffect(() => {
     if (!loading) {
-      // Automatyczne przekierowanie gdy użytkownik nie jest zalogowany
+      // Fast redirect when user is not authenticated
       if (!isAuthenticated) {
-        console.log('[SECURITY] User not authenticated, redirecting to login');
+        console.log('[SECURITY] User not authenticated, fast redirect to login');
         navigate("/admin/login", { replace: true });
         return;
       }
 
-      // Check permissions after auth is confirmed
-      const checkPermissions = async () => {
-        const hasPermission = hasRequiredPermission();
-        setPermissionChecked(true);
-        
-        if (!hasPermission) {
-          console.log(`[SECURITY] Access denied. Required: ${requiredRole}, User role: ${userRole}`);
-        }
-      };
-
-      checkPermissions();
+      // Fast permission check
+      setPermissionChecked(true);
+      const hasPermission = hasRequiredPermission();
+      
+      if (!hasPermission) {
+        console.log(`[SECURITY] Access denied. Required: ${requiredRole}, User role: ${userRole}`);
+      }
     }
   }, [isAuthenticated, navigate, loading, isAdmin, isEditor, userRole, requiredRole]);
 
-  // Show loading state while checking authentication
+  // Show loading state only while checking authentication
   if (loading || !permissionChecked) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -62,7 +58,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({
     );
   }
 
-  // Redirect to login if not authenticated (this should rarely be reached due to useEffect)
+  // Fast redirect to login if not authenticated
   if (!isAuthenticated) {
     navigate("/admin/login", { replace: true });
     return null;
@@ -90,7 +86,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({
             <div className="flex gap-2 justify-center pt-4">
               <Button 
                 variant="outline" 
-                onClick={() => navigate("/admin/dashboard")}
+                onClick={() => navigate("/admin/dashboard", { replace: true })}
               >
                 Dashboard
               </Button>

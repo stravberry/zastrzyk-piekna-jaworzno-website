@@ -13,27 +13,19 @@ const AdminLogin: React.FC = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [loginAttempts, setLoginAttempts] = useState(0);
-  const [lastAttemptTime, setLastAttemptTime] = useState<number>(0);
   const { login, isAuthenticated, loading } = useAdmin();
   const navigate = useNavigate();
-  
-  // Rate limiting
-  const MAX_ATTEMPTS = 5;
-  const LOCKOUT_TIME = 15 * 60 * 1000; // 15 minutes
 
-  // Check if already authenticated and redirect to dashboard
+  // Fast redirect if already authenticated
   useEffect(() => {
-    console.log('[LOGIN] Auth state check:', { isAuthenticated, loading });
     if (isAuthenticated && !loading) {
-      console.log('[LOGIN] User already authenticated, redirecting to dashboard');
+      console.log('[LOGIN] User already authenticated, fast redirect to dashboard');
       navigate("/admin/dashboard", { replace: true });
     }
   }, [isAuthenticated, navigate, loading]);
 
-  // If still loading auth state, show loading
+  // Simple loading state
   if (loading) {
-    console.log('[LOGIN] Still loading auth state');
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
         <Card className="w-full max-w-md shadow-lg">
@@ -52,70 +44,37 @@ const AdminLogin: React.FC = () => {
     );
   }
 
-  // Check if user is locked out
-  const isLockedOut = () => {
-    if (loginAttempts >= MAX_ATTEMPTS) {
-      const timeSinceLastAttempt = Date.now() - lastAttemptTime;
-      return timeSinceLastAttempt < LOCKOUT_TIME;
-    }
-    return false;
-  };
-
-  // Get remaining lockout time
-  const getRemainingLockoutTime = () => {
-    const timeSinceLastAttempt = Date.now() - lastAttemptTime;
-    const remainingTime = LOCKOUT_TIME - timeSinceLastAttempt;
-    return Math.ceil(remainingTime / 60000); // in minutes
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('[LOGIN] Form submitted');
 
-    // Check lockout
-    if (isLockedOut()) {
-      toast.error(`Konto zablokowane. Spróbuj ponownie za ${getRemainingLockoutTime()} minut.`);
-      return;
-    }
-
     setIsLoading(true);
 
     try {
-      // Validate inputs
+      // Basic validation only
       if (!email || !password) {
         toast.error("Proszę wprowadzić email i hasło");
         setIsLoading(false);
         return;
       }
 
-      // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
+      // Simple email validation
+      if (!email.includes('@')) {
         toast.error("Proszę wprowadzić prawidłowy adres email");
         setIsLoading(false);
         return;
       }
 
-      console.log('[LOGIN] Attempting login for:', email);
+      console.log('[LOGIN] Attempting fast login for:', email);
       const success = await login(email, password);
       
       if (success) {
-        console.log('[LOGIN] Login successful');
-        // Reset attempts on successful login
-        setLoginAttempts(0);
-        setLastAttemptTime(0);
-        // Navigation is handled in the useEffect above
+        console.log('[LOGIN] Login successful, fast redirect');
+        // Fast redirect - no delay
+        navigate("/admin/dashboard", { replace: true });
       } else {
         console.log('[LOGIN] Login failed');
-        // Increment failed attempts
-        setLoginAttempts(prev => prev + 1);
-        setLastAttemptTime(Date.now());
-        
-        if (loginAttempts + 1 >= MAX_ATTEMPTS) {
-          toast.error(`Zbyt wiele nieudanych prób logowania. Konto zablokowane na ${LOCKOUT_TIME / 60000} minut.`);
-        } else {
-          toast.error(`Nieprawidłowe dane logowania. Pozostało prób: ${MAX_ATTEMPTS - loginAttempts - 1}`);
-        }
+        toast.error('Nieprawidłowe dane logowania');
       }
     } catch (error) {
       console.error("[LOGIN] Login error:", error);
@@ -148,7 +107,7 @@ const AdminLogin: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@twojadomena.pl"
                 autoComplete="email"
-                disabled={isLockedOut() || isLoading}
+                disabled={isLoading}
                 required
               />
             </div>
@@ -164,7 +123,7 @@ const AdminLogin: React.FC = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   autoComplete="current-password"
-                  disabled={isLockedOut() || isLoading}
+                  disabled={isLoading}
                   required
                 />
                 <Button
@@ -173,7 +132,7 @@ const AdminLogin: React.FC = () => {
                   size="icon"
                   className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                   onClick={() => setShowPassword(!showPassword)}
-                  disabled={isLockedOut() || isLoading}
+                  disabled={isLoading}
                 >
                   {showPassword ? (
                     <EyeOff className="h-4 w-4 text-gray-500" />
@@ -184,21 +143,15 @@ const AdminLogin: React.FC = () => {
               </div>
             </div>
 
-            {isLockedOut() && (
-              <div className="text-center text-sm text-red-600 bg-red-50 p-3 rounded">
-                Konto zablokowane na {getRemainingLockoutTime()} minut z powodu zbyt wielu nieudanych prób logowania.
-              </div>
-            )}
-
             <Button 
               type="submit" 
               className="w-full bg-pink-500 hover:bg-pink-600" 
-              disabled={isLoading || isLockedOut()}
+              disabled={isLoading}
             >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Sprawdzanie uprawnień...
+                  Logowanie...
                 </>
               ) : "Zaloguj się"}
             </Button>
@@ -206,9 +159,6 @@ const AdminLogin: React.FC = () => {
             <div className="text-center text-sm mt-4 space-y-2">
               <p className="text-gray-500">
                 Dostęp tylko dla autoryzowanych administratorów
-              </p>
-              <p className="text-xs text-gray-400">
-                Wszystkie próby logowania są monitorowane i rejestrowane
               </p>
             </div>
           </form>
