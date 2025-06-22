@@ -142,7 +142,7 @@ const ContactForm = () => {
                 <Mail className="h-5 w-5 text-pink-500" />
                 <div>
                   <p className="font-medium">Email</p>
-                  <p className="text-gray-600">kontakt@klinika.pl</p>
+                  <p className="text-gray-600">zastrzykpiekna.kontakt@gmail.com</p>
                 </div>
               </div>
             </CardContent>
