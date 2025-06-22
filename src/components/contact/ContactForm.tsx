@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,20 +7,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { submitContactForm } from "@/services/contactService";
+import { submitContactForm, ContactFormData } from "@/services/contactService";
 import { toast } from "sonner";
 import { Mail, Send } from "lucide-react";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Imię musi mieć co najmniej 2 znaki"),
   email: z.string().email("Nieprawidłowy format email"),
-  phone: z.string().default(""),
+  phone: z.string().optional(),
   subject: z.string().min(3, "Temat musi mieć co najmniej 3 znaki"),
   message: z.string().min(10, "Wiadomość musi mieć co najmniej 10 znaków"),
   consent_given: z.boolean().refine(val => val === true, "Zgoda jest wymagana"),
 });
-
-type ContactFormData = z.infer<typeof contactSchema>;
 
 const ContactForm = () => {
   const defaultValues: ContactFormData = {
