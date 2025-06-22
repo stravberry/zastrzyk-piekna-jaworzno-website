@@ -27,12 +27,12 @@ export interface ContactSubmission extends ContactFormData {
   updated_at: string;
 }
 
-// Enhanced secure contact form submission
+// Enhanced secure contact form submission with improved rate limiting
 export const submitContactForm = async (formData: ContactFormData): Promise<{ success: boolean; message: string }> => {
   try {
-    // Client-side rate limiting check
+    // More reasonable client-side rate limiting check - 5 attempts in 30 minutes instead of 3 in 60
     const userIdentifier = `contact_form_${window.location.hostname}`;
-    const rateLimitResult = await checkRateLimit(userIdentifier, 'contact_form_client', 3, 60);
+    const rateLimitResult = await checkRateLimit(userIdentifier, 'contact_form_client', 5, 30);
     
     if (!rateLimitResult.allowed) {
       await logSecurityEvent('contact_form_rate_limited_client', 'medium', {
@@ -40,9 +40,16 @@ export const submitContactForm = async (formData: ContactFormData): Promise<{ su
         reason: rateLimitResult.reason
       });
       
+      const timeLeft = rateLimitResult.blockedUntil 
+        ? new Date(rateLimitResult.blockedUntil).toLocaleTimeString('pl-PL', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          })
+        : 'nieznany';
+      
       return {
         success: false,
-        message: 'Too many submissions. Please wait before trying again.'
+        message: `Zbyt wiele prób wysłania formularza. Spróbuj ponownie po ${timeLeft}.`
       };
     }
 
@@ -61,37 +68,37 @@ export const submitContactForm = async (formData: ContactFormData): Promise<{ su
       await logSecurityEvent('invalid_email_contact_form', 'low', {
         email_format: sanitizedData.email.substring(0, 10) + '...'
       });
-      throw new Error('Invalid email address');
+      throw new Error('Nieprawidłowy adres email');
     }
 
     if (sanitizedData.phone && !validatePhone(sanitizedData.phone)) {
       await logSecurityEvent('invalid_phone_contact_form', 'low', {
         phone_length: sanitizedData.phone.length
       });
-      throw new Error('Invalid phone number');
+      throw new Error('Nieprawidłowy numer telefonu');
     }
 
     if (!sanitizedData.name || sanitizedData.name.length < 2) {
-      throw new Error('Name must be at least 2 characters');
+      throw new Error('Imię musi mieć co najmniej 2 znaki');
     }
 
     if (!sanitizedData.subject || sanitizedData.subject.length < 3) {
-      throw new Error('Subject must be at least 3 characters');
+      throw new Error('Temat musi mieć co najmniej 3 znaki');
     }
 
     if (!sanitizedData.message || sanitizedData.message.length < 10) {
-      throw new Error('Message must be at least 10 characters');
+      throw new Error('Wiadomość musi mieć co najmniej 10 znaków');
     }
 
     if (!sanitizedData.consent_given) {
-      throw new Error('Consent is required');
+      throw new Error('Zgoda jest wymagana');
     }
 
     // Check for suspicious activity
     if (detectSuspiciousActivity(sanitizedData, 'contact_form')) {
       return {
         success: false,
-        message: 'Your submission contains content that cannot be processed. Please review and try again.'
+        message: 'Twoja wiadomość zawiera treści, które nie mogą być przetworzone. Sprawdź i spróbuj ponownie.'
       };
     }
 
@@ -117,7 +124,7 @@ export const submitContactForm = async (formData: ContactFormData): Promise<{ su
         error: error.message
       });
       
-      throw new Error('Failed to submit contact form');
+      throw new Error('Nie udało się wysłać formularza kontaktowego');
     }
 
     if (!data.success) {
@@ -125,7 +132,7 @@ export const submitContactForm = async (formData: ContactFormData): Promise<{ su
         error: data.error
       });
       
-      throw new Error(data.error || 'Failed to submit contact form');
+      throw new Error(data.error || 'Nie udało się wysłać formularza kontaktowego');
     }
 
     // Log successful submission
@@ -133,12 +140,12 @@ export const submitContactForm = async (formData: ContactFormData): Promise<{ su
       timestamp: new Date().toISOString()
     });
 
-    return { success: true, message: 'Your message has been sent successfully!' };
+    return { success: true, message: 'Twoja wiadomość została wysłana pomyślnie!' };
   } catch (error) {
     console.error('Contact form error:', error);
     return { 
       success: false, 
-      message: error instanceof Error ? error.message : 'An error occurred while sending your message'
+      message: error instanceof Error ? error.message : 'Wystąpił błąd podczas wysyłania wiadomości'
     };
   }
 };
@@ -183,7 +190,6 @@ export const getContactSubmissions = async (): Promise<ContactSubmission[]> => {
   }
 };
 
-// Admin function to update contact submission status with security logging
 export const updateContactStatus = async (id: string, status: 'new' | 'reviewed' | 'responded'): Promise<void> => {
   try {
     await logSecurityEvent('contact_status_update', 'low', {

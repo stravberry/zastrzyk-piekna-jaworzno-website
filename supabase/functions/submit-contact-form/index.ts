@@ -50,21 +50,29 @@ serve(async (req) => {
                      'unknown';
     const userAgent = req.headers.get('user-agent') || 'unknown';
 
-    // Much more reasonable rate limiting: 10 attempts per hour instead of 5 per hour
+    // More reasonable rate limiting: 5 attempts per 30 minutes instead of 10 per hour
     const { data: rateLimitCheck, error: rateLimitError } = await supabaseClient
       .rpc('enhanced_rate_limit_check', {
         _identifier: clientIP,
         _action: 'contact_form',
-        _max_attempts: 10,
-        _window_minutes: 60,
-        _block_duration_minutes: 30
+        _max_attempts: 5,
+        _window_minutes: 30,
+        _block_duration_minutes: 15
       });
 
     if (rateLimitError || !rateLimitCheck?.allowed) {
       console.log('Rate limit exceeded for IP:', clientIP);
+      
+      const timeLeft = rateLimitCheck?.blocked_until 
+        ? new Date(rateLimitCheck.blocked_until).toLocaleTimeString('pl-PL', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          })
+        : '15 minut';
+      
       return new Response(
         JSON.stringify({ 
-          error: 'Zbyt wiele prób. Spróbuj ponownie później.',
+          error: `Zbyt wiele prób. Spróbuj ponownie po ${timeLeft}.`,
           blocked_until: rateLimitCheck?.blocked_until
         }),
         { 
