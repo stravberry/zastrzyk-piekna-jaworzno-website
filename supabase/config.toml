@@ -1,1 +1,11 @@
+
 project_id = "ubwrbituvkmlthvjosrv"
+
+[functions.test-email-template]
+verify_jwt = true
+
+[functions.send-manual-reminder]
+verify_jwt = true
+
+[functions.send-appointment-reminders]
+verify_jwt = true
