@@ -41,9 +41,9 @@ const AppRoutes = () => {
       <Route path="/zabiegi/modelowanie-ust" element={<LipModeling />} />
       <Route path="/zabiegi/terapie-antystarzeniowe" element={<AntiAgingTherapies />} />
       
-      {/* Admin routes */}
-      <Route path="/admin/login" element={<AdminLogin />} />
+      {/* Admin routes - all wrapped by AdminWrapper which provides AdminProvider */}
       <Route path="/admin/*" element={<AdminWrapper />}>
+        <Route path="login" element={<AdminLogin />} />
         <Route index element={<AdminDashboard />} />
         <Route path="posts" element={<AdminPosts />} />
         <Route path="posts/new" element={<AdminPostEditor />} />
