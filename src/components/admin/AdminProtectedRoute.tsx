@@ -17,9 +17,8 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({
 }) => {
   const { isAuthenticated, loading, isAdmin, isEditor, userRole, logout } = useAdmin();
   const navigate = useNavigate();
-  const [permissionChecked, setPermissionChecked] = useState(false);
+  const [checked, setChecked] = useState(false);
 
-  // Fast permission checking
   const hasRequiredPermission = () => {
     if (requiredRole === 'admin') {
       return isAdmin;
@@ -29,25 +28,18 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({
 
   useEffect(() => {
     if (!loading) {
-      // Fast redirect when user is not authenticated
+      setChecked(true);
+      
       if (!isAuthenticated) {
-        console.log('[SECURITY] User not authenticated, fast redirect to login');
+        console.log('[SECURITY] User not authenticated, redirecting to login');
         navigate("/admin/login", { replace: true });
         return;
       }
-
-      // Fast permission check
-      setPermissionChecked(true);
-      const hasPermission = hasRequiredPermission();
-      
-      if (!hasPermission) {
-        console.log(`[SECURITY] Access denied. Required: ${requiredRole}, User role: ${userRole}`);
-      }
     }
-  }, [isAuthenticated, navigate, loading, isAdmin, isEditor, userRole, requiredRole]);
+  }, [isAuthenticated, navigate, loading]);
 
-  // Show loading state only while checking authentication
-  if (loading || !permissionChecked) {
+  // Show loading while checking authentication
+  if (loading || !checked) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="text-center">
@@ -58,14 +50,14 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({
     );
   }
 
-  // Fast redirect to login if not authenticated
+  // Redirect if not authenticated
   if (!isAuthenticated) {
     navigate("/admin/login", { replace: true });
     return null;
   }
 
-  // Show access denied if user doesn't have required permissions
-  if (isAuthenticated && permissionChecked && !hasRequiredPermission()) {
+  // Show access denied if insufficient permissions
+  if (!hasRequiredPermission()) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
         <Card className="w-full max-w-md shadow-lg">
@@ -103,10 +95,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({
     );
   }
 
-  // Render children if provided, otherwise use Outlet for nested routes
-  return isAuthenticated && hasRequiredPermission() ? (
-    children ? <>{children}</> : <Outlet />
-  ) : null;
+  return children ? <>{children}</> : <Outlet />;
 };
 
 export default AdminProtectedRoute;

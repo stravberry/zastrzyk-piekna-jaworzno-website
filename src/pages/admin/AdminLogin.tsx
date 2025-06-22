@@ -16,15 +16,14 @@ const AdminLogin: React.FC = () => {
   const { login, isAuthenticated, loading } = useAdmin();
   const navigate = useNavigate();
 
-  // Fast redirect if already authenticated
+  // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && !loading) {
-      console.log('[LOGIN] User already authenticated, fast redirect to dashboard');
+      console.log('[LOGIN] User already authenticated, redirecting to dashboard');
       navigate("/admin/dashboard", { replace: true });
     }
   }, [isAuthenticated, navigate, loading]);
 
-  // Simple loading state
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
@@ -51,26 +50,23 @@ const AdminLogin: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Basic validation only
       if (!email || !password) {
         toast.error("Proszę wprowadzić email i hasło");
         setIsLoading(false);
         return;
       }
 
-      // Simple email validation
       if (!email.includes('@')) {
         toast.error("Proszę wprowadzić prawidłowy adres email");
         setIsLoading(false);
         return;
       }
 
-      console.log('[LOGIN] Attempting fast login for:', email);
+      console.log('[LOGIN] Attempting login for:', email);
       const success = await login(email, password);
       
       if (success) {
-        console.log('[LOGIN] Login successful, fast redirect');
-        // Fast redirect - no delay
+        console.log('[LOGIN] Login successful, redirecting');
         navigate("/admin/dashboard", { replace: true });
       } else {
         console.log('[LOGIN] Login failed');
