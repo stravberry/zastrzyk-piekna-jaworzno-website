@@ -26,6 +26,7 @@ import AdminSecurity from "./pages/admin/AdminSecurity";
 import AdminCodeSettings from "./pages/admin/AdminCodeSettings";
 import AdminCRM from "./pages/admin/AdminCRM";
 import AdminEmailTemplates from "./pages/admin/AdminEmailTemplates";
+import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 
 const AppRoutes = () => {
   return (
@@ -41,22 +42,75 @@ const AppRoutes = () => {
       <Route path="/zabiegi/modelowanie-ust" element={<LipModeling />} />
       <Route path="/zabiegi/terapie-antystarzeniowe" element={<AntiAgingTherapies />} />
       
-      {/* Admin routes - all wrapped by AdminWrapper which provides AdminProvider */}
+      {/* Admin routes - all wrapped by AdminWrapper which provides AdminProvider and security */}
       <Route path="/admin/*" element={<AdminWrapper />}>
         <Route path="login" element={<AdminLogin />} />
-        <Route path="dashboard" element={<AdminDashboard />} />
-        <Route path="posts" element={<AdminPosts />} />
-        <Route path="posts/new" element={<AdminPostEditor />} />
-        <Route path="posts/edit/:id" element={<AdminPostEditor />} />
-        <Route path="gallery" element={<AdminGallery />} />
-        <Route path="pricing" element={<AdminPricing />} />
-        <Route path="contacts" element={<AdminContacts />} />
-        <Route path="analytics" element={<AdminAnalytics />} />
-        <Route path="users" element={<AdminUsers />} />
-        <Route path="security" element={<AdminSecurity />} />
-        <Route path="code-settings" element={<AdminCodeSettings />} />
-        <Route path="crm" element={<AdminCRM />} />
-        <Route path="email-templates" element={<AdminEmailTemplates />} />
+        <Route path="dashboard" element={
+          <AdminProtectedRoute requiredRole="editor">
+            <AdminDashboard />
+          </AdminProtectedRoute>
+        } />
+        <Route path="posts" element={
+          <AdminProtectedRoute requiredRole="editor">
+            <AdminPosts />
+          </AdminProtectedRoute>
+        } />
+        <Route path="posts/new" element={
+          <AdminProtectedRoute requiredRole="editor">
+            <AdminPostEditor />
+          </AdminProtectedRoute>
+        } />
+        <Route path="posts/edit/:id" element={
+          <AdminProtectedRoute requiredRole="editor">
+            <AdminPostEditor />
+          </AdminProtectedRoute>
+        } />
+        <Route path="gallery" element={
+          <AdminProtectedRoute requiredRole="editor">
+            <AdminGallery />
+          </AdminProtectedRoute>
+        } />
+        <Route path="pricing" element={
+          <AdminProtectedRoute requiredRole="editor">
+            <AdminPricing />
+          </AdminProtectedRoute>
+        } />
+        <Route path="contacts" element={
+          <AdminProtectedRoute requiredRole="editor">
+            <AdminContacts />
+          </AdminProtectedRoute>
+        } />
+        <Route path="analytics" element={
+          <AdminProtectedRoute requiredRole="editor">
+            <AdminAnalytics />
+          </AdminProtectedRoute>
+        } />
+        <Route path="crm" element={
+          <AdminProtectedRoute requiredRole="editor">
+            <AdminCRM />
+          </AdminProtectedRoute>
+        } />
+        <Route path="email-templates" element={
+          <AdminProtectedRoute requiredRole="editor">
+            <AdminEmailTemplates />
+          </AdminProtectedRoute>
+        } />
+        {/* Admin-only routes */}
+        <Route path="users" element={
+          <AdminProtectedRoute requiredRole="admin">
+            <AdminUsers />
+          </AdminProtectedRoute>
+        } />
+        <Route path="security" element={
+          <AdminProtectedRoute requiredRole="admin">
+            <AdminSecurity />
+          </AdminProtectedRoute>
+        } />
+        <Route path="code-settings" element={
+          <AdminProtectedRoute requiredRole="admin">
+            <AdminCodeSettings />
+          </AdminProtectedRoute>
+        } />
       </Route>
       
       {/* 404 route */}
