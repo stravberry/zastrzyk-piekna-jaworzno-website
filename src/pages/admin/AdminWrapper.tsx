@@ -10,9 +10,9 @@ const AdminWrapper: React.FC = () => {
   // Always wrap everything in AdminProvider first
   return (
     <AdminProvider>
-      {/* Check if we're at the admin root path and redirect to login */}
+      {/* Check if we're at the admin root path and redirect to dashboard */}
       {(location.pathname === "/admin/" || location.pathname === "/admin") ? (
-        <Navigate to="/admin/login" replace />
+        <Navigate to="/admin/dashboard" replace />
       ) : (
         // Don't wrap login page with AdminLayout, but keep other pages wrapped
         location.pathname === "/admin/login" ? (

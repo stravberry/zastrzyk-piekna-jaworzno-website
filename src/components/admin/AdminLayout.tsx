@@ -20,7 +20,7 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
 
   const navigation = [
-    { name: "Dashboard", href: "/admin", icon: BarChart3 },
+    { name: "Dashboard", href: "/admin/dashboard", icon: BarChart3 },
     { name: "CRM", href: "/admin/crm", icon: Calendar },
     { name: "Posty", href: "/admin/posts", icon: FileText },
     { name: "Galeria", href: "/admin/gallery", icon: Image },
@@ -34,10 +34,7 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   ];
 
   const isActive = (href: string) => {
-    if (href === "/admin") {
-      return location.pathname === "/admin";
-    }
-    return location.pathname.startsWith(href);
+    return location.pathname === href || location.pathname.startsWith(href + "/");
   };
 
   return (

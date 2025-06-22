@@ -44,7 +44,7 @@ const AppRoutes = () => {
       {/* Admin routes - all wrapped by AdminWrapper which provides AdminProvider */}
       <Route path="/admin/*" element={<AdminWrapper />}>
         <Route path="login" element={<AdminLogin />} />
-        <Route index element={<AdminDashboard />} />
+        <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="posts" element={<AdminPosts />} />
         <Route path="posts/new" element={<AdminPostEditor />} />
         <Route path="posts/edit/:id" element={<AdminPostEditor />} />
