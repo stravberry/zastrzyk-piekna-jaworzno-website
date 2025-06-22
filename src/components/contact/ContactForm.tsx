@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -130,7 +129,7 @@ const ContactForm = () => {
                 <Phone className="h-5 w-5 text-pink-500" />
                 <div>
                   <p className="font-medium">Telefon</p>
-                  <p className="text-gray-600">+48 123 456 789</p>
+                  <p className="text-gray-600">514 902 242</p>
                 </div>
               </div>
             </CardContent>
@@ -154,7 +153,7 @@ const ContactForm = () => {
                 <MapPin className="h-5 w-5 text-pink-500" />
                 <div>
                   <p className="font-medium">Adres</p>
-                  <p className="text-gray-600">ul. Przykładowa 123<br />00-000 Warszawa</p>
+                  <p className="text-gray-600">Grunwaldzka 106<br />43-600 Jaworzno</p>
                 </div>
               </div>
             </CardContent>
