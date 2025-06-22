@@ -8,10 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface AdminProtectedRouteProps {
   requiredRole?: 'admin' | 'editor';
+  children?: React.ReactNode;
 }
 
 const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ 
-  requiredRole = 'editor' 
+  requiredRole = 'editor',
+  children 
 }) => {
   const { isAuthenticated, loading, isAdmin, isEditor, userRole, logout } = useAdmin();
   const navigate = useNavigate();
@@ -97,8 +99,10 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({
     );
   }
 
-  // Only render children if authenticated and has permission
-  return isAuthenticated && hasRequiredPermission() ? <Outlet /> : null;
+  // Render children if provided, otherwise use Outlet for nested routes
+  return isAuthenticated && hasRequiredPermission() ? (
+    children ? <>{children}</> : <Outlet />
+  ) : null;
 };
 
 export default AdminProtectedRoute;
