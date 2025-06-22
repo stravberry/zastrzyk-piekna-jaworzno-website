@@ -306,25 +306,38 @@ export const validateLength = (value: string, min: number, max: number, fieldNam
   return null;
 };
 
-// Enhanced suspicious activity detection
+// FIXED: Less restrictive suspicious activity detection - only block real threats
 export const detectSuspiciousActivity = (formData: any, context: string = 'form'): boolean => {
-  const suspiciousPatterns = [
-    /viagra|cialis|loan|casino|bitcoin/gi,
-    /http[s]?:\/\//gi, // URLs in unexpected places
-    /<[^>]*>/gi, // HTML tags
-    /\b[A-Z]{10,}\b/gi, // Long strings of capitals
-    /\b(DROP|DELETE|INSERT|UPDATE|SELECT)\b/gi, // SQL injection attempts
-    /(union|select|insert|delete|update|drop|create|alter|exec|execute)/gi
+  // Only check for really dangerous patterns, not normal user content
+  const dangerousPatterns = [
+    // SQL injection attempts
+    /(union|select|insert|delete|update|drop|create|alter|exec|execute)\s+/gi,
+    // XSS attempts with script tags
+    /<script[^>]*>[\s\S]*?<\/script>/gi,
+    // Obvious malicious content
+    /javascript\s*:/gi,
+    // Excessive spam indicators (not just any caps)
+    /\b[A-Z]{25,}\b/gi, // Only flag extremely long all-caps (25+ chars, not 10+)
   ];
   
   const textToCheck = Object.values(formData).join(' ');
-  const suspicious = suspiciousPatterns.some(pattern => pattern.test(textToCheck));
+  const matchedPatterns: string[] = [];
+  
+  const suspicious = dangerousPatterns.some(pattern => {
+    const match = pattern.test(textToCheck);
+    if (match) {
+      matchedPatterns.push(pattern.source);
+    }
+    return match;
+  });
   
   if (suspicious) {
+    console.log('Suspicious patterns detected:', matchedPatterns);
     logSecurityEvent('suspicious_activity_detected', 'high', {
       context,
-      patterns_matched: suspiciousPatterns.filter(pattern => pattern.test(textToCheck)).length,
-      form_fields: Object.keys(formData)
+      patterns_matched: matchedPatterns,
+      form_fields: Object.keys(formData),
+      blocked_content_preview: textToCheck.substring(0, 100) + '...'
     });
   }
   
