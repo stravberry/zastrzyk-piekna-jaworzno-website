@@ -29,8 +29,10 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({
 
   useEffect(() => {
     if (!loading) {
+      // Automatyczne przekierowanie gdy użytkownik nie jest zalogowany
       if (!isAuthenticated) {
-        navigate("/admin/login");
+        console.log('[SECURITY] User not authenticated, redirecting to login');
+        navigate("/admin/login", { replace: true });
         return;
       }
 
@@ -40,7 +42,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({
         setPermissionChecked(true);
         
         if (!hasPermission) {
-          console.log(`Access denied. Required: ${requiredRole}, User role: ${userRole}`);
+          console.log(`[SECURITY] Access denied. Required: ${requiredRole}, User role: ${userRole}`);
         }
       };
 
@@ -58,6 +60,12 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({
         </div>
       </div>
     );
+  }
+
+  // Redirect to login if not authenticated (this should rarely be reached due to useEffect)
+  if (!isAuthenticated) {
+    navigate("/admin/login", { replace: true });
+    return null;
   }
 
   // Show access denied if user doesn't have required permissions

@@ -1,16 +1,30 @@
 
 import React, { useEffect, useRef } from "react";
 import { useAdmin } from "@/context/AdminContext";
+import { useNavigate, useLocation } from "react-router-dom";
 import { logSecurityEvent } from "@/services/securityService";
 
 const SecurityMonitor: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, user, session } = useAdmin();
+  const navigate = useNavigate();
+  const location = useLocation();
   const lastActivityRef = useRef<number>(Date.now());
   const securityChecksRef = useRef<number>(0);
 
   // Monitor session integrity
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) {
+      // Automatyczne przekierowanie gdy nie ma autoryzacji
+      if (location.pathname.startsWith('/admin') && location.pathname !== '/admin/login') {
+        console.log('[SECURITY] No authentication detected, redirecting to login');
+        logSecurityEvent('unauthenticated_access_redirect', 'medium', {
+          attempted_path: location.pathname,
+          timestamp: new Date().toISOString()
+        });
+        navigate('/admin/login', { replace: true });
+      }
+      return;
+    }
 
     const checkSessionIntegrity = async () => {
       try {
@@ -25,8 +39,8 @@ const SecurityMonitor: React.FC<{ children: React.ReactNode }> = ({ children }) 
               session_user_id: session.user.id,
               check_number: securityChecksRef.current
             });
-            // Force logout on integrity violation
-            window.location.href = '/admin/login';
+            // Force redirect to login on integrity violation
+            navigate('/admin/login', { replace: true });
             return;
           }
         }
@@ -43,7 +57,7 @@ const SecurityMonitor: React.FC<{ children: React.ReactNode }> = ({ children }) 
               expires_at: session.expires_at,
               current_time: new Date().toISOString()
             });
-            window.location.href = '/admin/login';
+            navigate('/admin/login', { replace: true });
             return;
           }
           
@@ -78,7 +92,7 @@ const SecurityMonitor: React.FC<{ children: React.ReactNode }> = ({ children }) 
     checkSessionIntegrity();
 
     return () => clearInterval(securityInterval);
-  }, [isAuthenticated, user, session]);
+  }, [isAuthenticated, user, session, navigate, location.pathname]);
 
   // Monitor user activity
   useEffect(() => {
@@ -109,9 +123,11 @@ const SecurityMonitor: React.FC<{ children: React.ReactNode }> = ({ children }) 
           user_agent: navigator.userAgent,
           timestamp: new Date().toISOString()
         });
+        // Automatyczne przekierowanie
+        navigate('/admin/login', { replace: true });
       }
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, navigate]);
 
   return <>{children}</>;
 };
