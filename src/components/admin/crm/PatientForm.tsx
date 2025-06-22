@@ -117,7 +117,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ isOpen, onClose, onSuccess })
                   <FormItem>
                     <FormLabel>Telefon</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="+48 123 456 789" />
+                      <Input {...field} placeholder="514 902 242" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

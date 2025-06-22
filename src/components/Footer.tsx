@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Instagram, MapPin, Phone, Mail } from "lucide-react";
@@ -114,19 +113,19 @@ const Footer = () => {
               <li className="flex items-start space-x-3">
                 <MapPin size={18} className="text-pink-500 mt-1 flex-shrink-0" />
                 <span className="text-gray-600 text-sm">
-                  Jaworzno, woj. śląskie
+                  Grunwaldzka 106, 43-600 Jaworzno
                 </span>
               </li>
               <li className="flex items-center space-x-3">
                 <Phone size={18} className="text-pink-500 flex-shrink-0" />
-                <a href="tel:+48123456789" className="text-gray-600 hover:text-pink-500 transition-colors text-sm">
-                  +48 123 456 789
+                <a href="tel:514902242" className="text-gray-600 hover:text-pink-500 transition-colors text-sm">
+                  514 902 242
                 </a>
               </li>
               <li className="flex items-center space-x-3">
                 <Mail size={18} className="text-pink-500 flex-shrink-0" />
-                <a href="mailto:kontakt@zastrzykpiekna.pl" className="text-gray-600 hover:text-pink-500 transition-colors text-sm">
-                  kontakt@zastrzykpiekna.pl
+                <a href="mailto:zastrzykpiekna.kontakt@gmail.com" className="text-gray-600 hover:text-pink-500 transition-colors text-sm">
+                  zastrzykpiekna.kontakt@gmail.com
                 </a>
               </li>
             </ul>

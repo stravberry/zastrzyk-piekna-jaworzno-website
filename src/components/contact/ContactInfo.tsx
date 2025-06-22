@@ -14,7 +14,7 @@ const ContactInfo = () => {
           <MapPin className="text-pink-500 w-5 h-5 mt-1 mr-4 flex-shrink-0" />
           <div>
             <h3 className="font-semibold text-gray-800 mb-1">Adres</h3>
-            <p className="text-gray-600">ul. Grunwaldzka 106</p>
+            <p className="text-gray-600">Grunwaldzka 106</p>
             <p className="text-gray-600">43-600 Jaworzno</p>
             <p className="text-gray-600">woj. śląskie</p>
           </div>
@@ -24,8 +24,8 @@ const ContactInfo = () => {
           <Phone className="text-pink-500 w-5 h-5 mt-1 mr-4 flex-shrink-0" />
           <div>
             <h3 className="font-semibold text-gray-800 mb-1">Telefon</h3>
-            <a href="tel:+48123456789" className="text-gray-600 hover:text-pink-500 transition-colors">
-              +48 123 456 789
+            <a href="tel:514902242" className="text-gray-600 hover:text-pink-500 transition-colors">
+              514 902 242
             </a>
           </div>
         </div>
@@ -34,8 +34,8 @@ const ContactInfo = () => {
           <Mail className="text-pink-500 w-5 h-5 mt-1 mr-4 flex-shrink-0" />
           <div>
             <h3 className="font-semibold text-gray-800 mb-1">Email</h3>
-            <a href="mailto:kontakt@zastrzykpiekna.pl" className="text-gray-600 hover:text-pink-500 transition-colors">
-              kontakt@zastrzykpiekna.pl
+            <a href="mailto:zastrzykpiekna.kontakt@gmail.com" className="text-gray-600 hover:text-pink-500 transition-colors">
+              zastrzykpiekna.kontakt@gmail.com
             </a>
           </div>
         </div>
@@ -54,9 +54,7 @@ const ContactInfo = () => {
           <Clock className="text-pink-500 w-5 h-5 mt-1 mr-4 flex-shrink-0" />
           <div>
             <h3 className="font-semibold text-gray-800 mb-1">Godziny otwarcia</h3>
-            <p className="text-gray-600">Poniedziałek - Piątek: 10:00 - 18:00</p>
-            <p className="text-gray-600">Sobota: 10:00 - 14:00</p>
-            <p className="text-gray-600">Niedziela: Zamknięte</p>
+            <p className="text-gray-600">Czynne całą dobę</p>
           </div>
         </div>
       </div>
