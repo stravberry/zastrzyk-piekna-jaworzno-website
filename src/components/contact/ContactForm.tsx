@@ -103,7 +103,7 @@ const ContactForm = () => {
                 <FormItem>
                   <FormLabel>Telefon</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="514 902 242" />
+                    <Input {...field} placeholder="608 123 456" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
