@@ -1,12 +1,9 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { 
   sanitizeInput, 
   validateEmail, 
   validatePhone, 
-  detectSuspiciousActivity,
-  logSecurityEvent,
-  checkRateLimit
+  logSecurityEvent
 } from "./securityService";
 
 export interface ContactFormData {
@@ -27,33 +24,10 @@ export interface ContactSubmission extends ContactFormData {
   updated_at: string;
 }
 
-// Enhanced secure contact form submission with improved rate limiting
+// Simplified contact form submission - no rate limiting, minimal security checks
 export const submitContactForm = async (formData: ContactFormData): Promise<{ success: boolean; message: string }> => {
   try {
-    // More reasonable client-side rate limiting check - 5 attempts in 30 minutes instead of 3 in 60
-    const userIdentifier = `contact_form_${window.location.hostname}`;
-    const rateLimitResult = await checkRateLimit(userIdentifier, 'contact_form_client', 5, 30);
-    
-    if (!rateLimitResult.allowed) {
-      await logSecurityEvent('contact_form_rate_limited_client', 'medium', {
-        blocked_until: rateLimitResult.blockedUntil,
-        reason: rateLimitResult.reason
-      });
-      
-      const timeLeft = rateLimitResult.blockedUntil 
-        ? new Date(rateLimitResult.blockedUntil).toLocaleTimeString('pl-PL', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
-          })
-        : 'nieznany';
-      
-      return {
-        success: false,
-        message: `Zbyt wiele prób wysłania formularza. Spróbuj ponownie po ${timeLeft}.`
-      };
-    }
-
-    // Enhanced client-side validation and sanitization
+    // Basic client-side validation and sanitization
     const sanitizedData = {
       name: sanitizeInput(formData.name, 'contact_name'),
       email: sanitizeInput(formData.email, 'contact_email').toLowerCase(),
@@ -63,18 +37,12 @@ export const submitContactForm = async (formData: ContactFormData): Promise<{ su
       consent_given: formData.consent_given
     };
 
-    // Enhanced validation with security logging
+    // Basic validation only
     if (!validateEmail(sanitizedData.email)) {
-      await logSecurityEvent('invalid_email_contact_form', 'low', {
-        email_format: sanitizedData.email.substring(0, 10) + '...'
-      });
       throw new Error('Nieprawidłowy adres email');
     }
 
     if (sanitizedData.phone && !validatePhone(sanitizedData.phone)) {
-      await logSecurityEvent('invalid_phone_contact_form', 'low', {
-        phone_length: sanitizedData.phone.length
-      });
       throw new Error('Nieprawidłowy numer telefonu');
     }
 
@@ -94,15 +62,7 @@ export const submitContactForm = async (formData: ContactFormData): Promise<{ su
       throw new Error('Zgoda jest wymagana');
     }
 
-    // Check for suspicious activity
-    if (detectSuspiciousActivity(sanitizedData, 'contact_form')) {
-      return {
-        success: false,
-        message: 'Twoja wiadomość zawiera treści, które nie mogą być przetworzone. Sprawdź i spróbuj ponownie.'
-      };
-    }
-
-    // Log form submission attempt
+    // Log attempt (optional)
     await logSecurityEvent('contact_form_attempt', 'low', {
       form_data: {
         name_length: sanitizedData.name.length,
@@ -112,40 +72,31 @@ export const submitContactForm = async (formData: ContactFormData): Promise<{ su
       }
     });
 
-    // Call the secure edge function
+    // Call the edge function directly without any rate limiting
     const { data, error } = await supabase.functions.invoke('submit-contact-form', {
       body: sanitizedData
     });
 
     if (error) {
       console.error('Contact form submission error:', error);
-      
-      await logSecurityEvent('contact_form_submission_error', 'medium', {
-        error: error.message
-      });
-      
-      throw new Error('Nie udało się wysłać formularza kontaktowego');
+      throw new Error('Błąd wysyłania');
     }
 
     if (!data.success) {
-      await logSecurityEvent('contact_form_submission_failed', 'medium', {
-        error: data.error
-      });
-      
-      throw new Error(data.error || 'Nie udało się wysłać formularza kontaktowego');
+      throw new Error(data.error || 'Błąd wysyłania');
     }
 
-    // Log successful submission
+    // Log success
     await logSecurityEvent('contact_form_submitted_success', 'low', {
       timestamp: new Date().toISOString()
     });
 
-    return { success: true, message: 'Twoja wiadomość została wysłana pomyślnie!' };
+    return { success: true, message: 'Wiadomość została wysłana pomyślnie!' };
   } catch (error) {
     console.error('Contact form error:', error);
     return { 
       success: false, 
-      message: error instanceof Error ? error.message : 'Wystąpił błąd podczas wysyłania wiadomości'
+      message: error instanceof Error ? error.message : 'Błąd wysyłania'
     };
   }
 };

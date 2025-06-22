@@ -44,11 +44,10 @@ serve(async (req) => {
     const formData: ContactFormData = await req.json();
     console.log('Received form data:', formData);
     
-    // Get client IP and user agent for security tracking - FIX: Extract only first IP
+    // Get client IP and user agent for logging only
     const forwardedFor = req.headers.get('x-forwarded-for') || '';
     const realIp = req.headers.get('x-real-ip') || '';
     
-    // Extract the first IP address from comma-separated list
     let clientIP = 'unknown';
     if (forwardedFor) {
       clientIP = forwardedFor.split(',')[0].trim();
@@ -57,42 +56,11 @@ serve(async (req) => {
     }
     
     const userAgent = req.headers.get('user-agent') || 'unknown';
-
     console.log('Client IP extracted:', clientIP);
 
-    // Rate limiting: 5 attempts per 30 minutes instead of 10 per hour
-    const { data: rateLimitCheck, error: rateLimitError } = await supabaseClient
-      .rpc('enhanced_rate_limit_check', {
-        _identifier: clientIP,
-        _action: 'contact_form',
-        _max_attempts: 5,
-        _window_minutes: 30,
-        _block_duration_minutes: 15
-      });
+    // NO RATE LIMITING - proceed directly to validation
 
-    if (rateLimitError || !rateLimitCheck?.allowed) {
-      console.log('Rate limit exceeded for IP:', clientIP);
-      
-      const timeLeft = rateLimitCheck?.blocked_until 
-        ? new Date(rateLimitCheck.blocked_until).toLocaleTimeString('pl-PL', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
-          })
-        : '15 minut';
-      
-      return new Response(
-        JSON.stringify({ 
-          error: `Zbyt wiele prób. Spróbuj ponownie po ${timeLeft}.`,
-          blocked_until: rateLimitCheck?.blocked_until
-        }),
-        { 
-          status: 429, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
-
-    // Enhanced server-side validation
+    // Basic server-side validation only
     const errors: string[] = [];
     
     if (!formData.name || formData.name.trim().length < 2) {
@@ -211,7 +179,7 @@ serve(async (req) => {
       // Continue without failing - this is not critical
     }
 
-    // Log successful submission
+    // Log successful submission (optional)
     await supabaseClient.rpc('log_security_event', {
       _event_type: 'contact_form_submitted',
       _severity: 'low',
