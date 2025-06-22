@@ -44,13 +44,23 @@ serve(async (req) => {
     const formData: ContactFormData = await req.json();
     console.log('Received form data:', formData);
     
-    // Get client IP and user agent for security tracking
-    const clientIP = req.headers.get('x-forwarded-for') || 
-                     req.headers.get('x-real-ip') || 
-                     'unknown';
+    // Get client IP and user agent for security tracking - FIX: Extract only first IP
+    const forwardedFor = req.headers.get('x-forwarded-for') || '';
+    const realIp = req.headers.get('x-real-ip') || '';
+    
+    // Extract the first IP address from comma-separated list
+    let clientIP = 'unknown';
+    if (forwardedFor) {
+      clientIP = forwardedFor.split(',')[0].trim();
+    } else if (realIp) {
+      clientIP = realIp.trim();
+    }
+    
     const userAgent = req.headers.get('user-agent') || 'unknown';
 
-    // More reasonable rate limiting: 5 attempts per 30 minutes instead of 10 per hour
+    console.log('Client IP extracted:', clientIP);
+
+    // Rate limiting: 5 attempts per 30 minutes instead of 10 per hour
     const { data: rateLimitCheck, error: rateLimitError } = await supabaseClient
       .rpc('enhanced_rate_limit_check', {
         _identifier: clientIP,
