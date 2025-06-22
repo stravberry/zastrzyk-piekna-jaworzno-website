@@ -135,7 +135,7 @@ serve(async (req) => {
     // Send email notification to clinic
     try {
       const emailResult = await resend.emails.send({
-        from: 'Formularz kontaktowy <noreply@zastrzykpiekna.pl>',
+        from: 'Formularz kontaktowy <noreply@zastrzykpiekna.eu>',
         to: ['zastrzykpiekna.kontakt@gmail.com'],
         subject: `Nowa wiadomość: ${sanitizedData.subject}`,
         html: `
@@ -160,7 +160,7 @@ serve(async (req) => {
     // Send confirmation email to user
     try {
       await resend.emails.send({
-        from: 'Zastrzyk Piękna <noreply@zastrzykpiekna.pl>',
+        from: 'Zastrzyk Piękna <noreply@zastrzykpiekna.eu>',
         to: [sanitizedData.email],
         subject: 'Potwierdzenie otrzymania wiadomości',
         html: `
