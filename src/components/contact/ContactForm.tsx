@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,7 +14,7 @@ import { Mail, Send } from "lucide-react";
 const contactSchema = z.object({
   name: z.string().min(2, "Imię musi mieć co najmniej 2 znaki"),
   email: z.string().email("Nieprawidłowy format email"),
-  phone: z.string().optional(),
+  phone: z.string().default(""),
   subject: z.string().min(3, "Temat musi mieć co najmniej 3 znaki"),
   message: z.string().min(10, "Wiadomość musi mieć co najmniej 10 znaków"),
   consent_given: z.boolean().refine(val => val === true, "Zgoda jest wymagana"),
