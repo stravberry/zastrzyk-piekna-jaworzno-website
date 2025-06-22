@@ -10,6 +10,9 @@ import CTASection from "@/components/CTASection";
 import InstagramSection from "@/components/InstagramSection";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useScrollTracking } from "@/hooks/useScrollTracking";
+import { useClickTracking } from "@/hooks/useClickTracking";
+import { useAdvancedTracking } from "@/hooks/useAdvancedTracking";
 
 const Index = () => {
   const servicesRef = useRef<HTMLDivElement>(null);
@@ -20,11 +23,32 @@ const Index = () => {
   
   // Initialize analytics tracking
   const { trackEvent } = useAnalytics();
+  const { trackConversion } = useAdvancedTracking();
+  
+  // Enable automatic scroll and click tracking
+  useScrollTracking({
+    pageName: 'Homepage',
+    milestones: [10, 25, 50, 75, 90, 100],
+    trackTimeOnSection: true
+  });
+  
+  useClickTracking({
+    trackLinks: true,
+    trackButtons: true,
+    trackImages: true,
+    trackForms: true
+  });
   
   // Track home page engagement
   useEffect(() => {
     trackEvent('Page Engagement', 'Homepage View', 'Landing Page', 1);
-  }, [trackEvent]);
+    
+    // Track homepage conversion event
+    trackConversion('page_view', 'Homepage View', {
+      page_type: 'landing',
+      user_type: 'new_visitor'
+    });
+  }, [trackEvent, trackConversion]);
   
   // Track scroll animations for each section
   const isServicesVisible = useScrollAnimation(servicesRef);

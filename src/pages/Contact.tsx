@@ -1,13 +1,39 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ContactHero from "@/components/contact/ContactHero";
 import ContactForm from "@/components/contact/ContactForm";
 import ContactInfo from "@/components/contact/ContactInfo";
 import MapSection from "@/components/contact/MapSection";
+import { useScrollTracking } from "@/hooks/useScrollTracking";
+import { useClickTracking } from "@/hooks/useClickTracking";
+import { useAdvancedTracking } from "@/hooks/useAdvancedTracking";
 
 const Contact = () => {
+  const { trackConversion } = useAdvancedTracking();
+
+  // Enable automatic tracking
+  useScrollTracking({
+    pageName: 'Contact Page',
+    milestones: [25, 50, 75, 100],
+    trackTimeOnSection: true
+  });
+  
+  useClickTracking({
+    trackLinks: true,
+    trackButtons: true,
+    trackForms: true
+  });
+
+  // Track contact page view as potential conversion
+  useEffect(() => {
+    trackConversion('page_view', 'Contact Page View', {
+      page_type: 'contact',
+      user_intent: 'contact_inquiry'
+    });
+  }, [trackConversion]);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />

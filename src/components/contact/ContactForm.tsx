@@ -10,6 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { submitContactForm, ContactFormData } from "@/services/contactService";
 import { toast } from "sonner";
 import { Mail, Send } from "lucide-react";
+import { useAdvancedTracking } from "@/hooks/useAdvancedTracking";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Imię musi mieć co najmniej 2 znaki"),
@@ -21,6 +22,9 @@ const contactSchema = z.object({
 });
 
 const ContactForm = () => {
+  const { trackConversion, trackFormInteraction, trackFormField } = useAdvancedTracking();
+
+  // Fixed default values - all required fields must have defined values
   const defaultValues: ContactFormData = {
     name: "",
     email: "",
@@ -35,22 +39,59 @@ const ContactForm = () => {
     defaultValues,
   });
 
+  // Track form start
+  React.useEffect(() => {
+    trackFormInteraction('contact_form_started', 'Contact Form');
+  }, [trackFormInteraction]);
+
   const onSubmit = async (data: ContactFormData) => {
     try {
       console.log("Submitting form with data:", data);
+      
+      // Track form submission attempt
+      trackFormInteraction('contact_form_submitted', 'Contact Form', {
+        has_phone: !!data.phone,
+        subject_category: data.subject,
+        message_length: data.message.length
+      });
+
       const result = await submitContactForm(data);
       
       if (result.success) {
+        // Track successful conversion
+        trackConversion('contact_form_success', 'Contact Form Submission', {
+          form_type: 'contact',
+          contact_method: 'form',
+          has_phone: !!data.phone,
+          subject: data.subject
+        });
+
         toast.success("Wiadomość została wysłana pomyślnie!");
         form.reset();
       } else {
         console.error("Form submission failed:", result.message);
+        
+        // Track form error
+        trackFormInteraction('contact_form_error', 'Contact Form', {
+          error_message: result.message
+        });
+        
         toast.error(result.message || "Wystąpił błąd podczas wysyłania wiadomości");
       }
     } catch (error) {
       console.error("Contact form error:", error);
+      
+      // Track form failure
+      trackFormInteraction('contact_form_failure', 'Contact Form', {
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+      
       toast.error("Wystąpił błąd podczas wysyłania wiadomości");
     }
+  };
+
+  const handleFieldFocus = (fieldName: string) => {
+    trackFormField(`contact_form_field_focus_${fieldName}`, fieldName);
   };
 
   return (
@@ -76,7 +117,11 @@ const ContactForm = () => {
               <FormItem>
                 <FormLabel>Imię i nazwisko *</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Wprowadź swoje imię i nazwisko" />
+                  <Input 
+                    {...field} 
+                    placeholder="Wprowadź swoje imię i nazwisko"
+                    onFocus={() => handleFieldFocus('name')}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -91,7 +136,12 @@ const ContactForm = () => {
                 <FormItem>
                   <FormLabel>Email *</FormLabel>
                   <FormControl>
-                    <Input {...field} type="email" placeholder="twoj@email.com" />
+                    <Input 
+                      {...field} 
+                      type="email" 
+                      placeholder="twoj@email.com"
+                      onFocus={() => handleFieldFocus('email')}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -105,7 +155,11 @@ const ContactForm = () => {
                 <FormItem>
                   <FormLabel>Telefon</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="608 123 456" />
+                    <Input 
+                      {...field} 
+                      placeholder="608 123 456"
+                      onFocus={() => handleFieldFocus('phone')}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -120,7 +174,11 @@ const ContactForm = () => {
               <FormItem>
                 <FormLabel>Temat *</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="O czym chcesz napisać?" />
+                  <Input 
+                    {...field} 
+                    placeholder="O czym chcesz napisać?"
+                    onFocus={() => handleFieldFocus('subject')}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -139,6 +197,7 @@ const ContactForm = () => {
                     placeholder="Opisz swoje pytanie lub potrzeby..." 
                     rows={5}
                     className="resize-none"
+                    onFocus={() => handleFieldFocus('message')}
                   />
                 </FormControl>
                 <FormMessage />
@@ -157,6 +216,7 @@ const ContactForm = () => {
                     checked={field.value}
                     onChange={field.onChange}
                     className="mt-1"
+                    onFocus={() => handleFieldFocus('consent')}
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">

@@ -2,10 +2,12 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useAdvancedTracking } from "@/hooks/useAdvancedTracking";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { trackElementClick, trackContactAttempt } = useAdvancedTracking();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,6 +27,15 @@ const Navbar = () => {
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
+    trackElementClick('menu_toggle', isOpen ? 'Close Menu' : 'Open Menu', 'mobile_navigation');
+  };
+
+  const handleNavClick = (linkName: string, path: string) => {
+    trackElementClick('navigation_link', linkName, path);
+  };
+
+  const handleInstagramClick = () => {
+    trackContactAttempt('instagram', '@zastrzyk_piekna');
   };
 
   const navLinks = [
@@ -46,7 +57,11 @@ const Navbar = () => {
       }`}
     >
       <div className="container-custom flex items-center justify-between">
-        <Link to="/" className="flex items-center">
+        <Link 
+          to="/" 
+          className="flex items-center"
+          onClick={() => trackElementClick('logo', 'Logo Click', 'navbar')}
+        >
           <img 
             src="/lovable-uploads/3b19512b-b68a-4530-ac22-e8c824bf3cf3.png" 
             alt="Zastrzyk Piękna - Logo" 
@@ -61,6 +76,7 @@ const Navbar = () => {
               key={link.name}
               to={link.path}
               className="text-gray-700 hover:text-pink-500 transition-colors text-sm uppercase font-medium tracking-wide"
+              onClick={() => handleNavClick(link.name, link.path)}
             >
               {link.name}
             </Link>
@@ -68,6 +84,7 @@ const Navbar = () => {
           <Button
             asChild
             className="bg-pink-500 hover:bg-pink-600 text-white font-medium tracking-wide"
+            onClick={handleInstagramClick}
           >
             <a 
               href="https://instagram.com/zastrzyk_piekna" 
@@ -129,7 +146,10 @@ const Navbar = () => {
                 key={link.name}
                 to={link.path}
                 className="text-gray-700 hover:text-pink-500 transition-colors py-2"
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  setIsOpen(false);
+                  handleNavClick(link.name, link.path);
+                }}
               >
                 {link.name}
               </Link>
@@ -137,6 +157,7 @@ const Navbar = () => {
             <Button
               asChild
               className="bg-pink-500 hover:bg-pink-600 text-white w-full"
+              onClick={handleInstagramClick}
             >
               <a 
                 href="https://instagram.com/zastrzyk_piekna" 
