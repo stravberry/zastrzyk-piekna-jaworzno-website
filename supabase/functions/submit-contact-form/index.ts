@@ -50,14 +50,14 @@ serve(async (req) => {
                      'unknown';
     const userAgent = req.headers.get('user-agent') || 'unknown';
 
-    // Basic rate limiting check
+    // Much more reasonable rate limiting: 10 attempts per hour instead of 5 per hour
     const { data: rateLimitCheck, error: rateLimitError } = await supabaseClient
       .rpc('enhanced_rate_limit_check', {
         _identifier: clientIP,
         _action: 'contact_form',
-        _max_attempts: 5,
+        _max_attempts: 10,
         _window_minutes: 60,
-        _block_duration_minutes: 120
+        _block_duration_minutes: 30
       });
 
     if (rateLimitError || !rateLimitCheck?.allowed) {
