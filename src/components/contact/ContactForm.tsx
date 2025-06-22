@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,16 +22,18 @@ const contactSchema = z.object({
 type ContactFormData = z.infer<typeof contactSchema>;
 
 const ContactForm = () => {
+  const defaultValues: ContactFormData = {
+    name: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
+    consent_given: false,
+  };
+
   const form = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      subject: "",
-      message: "",
-      consent_given: false,
-    } as ContactFormData,
+    defaultValues,
   });
 
   const onSubmit = async (data: ContactFormData) => {
