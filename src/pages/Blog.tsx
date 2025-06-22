@@ -6,7 +6,6 @@ import BlogHero from "@/components/blog/BlogHero";
 import CategoryFilter from "@/components/blog/CategoryFilter";
 import BlogCard from "@/components/blog/BlogCard";
 import BlogPagination from "@/components/blog/BlogPagination";
-import BlogNewsletter from "@/components/blog/BlogNewsletter";
 import { getAllBlogPosts } from "@/services/blog/blogPosts";
 import { BlogPost } from "@/types/admin";
 
@@ -103,9 +102,6 @@ const Blog = () => {
             />
           </div>
         </section>
-
-        {/* Newsletter Section */}
-        <BlogNewsletter />
       </main>
       <Footer />
     </div>
