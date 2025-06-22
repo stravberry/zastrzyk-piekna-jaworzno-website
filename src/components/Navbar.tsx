@@ -66,9 +66,16 @@ const Navbar = () => {
             </Link>
           ))}
           <Button
+            asChild
             className="bg-pink-500 hover:bg-pink-600 text-white font-medium tracking-wide"
           >
-            Umów Wizytę
+            <a 
+              href="https://instagram.com/zastrzyk_piekna" 
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              Umów Wizytę
+            </a>
           </Button>
         </nav>
 
@@ -128,9 +135,16 @@ const Navbar = () => {
               </Link>
             ))}
             <Button
+              asChild
               className="bg-pink-500 hover:bg-pink-600 text-white w-full"
             >
-              Umów Wizytę
+              <a 
+                href="https://instagram.com/zastrzyk_piekna" 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                Umów Wizytę
+              </a>
             </Button>
           </div>
         </div>
