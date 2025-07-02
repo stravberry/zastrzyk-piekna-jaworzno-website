@@ -84,7 +84,7 @@ const TreatmentChart: React.FC<TreatmentChartProps> = ({ data, isLoading, compac
           Najczęściej wykonywane zabiegi (Top {topTreatments.length})
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4 sm:space-y-6">
+      <CardContent className="space-y-4 sm:space-y-6 pb-6 sm:pb-8">
         <div className={`grid ${compact ? 'grid-cols-1' : 'grid-cols-1 xl:grid-cols-2'} gap-4 sm:gap-6`}>
           {/* Bar Chart */}
           <div className={compact ? "h-36 xs:h-44 sm:h-48 lg:h-52" : "h-48 sm:h-64 lg:h-72"}>
@@ -165,9 +165,9 @@ const TreatmentChart: React.FC<TreatmentChartProps> = ({ data, isLoading, compac
         </div>
 
         {/* Treatment Statistics Table */}
-        <div className="space-y-4">
+        <div className="space-y-4 mb-6 sm:mb-8">
           <h4 className="text-sm sm:text-base font-medium">Szczegóły zabiegów</h4>
-          <div className="space-y-3 max-h-64 sm:max-h-80 overflow-y-auto">
+          <div className="space-y-3 max-h-72 sm:max-h-96 overflow-y-auto pr-2">
             {topTreatments.slice(0, compact ? 3 : 5).map((treatment, index) => (
               <div key={treatment.name} className="flex items-start sm:items-center justify-between p-4 bg-gray-50 rounded-lg text-xs sm:text-sm gap-4">
                 <div className="flex items-start sm:items-center space-x-4 min-w-0 flex-1">
