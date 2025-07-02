@@ -132,13 +132,14 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
             2: { cellWidth: contentWidth * 0.2, halign: 'right', textColor: [236, 72, 153], fontStyle: 'bold' } // 20% of content width
           },
           styles: {
-            font: 'helvetica',
+            font: 'helvetica', // jsPDF doesn't support custom fonts directly, but we'll use fallback
             fontSize: 10,
             cellPadding: 10, // Increased cell padding for more spacing between rows
             overflow: 'linebreak',
             minCellHeight: 22, // Increased minimum height for better row spacing
             lineColor: [200, 200, 200],
             lineWidth: 0.5,
+            valign: 'middle', // Improved vertical alignment
           },
           tableWidth: contentWidth,
           margin: { left: leftMargin, right: rightMargin },
@@ -227,63 +228,89 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
       tempContainer.style.backgroundColor = 'white';
       document.body.appendChild(tempContainer);
       
-      // Generate HTML content with reduced margins and increased row spacing
+      // Generate HTML content with Google Fonts and improved styling
       tempContainer.innerHTML = `
         <!DOCTYPE html>
         <html>
         <head>
           <meta charset="UTF-8">
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
           <style>
             @charset "UTF-8";
+            @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap');
+            
             @page { 
               size: A4; 
-              margin: 20mm 18mm; /* Reduced margins: top/bottom 20mm, left/right 18mm */
+              margin: 20mm 18mm; 
             }
+            
             body { 
               margin: 0; 
-              padding: 18px; /* Reduced padding */
-              font-family: Arial, Helvetica, sans-serif !important; 
-              line-height: 1.8; /* Increased line height for better row spacing */
+              padding: 18px; 
+              font-family: 'Poppins', Arial, Helvetica, sans-serif !important; 
+              line-height: 1.8;
+              text-rendering: optimizeLegibility;
+              -webkit-font-smoothing: antialiased;
+              -moz-osx-font-smoothing: grayscale;
             }
+            
             * { 
               box-sizing: border-box; 
               -webkit-print-color-adjust: exact; 
               print-color-adjust: exact; 
-              font-family: Arial, Helvetica, sans-serif !important; 
+              font-family: 'Poppins', Arial, Helvetica, sans-serif !important;
+              text-rendering: optimizeLegibility;
             }
+            
             .page { 
               width: 100%; 
               padding: 0; 
-              font-family: Arial, Helvetica, sans-serif !important; 
+              font-family: 'Poppins', Arial, Helvetica, sans-serif !important; 
             }
+            
             .title { 
               color: #EC4899; 
               text-align: center; 
-              margin-bottom: 35px; /* Reduced margin */
+              margin-bottom: 35px; 
               font-size: 32px;
-              font-weight: bold; 
-              font-family: Arial, Helvetica, sans-serif !important; 
+              font-weight: 700; 
+              font-family: 'Playfair Display', serif !important; 
               page-break-after: avoid;
+              line-height: 1.2;
+              letter-spacing: 0.5px;
             }
+            
             .category { 
               page-break-inside: avoid; 
               break-inside: avoid;
-              margin-bottom: 25px; /* Reduced margin between categories */
+              margin-bottom: 25px; 
               min-height: 100px;
             }
+            
             .category:not(:first-child) { 
-              margin-top: 30px; /* Reduced top margin */
+              margin-top: 30px; 
             }
+            
             .category-header { 
               background: #EC4899; 
               color: white; 
-              padding: 14px 18px; /* Slightly reduced padding */
+              padding: 16px 18px; 
               margin: 0; 
               font-size: 20px;
-              font-family: Arial, Helvetica, sans-serif !important; 
+              font-family: 'Playfair Display', serif !important; 
+              font-weight: 600;
               page-break-after: avoid;
               break-after: avoid;
               border-radius: 8px 8px 0 0;
+              text-align: center;
+              line-height: 1.3;
+              letter-spacing: 0.3px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              min-height: 50px;
             }
             table { 
               width: 100%; 
@@ -297,54 +324,63 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
             }
             th { 
               background: #FDF2F8; 
-              padding: 16px 18px; /* Increased padding for headers */
+              padding: 16px 18px; 
               text-align: left; 
-              font-weight: bold; 
-              font-family: Arial, Helvetica, sans-serif !important; 
+              font-weight: 600; 
+              font-family: 'Poppins', Arial, Helvetica, sans-serif !important; 
               border-bottom: 2px solid #F3E8FF;
               font-size: 14px;
+              line-height: 1.4;
+              vertical-align: middle;
             }
+            
             td { 
-              padding: 18px; /* Increased padding for better row spacing */
+              padding: 18px; 
               border-top: 1px solid #FCE7F3; 
               word-break: break-word; 
-              font-family: Arial, Helvetica, sans-serif !important; 
+              font-family: 'Poppins', Arial, Helvetica, sans-serif !important; 
               page-break-inside: avoid;
               break-inside: avoid;
               font-size: 13px;
-              line-height: 1.6; /* Better line spacing within cells */
+              line-height: 1.6; 
+              vertical-align: middle;
             }
+            
             tr { 
               page-break-inside: avoid;
               break-inside: avoid;
-              min-height: 50px; /* Minimum row height for better spacing */
+              min-height: 50px; 
             }
+            
             tr:nth-child(even) { 
               background-color: #FDFAFC; 
             }
+            
             .price { 
-              font-weight: bold; 
+              font-weight: 600; 
               color: #EC4899; 
               text-align: right; 
-              font-family: Arial, Helvetica, sans-serif !important; 
+              font-family: 'Poppins', Arial, Helvetica, sans-serif !important; 
               font-size: 14px;
             }
+            
             .description { 
               font-style: italic; 
               color: #666; 
               font-size: 12px; 
-              font-family: Arial, Helvetica, sans-serif !important; 
-              padding-top: 10px; /* Increased spacing */
+              font-family: 'Poppins', Arial, Helvetica, sans-serif !important; 
+              padding-top: 10px; 
               line-height: 1.5;
             }
+            
             .footer { 
               text-align: center; 
-              margin-top: 40px; /* Reduced top margin */
+              margin-top: 40px; 
               color: #666; 
               font-size: 12px; 
-              font-family: Arial, Helvetica, sans-serif !important; 
+              font-family: 'Poppins', Arial, Helvetica, sans-serif !important; 
               page-break-inside: avoid;
-              padding-top: 18px; /* Reduced padding */
+              padding-top: 18px; 
               border-top: 1px solid #E5E7EB;
             }
             
@@ -420,8 +456,30 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
         </html>
       `;
       
-      // Wait for complete rendering
-      await new Promise(r => setTimeout(r, 3000));
+      // Preload fonts before rendering
+      const preloadFonts = async (): Promise<void> => {
+        try {
+          console.log('Ładowanie fontów dla PDF...');
+          
+          // Load Playfair Display font
+          await document.fonts.load('700 32px "Playfair Display"');
+          await document.fonts.load('600 20px "Playfair Display"');
+          
+          // Load Poppins font
+          await document.fonts.load('600 14px "Poppins"');
+          await document.fonts.load('400 13px "Poppins"');
+          
+          console.log('Fonty zostały załadowane dla PDF');
+        } catch (error) {
+          console.error('Błąd podczas ładowania fontów dla PDF:', error);
+        }
+      };
+      
+      // Preload fonts before rendering
+      await preloadFonts();
+      
+      // Wait for complete rendering with fonts
+      await new Promise(r => setTimeout(r, 4000));
       
       // Create PDF using the improved method with reduced margins
       const pdf = new jsPDF({
