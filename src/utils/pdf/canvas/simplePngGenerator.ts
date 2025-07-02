@@ -59,13 +59,13 @@ const calculateExactItemHeight = (ctx: CanvasRenderingContext2D, item: any): num
     descHeight = descLines.length * 20; // 13px font + 7px line spacing
   }
   
-  // Simple padding calculation - reduced bottom padding for descriptions
+  // Simple padding calculation - further reduced bottom padding for descriptions
   const topPadding = 15;
-  const bottomPadding = hasDescription ? 15 : 15; // Reduced from 30 to 15 (half the space)
-  const spaceBetweenNameAndDesc = hasDescription ? 8 : 0; // Slightly reduced spacing
+  const bottomPadding = hasDescription ? 8 : 15; // Further reduced from 15 to 8 (half again)
+  const spaceBetweenNameAndDesc = hasDescription ? 6 : 0; // Further reduced spacing
   
   const totalHeight = topPadding + nameHeight + spaceBetweenNameAndDesc + descHeight + bottomPadding;
-  const minHeight = hasDescription ? 80 : 60; // Reduced min height too
+  const minHeight = hasDescription ? 75 : 60; // Further reduced min height
   
   return Math.max(totalHeight, minHeight);
 };
