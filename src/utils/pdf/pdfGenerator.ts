@@ -5,35 +5,14 @@ import { PriceCategory } from "@/components/pricing/PriceCard";
 import { addPolishFontSupport } from "./fontSupport";
 import html2canvas from "html2canvas";
 import { createPdfLayoutForPng } from "./pngGenerator";
+import { loadGoogleFonts, FONTS, formatPrice } from './canvas/fontUtils';
+import { drawRoundedRect, drawCenteredText, drawLeftText, drawRightText, wrapText } from './canvas/drawingUtils';
+import { calculateItemHeight } from './canvas/heightCalculator';
 
 // Generate PDF using Canvas API similar to PNG generator for better consistency
 export const generatePricingPdf = async (categories: PriceCategory[]): Promise<Blob> => {
   try {
     // Use the SAME font loading as PNG generator
-    const FONTS = {
-      playfair: 'Playfair Display',
-      poppins: 'Poppins'
-    };
-
-    // Load Google Fonts using FontFace API - SAME AS PNG
-    const loadGoogleFonts = async (): Promise<void> => {
-      try {
-        // Load Playfair Display
-        const playfairFont = new FontFace(FONTS.playfair, 'url(https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap)');
-        await playfairFont.load();
-        document.fonts.add(playfairFont);
-
-        // Load Poppins
-        const poppinsFont = new FontFace(FONTS.poppins, 'url(https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap)');
-        await poppinsFont.load();
-        document.fonts.add(poppinsFont);
-
-        console.log('Google Fonts loaded successfully');
-      } catch (error) {
-        console.warn('Failed to load Google Fonts, using system fonts:', error);
-      }
-    };
-
     await loadGoogleFonts();
     // Wait for fonts to load properly - SAME AS PNG
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -55,110 +34,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
     canvas.width = 850;
     canvas.height = 1200; // Taller page for better fitting
     
-    // Helper functions adapted from PNG generator - EXACTLY THE SAME
-
-    const drawRoundedRect = (x: number, y: number, width: number, height: number, radius: number = 8) => {
-      ctx.beginPath();
-      ctx.moveTo(x + radius, y);
-      ctx.lineTo(x + width - radius, y);
-      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-      ctx.lineTo(x + width, y + height - radius);
-      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-      ctx.lineTo(x + radius, y + height);
-      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-      ctx.lineTo(x, y + radius);
-      ctx.quadraticCurveTo(x, y, x + radius, y);
-      ctx.closePath();
-      ctx.fill();
-    };
-
-    const wrapText = (text: string, maxWidth: number): string[] => {
-      if (!text || text.trim() === '') return [''];
-      
-      const words = text.split(/\s+/);
-      const lines: string[] = [];
-      let currentLine = '';
-
-      for (const word of words) {
-        const testLine = currentLine + (currentLine ? ' ' : '') + word;
-        const metrics = ctx.measureText(testLine);
-        
-        if (metrics.width > maxWidth && currentLine) {
-          lines.push(currentLine);
-          currentLine = word;
-        } else {
-          currentLine = testLine;
-        }
-      }
-      
-      if (currentLine) {
-        lines.push(currentLine);
-      }
-      
-      return lines.length > 0 ? lines : [''];
-    };
-
-    const drawCenteredText = (text: string, x: number, y: number, maxWidth?: number) => {
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'top'; // Changed from 'middle' to 'top' for better control
-      
-      if (maxWidth && text && text.length > 0) {
-        const lines = wrapText(text, maxWidth);
-        const lineHeight = 24; // Fixed line height for consistency
-        
-        lines.forEach((line, index) => {
-          ctx.fillText(line, x, y + (index * lineHeight));
-        });
-      } else if (text) {
-        ctx.fillText(text, x, y);
-      }
-    };
-
-    const drawLeftText = (text: string, x: number, y: number, maxWidth?: number) => {
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'top';
-      
-      if (maxWidth && text && text.length > 0) {
-        const lines = wrapText(text, maxWidth);
-        const lineHeight = 22;
-        
-        lines.forEach((line, index) => {
-          ctx.fillText(line, x, y + (index * lineHeight));
-        });
-      } else if (text) {
-        ctx.fillText(text, x, y);
-      }
-    };
-
-    const drawRightText = (text: string, x: number, y: number) => {
-      ctx.textAlign = 'right';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(text, x, y);
-    };
-
-    const formatPrice = (price: string): string => {
-      if (price.toLowerCase().includes('zł')) {
-        return price;
-      }
-      return price.trim() + ' zł';
-    };
-
-    // Calculate dynamic item height like PNG generator
-    const calculateItemHeight = (item: any): number => {
-      const padding = 20;
-      const nameLines = wrapText(item.name || '', 240);
-      const descLines = item.description ? wrapText(item.description, 200) : [];
-      
-      let height = padding * 2; // Top and bottom padding
-      height += nameLines.length * 22; // Name lines
-      
-      if (descLines.length > 0) {
-        height += 15; // Space between name and description
-        height += descLines.length * 20; // Description lines
-      }
-      
-      return Math.max(height, 60); // Minimum height
-    };
+    // Use imported utilities for consistency with PNG generator
 
     // Page management
     const maxPageHeight = 1050; // Safe height for content
@@ -187,7 +63,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
       // Draw title on each page with proper positioning - SAME AS PNG
       ctx.fillStyle = '#EC4899';
       ctx.font = `bold 36px ${FONTS.playfair}, serif`;
-      drawCenteredText('Cennik Usług', canvas.width / 2, currentY);
+      drawCenteredText(ctx, 'Cennik Usług', canvas.width / 2, currentY);
       currentY += 80; // Space after title (36px font + spacing) - SAME AS PNG
     };
 
@@ -201,7 +77,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
       // Calculate space needed for this category
       let categoryHeight = categoryHeaderHeight + 45; // Header + table header
       category.items.forEach(item => {
-        categoryHeight += calculateItemHeight(item);
+        categoryHeight += calculateItemHeight(ctx, item);
       });
       
       // Check if category fits on current page
@@ -211,11 +87,11 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
 
       // Draw category header
       ctx.fillStyle = '#EC4899';
-      drawRoundedRect(padding, currentY, canvas.width - padding * 2, categoryHeaderHeight, 12);
+      drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, categoryHeaderHeight, 12);
       
       ctx.fillStyle = '#ffffff';
       ctx.font = `600 24px ${FONTS.poppins}, sans-serif`;
-      drawCenteredText(category.title, canvas.width / 2, currentY + 20, canvas.width - padding * 4); // SAME AS PNG
+      drawCenteredText(ctx, category.title, canvas.width / 2, currentY + 20, canvas.width - padding * 4); // SAME AS PNG
       currentY += categoryHeaderHeight;
 
       // Table headers
@@ -225,7 +101,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
       const tableHeaderHeight = 45;
 
       ctx.fillStyle = '#FDF2F8';
-      drawRoundedRect(padding, currentY, canvas.width - padding * 2, tableHeaderHeight, 8);
+      drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, tableHeaderHeight, 8);
       
       ctx.fillStyle = '#333333';
       ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
@@ -240,7 +116,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
       // Draw items
       for (let itemIndex = 0; itemIndex < category.items.length; itemIndex++) {
         const item = category.items[itemIndex];
-        const itemHeight = calculateItemHeight(item);
+        const itemHeight = calculateItemHeight(ctx, item);
         
         // Check if item fits on page
         if (currentY + itemHeight > maxPageHeight) {
@@ -248,16 +124,16 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
           
           // Redraw category header on new page
           ctx.fillStyle = '#EC4899';
-          drawRoundedRect(padding, currentY, canvas.width - padding * 2, categoryHeaderHeight, 12);
+          drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, categoryHeaderHeight, 12);
           
           ctx.fillStyle = '#ffffff';
           ctx.font = `600 24px ${FONTS.poppins}, sans-serif`;
-          drawCenteredText(`${category.title} (cd.)`, canvas.width / 2, currentY + 20, canvas.width - padding * 4); // SAME AS PNG
+          drawCenteredText(ctx, `${category.title} (cd.)`, canvas.width / 2, currentY + 20, canvas.width - padding * 4); // SAME AS PNG
           currentY += categoryHeaderHeight;
 
           // Redraw table headers
           ctx.fillStyle = '#FDF2F8';
-          drawRoundedRect(padding, currentY, canvas.width - padding * 2, tableHeaderHeight, 8);
+          drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, tableHeaderHeight, 8);
           
           ctx.fillStyle = '#333333';
           ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
@@ -274,7 +150,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
         
         // Row background
         ctx.fillStyle = isEven ? '#FCF2F8' : '#F8F9FA';
-        drawRoundedRect(padding, currentY, canvas.width - padding * 2, itemHeight, 6);
+        drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, itemHeight, 6);
 
         // Service name
         const hasDescription = item.description && item.description.trim() !== '';
@@ -282,22 +158,22 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
         
         ctx.fillStyle = '#1F2937';
         ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
-        drawLeftText(item.name, nameColumnX, nameStartY, 240);
+        drawLeftText(ctx, item.name, nameColumnX, nameStartY, 240);
 
         // Description
         if (hasDescription) {
-          const nameLines = wrapText(item.name || '', 240);
+          const nameLines = wrapText(ctx, item.name || '', 240);
           const nameEndY = currentY + 25 + (nameLines.length * 22) + 15;
           
           ctx.fillStyle = '#4B5563';
           ctx.font = `400 13px ${FONTS.poppins}, sans-serif`;
-          drawLeftText(item.description, descColumnX, nameEndY, 200);
+          drawLeftText(ctx, item.description, descColumnX, nameEndY, 200);
         }
 
         // Price
         ctx.fillStyle = '#EC4899';
         ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
-        drawRightText(formatPrice(item.price), priceColumnX, currentY + itemHeight / 2);
+        drawRightText(ctx, formatPrice(item.price), priceColumnX, currentY + itemHeight / 2);
 
         currentY += itemHeight;
       }
@@ -312,9 +188,9 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
     currentY += 40;
     ctx.fillStyle = '#666666';
     ctx.font = `400 12px ${FONTS.poppins}, sans-serif`;
-    drawCenteredText('Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej', canvas.width / 2, currentY);
+    drawCenteredText(ctx, 'Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej', canvas.width / 2, currentY);
     currentY += 20;
-    drawCenteredText(`Wygenerowano ${new Date().toLocaleDateString('pl-PL')}`, canvas.width / 2, currentY);
+    drawCenteredText(ctx, `Wygenerowano ${new Date().toLocaleDateString('pl-PL')}`, canvas.width / 2, currentY);
 
     // Add final page to PDF
     const imgData = canvas.toDataURL('image/png');
