@@ -4,7 +4,7 @@ import { getPriceCategories } from "./pricingCoreService";
 import html2canvas from "html2canvas";
 import { createPdfLayoutForPng, createSingleCategoryLayoutForPng } from "@/utils/pdf/pngGenerator";
 import { generatePricingPdf, generatePricingPdfFromHtml } from "@/utils/pdf";
-import { generateFullPricingPng, generateSingleCategoryPng, generateCategoryPagesAsPng } from "@/utils/pdf/canvasPngGenerator";
+import { generateFullPricingPng, generateSingleCategoryPng, generateCategoryPagesAsPng } from "@/utils/pdf/canvas";
 import { toast } from "sonner";
 
 // Simple and reliable font preloading - removed Google Fonts for better compatibility

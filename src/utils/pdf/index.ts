@@ -3,4 +3,4 @@
 export * from './fontSupport';
 export * from './pdfGenerator';
 export * from './pngGenerator';
-export * from './canvasPngGenerator';
+export * from './canvas';
