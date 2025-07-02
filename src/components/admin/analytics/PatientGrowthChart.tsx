@@ -52,14 +52,14 @@ const PatientGrowthChart: React.FC<PatientGrowthChartProps> = ({ data, isLoading
           <span className="block sm:inline">Łączne wizyty: {totalAppointments}</span>
         </CardDescription>
       </CardHeader>
-      <CardContent className="p-3 sm:p-6">
-        <ChartContainer config={chartConfig} className={compact ? "h-36 sm:h-44 lg:h-48" : "h-48 sm:h-64 lg:h-80"}>
+      <CardContent className="p-2 pr-1 xs:p-3 xs:pr-2 sm:p-6">
+        <ChartContainer config={chartConfig} className={compact ? "h-32 xs:h-36 sm:h-44 lg:h-48" : "h-40 xs:h-48 sm:h-64 lg:h-80"}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ 
-              top: 5, 
-              right: compact ? 5 : 10, 
-              left: compact ? 5 : 10, 
-              bottom: compact ? 20 : 25 
+              top: 3, 
+              right: 0, 
+              left: 0, 
+              bottom: compact ? 15 : 20 
             }}>
               <defs>
                 <linearGradient id="colorNewPatients" x1="0" y1="0" x2="0" y2="1">
@@ -74,17 +74,17 @@ const PatientGrowthChart: React.FC<PatientGrowthChartProps> = ({ data, isLoading
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis 
                 dataKey="month" 
-                className="text-[9px] sm:text-[10px] lg:text-xs"
-                tick={{ fontSize: compact ? 9 : 11 }}
-                interval={data.length > 8 ? (compact ? 2 : 1) : 0}
-                angle={data.length > 6 ? -45 : 0}
-                textAnchor={data.length > 6 ? "end" : "middle"}
-                height={data.length > 6 ? (compact ? 40 : 50) : 25}
+                className="text-[8px] xs:text-[9px] sm:text-[10px] lg:text-xs"
+                tick={{ fontSize: compact ? 8 : 10 }}
+                interval={data.length > 8 ? (compact ? 3 : 2) : (compact ? 1 : 0)}
+                angle={data.length > 4 ? -45 : 0}
+                textAnchor={data.length > 4 ? "end" : "middle"}
+                height={data.length > 4 ? (compact ? 30 : 40) : 20}
               />
               <YAxis 
-                className="text-[9px] sm:text-[10px] lg:text-xs"
-                tick={{ fontSize: compact ? 9 : 11 }}
-                width={compact ? 35 : 50}
+                className="text-[8px] xs:text-[9px] sm:text-[10px] lg:text-xs"
+                tick={{ fontSize: compact ? 8 : 10 }}
+                width={25}
               />
               <ChartTooltip 
                 content={<ChartTooltipContent 
