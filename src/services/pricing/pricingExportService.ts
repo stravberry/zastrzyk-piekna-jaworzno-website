@@ -77,7 +77,7 @@ const downloadSingleCategoryPng = async (category: PriceCategory): Promise<void>
     console.log('Category:', category.title);
     console.log('Item count:', category.items.length);
     
-    if (category.items.length > 8) {
+    if (category.items.length > 7) { // Changed from 8 to 7
       console.log(`Kategoria ${category.title} ma ${category.items.length} elementów, dzielę na strony`);
       toast.info(`Kategoria "${category.title}" zostanie podzielona na strony ze względu na dużą liczbę elementów`);
       
@@ -298,7 +298,30 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
       document.body.appendChild(tempContainer);
       
       try {
-        // Use new Canvas API generator first
+        // Check if category needs to be split for single export too
+        if (targetCategory.items.length > 7) {
+          console.log(`Single category export: ${targetCategory.title} ma ${targetCategory.items.length} elementów, dzielę na strony`);
+          toast.info(`Kategoria "${targetCategory.title}" zostanie podzielona na strony ze względu na dużą liczbę elementów`);
+          
+          // Use multi-page generator
+          const blobs = await generateCategoryPagesAsPng(targetCategory);
+          
+          // For single export, we need to return the first blob, but also trigger downloads of others
+          blobs.forEach((blob, index) => {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            const date = new Date().toISOString().slice(0, 10);
+            link.download = `Zastrzyk-Piekna-${targetCategory.title.replace(/\s+/g, '-')}-${index + 1}-${date}.png`;
+            link.click();
+            URL.revokeObjectURL(url);
+          });
+          
+          // Return first blob
+          return blobs[0];
+        }
+        
+        // Use new Canvas API generator for single page
         return await generateSingleCategoryPng(targetCategory);
       } catch (error) {
         console.error('Canvas API failed, using html2canvas fallback:', error);

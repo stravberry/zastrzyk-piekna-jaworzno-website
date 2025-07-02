@@ -10,9 +10,15 @@ const measureTextHeight = (ctx: CanvasRenderingContext2D, text: string, fontSize
   return Math.ceil(fontSize * 1.2);
 };
 
-// Wrap text with precise measurement
-const wrapTextSimple = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] => {
+// Wrap text with precise measurement and better responsiveness
+const wrapTextResponsive = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] => {
   if (!text || text.trim() === '') return [''];
+  
+  // First try to fit the entire text
+  const metrics = ctx.measureText(text);
+  if (metrics.width <= maxWidth) {
+    return [text];
+  }
   
   const words = text.split(' ');
   const lines: string[] = [];
@@ -20,9 +26,9 @@ const wrapTextSimple = (ctx: CanvasRenderingContext2D, text: string, maxWidth: n
 
   for (const word of words) {
     const testLine = currentLine + (currentLine ? ' ' : '') + word;
-    const metrics = ctx.measureText(testLine);
+    const testMetrics = ctx.measureText(testLine);
     
-    if (metrics.width > maxWidth && currentLine) {
+    if (testMetrics.width > maxWidth && currentLine) {
       lines.push(currentLine);
       currentLine = word;
     } else {
@@ -43,13 +49,13 @@ const calculateExactItemHeight = (ctx: CanvasRenderingContext2D, item: any): num
   
   // Set fonts for measurement
   ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
-  const nameLines = wrapTextSimple(ctx, item.name || '', 240);
+  const nameLines = wrapTextResponsive(ctx, item.name || '', 240);
   const nameHeight = nameLines.length * 24; // 16px font + 8px line spacing
   
   let descHeight = 0;
   if (hasDescription) {
     ctx.font = `400 13px ${FONTS.poppins}, sans-serif`;
-    const descLines = wrapTextSimple(ctx, item.description, 200);
+    const descLines = wrapTextResponsive(ctx, item.description, 200);
     descHeight = descLines.length * 20; // 13px font + 7px line spacing
   }
   
@@ -65,7 +71,7 @@ const calculateExactItemHeight = (ctx: CanvasRenderingContext2D, item: any): num
 };
 
 // Split categories into pages
-const splitCategoryIntoPages = (category: PriceCategory, maxItemsPerPage: number = 8): PriceCategory[] => {
+const splitCategoryIntoPages = (category: PriceCategory, maxItemsPerPage: number = 7): PriceCategory[] => {
   if (category.items.length <= maxItemsPerPage) {
     return [category];
   }
@@ -139,7 +145,7 @@ export const generateSimpleCategoryPng = async (category: PriceCategory): Promis
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
     
-    const nameLines = wrapTextSimple(ctx, item.name, canvas.width - padding * 2 - 30);
+    const nameLines = wrapTextResponsive(ctx, item.name, canvas.width - padding * 2 - 30);
     nameLines.forEach((line, lineIndex) => {
       ctx.fillText(line, padding + 15, currentY + 15 + (lineIndex * 20));
     });
@@ -157,7 +163,7 @@ export const generateSimpleCategoryPng = async (category: PriceCategory): Promis
       ctx.fillStyle = '#666666';
       ctx.font = `400 13px ${FONTS.poppins}, sans-serif`;
       
-      const descLines = wrapTextSimple(ctx, item.description, canvas.width - padding * 2 - 30);
+      const descLines = wrapTextResponsive(ctx, item.description, canvas.width - padding * 2 - 30);
       descLines.forEach((line, lineIndex) => {
         ctx.fillText(line, padding + 15, textY + (lineIndex * 18));
       });
@@ -259,7 +265,7 @@ export const generateSimpleFullPricingPng = async (categories: PriceCategory[]):
       ctx.textAlign = 'left';
       ctx.textBaseline = 'top';
       
-      const nameLines = wrapTextSimple(ctx, item.name || '', 240);
+      const nameLines = wrapTextResponsive(ctx, item.name || '', 240);
       nameLines.forEach((line, lineIndex) => {
         ctx.fillText(line, padding + 20, currentY + 15 + (lineIndex * 24));
       });
@@ -269,7 +275,7 @@ export const generateSimpleFullPricingPng = async (categories: PriceCategory[]):
         ctx.fillStyle = '#4B5563';
         ctx.font = `400 13px ${FONTS.poppins}, sans-serif`;
         
-        const descLines = wrapTextSimple(ctx, item.description, 200);
+        const descLines = wrapTextResponsive(ctx, item.description, 200);
         const descStartY = currentY + 15 + (nameLines.length * 24) + 10;
         
         descLines.forEach((line, lineIndex) => {
@@ -313,7 +319,7 @@ export const generateSimpleFullPricingPng = async (categories: PriceCategory[]):
 
 // Generate multiple category pages
 export const generateSimpleCategoryPagesAsPng = async (category: PriceCategory): Promise<Blob[]> => {
-  const pages = splitCategoryIntoPages(category, 8);
+  const pages = splitCategoryIntoPages(category, 7); // Changed from 8 to 7
   const blobs: Blob[] = [];
 
   for (const page of pages) {
