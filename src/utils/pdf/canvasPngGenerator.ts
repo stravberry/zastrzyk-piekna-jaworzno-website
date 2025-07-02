@@ -164,43 +164,53 @@ const drawRightText = (
 export const generateFullPricingPng = async (categories: PriceCategory[]): Promise<Blob> => {
   await loadGoogleFonts();
 
+  // Create temporary canvas for text measurement
+  const measureCanvas = document.createElement('canvas');
+  const measureCtx = measureCanvas.getContext('2d')!;
+  
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d')!;
+  
+  // Wait for fonts to load properly
+  await new Promise(resolve => setTimeout(resolve, 100));
   
   // Calculate canvas dimensions with dynamic item heights based on content
   const padding = 50;
   const headerHeight = 100;
   const categoryHeaderHeight = 70;
-  const baseItemRowHeight = 50; // Minimum height for items
+  const baseItemRowHeight = 60; // Minimum height for items
   const spaceBetweenCategories = 40;
   const tableHeaderHeight = 45;
   
-  // Function to calculate required height for an item based on its description
+  // Enhanced function to calculate required height for an item
   const calculateItemHeight = (item: any): number => {
-    const minHeight = 70; // Minimum height for any item
+    const minHeight = baseItemRowHeight;
     const nameColumnWidth = 240;
     const descColumnWidth = 200;
     
-    // Calculate name height
-    ctx.font = `500 16px ${FONTS.poppins}, sans-serif`;
-    const nameLines = wrapText(ctx, item.name, nameColumnWidth);
-    const nameHeight = nameLines.length * 22;
+    // Use measurement context with proper fonts
+    measureCtx.font = `500 16px ${FONTS.poppins}, sans-serif`;
+    const nameLines = wrapText(measureCtx, item.name || '', nameColumnWidth);
+    const nameHeight = nameLines.length * 22; // Line height for names
     
-    // Calculate description height if exists
     let descHeight = 0;
     if (item.description && item.description.trim() !== '') {
-      ctx.font = `400 13px ${FONTS.poppins}, sans-serif`;
-      const descLines = wrapText(ctx, item.description, descColumnWidth);
-      descHeight = descLines.length * 20;
+      measureCtx.font = `400 13px ${FONTS.poppins}, sans-serif`;
+      const descLines = wrapText(measureCtx, item.description, descColumnWidth);
+      descHeight = descLines.length * 20; // Line height for descriptions
     }
     
-    // Calculate total height needed
-    const contentHeight = nameHeight + descHeight + 30; // 30px for spacing
-    const finalHeight = Math.max(minHeight, contentHeight);
+    // Calculate total height: name + description + generous padding
+    const totalContentHeight = nameHeight + descHeight;
+    const paddingTop = 20;
+    const paddingBottom = 25;
+    const finalHeight = Math.max(minHeight, totalContentHeight + paddingTop + paddingBottom);
     
-    console.log('calculateItemHeight:', {
-      name: item.name,
+    console.log('Item height calc:', {
+      name: item.name?.substring(0, 20) + '...',
       hasDesc: !!item.description,
+      nameLines: nameLines.length,
+      descLines: item.description ? wrapText(measureCtx, item.description, descColumnWidth).length : 0,
       nameHeight,
       descHeight,
       finalHeight
@@ -209,22 +219,20 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
     return finalHeight;
   };
   
-  // Pre-calculate total height with dynamic item heights
-  let totalHeight = headerHeight + padding * 2 + 40; // Extra space at top
+  // Pre-calculate total height with proper font context
+  let totalHeight = headerHeight + padding * 2 + 40;
   
-  // Calculate exact height needed for each category and its items
   categories.forEach(category => {
     totalHeight += categoryHeaderHeight + tableHeaderHeight + spaceBetweenCategories;
     
-    // Calculate height for each item based on content
     category.items.forEach(item => {
-      // Need to set font context before calculating
-      ctx.font = `400 13px ${FONTS.poppins}, sans-serif`;
       totalHeight += calculateItemHeight(item);
     });
   });
 
-  canvas.width = 850; // Slightly wider for better proportions
+  console.log('Total canvas height:', totalHeight);
+
+  canvas.width = 850;
   canvas.height = totalHeight;
 
   // Set white background
@@ -274,27 +282,39 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
       const isEven = itemIndex % 2 === 0;
       const itemHeight = calculateItemHeight(item);
       
-      console.log('Drawing item:', item.name, 'height:', itemHeight, 'at Y:', currentY);
+      console.log('Drawing item row:', {
+        name: item.name?.substring(0, 20) + '...',
+        height: itemHeight,
+        y: currentY,
+        hasDesc: !!item.description
+      });
       
-      // Row background with rounded corners - draw for all rows with proper height
-      ctx.fillStyle = isEven ? '#FCF2F8' : '#ffffff';
+      // Row background with rounded corners - ALWAYS draw background with calculated height
+      ctx.fillStyle = isEven ? '#FCF2F8' : '#F8F9FA';
       drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, itemHeight, 6);
       
-      // Add a subtle border for debugging
-      ctx.strokeStyle = '#E5E7EB';
-      ctx.lineWidth = 1;
+      // Debug border to see actual drawn area
+      ctx.strokeStyle = isEven ? '#EC4899' : '#6B7280';
+      ctx.lineWidth = 2;
       ctx.strokeRect(padding, currentY, canvas.width - padding * 2, itemHeight);
 
-      // Service name positioned at top of row
-      ctx.fillStyle = '#333333';
-      ctx.font = `500 16px ${FONTS.poppins}, sans-serif`;
-      drawLeftText(ctx, item.name, nameColumnX, currentY + 15, 240);
+      // Service name at top-left of the row
+      ctx.fillStyle = '#1F2937';
+      ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillText(item.name || '', nameColumnX, currentY + 15);
 
-      // Description positioned below name if exists
-      if (item.description) {
-        ctx.fillStyle = '#666666';
+      // Description below the name in the description column
+      if (item.description && item.description.trim() !== '') {
+        ctx.fillStyle = '#4B5563';
         ctx.font = `400 13px ${FONTS.poppins}, sans-serif`;
-        drawLeftText(ctx, item.description, descColumnX, currentY + 35, 200); // Positioned lower
+        const descLines = wrapText(ctx, item.description, 200);
+        
+        // Draw each line of description
+        descLines.forEach((line, lineIndex) => {
+          ctx.fillText(line, descColumnX, currentY + 40 + (lineIndex * 20));
+        });
       }
 
       // Price centered vertically in row
