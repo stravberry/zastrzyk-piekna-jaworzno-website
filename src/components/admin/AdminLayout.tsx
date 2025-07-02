@@ -1,6 +1,6 @@
 
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
   BarChart3, 
@@ -16,15 +16,47 @@ import {
   FileEdit,
   LogOut,
   User,
-  Clock
+  Clock,
+  AlertTriangle,
+  CheckCircle,
+  RefreshCw
 } from "lucide-react";
 import { useAdmin } from "@/context/AdminContext";
 import { Badge } from "@/components/ui/badge";
+import { useSecureSession } from "@/hooks/useSecureSession";
+import { useSecurityMonitor } from "@/hooks/useSecurityMonitor";
 import AdminSecurityWrapper from "./AdminSecurityWrapper";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
-  const { user, userRole, logout, session } = useAdmin();
+  const navigate = useNavigate();
+  const { userRole } = useAdmin();
+  const { user, session, sessionFingerprint, forceLogout } = useSecureSession();
+  const { sessionStatus, recheckSession, logSecurityEvent, isSessionValid } = useSecurityMonitor();
+
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+
+  // Update time every second for real-time countdown
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const navigation = [
     { name: "Dashboard", href: "/admin/dashboard", icon: BarChart3 },
@@ -55,14 +87,59 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     if (!session?.expires_at) return null;
     
     const expiresAt = new Date(session.expires_at);
-    const now = new Date();
-    const timeLeft = expiresAt.getTime() - now.getTime();
+    const timeLeft = expiresAt.getTime() - currentTime.getTime();
     const minutesLeft = Math.floor(timeLeft / 60000);
+    const secondsLeft = Math.floor((timeLeft % 60000) / 1000);
     
-    return { expiresAt, minutesLeft };
+    return { 
+      expiresAt, 
+      minutesLeft, 
+      secondsLeft, 
+      timeLeft,
+      isExpiringSoon: minutesLeft < 10,
+      isCritical: minutesLeft < 5 
+    };
+  };
+
+  const handleSecureLogout = async () => {
+    try {
+      await logSecurityEvent('manual_secure_logout', 'low', {
+        timestamp: new Date().toISOString(),
+        fingerprint: sessionFingerprint?.substring(0, 8) + '...'
+      });
+
+      toast.success('Rozpoczęto bezpieczne wylogowanie...');
+      
+      // Use forceLogout which handles cleanup and redirects to homepage
+      await forceLogout();
+      
+      // Navigate to homepage (this is a fallback in case forceLogout doesn't redirect)
+      window.location.href = '/';
+      
+    } catch (error) {
+      console.error('Secure logout error:', error);
+      toast.error('Błąd podczas wylogowywania');
+      // Force redirect even if logout fails
+      window.location.href = '/';
+    }
+  };
+
+  const handleRefreshSession = async () => {
+    try {
+      await logSecurityEvent('manual_session_refresh', 'low', {
+        timestamp: new Date().toISOString()
+      });
+      
+      await recheckSession();
+      toast.success('Sesja została odświeżona');
+    } catch (error) {
+      console.error('Session refresh error:', error);
+      toast.error('Błąd podczas odświeżania sesji');
+    }
   };
 
   const sessionInfo = getSessionInfo();
+  const securityStatus = isSessionValid ? 'secure' : 'warning';
 
   return (
     <AdminSecurityWrapper>
@@ -75,28 +152,67 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </Link>
             <p className="text-sm text-gray-500 mt-1">Panel administracyjny</p>
             
-            {/* User info with security status */}
+            {/* Enhanced user info with real security status */}
             <div className="mt-4 p-3 bg-gray-50 rounded-lg">
               <div className="flex items-center space-x-2 mb-2">
                 <User className="w-4 h-4 text-gray-500" />
                 <span className="text-sm font-medium truncate">{user?.email}</span>
               </div>
-              <div className="flex items-center justify-between">
+              
+              <div className="flex items-center justify-between mb-2">
                 <Badge variant={userRole === 'admin' ? 'destructive' : 'secondary'}>
                   {userRole}
                 </Badge>
-                {sessionInfo && (
-                  <div className="flex items-center space-x-1 text-xs text-gray-500">
-                    <Clock className="w-3 h-3" />
-                    <span>{sessionInfo.minutesLeft}m</span>
-                  </div>
-                )}
+                <div className="flex items-center space-x-1">
+                  {securityStatus === 'secure' ? (
+                    <CheckCircle className="w-3 h-3 text-green-500" />
+                  ) : (
+                    <AlertTriangle className="w-3 h-3 text-yellow-500" />
+                  )}
+                  <span className="text-xs text-gray-500">
+                    {securityStatus === 'secure' ? 'Bezpieczna' : 'Ostrzeżenie'}
+                  </span>
+                </div>
               </div>
-              {sessionInfo && sessionInfo.minutesLeft < 5 && (
-                <div className="mt-2 text-xs text-orange-600">
-                  Sesja wygasa wkrótce!
+
+              {/* Real-time session countdown */}
+              {sessionInfo && (
+                <div className="space-y-2">
+                  <div className={`text-xs flex items-center space-x-1 ${
+                    sessionInfo.isCritical ? 'text-red-600 font-semibold' : 
+                    sessionInfo.isExpiringSoon ? 'text-orange-600' : 'text-gray-500'
+                  }`}>
+                    <Clock className="w-3 h-3" />
+                    <span>
+                      {sessionInfo.minutesLeft}m {sessionInfo.secondsLeft}s
+                    </span>
+                  </div>
+                  
+                  {sessionInfo.isExpiringSoon && (
+                    <div className={`text-xs ${sessionInfo.isCritical ? 'text-red-600' : 'text-orange-600'}`}>
+                      {sessionInfo.isCritical ? '⚠️ Sesja wygasa za chwilę!' : '⏰ Sesja wygasa wkrótce'}
+                    </div>
+                  )}
+                  
+                  {/* Session fingerprint (shortened) */}
+                  {sessionFingerprint && (
+                    <div className="text-xs text-gray-400">
+                      ID: {sessionFingerprint.substring(0, 8)}...
+                    </div>
+                  )}
                 </div>
               )}
+
+              {/* Session refresh button */}
+              <Button
+                onClick={handleRefreshSession}
+                variant="ghost"
+                size="sm"
+                className="w-full mt-2 text-xs h-6"
+              >
+                <RefreshCw className="w-3 h-3 mr-1" />
+                Odśwież sesję
+              </Button>
             </div>
           </div>
           
@@ -123,16 +239,41 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             })}
           </nav>
 
-          {/* Security logout button */}
+          {/* Enhanced secure logout with confirmation */}
           <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-white">
-            <Button
-              onClick={logout}
-              variant="outline"
-              className="w-full text-red-600 border-red-200 hover:bg-red-50"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Bezpieczne wylogowanie
-            </Button>
+            <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full text-red-600 border-red-200 hover:bg-red-50"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Wyloguj się bezpiecznie
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Potwierdź bezpieczne wylogowanie</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Czy na pewno chcesz się wylogować? Zostaniesz przekierowany na stronę główną.
+                    <br /><br />
+                    <span className="text-xs text-gray-500">
+                      Wszystkie dane sesji zostaną bezpiecznie wyczyszczone.
+                    </span>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleSecureLogout}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Wyloguj bezpiecznie
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
 

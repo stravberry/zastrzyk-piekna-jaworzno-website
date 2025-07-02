@@ -42,12 +42,12 @@ export const useSecureSession = (): UseSecureSessionReturn => {
       // Sign out from Supabase
       await supabase.auth.signOut({ scope: 'global' });
       
-      // Redirect to login
-      window.location.href = '/admin/login';
+      // Redirect to homepage for secure logout
+      window.location.href = '/';
     } catch (error) {
       console.error('[SECURITY] Error during forced logout:', error);
       // Force redirect even if logout fails
-      window.location.href = '/admin/login';
+      window.location.href = '/';
     }
   };
 
