@@ -50,9 +50,8 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({
     );
   }
 
-  // Redirect if not authenticated
+  // Don't render anything if redirecting
   if (!isAuthenticated) {
-    navigate("/admin/login", { replace: true });
     return null;
   }
 

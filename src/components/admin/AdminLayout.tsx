@@ -23,8 +23,6 @@ import {
 } from "lucide-react";
 import { useAdmin } from "@/context/AdminContext";
 import { Badge } from "@/components/ui/badge";
-import { useSecureSession } from "@/hooks/useSecureSession";
-import { useSecurityMonitor } from "@/hooks/useSecurityMonitor";
 import AdminSecurityWrapper from "./AdminSecurityWrapper";
 import { toast } from "sonner";
 import {
@@ -42,9 +40,7 @@ import {
 const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { userRole } = useAdmin();
-  const { user, session, sessionFingerprint, forceLogout } = useSecureSession();
-  const { sessionStatus, recheckSession, logSecurityEvent, isSessionValid } = useSecurityMonitor();
+  const { user, userRole, logout, session } = useAdmin();
 
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
@@ -103,17 +99,12 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const handleSecureLogout = async () => {
     try {
-      await logSecurityEvent('manual_secure_logout', 'low', {
-        timestamp: new Date().toISOString(),
-        fingerprint: sessionFingerprint?.substring(0, 8) + '...'
-      });
-
       toast.success('Rozpoczęto bezpieczne wylogowanie...');
       
-      // Use forceLogout which handles cleanup and redirects to homepage
-      await forceLogout();
+      // Use basic logout and redirect to homepage
+      await logout();
       
-      // Navigate to homepage (this is a fallback in case forceLogout doesn't redirect)
+      // Navigate to homepage
       window.location.href = '/';
       
     } catch (error) {
@@ -124,22 +115,8 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     }
   };
 
-  const handleRefreshSession = async () => {
-    try {
-      await logSecurityEvent('manual_session_refresh', 'low', {
-        timestamp: new Date().toISOString()
-      });
-      
-      await recheckSession();
-      toast.success('Sesja została odświeżona');
-    } catch (error) {
-      console.error('Session refresh error:', error);
-      toast.error('Błąd podczas odświeżania sesji');
-    }
-  };
-
   const sessionInfo = getSessionInfo();
-  const securityStatus = isSessionValid ? 'secure' : 'warning';
+  const securityStatus = user ? 'secure' : 'warning';
 
   return (
     <AdminSecurityWrapper>
@@ -193,26 +170,8 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                       {sessionInfo.isCritical ? '⚠️ Sesja wygasa za chwilę!' : '⏰ Sesja wygasa wkrótce'}
                     </div>
                   )}
-                  
-                  {/* Session fingerprint (shortened) */}
-                  {sessionFingerprint && (
-                    <div className="text-xs text-gray-400">
-                      ID: {sessionFingerprint.substring(0, 8)}...
-                    </div>
-                  )}
                 </div>
               )}
-
-              {/* Session refresh button */}
-              <Button
-                onClick={handleRefreshSession}
-                variant="ghost"
-                size="sm"
-                className="w-full mt-2 text-xs h-6"
-              >
-                <RefreshCw className="w-3 h-3 mr-1" />
-                Odśwież sesję
-              </Button>
             </div>
           </div>
           
