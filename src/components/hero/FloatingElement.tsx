@@ -43,7 +43,6 @@ const FloatingElement: React.FC<FloatingElementProps> = ({
           <Heart 
             size={elementSize} 
             color={color}
-            className="animate-float"
           />
         );
       case 'bubble':
@@ -51,7 +50,6 @@ const FloatingElement: React.FC<FloatingElementProps> = ({
           <Bubble 
             size={elementSize} 
             color={color}
-            className="animate-gentle-bounce"
           />
         );
       case 'flower':
@@ -59,7 +57,6 @@ const FloatingElement: React.FC<FloatingElementProps> = ({
           <Flower 
             size={elementSize} 
             color={color}
-            className="animate-slow-spin"
           />
         );
       default:
@@ -70,7 +67,7 @@ const FloatingElement: React.FC<FloatingElementProps> = ({
   return (
     <div
       style={style}
-      className="floating-element transition-transform duration-1000 ease-out"
+      className="floating-element"
     >
       {renderElement()}
     </div>

@@ -8,10 +8,6 @@ interface AnimatedBackgroundProps {
 }
 
 const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ className = '' }) => {
-  const { mouseX, mouseY, scrollY } = useParallax({
-    mouseSensitivity: 0,
-    scrollSensitivity: 0.2,
-  });
 
   const floatingElements = useFloatingElements({
     count: 6,
@@ -36,7 +32,7 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ className = '' 
           element={element}
           parallaxX={0}
           parallaxY={0}
-          scrollY={scrollY}
+          scrollY={0}
         />
       ))}
       
