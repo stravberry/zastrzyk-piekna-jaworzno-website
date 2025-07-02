@@ -57,16 +57,14 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
       // Clear canvas and reset position
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      currentY = 120; // Much larger top margin to prevent any clipping
+      currentY = 60; // Same as PNG generator
       currentPage++;
       
-      // Draw title with alphabetic baseline (most consistent across browsers)
+      // Draw title using same logic as PNG generator
       ctx.fillStyle = '#EC4899';
       ctx.font = `bold 36px ${FONTS.playfair}, serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'alphabetic'; // More reliable than 'top'
-      ctx.fillText('Cennik Usług', canvas.width / 2, currentY);
-      currentY += 100; // Larger space after title
+      drawCenteredText(ctx, 'Cennik Usług', canvas.width / 2, currentY);
+      currentY += 80; // Same spacing as PNG generator
     };
 
     // Start first page
