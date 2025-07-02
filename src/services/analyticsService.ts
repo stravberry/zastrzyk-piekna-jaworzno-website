@@ -76,8 +76,7 @@ export const getTreatmentStats = async (): Promise<TreatmentStats[]> => {
     .select(`
       cost,
       treatments!inner(name, category)
-    `)
-    .eq('status', 'completed');
+    `);
 
   const treatmentMap = new Map<string, {
     name: string;
