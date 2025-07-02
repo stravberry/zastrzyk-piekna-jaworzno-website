@@ -92,7 +92,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
       
       if (maxWidth && text && text.length > 0) {
         const lines = wrapText(text, maxWidth);
-        const lineHeight = 24;
+        const lineHeight = parseInt(ctx.font) * 1.2; // Dynamic line height based on font size
         const totalHeight = (lines.length - 1) * lineHeight;
         const startY = y - totalHeight / 2;
         
@@ -147,7 +147,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
 
     // Calculate items per page with better spacing
     const headerHeight = 140;
-    const categoryHeaderHeight = 80;
+    const categoryHeaderHeight = 90; // Increased height for better text fit
     const itemHeight = 70;
     const footerHeight = 100;
     const availableHeight = canvas.height - headerHeight - footerHeight;
@@ -189,14 +189,17 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
         startNewPage();
       }
 
-      // Draw category header with better proportions
+      // Draw category header with better proportions and adequate padding
+      const headerPadding = 80;
+      const headerTextMaxWidth = canvas.width - (headerPadding * 2);
+      
       ctx.fillStyle = '#EC4899';
       drawRoundedRect(50, currentY, canvas.width - 100, categoryHeaderHeight, 15);
       
       ctx.fillStyle = '#ffffff';
-      ctx.font = '600 28px Poppins, sans-serif';
-      drawCenteredText(category.title, canvas.width / 2, currentY + categoryHeaderHeight / 2, canvas.width - 200);
-      currentY += categoryHeaderHeight + 20; // More space after header
+      ctx.font = '600 24px Poppins, sans-serif'; // Slightly smaller font to prevent clipping
+      drawCenteredText(category.title, canvas.width / 2, currentY + categoryHeaderHeight / 2, headerTextMaxWidth);
+      currentY += categoryHeaderHeight + 25; // More space after header
 
       // Draw items
       for (let itemIndex = 0; itemIndex < category.items.length; itemIndex++) {
@@ -205,13 +208,16 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
           startNewPage();
           
           // Draw category header with better proportions on new page
+          const headerPadding = 80;
+          const headerTextMaxWidth = canvas.width - (headerPadding * 2);
+          
           ctx.fillStyle = '#EC4899';
           drawRoundedRect(50, currentY, canvas.width - 100, categoryHeaderHeight, 15);
           
           ctx.fillStyle = '#ffffff';
-          ctx.font = '600 28px Poppins, sans-serif';
-          drawCenteredText(`${category.title} (cd.)`, canvas.width / 2, currentY + categoryHeaderHeight / 2, canvas.width - 200);
-          currentY += categoryHeaderHeight + 20;
+          ctx.font = '600 24px Poppins, sans-serif'; // Consistent smaller font
+          drawCenteredText(`${category.title} (cd.)`, canvas.width / 2, currentY + categoryHeaderHeight / 2, headerTextMaxWidth);
+          currentY += categoryHeaderHeight + 25;
         }
 
         const item = category.items[itemIndex];
