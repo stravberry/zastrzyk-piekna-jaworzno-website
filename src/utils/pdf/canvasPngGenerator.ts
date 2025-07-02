@@ -56,13 +56,15 @@ const drawRoundedRect = (
   ctx.fill();
 };
 
-// Wrap text to multiple lines if needed
+// Enhanced text wrapping with better word handling
 const wrapText = (
   ctx: CanvasRenderingContext2D,
   text: string,
   maxWidth: number
 ): string[] => {
-  const words = text.split(' ');
+  if (!text || text.trim() === '') return [''];
+  
+  const words = text.split(/\s+/);
   const lines: string[] = [];
   let currentLine = '';
 
@@ -82,10 +84,10 @@ const wrapText = (
     lines.push(currentLine);
   }
   
-  return lines;
+  return lines.length > 0 ? lines : [''];
 };
 
-// Draw text with proper centering and wrapping
+// Enhanced centered text with proper multiline handling
 const drawCenteredText = (
   ctx: CanvasRenderingContext2D,
   text: string,
@@ -96,10 +98,11 @@ const drawCenteredText = (
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   
-  if (maxWidth) {
+  if (maxWidth && text.length > 0) {
     const lines = wrapText(ctx, text, maxWidth);
-    const lineHeight = 20;
-    const startY = y - ((lines.length - 1) * lineHeight) / 2;
+    const lineHeight = 22;
+    const totalHeight = (lines.length - 1) * lineHeight;
+    const startY = y - totalHeight / 2;
     
     lines.forEach((line, index) => {
       ctx.fillText(line, x, startY + (index * lineHeight));
@@ -109,7 +112,7 @@ const drawCenteredText = (
   }
 };
 
-// Draw left-aligned text with wrapping
+// Enhanced left-aligned text with better line spacing
 const drawLeftText = (
   ctx: CanvasRenderingContext2D,
   text: string,
@@ -118,21 +121,21 @@ const drawLeftText = (
   maxWidth?: number
 ): void => {
   ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
+  ctx.textBaseline = 'top';
   
-  if (maxWidth) {
+  if (maxWidth && text && text.length > 0) {
     const lines = wrapText(ctx, text, maxWidth);
-    const lineHeight = 18;
+    const lineHeight = 20;
     
     lines.forEach((line, index) => {
       ctx.fillText(line, x, y + (index * lineHeight));
     });
-  } else {
+  } else if (text) {
     ctx.fillText(text, x, y);
   }
 };
 
-// Draw right-aligned text
+// Enhanced right-aligned text
 const drawRightText = (
   ctx: CanvasRenderingContext2D,
   text: string,
@@ -142,7 +145,19 @@ const drawRightText = (
 ): void => {
   ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';
-  ctx.fillText(text, x, y, maxWidth);
+  
+  if (maxWidth && text && text.length > 0) {
+    const lines = wrapText(ctx, text, maxWidth);
+    const lineHeight = 20;
+    const totalHeight = (lines.length - 1) * lineHeight;
+    const startY = y - totalHeight / 2;
+    
+    lines.forEach((line, index) => {
+      ctx.fillText(line, x, startY + (index * lineHeight));
+    });
+  } else if (text) {
+    ctx.fillText(text, x, y);
+  }
 };
 
 // Generate full pricing table as PNG using Canvas API
@@ -152,11 +167,11 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d')!;
   
-  // Calculate canvas dimensions with better spacing
+  // Calculate canvas dimensions with better spacing for descriptions
   const padding = 50;
   const headerHeight = 100;
   const categoryHeaderHeight = 70;
-  const itemRowHeight = 55;
+  const itemRowHeight = 70; // Increased for better description display
   const spaceBetweenCategories = 40;
   const tableHeaderHeight = 45;
   
@@ -217,22 +232,24 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
         drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, itemRowHeight, 6);
       }
 
-      // Service name with better positioning
+      // Service name positioned at top of row
       ctx.fillStyle = '#333333';
       ctx.font = `500 16px ${FONTS.poppins}, sans-serif`;
-      drawLeftText(ctx, item.name, nameColumnX, currentY + itemRowHeight / 2, 260);
+      drawLeftText(ctx, item.name, nameColumnX, currentY + 12, 240);
 
-      // Description with improved spacing
+      // Description positioned below service name with more space
       if (item.description) {
         ctx.fillStyle = '#666666';
-        ctx.font = `400 14px ${FONTS.poppins}, sans-serif`;
-        drawLeftText(ctx, item.description, descColumnX, currentY + itemRowHeight / 2, 220);
+        ctx.font = `400 13px ${FONTS.poppins}, sans-serif`;
+        drawLeftText(ctx, item.description, descColumnX, currentY + 15, 200);
       }
 
-      // Price with better alignment
+      // Price centered vertically in row
       ctx.fillStyle = '#EC4899';
       ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
-      drawRightText(ctx, formatPrice(item.price), priceColumnX, currentY + itemRowHeight / 2);
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(formatPrice(item.price), priceColumnX, currentY + itemRowHeight / 2);
 
       currentY += itemRowHeight;
     });

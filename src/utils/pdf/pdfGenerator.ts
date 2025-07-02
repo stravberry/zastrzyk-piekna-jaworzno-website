@@ -61,7 +61,9 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
     };
 
     const wrapText = (text: string, maxWidth: number): string[] => {
-      const words = text.split(' ');
+      if (!text || text.trim() === '') return [''];
+      
+      const words = text.split(/\s+/);
       const lines: string[] = [];
       let currentLine = '';
 
@@ -81,38 +83,39 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
         lines.push(currentLine);
       }
       
-      return lines;
+      return lines.length > 0 ? lines : [''];
     };
 
     const drawCenteredText = (text: string, x: number, y: number, maxWidth?: number) => {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       
-      if (maxWidth) {
+      if (maxWidth && text && text.length > 0) {
         const lines = wrapText(text, maxWidth);
-        const lineHeight = 20;
-        const startY = y - ((lines.length - 1) * lineHeight) / 2;
+        const lineHeight = 24;
+        const totalHeight = (lines.length - 1) * lineHeight;
+        const startY = y - totalHeight / 2;
         
         lines.forEach((line, index) => {
           ctx.fillText(line, x, startY + (index * lineHeight));
         });
-      } else {
+      } else if (text) {
         ctx.fillText(text, x, y);
       }
     };
 
     const drawLeftText = (text: string, x: number, y: number, maxWidth?: number) => {
       ctx.textAlign = 'left';
-      ctx.textBaseline = 'middle';
+      ctx.textBaseline = 'top';
       
-      if (maxWidth) {
+      if (maxWidth && text && text.length > 0) {
         const lines = wrapText(text, maxWidth);
-        const lineHeight = 18;
+        const lineHeight = 22;
         
         lines.forEach((line, index) => {
           ctx.fillText(line, x, y + (index * lineHeight));
         });
-      } else {
+      } else if (text) {
         ctx.fillText(text, x, y);
       }
     };
@@ -120,7 +123,19 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
     const drawRightText = (text: string, x: number, y: number, maxWidth?: number) => {
       ctx.textAlign = 'right';
       ctx.textBaseline = 'middle';
-      ctx.fillText(text, x, y, maxWidth);
+      
+      if (maxWidth && text && text.length > 0) {
+        const lines = wrapText(text, maxWidth);
+        const lineHeight = 22;
+        const totalHeight = (lines.length - 1) * lineHeight;
+        const startY = y - totalHeight / 2;
+        
+        lines.forEach((line, index) => {
+          ctx.fillText(line, x, startY + (index * lineHeight));
+        });
+      } else if (text) {
+        ctx.fillText(text, x, y);
+      }
     };
 
     const formatPrice = (price: string): string => {
