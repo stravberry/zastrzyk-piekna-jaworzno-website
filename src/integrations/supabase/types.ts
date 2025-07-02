@@ -342,6 +342,59 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_replies: {
+        Row: {
+          created_at: string
+          email_id: string | null
+          id: string
+          message: string
+          original_submission_id: string
+          sent_at: string | null
+          sent_by_ip: unknown | null
+          sent_by_user_agent: string | null
+          subject: string
+          to_email: string
+          to_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email_id?: string | null
+          id?: string
+          message: string
+          original_submission_id: string
+          sent_at?: string | null
+          sent_by_ip?: unknown | null
+          sent_by_user_agent?: string | null
+          subject: string
+          to_email: string
+          to_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email_id?: string | null
+          id?: string
+          message?: string
+          original_submission_id?: string
+          sent_at?: string | null
+          sent_by_ip?: unknown | null
+          sent_by_user_agent?: string | null
+          subject?: string
+          to_email?: string
+          to_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_replies_original_submission_id_fkey"
+            columns: ["original_submission_id"]
+            isOneToOne: false
+            referencedRelation: "contact_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_submissions: {
         Row: {
           consent_given: boolean
