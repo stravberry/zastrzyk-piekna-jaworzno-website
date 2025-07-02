@@ -112,58 +112,58 @@ const SecurityDashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900">Security Dashboard</h2>
-        <p className="text-gray-600">Monitor security events and user activity</p>
+    <div className="space-y-4 sm:space-y-6">
+      <div className="space-y-2">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Security Dashboard</h2>
+        <p className="text-sm sm:text-base text-gray-600">Monitor security events and user activity</p>
       </div>
 
       {/* Security Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Users</p>
-                <p className="text-2xl font-bold">{userStats?.totalUsers || 0}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm text-gray-600 truncate">Total Users</p>
+                <p className="text-lg sm:text-2xl font-bold">{userStats?.totalUsers || 0}</p>
               </div>
-              <User className="h-8 w-8 text-gray-400" />
+              <User className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400 flex-shrink-0 ml-2" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Active Users</p>
-                <p className="text-2xl font-bold">{userStats?.activeUsers || 0}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm text-gray-600 truncate">Active Users</p>
+                <p className="text-lg sm:text-2xl font-bold">{userStats?.activeUsers || 0}</p>
               </div>
-              <CheckCircle className="h-8 w-8 text-green-500" />
+              <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-green-500 flex-shrink-0 ml-2" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Admin Users</p>
-                <p className="text-2xl font-bold">{userStats?.adminUsers || 0}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm text-gray-600 truncate">Admin Users</p>
+                <p className="text-lg sm:text-2xl font-bold">{userStats?.adminUsers || 0}</p>
               </div>
-              <Shield className="h-8 w-8 text-blue-500" />
+              <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500 flex-shrink-0 ml-2" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Recent Logins</p>
-                <p className="text-2xl font-bold">{userStats?.recentUsers || 0}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm text-gray-600 truncate">Recent Logins</p>
+                <p className="text-lg sm:text-2xl font-bold">{userStats?.recentUsers || 0}</p>
               </div>
-              <Clock className="h-8 w-8 text-orange-500" />
+              <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-orange-500 flex-shrink-0 ml-2" />
             </div>
           </CardContent>
         </Card>
@@ -171,34 +171,34 @@ const SecurityDashboard: React.FC = () => {
 
       {/* Recent Logins */}
       <Card>
-        <CardHeader>
-          <CardTitle>Ostatnie logowania</CardTitle>
-          <CardDescription>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base sm:text-lg">Ostatnie logowania</CardTitle>
+          <CardDescription className="text-sm">
             Najnowsze logowania użytkowników w systemie
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-3 sm:p-6">
           <div className="space-y-3">
             {userStats?.recentLogins && userStats.recentLogins.length > 0 ? (
               userStats.recentLogins.map((user, index) => (
-                <div key={user.user_id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <User className="h-4 w-4 text-green-500" />
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <Badge className="bg-green-100 text-green-800">Successful Login</Badge>
-                        <span className="text-sm text-gray-600">
+                <div key={user.user_id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border rounded-lg gap-3">
+                  <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+                    <User className="h-4 w-4 text-green-500 flex-shrink-0 mt-1 sm:mt-0" />
+                    <div className="min-w-0 flex-1 space-y-2">
+                      <div className="flex flex-col xs:flex-row xs:items-center gap-2">
+                        <Badge className="bg-green-100 text-green-800 text-xs w-fit">Successful Login</Badge>
+                        <span className="text-xs sm:text-sm text-gray-600">
                           {format(new Date(user.last_sign_in_at), 'MMM dd, yyyy HH:mm')}
                         </span>
                       </div>
-                      <div className="text-xs text-gray-500 mt-1 space-y-1">
-                        <div>Rola: {user.roles.join(', ')}</div>
+                      <div className="text-xs text-gray-500 space-y-1">
+                        <div className="break-words">Rola: {user.roles.join(', ')}</div>
                         <div>Status: {user.email_confirmed_at ? 'Zweryfikowany' : 'Niezweryfikowany'}</div>
                         <div>Konto utworzone: {format(new Date(user.created_at), 'MMM dd, yyyy')}</div>
                       </div>
                     </div>
                   </div>
-                  <div className="text-xs text-gray-400">
+                  <div className="text-xs text-gray-400 break-all sm:text-right">
                     {user.email}
                   </div>
                 </div>
