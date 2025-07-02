@@ -75,14 +75,14 @@ const AdminCodeSettings: React.FC = () => {
   }
 
   return (
-    <div>
-      <Alert className="mb-6 border-blue-200 bg-blue-50">
-        <InfoIcon className="h-5 w-5 text-blue-500" />
-        <AlertTitle>Optymalizacja dla Google Tag Manager</AlertTitle>
-        <AlertDescription>
+    <div className="space-y-4 sm:space-y-6">
+      <Alert className="mb-4 sm:mb-6 border-blue-200 bg-blue-50">
+        <InfoIcon className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 flex-shrink-0" />
+        <AlertTitle className="text-sm sm:text-base">Optymalizacja dla Google Tag Manager</AlertTitle>
+        <AlertDescription className="text-xs sm:text-sm mt-2">
           Strona jest wstępnie skonfigurowana do pracy z Google Tag Manager. Domyślny kod został umieszczony w obu polach. 
           Zastąp "GTM-XXXX" swoim identyfikatorem konta GTM. W panelu GTM możesz skonfigurować śledzenie następujących zdarzeń:
-          <ul className="list-disc pl-5 mt-2">
+          <ul className="list-disc pl-4 sm:pl-5 mt-2 space-y-1">
             <li>Wirtualne odsłony stron - zdarzenie "virtualPageview"</li>
             <li>Interakcje użytkownika - zdarzenie "userInteraction"</li>
             <li>Przejścia między stronami - automatycznie śledzone</li>
@@ -90,26 +90,32 @@ const AdminCodeSettings: React.FC = () => {
         </AlertDescription>
       </Alert>
       
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Własny kod HTML</CardTitle>
-          <CardDescription>
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg sm:text-xl">Własny kod HTML</CardTitle>
+          <CardDescription className="text-sm sm:text-base">
             Dodaj kod JavaScript, CSS lub inne znaczniki HTML bezpośrednio do sekcji &lt;head&gt; lub &lt;body&gt; strony.
             Jest to przydatne dla narzędzi analitycznych (Google Analytics, Facebook Pixel), skryptów konwersji i innych rozwiązań wymagających bezpośredniego dostępu do DOM.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-3 sm:p-6">
           {isLoading ? (
-            <div className="h-60 flex items-center justify-center">
-              <p className="text-muted-foreground">Ładowanie ustawień...</p>
+            <div className="h-40 sm:h-60 flex items-center justify-center">
+              <p className="text-muted-foreground text-sm sm:text-base">Ładowanie ustawień...</p>
             </div>
           ) : (
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className="mb-4">
-                    <TabsTrigger value="head">Kod nagłówka (head)</TabsTrigger>
-                    <TabsTrigger value="body">Kod treści (body)</TabsTrigger>
+                  <TabsList className="mb-4 w-full sm:w-auto grid grid-cols-2 sm:flex">
+                    <TabsTrigger value="head" className="text-xs sm:text-sm px-2 sm:px-4">
+                      <span className="hidden sm:inline">Kod nagłówka (head)</span>
+                      <span className="sm:hidden">Head</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="body" className="text-xs sm:text-sm px-2 sm:px-4">
+                      <span className="hidden sm:inline">Kod treści (body)</span>
+                      <span className="sm:hidden">Body</span>
+                    </TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="head" className="space-y-4">
@@ -118,18 +124,19 @@ const AdminCodeSettings: React.FC = () => {
                       name="headCode"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Kod nagłówka</FormLabel>
+                          <FormLabel className="text-sm sm:text-base">Kod nagłówka</FormLabel>
                           <FormControl>
                             <Textarea 
                               {...field} 
-                              rows={12} 
+                              rows={8}
+                              className="font-mono text-xs sm:text-sm min-h-[200px] sm:min-h-[300px]"
                               placeholder="<!-- Wstaw kod do sekcji head tutaj (np. tagi meta, Google Analytics) -->"
-                              className="font-mono text-sm"
                             />
                           </FormControl>
-                          <FormDescription>
+                          <FormDescription className="text-xs sm:text-sm">
                             Ten kod zostanie dodany przed zamknięciem tagu &lt;/head&gt; na wszystkich stronach.
-                            <br />
+                            <br className="hidden sm:block" />
+                            <span className="sm:hidden"> </span>
                             Tutaj umieszcza się zazwyczaj kod inicjalizacyjny Google Tag Manager.
                           </FormDescription>
                         </FormItem>
@@ -143,18 +150,19 @@ const AdminCodeSettings: React.FC = () => {
                       name="bodyCode"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Kod treści</FormLabel>
+                          <FormLabel className="text-sm sm:text-base">Kod treści</FormLabel>
                           <FormControl>
                             <Textarea 
                               {...field} 
-                              rows={12}
+                              rows={8}
+                              className="font-mono text-xs sm:text-sm min-h-[200px] sm:min-h-[300px]"
                               placeholder="<!-- Wstaw kod do sekcji body tutaj (np. czaty, dodatkowe skrypty) -->"
-                              className="font-mono text-sm"
                             />
                           </FormControl>
-                          <FormDescription>
+                          <FormDescription className="text-xs sm:text-sm">
                             Ten kod zostanie dodany przed zamknięciem tagu &lt;/body&gt; na wszystkich stronach.
-                            <br />
+                            <br className="hidden sm:block" />
+                            <span className="sm:hidden"> </span>
                             Tutaj umieszcza się zazwyczaj kod noscript Google Tag Manager oraz skrypty chatów, botów itp.
                           </FormDescription>
                         </FormItem>
@@ -163,15 +171,15 @@ const AdminCodeSettings: React.FC = () => {
                   </TabsContent>
                 </Tabs>
 
-                <CardFooter className="px-0">
+                <div className="flex justify-end pt-4 border-t">
                   <Button 
                     type="submit" 
-                    className="ml-auto bg-pink-500 hover:bg-pink-600" 
+                    className="w-full sm:w-auto bg-pink-500 hover:bg-pink-600 text-sm sm:text-base" 
                     disabled={mutation.isPending}
                   >
                     {mutation.isPending ? "Zapisywanie..." : "Zapisz zmiany"}
                   </Button>
-                </CardFooter>
+                </div>
               </form>
             </Form>
           )}
