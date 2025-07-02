@@ -84,6 +84,20 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     
     const expiresAt = new Date(session.expires_at);
     const timeLeft = expiresAt.getTime() - currentTime.getTime();
+    
+    // Jeśli sesja już wygasła
+    if (timeLeft <= 0) {
+      return {
+        expiresAt,
+        minutesLeft: 0,
+        secondsLeft: 0,
+        timeLeft: 0,
+        isExpiringSoon: true,
+        isCritical: true,
+        isExpired: true
+      };
+    }
+    
     const minutesLeft = Math.floor(timeLeft / 60000);
     const secondsLeft = Math.floor((timeLeft % 60000) / 1000);
     
@@ -93,7 +107,8 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       secondsLeft, 
       timeLeft,
       isExpiringSoon: minutesLeft < 5, // Ostrzeżenie 5 minut przed wygaśnięciem
-      isCritical: minutesLeft < 2 // Krytyczne ostrzeżenie 2 minuty przed wygaśnięciem
+      isCritical: minutesLeft < 2, // Krytyczne ostrzeżenie 2 minuty przed wygaśnięciem
+      isExpired: false
     };
   };
 
@@ -165,9 +180,14 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     </span>
                   </div>
                   
-                  {sessionInfo.isExpiringSoon && (
-                    <div className={`text-xs ${sessionInfo.isCritical ? 'text-red-600' : 'text-orange-600'}`}>
-                      {sessionInfo.isCritical ? '⚠️ Sesja wygasa za chwilę!' : '⏰ Sesja wygasa wkrótce'}
+                  {(sessionInfo.isExpiringSoon || sessionInfo.isExpired) && (
+                    <div className={`text-xs ${
+                      sessionInfo.isExpired ? 'text-red-700 font-bold' :
+                      sessionInfo.isCritical ? 'text-red-600' : 'text-orange-600'
+                    }`}>
+                      {sessionInfo.isExpired ? '🔴 Sesja wygasła!' : 
+                       sessionInfo.isCritical ? '⚠️ Sesja wygasa za chwilę!' : 
+                       '⏰ Sesja wygasa wkrótce'}
                     </div>
                   )}
                 </div>
