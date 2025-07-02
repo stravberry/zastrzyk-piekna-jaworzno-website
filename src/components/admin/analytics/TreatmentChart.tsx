@@ -84,7 +84,7 @@ const TreatmentChart: React.FC<TreatmentChartProps> = ({ data, isLoading, compac
           Najczęściej wykonywane zabiegi (Top {topTreatments.length})
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4 sm:space-y-6 p-2 pr-1 xs:p-3 xs:pr-2 sm:p-6">
+      <CardContent className="space-y-4 sm:space-y-6">
         <div className={`grid ${compact ? 'grid-cols-1' : 'grid-cols-1 xl:grid-cols-2'} gap-4 sm:gap-6`}>
           {/* Bar Chart */}
           <div className={compact ? "h-36 xs:h-44 sm:h-48 lg:h-52" : "h-48 sm:h-64 lg:h-72"}>
@@ -165,24 +165,24 @@ const TreatmentChart: React.FC<TreatmentChartProps> = ({ data, isLoading, compac
         </div>
 
         {/* Treatment Statistics Table */}
-        <div className="space-y-3 sm:space-y-4 px-2 sm:px-1 py-2 sm:py-3">
-          <h4 className="text-sm sm:text-base font-medium px-2 sm:px-1">Szczegóły zabiegów</h4>
-          <div className="space-y-2 sm:space-y-3 max-h-64 sm:max-h-80 overflow-y-auto">
+        <div className="space-y-4">
+          <h4 className="text-sm sm:text-base font-medium">Szczegóły zabiegów</h4>
+          <div className="space-y-3 max-h-64 sm:max-h-80 overflow-y-auto">
             {topTreatments.slice(0, compact ? 3 : 5).map((treatment, index) => (
-              <div key={treatment.name} className="flex items-start sm:items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg text-xs sm:text-sm mx-1 sm:mx-0 gap-3 sm:gap-4">
-                <div className="flex items-start sm:items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
+              <div key={treatment.name} className="flex items-start sm:items-center justify-between p-4 bg-gray-50 rounded-lg text-xs sm:text-sm gap-4">
+                <div className="flex items-start sm:items-center space-x-4 min-w-0 flex-1">
                   <div 
                     className="w-3 h-3 sm:w-4 sm:h-4 rounded-full flex-shrink-0 mt-1 sm:mt-0" 
                     style={{ backgroundColor: COLORS[index % COLORS.length] }}
                   ></div>
                   <div className="min-w-0 flex-1 space-y-1">
-                    <p className="font-medium text-xs xs:text-sm sm:text-base break-words leading-relaxed">{treatment.name}</p>
-                    <p className="text-[10px] xs:text-xs sm:text-sm text-gray-500 break-words leading-relaxed">{treatment.category}</p>
+                    <p className="font-medium text-xs sm:text-sm break-words leading-relaxed">{treatment.name}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500 break-words leading-relaxed">{treatment.category}</p>
                   </div>
                 </div>
-                <div className="text-right flex-shrink-0 min-w-0 space-y-1">
-                  <p className="font-medium text-xs xs:text-sm sm:text-base whitespace-nowrap">{treatment.count} zabiegów</p>
-                  <p className="text-[10px] xs:text-xs sm:text-sm text-gray-500 whitespace-nowrap">{formatCurrency(treatment.revenue)}</p>
+                <div className="text-right flex-shrink-0 space-y-1">
+                  <p className="font-medium text-xs sm:text-sm whitespace-nowrap">{treatment.count} zabiegów</p>
+                  <p className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap">{formatCurrency(treatment.revenue)}</p>
                 </div>
               </div>
             ))}
