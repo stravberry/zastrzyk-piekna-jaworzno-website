@@ -94,16 +94,14 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
 
     const drawCenteredText = (text: string, x: number, y: number, maxWidth?: number) => {
       ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
+      ctx.textBaseline = 'top'; // Changed from 'middle' to 'top' for better control
       
       if (maxWidth && text && text.length > 0) {
         const lines = wrapText(text, maxWidth);
         const lineHeight = 24; // Fixed line height for consistency
-        const totalHeight = (lines.length - 1) * lineHeight;
-        const startY = y - totalHeight / 2;
         
         lines.forEach((line, index) => {
-          ctx.fillText(line, x, startY + (index * lineHeight));
+          ctx.fillText(line, x, y + (index * lineHeight));
         });
       } else if (text) {
         ctx.fillText(text, x, y);
@@ -177,14 +175,14 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
       // Clear canvas and reset position
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      currentY = padding + 20; // Top margin
+      currentY = 60; // Increased top margin from 70 to 60
       currentPage++;
       
-      // Draw title on each page
+      // Draw title on each page with proper positioning
       ctx.fillStyle = '#EC4899';
       ctx.font = `bold 36px ${FONTS.playfair}`;
-      drawCenteredText('Cennik Usług', canvas.width / 2, currentY + 40);
-      currentY += headerHeight;
+      drawCenteredText('Cennik Usług', canvas.width / 2, currentY); // Direct position, no offset
+      currentY += 80; // Space after title
     };
 
     // Start first page
@@ -211,7 +209,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
       
       ctx.fillStyle = '#ffffff';
       ctx.font = `600 24px ${FONTS.poppins}`;
-      drawCenteredText(category.title, canvas.width / 2, currentY + categoryHeaderHeight / 2, canvas.width - padding * 4);
+      drawCenteredText(category.title, canvas.width / 2, currentY + 20, canvas.width - padding * 4); // Use top positioning
       currentY += categoryHeaderHeight;
 
       // Table headers
@@ -248,7 +246,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
           
           ctx.fillStyle = '#ffffff';
           ctx.font = `600 24px ${FONTS.poppins}`;
-          drawCenteredText(`${category.title} (cd.)`, canvas.width / 2, currentY + categoryHeaderHeight / 2, canvas.width - padding * 4);
+          drawCenteredText(`${category.title} (cd.)`, canvas.width / 2, currentY + 20, canvas.width - padding * 4); // Use top positioning
           currentY += categoryHeaderHeight;
 
           // Redraw table headers

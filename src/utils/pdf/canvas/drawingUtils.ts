@@ -63,16 +63,14 @@ export const drawCenteredText = (
   maxWidth?: number
 ): void => {
   ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
+  ctx.textBaseline = 'top'; // Changed from 'middle' to 'top' for better control
   
   if (maxWidth && text.length > 0) {
     const lines = wrapText(ctx, text, maxWidth);
     const lineHeight = 22;
-    const totalHeight = (lines.length - 1) * lineHeight;
-    const startY = y - totalHeight / 2;
     
     lines.forEach((line, index) => {
-      ctx.fillText(line, x, startY + (index * lineHeight));
+      ctx.fillText(line, x, y + (index * lineHeight));
     });
   } else {
     ctx.fillText(text, x, y);

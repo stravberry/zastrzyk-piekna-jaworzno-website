@@ -46,13 +46,13 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  let currentY = padding + 20; // Extra top margin
+  let currentY = 60; // Adequate top margin for 36px font
 
-  // Draw main title with better spacing
+  // Draw main title with proper positioning
   ctx.fillStyle = '#EC4899';
   ctx.font = `bold 36px ${FONTS.playfair}, serif`;
-  drawCenteredText(ctx, 'Cennik Usług', canvas.width / 2, currentY + 50);
-  currentY += headerHeight + 30; // More space after title
+  drawCenteredText(ctx, 'Cennik Usług', canvas.width / 2, currentY);
+  currentY += 80; // Space after title (36px font + spacing)
 
   // Draw categories
   categories.forEach((category, categoryIndex) => {
@@ -62,7 +62,7 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
     
     ctx.fillStyle = '#ffffff';
     ctx.font = `600 24px ${FONTS.poppins}, sans-serif`;
-    drawCenteredText(ctx, category.title, canvas.width / 2, currentY + categoryHeaderHeight / 2, canvas.width - padding * 4);
+    drawCenteredText(ctx, category.title, canvas.width / 2, currentY + 20, canvas.width - padding * 4); // Use top positioning
     currentY += categoryHeaderHeight;
 
     // Table headers
