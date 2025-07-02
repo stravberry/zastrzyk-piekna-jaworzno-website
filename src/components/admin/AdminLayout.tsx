@@ -92,8 +92,8 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       minutesLeft, 
       secondsLeft, 
       timeLeft,
-      isExpiringSoon: minutesLeft < 10,
-      isCritical: minutesLeft < 5 
+      isExpiringSoon: minutesLeft < 5, // Ostrzeżenie 5 minut przed wygaśnięciem
+      isCritical: minutesLeft < 2 // Krytyczne ostrzeżenie 2 minuty przed wygaśnięciem
     };
   };
 
@@ -161,7 +161,7 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   }`}>
                     <Clock className="w-3 h-3" />
                     <span>
-                      {sessionInfo.minutesLeft}m {sessionInfo.secondsLeft}s
+                      {sessionInfo.minutesLeft >= 0 ? sessionInfo.minutesLeft : 0}m {sessionInfo.secondsLeft >= 0 ? sessionInfo.secondsLeft : 0}s
                     </span>
                   </div>
                   

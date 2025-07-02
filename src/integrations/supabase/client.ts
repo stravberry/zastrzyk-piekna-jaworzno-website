@@ -13,5 +13,8 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
+    // Ustaw czas sesji na 30 minut (1800 sekund)
+    flowType: 'pkce',
+    detectSessionInUrl: true,
   }
 });
