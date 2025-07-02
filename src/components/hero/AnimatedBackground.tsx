@@ -34,8 +34,8 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ className = '' 
         <FloatingElement
           key={element.id}
           element={element}
-          parallaxX={mouseX}
-          parallaxY={mouseY}
+          parallaxX={0}
+          parallaxY={0}
           scrollY={scrollY}
         />
       ))}
@@ -51,7 +51,7 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ className = '' 
               top: `${Math.random() * 100}%`,
               animationDelay: `${Math.random() * 3}s`,
               animationDuration: `${2 + Math.random() * 2}s`,
-              transform: `translate3d(${mouseX * 0.1}px, ${mouseY * 0.1}px, 0)`,
+              transform: `translate3d(0px, 0px, 0)`,
             }}
           />
         ))}
