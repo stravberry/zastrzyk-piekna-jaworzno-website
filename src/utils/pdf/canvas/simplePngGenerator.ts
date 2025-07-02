@@ -59,13 +59,13 @@ const calculateExactItemHeight = (ctx: CanvasRenderingContext2D, item: any): num
     descHeight = descLines.length * 20; // 13px font + 7px line spacing
   }
   
-  // Simple padding calculation
+  // Simple padding calculation - reduced bottom padding for descriptions
   const topPadding = 15;
-  const bottomPadding = hasDescription ? 30 : 15; // Extra space for descriptions
-  const spaceBetweenNameAndDesc = hasDescription ? 10 : 0;
+  const bottomPadding = hasDescription ? 15 : 15; // Reduced from 30 to 15 (half the space)
+  const spaceBetweenNameAndDesc = hasDescription ? 8 : 0; // Slightly reduced spacing
   
   const totalHeight = topPadding + nameHeight + spaceBetweenNameAndDesc + descHeight + bottomPadding;
-  const minHeight = hasDescription ? 90 : 60;
+  const minHeight = hasDescription ? 80 : 60; // Reduced min height too
   
   return Math.max(totalHeight, minHeight);
 };
@@ -240,14 +240,21 @@ export const generateSimpleFullPricingPng = async (categories: PriceCategory[]):
     ctx.fillStyle = '#FDF2F8';
     drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, 45, 8);
     
+    // Better column positioning - centered within the background
+    const headerStartX = padding;
+    const headerWidth = canvas.width - padding * 2;
+    const nameColWidth = headerWidth * 0.35; // 35% width for name
+    const descColWidth = headerWidth * 0.45; // 45% width for description  
+    const priceColWidth = headerWidth * 0.2;  // 20% width for price
+    
     ctx.fillStyle = '#333333';
     ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
-    ctx.fillText('Nazwa zabiegu', padding + 20, currentY + 22);
-    ctx.fillText('Opis', padding + 270, currentY + 22);
+    ctx.fillText('Nazwa zabiegu', headerStartX + 15, currentY + 22);
+    ctx.fillText('Opis', headerStartX + nameColWidth + 15, currentY + 22);
     ctx.textAlign = 'right';
-    ctx.fillText('Cena', canvas.width - padding - 20, currentY + 22);
+    ctx.fillText('Cena', headerStartX + headerWidth - 15, currentY + 22);
     currentY += 45;
 
     // Items
@@ -259,36 +266,43 @@ export const generateSimpleFullPricingPng = async (categories: PriceCategory[]):
       ctx.fillStyle = isEven ? '#FCF2F8' : '#F8F9FA';
       drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, itemHeight, 6);
 
-      // Service name
+      // Use the same column proportions for content alignment
+      const contentStartX = padding;
+      const contentWidth = canvas.width - padding * 2;
+      const nameColWidth = contentWidth * 0.35; // 35% width for name
+      const descColX = contentStartX + nameColWidth; // Description starts after name column
+      const priceColX = contentStartX + contentWidth; // Price at the end
+      
+      // Service name - positioned in name column
       ctx.fillStyle = '#1F2937';
       ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
       ctx.textAlign = 'left';
       ctx.textBaseline = 'top';
       
-      const nameLines = wrapTextResponsive(ctx, item.name || '', 240);
+      const nameLines = wrapTextResponsive(ctx, item.name || '', nameColWidth - 20);
       nameLines.forEach((line, lineIndex) => {
-        ctx.fillText(line, padding + 20, currentY + 15 + (lineIndex * 24));
+        ctx.fillText(line, contentStartX + 15, currentY + 15 + (lineIndex * 24));
       });
 
-      // Description
+      // Description - positioned in description column
       if (item.description && item.description.trim() !== '') {
         ctx.fillStyle = '#4B5563';
         ctx.font = `400 13px ${FONTS.poppins}, sans-serif`;
         
-        const descLines = wrapTextResponsive(ctx, item.description, 200);
-        const descStartY = currentY + 15 + (nameLines.length * 24) + 10;
+        const descLines = wrapTextResponsive(ctx, item.description, contentWidth * 0.45 - 20);
+        const descStartY = currentY + 15 + (nameLines.length * 24) + 8; // Reduced spacing
         
         descLines.forEach((line, lineIndex) => {
-          ctx.fillText(line, padding + 270, descStartY + (lineIndex * 20));
+          ctx.fillText(line, descColX + 15, descStartY + (lineIndex * 18)); // Reduced line height
         });
       }
 
-      // Price
+      // Price - positioned in price column
       ctx.fillStyle = '#EC4899';
       ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
       ctx.textAlign = 'right';
       ctx.textBaseline = 'middle';
-      ctx.fillText(formatPrice(item.price), canvas.width - padding - 20, currentY + itemHeight / 2);
+      ctx.fillText(formatPrice(item.price), priceColX - 15, currentY + itemHeight / 2);
 
       currentY += itemHeight;
     });
