@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
   BarChart3, 
@@ -19,7 +19,8 @@ import {
   Clock,
   AlertTriangle,
   CheckCircle,
-  RefreshCw
+  RefreshCw,
+  Menu
 } from "lucide-react";
 import { useAdmin } from "@/context/AdminContext";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +37,19 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+  useSidebar,
+} from "@/components/ui/sidebar";
 
 const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
@@ -154,19 +168,95 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   return (
     <AdminSecurityWrapper>
-      <div className="flex h-screen bg-gray-50">
-        {/* Sidebar */}
-        <div className="w-64 bg-white shadow-sm border-r">
-          <div className="p-6">
+      <SidebarProvider>
+        <div className="min-h-screen flex w-full bg-gray-50">
+          {/* Mobile header with burger menu */}
+          <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-white border-b shadow-sm lg:hidden">
+            <div className="flex items-center justify-between h-full px-4">
+              <Link to="/" className="text-lg font-bold text-pink-600">
+                Zastrzyk Piękna
+              </Link>
+              <SidebarTrigger className="p-2" />
+            </div>
+          </header>
+
+          {/* Admin Sidebar */}
+          <AdminSidebar 
+            navigation={navigation}
+            isActive={isActive}
+            canAccessRoute={canAccessRoute}
+            user={user}
+            userRole={userRole}
+            sessionInfo={sessionInfo}
+            securityStatus={securityStatus}
+            showLogoutDialog={showLogoutDialog}
+            setShowLogoutDialog={setShowLogoutDialog}
+            handleSecureLogout={handleSecureLogout}
+          />
+
+          {/* Main content */}
+          <main className="flex-1 pt-16 lg:pt-0 overflow-auto">
+            <div className="p-4 lg:p-8">
+              {children}
+            </div>
+          </main>
+        </div>
+      </SidebarProvider>
+    </AdminSecurityWrapper>
+  );
+};
+
+// Separate AdminSidebar component for better organization
+const AdminSidebar: React.FC<{
+  navigation: any[];
+  isActive: (href: string) => boolean;
+  canAccessRoute: (route: any) => boolean;
+  user: any;
+  userRole: string;
+  sessionInfo: any;
+  securityStatus: string;
+  showLogoutDialog: boolean;
+  setShowLogoutDialog: (show: boolean) => void;
+  handleSecureLogout: () => void;
+}> = ({ 
+  navigation, 
+  isActive, 
+  canAccessRoute, 
+  user, 
+  userRole, 
+  sessionInfo, 
+  securityStatus,
+  showLogoutDialog,
+  setShowLogoutDialog,
+  handleSecureLogout 
+}) => {
+  const { state } = useSidebar();
+  const location = useLocation();
+  const currentPath = location.pathname;
+  const collapsed = state === "collapsed";
+
+  const getNavCls = (href: string) => {
+    const isActiveRoute = isActive(href);
+    return isActiveRoute 
+      ? "bg-pink-50 text-pink-700 border-r-2 border-pink-500" 
+      : "hover:bg-gray-50 text-gray-700";
+  };
+
+  return (
+    <Sidebar className={collapsed ? "w-14" : "w-64"} collapsible="icon">
+      <SidebarContent className="bg-white">
+        {/* Header - only show when not collapsed */}
+        {!collapsed && (
+          <div className="p-6 border-b">
             <Link to="/" className="text-xl font-bold text-pink-600">
               Zastrzyk Piękna
             </Link>
             <p className="text-sm text-gray-500 mt-1">Panel administracyjny</p>
             
-            {/* Enhanced user info with real security status */}
+            {/* User info */}
             <div className="mt-4 p-3 bg-gray-50 rounded-lg">
               <div className="flex items-center space-x-2 mb-2">
-                <User className="w-4 h-4 text-gray-500" />
+                <User className="w-4 h-4 text-gray-500 flex-shrink-0" />
                 <span className="text-sm font-medium truncate">{user?.email}</span>
               </div>
               
@@ -186,14 +276,14 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 </div>
               </div>
 
-              {/* Real-time session countdown */}
+              {/* Session countdown */}
               {sessionInfo && (
                 <div className="space-y-2">
                   <div className={`text-xs flex items-center space-x-1 ${
                     sessionInfo.isCritical ? 'text-red-600 font-semibold' : 
                     sessionInfo.isExpiringSoon ? 'text-orange-600' : 'text-gray-500'
                   }`}>
-                    <Clock className="w-3 h-3" />
+                    <Clock className="w-3 h-3 flex-shrink-0" />
                     <span>
                       {sessionInfo.minutesLeft >= 0 ? sessionInfo.minutesLeft : 0}m {sessionInfo.secondsLeft >= 0 ? sessionInfo.secondsLeft : 0}s
                     </span>
@@ -213,76 +303,81 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               )}
             </div>
           </div>
-          
-          <nav className="px-4 space-y-1">
-            {navigation.filter(canAccessRoute).map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                    isActive(item.href)
-                      ? "bg-pink-50 text-pink-700 border-r-2 border-pink-500"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  <Icon className="w-4 h-4 mr-3" />
-                  {item.name}
-                  {item.adminOnly && (
-                    <Shield className="w-3 h-3 ml-auto text-red-500" />
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
+        )}
 
-          {/* Enhanced secure logout with confirmation */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-white">
-            <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full text-red-600 border-red-200 hover:bg-red-50"
+        {/* Navigation */}
+        <SidebarGroup className="px-4 py-4">
+          <SidebarGroupLabel className={collapsed ? "sr-only" : ""}>
+            Menu główne
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-1">
+              {navigation.filter(canAccessRoute).map((item) => {
+                const Icon = item.icon;
+                return (
+                  <SidebarMenuItem key={item.name}>
+                    <SidebarMenuButton asChild>
+                      <NavLink 
+                        to={item.href} 
+                        className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${getNavCls(item.href)}`}
+                      >
+                        <Icon className="w-4 h-4 flex-shrink-0" />
+                        {!collapsed && (
+                          <>
+                            <span className="ml-3">{item.name}</span>
+                            {item.adminOnly && (
+                              <Shield className="w-3 h-3 ml-auto text-red-500" />
+                            )}
+                          </>
+                        )}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Logout button */}
+        <div className="mt-auto p-4 border-t">
+          <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="outline"
+                className={`w-full text-red-600 border-red-200 hover:bg-red-50 ${collapsed ? 'px-2' : ''}`}
+                size={collapsed ? "sm" : "default"}
+              >
+                <LogOut className="w-4 h-4 flex-shrink-0" />
+                {!collapsed && <span className="ml-2">Wyloguj się</span>}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Potwierdź bezpieczne wylogowanie</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Czy na pewno chcesz się wylogować? Zostaniesz przekierowany na stronę główną.
+                  <br /><br />
+                  <span className="text-xs text-gray-500">
+                    Wszystkie dane sesji zostaną bezpiecznie wyczyszczone.
+                  </span>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleSecureLogout}
+                  className="bg-red-600 hover:bg-red-700"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
-                  Wyloguj się bezpiecznie
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Potwierdź bezpieczne wylogowanie</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Czy na pewno chcesz się wylogować? Zostaniesz przekierowany na stronę główną.
-                    <br /><br />
-                    <span className="text-xs text-gray-500">
-                      Wszystkie dane sesji zostaną bezpiecznie wyczyszczone.
-                    </span>
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Anuluj</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleSecureLogout}
-                    className="bg-red-600 hover:bg-red-700"
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Wyloguj bezpiecznie
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
+                  Wyloguj bezpiecznie
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
-
-        {/* Main content */}
-        <div className="flex-1 overflow-auto">
-          <div className="p-8">
-            {children}
-          </div>
-        </div>
-      </div>
-    </AdminSecurityWrapper>
+      </SidebarContent>
+    </Sidebar>
   );
 };
 
