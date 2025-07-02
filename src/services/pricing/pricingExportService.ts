@@ -4,7 +4,7 @@ import { getPriceCategories } from "./pricingCoreService";
 import html2canvas from "html2canvas";
 import { createPdfLayoutForPng, createSingleCategoryLayoutForPng } from "@/utils/pdf/pngGenerator";
 import { generatePricingPdf, generatePricingPdfFromHtml } from "@/utils/pdf";
-import { generateFullPricingPng, generateSingleCategoryPng } from "@/utils/pdf/canvasPngGenerator";
+import { generateFullPricingPng, generateSingleCategoryPng, generateCategoryPagesAsPng } from "@/utils/pdf/canvasPngGenerator";
 import { toast } from "sonner";
 
 // Simple and reliable font preloading - removed Google Fonts for better compatibility
@@ -72,17 +72,39 @@ const downloadSingleCategoryPng = async (category: PriceCategory): Promise<void>
   console.log(`Rozpoczynam generowanie PNG dla kategorii: ${category.title}`);
   
   try {
-    // Use new Canvas API generator
-    const blob = await generateSingleCategoryPng(category);
-    
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    const date = new Date().toISOString().slice(0, 10);
-    link.download = `Zastrzyk-Piekna-${category.title.replace(/\s+/g, '-')}-${date}.png`;
-    link.click();
-    URL.revokeObjectURL(url);
-    console.log(`Pomyślnie pobrano PNG dla kategorii: ${category.title}`);
+    // Check if category has many items and needs to be split
+    if (category.items.length > 8) {
+      console.log(`Kategoria ${category.title} ma ${category.items.length} elementów, dzielę na strony`);
+      toast.info(`Kategoria "${category.title}" zostanie podzielona na strony ze względu na dużą liczbę elementów`);
+      
+      // Use multi-page generator
+      const blobs = await generateCategoryPagesAsPng(category);
+      const date = new Date().toISOString().slice(0, 10);
+      
+      // Download each page
+      blobs.forEach((blob, index) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Zastrzyk-Piekna-${category.title.replace(/\s+/g, '-')}-${index + 1}-${date}.png`;
+        link.click();
+        URL.revokeObjectURL(url);
+      });
+      
+      console.log(`Pomyślnie pobrano ${blobs.length} plików PNG dla kategorii: ${category.title}`);
+    } else {
+      // Use single-page generator
+      const blob = await generateSingleCategoryPng(category);
+      
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const date = new Date().toISOString().slice(0, 10);
+      link.download = `Zastrzyk-Piekna-${category.title.replace(/\s+/g, '-')}-${date}.png`;
+      link.click();
+      URL.revokeObjectURL(url);
+      console.log(`Pomyślnie pobrano PNG dla kategorii: ${category.title}`);
+    }
   } catch (error) {
     console.error(`Błąd Canvas API dla kategorii ${category.title}, używam fallback:`, error);
     

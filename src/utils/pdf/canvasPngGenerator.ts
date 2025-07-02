@@ -184,41 +184,44 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
   
   // Enhanced function to calculate required height for an item
   const calculateItemHeight = (item: any): number => {
-    const minHeight = 80; // Increase minimum height
+    const hasDescription = item.description && item.description.trim() !== '';
+    const minHeight = hasDescription ? 100 : 70; // Bigger minimum height for items with descriptions
     const nameColumnWidth = 240;
     const descColumnWidth = 200;
     
     // Use measurement context with proper fonts
-    measureCtx.font = `500 16px ${FONTS.poppins}, sans-serif`;
+    measureCtx.font = `600 16px ${FONTS.poppins}, sans-serif`;
     const nameLines = wrapText(measureCtx, item.name || '', nameColumnWidth);
     const nameHeight = nameLines.length * 22; // Line height for names
     
     let descHeight = 0;
-    if (item.description && item.description.trim() !== '') {
+    if (hasDescription) {
       measureCtx.font = `400 13px ${FONTS.poppins}, sans-serif`;
       const descLines = wrapText(measureCtx, item.description, descColumnWidth);
-      descHeight = descLines.length * 18; // Line height for descriptions
+      descHeight = descLines.length * 20; // Line height for descriptions
     }
     
-    // Calculate total height with proper spacing
-    const paddingTop = 15;
-    const spaceBetweenNameAndDesc = item.description && item.description.trim() ? 8 : 0;
-    const paddingBottom = item.description && item.description.trim() ? 20 : 15;
+    // Calculate total height with generous spacing for descriptions
+    const paddingTop = hasDescription ? 20 : 15;
+    const spaceBetweenNameAndDesc = hasDescription ? 12 : 0;
+    const paddingBottom = hasDescription ? 25 : 15;
     
     const totalContentHeight = nameHeight + spaceBetweenNameAndDesc + descHeight;
     const finalHeight = Math.max(minHeight, totalContentHeight + paddingTop + paddingBottom);
     
     console.log('Item height calc:', {
       name: item.name?.substring(0, 30) + '...',
-      hasDesc: !!item.description,
+      hasDesc: hasDescription,
       nameLines: nameLines.length,
-      descLines: item.description ? wrapText(measureCtx, item.description, descColumnWidth).length : 0,
+      descLines: hasDescription ? wrapText(measureCtx, item.description, descColumnWidth).length : 0,
       nameHeight,
       descHeight,
       totalContentHeight,
       finalHeight,
+      minHeight,
       paddingTop,
-      paddingBottom
+      paddingBottom,
+      spaceBetweenNameAndDesc
     });
     
     return finalHeight;
@@ -298,12 +301,15 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
       ctx.fillStyle = isEven ? '#FCF2F8' : '#F8F9FA';
       drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, itemHeight, 6);
       
-      // Debug border to see actual drawn area
-      ctx.strokeStyle = isEven ? '#EC4899' : '#6B7280';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(padding, currentY, canvas.width - padding * 2, itemHeight);
+      // Optional: Debug border to see actual drawn area (commented out for production)
+      // ctx.strokeStyle = isEven ? '#EC4899' : '#6B7280';
+      // ctx.lineWidth = 1;
+      // ctx.strokeRect(padding, currentY, canvas.width - padding * 2, itemHeight);
 
-      // Service name at top-left of the row
+      // Service name at top-left of the row with proper spacing
+      const hasDescription = item.description && item.description.trim() !== '';
+      const nameStartY = hasDescription ? currentY + 20 : currentY + 15;
+      
       ctx.fillStyle = '#1F2937';
       ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
       ctx.textAlign = 'left';
@@ -312,7 +318,7 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
       
       // Draw each line of the name
       nameLines.forEach((line, lineIndex) => {
-        ctx.fillText(line, nameColumnX, currentY + 15 + (lineIndex * 22));
+        ctx.fillText(line, nameColumnX, nameStartY + (lineIndex * 22));
       });
 
       // Description below the name with proper spacing
@@ -322,11 +328,11 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
         const descLines = wrapText(ctx, item.description, 200);
         
         // Calculate starting Y position for description (after name + spacing)
-        const nameEndY = currentY + 15 + (nameLines.length * 22) + 8;
+        const nameEndY = currentY + 20 + (nameLines.length * 22) + 12;
         
         // Draw each line of description
         descLines.forEach((line, lineIndex) => {
-          ctx.fillText(line, descColumnX, nameEndY + (lineIndex * 18));
+          ctx.fillText(line, descColumnX, nameEndY + (lineIndex * 20));
         });
       }
 
@@ -363,6 +369,43 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
       }
     }, 'image/png', 1.0);
   });
+};
+
+// Split category into pages if it has too many items
+const splitCategoryIntoPages = (category: PriceCategory, maxItemsPerPage: number = 8): PriceCategory[] => {
+  if (category.items.length <= maxItemsPerPage) {
+    return [category];
+  }
+
+  const pages: PriceCategory[] = [];
+  const totalPages = Math.ceil(category.items.length / maxItemsPerPage);
+
+  for (let i = 0; i < totalPages; i++) {
+    const startIndex = i * maxItemsPerPage;
+    const endIndex = Math.min(startIndex + maxItemsPerPage, category.items.length);
+    const pageItems = category.items.slice(startIndex, endIndex);
+
+    pages.push({
+      id: `${category.id}-page-${i + 1}`,
+      title: `${category.title} (${i + 1}/${totalPages})`,
+      items: pageItems
+    });
+  }
+
+  return pages;
+};
+
+// Generate multiple PNG files for a category if needed
+export const generateCategoryPagesAsPng = async (category: PriceCategory): Promise<Blob[]> => {
+  const pages = splitCategoryIntoPages(category, 8);
+  const blobs: Blob[] = [];
+
+  for (const page of pages) {
+    const blob = await generateSingleCategoryPng(page);
+    blobs.push(blob);
+  }
+
+  return blobs;
 };
 
 // Generate single category PNG in 9:16 format using Canvas API
