@@ -9,24 +9,34 @@ import { createPdfLayoutForPng } from "./pngGenerator";
 // Generate PDF using Canvas API similar to PNG generator for better consistency
 export const generatePricingPdf = async (categories: PriceCategory[]): Promise<Blob> => {
   try {
-    // Load fonts first
-    const loadFonts = async () => {
+    // Use the SAME font loading as PNG generator
+    const FONTS = {
+      playfair: 'Playfair Display',
+      poppins: 'Poppins'
+    };
+
+    // Load Google Fonts using FontFace API - SAME AS PNG
+    const loadGoogleFonts = async (): Promise<void> => {
       try {
-        const playfairFont = new FontFace('Playfair Display', 'url(https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap)');
-        const poppinsFont = new FontFace('Poppins', 'url(https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap)');
-        
+        // Load Playfair Display
+        const playfairFont = new FontFace(FONTS.playfair, 'url(https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap)');
         await playfairFont.load();
-        await poppinsFont.load();
-        
         document.fonts.add(playfairFont);
+
+        // Load Poppins
+        const poppinsFont = new FontFace(FONTS.poppins, 'url(https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap)');
+        await poppinsFont.load();
         document.fonts.add(poppinsFont);
+
+        console.log('Google Fonts loaded successfully');
       } catch (error) {
-        console.warn('Fonts not loaded, using system fonts');
+        console.warn('Failed to load Google Fonts, using system fonts:', error);
       }
     };
 
-    await loadFonts();
-    await new Promise(resolve => setTimeout(resolve, 100)); // Wait for font loading
+    await loadGoogleFonts();
+    // Wait for fonts to load properly - SAME AS PNG
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     const doc = new jsPDF({
       orientation: "portrait",
@@ -37,7 +47,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
     const pageWidth = 210; // A4 width in mm
     const pageHeight = 297; // A4 height in mm
     
-    // Improved canvas setup similar to PNG generator
+    // Improved canvas setup - SAME AS PNG
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d')!;
     
@@ -45,11 +55,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
     canvas.width = 850;
     canvas.height = 1200; // Taller page for better fitting
     
-    // Helper functions adapted from PNG generator
-    const FONTS = {
-      playfair: "'Playfair Display', serif",
-      poppins: "'Poppins', sans-serif"
-    };
+    // Helper functions adapted from PNG generator - EXACTLY THE SAME
 
     const drawRoundedRect = (x: number, y: number, width: number, height: number, radius: number = 8) => {
       ctx.beginPath();
@@ -175,14 +181,14 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
       // Clear canvas and reset position
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      currentY = 60; // Increased top margin from 70 to 60
+      currentY = 60; // Adequate top margin for 36px font - SAME AS PNG
       currentPage++;
       
-      // Draw title on each page with proper positioning
+      // Draw title on each page with proper positioning - SAME AS PNG
       ctx.fillStyle = '#EC4899';
-      ctx.font = `bold 36px ${FONTS.playfair}`;
-      drawCenteredText('Cennik Usług', canvas.width / 2, currentY); // Direct position, no offset
-      currentY += 80; // Space after title
+      ctx.font = `bold 36px ${FONTS.playfair}, serif`;
+      drawCenteredText('Cennik Usług', canvas.width / 2, currentY);
+      currentY += 80; // Space after title (36px font + spacing) - SAME AS PNG
     };
 
     // Start first page
@@ -208,8 +214,8 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
       drawRoundedRect(padding, currentY, canvas.width - padding * 2, categoryHeaderHeight, 12);
       
       ctx.fillStyle = '#ffffff';
-      ctx.font = `600 24px ${FONTS.poppins}`;
-      drawCenteredText(category.title, canvas.width / 2, currentY + 20, canvas.width - padding * 4); // Use top positioning
+      ctx.font = `600 24px ${FONTS.poppins}, sans-serif`;
+      drawCenteredText(category.title, canvas.width / 2, currentY + 20, canvas.width - padding * 4); // SAME AS PNG
       currentY += categoryHeaderHeight;
 
       // Table headers
@@ -222,7 +228,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
       drawRoundedRect(padding, currentY, canvas.width - padding * 2, tableHeaderHeight, 8);
       
       ctx.fillStyle = '#333333';
-      ctx.font = `600 16px ${FONTS.poppins}`;
+      ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
       ctx.fillText('Nazwa zabiegu', nameColumnX, currentY + tableHeaderHeight / 2);
@@ -245,8 +251,8 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
           drawRoundedRect(padding, currentY, canvas.width - padding * 2, categoryHeaderHeight, 12);
           
           ctx.fillStyle = '#ffffff';
-          ctx.font = `600 24px ${FONTS.poppins}`;
-          drawCenteredText(`${category.title} (cd.)`, canvas.width / 2, currentY + 20, canvas.width - padding * 4); // Use top positioning
+          ctx.font = `600 24px ${FONTS.poppins}, sans-serif`;
+          drawCenteredText(`${category.title} (cd.)`, canvas.width / 2, currentY + 20, canvas.width - padding * 4); // SAME AS PNG
           currentY += categoryHeaderHeight;
 
           // Redraw table headers
@@ -254,7 +260,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
           drawRoundedRect(padding, currentY, canvas.width - padding * 2, tableHeaderHeight, 8);
           
           ctx.fillStyle = '#333333';
-          ctx.font = `600 16px ${FONTS.poppins}`;
+          ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
           ctx.textAlign = 'left';
           ctx.textBaseline = 'middle';
           ctx.fillText('Nazwa zabiegu', nameColumnX, currentY + tableHeaderHeight / 2);
@@ -275,7 +281,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
         const nameStartY = hasDescription ? currentY + 25 : currentY + 15;
         
         ctx.fillStyle = '#1F2937';
-        ctx.font = `600 16px ${FONTS.poppins}`;
+        ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
         drawLeftText(item.name, nameColumnX, nameStartY, 240);
 
         // Description
@@ -284,13 +290,13 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
           const nameEndY = currentY + 25 + (nameLines.length * 22) + 15;
           
           ctx.fillStyle = '#4B5563';
-          ctx.font = `400 13px ${FONTS.poppins}`;
+          ctx.font = `400 13px ${FONTS.poppins}, sans-serif`;
           drawLeftText(item.description, descColumnX, nameEndY, 200);
         }
 
         // Price
         ctx.fillStyle = '#EC4899';
-        ctx.font = `600 16px ${FONTS.poppins}`;
+        ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
         drawRightText(formatPrice(item.price), priceColumnX, currentY + itemHeight / 2);
 
         currentY += itemHeight;
@@ -305,7 +311,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
     // Footer
     currentY += 40;
     ctx.fillStyle = '#666666';
-    ctx.font = `400 12px ${FONTS.poppins}`;
+    ctx.font = `400 12px ${FONTS.poppins}, sans-serif`;
     drawCenteredText('Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej', canvas.width / 2, currentY);
     currentY += 20;
     drawCenteredText(`Wygenerowano ${new Date().toLocaleDateString('pl-PL')}`, canvas.width / 2, currentY);
