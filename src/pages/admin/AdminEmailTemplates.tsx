@@ -141,14 +141,14 @@ const AdminEmailTemplates: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 px-4 sm:px-6 lg:px-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <Sparkles className="w-8 h-8 text-pink-500" />
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
+            <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-pink-500" />
             Szablony Email
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm sm:text-base">
             Zarządzaj eleganckimi szablonami wiadomości email wysyłanych do pacjentów
           </p>
         </div>
@@ -158,43 +158,44 @@ const AdminEmailTemplates: React.FC = () => {
         }} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
         {/* Lista szablonów */}
-        <Card>
+        <Card className="w-full">
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div>
-                <CardTitle className="flex items-center gap-2">
-                  <Mail className="w-5 h-5" />
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                  <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
                   Dostępne szablony
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-sm">
                   Wybierz szablon do edycji lub podglądu
                 </CardDescription>
               </div>
-              <Button size="sm" variant="outline">
+              <Button size="sm" variant="outline" className="w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
-                Nowy szablon
+                <span className="hidden xs:inline">Nowy szablon</span>
+                <span className="xs:hidden">Nowy</span>
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-3 p-4 sm:p-6">
             {templates?.map((template) => (
               <div
                 key={template.id}
-                className={`p-4 border rounded-lg cursor-pointer transition-all hover:shadow-md ${
+                className={`p-3 sm:p-4 border rounded-lg cursor-pointer transition-all hover:shadow-md ${
                   selectedTemplate?.id === template.id 
                     ? 'border-pink-300 bg-gradient-to-r from-pink-50 to-rose-50 shadow-sm' 
                     : 'hover:bg-gray-50 border-gray-200'
                 }`}
                 onClick={() => setSelectedTemplate(template)}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl">{getTemplateIcon(template.name)}</span>
-                    <h4 className="font-medium">{template.name}</h4>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-xl sm:text-2xl">{getTemplateIcon(template.name)}</span>
+                    <h4 className="font-medium text-sm sm:text-base truncate">{template.name}</h4>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <Badge variant={template.is_active ? "default" : "secondary"} className="text-xs">
                       {template.is_active ? "Aktywny" : "Nieaktywny"}
                     </Badge>
@@ -203,9 +204,9 @@ const AdminEmailTemplates: React.FC = () => {
                     </Badge>
                   </div>
                 </div>
-                <p className="text-sm text-gray-600 mb-2 font-medium">{template.subject}</p>
+                <p className="text-sm text-gray-600 mb-2 font-medium break-words">{template.subject}</p>
                 <p className="text-xs text-gray-500 mb-3">{getTemplateDescription(template.name)}</p>
-                <div className="flex gap-2">
+                <div className="flex flex-col xs:flex-row gap-2">
                   <Button 
                     size="sm" 
                     variant="outline"
@@ -214,7 +215,7 @@ const AdminEmailTemplates: React.FC = () => {
                       setSelectedTemplate(template);
                       setIsEditing(true);
                     }}
-                    className="text-xs"
+                    className="text-xs flex-1 xs:flex-initial"
                   >
                     <Edit className="w-3 h-3 mr-1" />
                     Edytuj
@@ -226,7 +227,7 @@ const AdminEmailTemplates: React.FC = () => {
                       e.stopPropagation();
                       setSelectedTemplate(template);
                     }}
-                    className="text-xs"
+                    className="text-xs flex-1 xs:flex-initial"
                   >
                     <Eye className="w-3 h-3 mr-1" />
                     Podgląd
@@ -249,26 +250,27 @@ const AdminEmailTemplates: React.FC = () => {
 
         {/* Edytor/Podgląd szablonu */}
         {selectedTemplate && (
-          <Card>
+          <Card className="w-full">
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    {isEditing ? <Edit className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    {isEditing ? 'Edycja szablonu' : 'Podgląd szablonu'}
-                    <span className="text-2xl ml-2">{getTemplateIcon(selectedTemplate.name)}</span>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                    {isEditing ? <Edit className="w-4 h-4 sm:w-5 sm:h-5" /> : <Eye className="w-4 h-4 sm:w-5 sm:h-5" />}
+                    <span className="truncate">{isEditing ? 'Edycja szablonu' : 'Podgląd szablonu'}</span>
+                    <span className="text-xl sm:text-2xl ml-2">{getTemplateIcon(selectedTemplate.name)}</span>
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-sm break-words">
                     {selectedTemplate.name} - {getTemplateDescription(selectedTemplate.name)}
                   </CardDescription>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col xs:flex-row gap-2 w-full sm:w-auto">
                   {isEditing ? (
                     <>
                       <Button 
                         size="sm" 
                         variant="outline"
                         onClick={() => setIsEditing(false)}
+                        className="flex-1 xs:flex-initial"
                       >
                         Anuluj
                       </Button>
@@ -281,7 +283,7 @@ const AdminEmailTemplates: React.FC = () => {
                           is_active: selectedTemplate.is_active
                         })}
                         disabled={updateTemplate.isPending}
-                        className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600"
+                        className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 flex-1 xs:flex-initial"
                       >
                         <Save className="w-4 h-4 mr-2" />
                         Zapisz
@@ -291,7 +293,7 @@ const AdminEmailTemplates: React.FC = () => {
                     <Button 
                       size="sm"
                       onClick={() => setIsEditing(true)}
-                      className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600"
+                      className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 w-full xs:w-auto"
                     >
                       <Edit className="w-4 h-4 mr-2" />
                       Edytuj
@@ -300,22 +302,22 @@ const AdminEmailTemplates: React.FC = () => {
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 sm:p-6">
               <Tabs defaultValue="preview" className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="preview">Podgląd</TabsTrigger>
-                  <TabsTrigger value="content">Treść</TabsTrigger>
-                  <TabsTrigger value="settings">Ustawienia</TabsTrigger>
-                  <TabsTrigger value="test">Test</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
+                  <TabsTrigger value="preview" className="text-xs sm:text-sm">Podgląd</TabsTrigger>
+                  <TabsTrigger value="content" className="text-xs sm:text-sm">Treść</TabsTrigger>
+                  <TabsTrigger value="settings" className="text-xs sm:text-sm">Ustawienia</TabsTrigger>
+                  <TabsTrigger value="test" className="text-xs sm:text-sm">Test</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="preview" className="mt-4">
                   <div className="space-y-4">
                     <div className="p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border">
                       <p className="text-sm font-medium mb-2 text-blue-800">📋 Przykładowe dane:</p>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                         {Object.entries(previewData).map(([key, value]) => (
-                          <div key={key} className="text-blue-700">
+                          <div key={key} className="text-blue-700 break-words">
                             <span className="font-medium">{key}:</span> {value}
                           </div>
                         ))}
@@ -324,14 +326,14 @@ const AdminEmailTemplates: React.FC = () => {
                     
                     <div className="border rounded-lg overflow-hidden shadow-lg">
                       <div className="p-3 border-b bg-gradient-to-r from-gray-50 to-gray-100">
-                        <p className="font-medium text-sm text-gray-800">
+                        <p className="font-medium text-sm text-gray-800 break-words">
                           📧 Temat: {processTemplate(selectedTemplate.subject, previewData)}
                         </p>
                       </div>
-                      <div className="max-h-96 overflow-y-auto">
+                      <div className="max-h-64 sm:max-h-96 overflow-y-auto">
                         <iframe
                           srcDoc={processTemplate(selectedTemplate.html_content, previewData)}
-                          className="w-full h-96 border-0"
+                          className="w-full h-64 sm:h-96 border-0"
                           title="Email Preview"
                         />
                       </div>
