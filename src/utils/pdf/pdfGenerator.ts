@@ -130,11 +130,11 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
       return price.trim() + ' zł';
     };
 
-    // Calculate items per page
-    const headerHeight = 120;
-    const categoryHeaderHeight = 70;
-    const itemHeight = 60;
-    const footerHeight = 80;
+    // Calculate items per page with better spacing
+    const headerHeight = 140;
+    const categoryHeaderHeight = 80;
+    const itemHeight = 70;
+    const footerHeight = 100;
     const availableHeight = canvas.height - headerHeight - footerHeight;
     
     let currentPage = 1;
@@ -151,7 +151,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
       // Clear canvas for new page
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      currentY = 40;
+      currentY = 60; // Better top margin
       currentPage++;
     };
 
@@ -159,11 +159,11 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw main title
+    // Draw main title with improved styling
     ctx.fillStyle = '#EC4899';
-    ctx.font = 'bold 36px Playfair Display, serif';
-    drawCenteredText('Cennik Usług', canvas.width / 2, 60);
-    currentY = 120;
+    ctx.font = 'bold 40px Playfair Display, serif';
+    drawCenteredText('Cennik Usług', canvas.width / 2, 80);
+    currentY = 140; // More space after title
 
     // Process categories
     for (let categoryIndex = 0; categoryIndex < categories.length; categoryIndex++) {
@@ -174,14 +174,14 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
         startNewPage();
       }
 
-      // Draw category header with rounded corners
+      // Draw category header with better proportions
       ctx.fillStyle = '#EC4899';
-      drawRoundedRect(40, currentY, canvas.width - 80, categoryHeaderHeight, 12);
+      drawRoundedRect(50, currentY, canvas.width - 100, categoryHeaderHeight, 15);
       
       ctx.fillStyle = '#ffffff';
-      ctx.font = '600 24px Poppins, sans-serif';
-      drawCenteredText(category.title, canvas.width / 2, currentY + categoryHeaderHeight / 2, canvas.width - 160);
-      currentY += categoryHeaderHeight + 10;
+      ctx.font = '600 28px Poppins, sans-serif';
+      drawCenteredText(category.title, canvas.width / 2, currentY + categoryHeaderHeight / 2, canvas.width - 200);
+      currentY += categoryHeaderHeight + 20; // More space after header
 
       // Draw items
       for (let itemIndex = 0; itemIndex < category.items.length; itemIndex++) {
@@ -189,46 +189,47 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
         if (currentY + itemHeight > availableHeight) {
           startNewPage();
           
-          // Draw category header with rounded corners
+          // Draw category header with better proportions on new page
           ctx.fillStyle = '#EC4899';
-          drawRoundedRect(40, currentY, canvas.width - 80, categoryHeaderHeight, 12);
+          drawRoundedRect(50, currentY, canvas.width - 100, categoryHeaderHeight, 15);
           
           ctx.fillStyle = '#ffffff';
-          ctx.font = '600 24px Poppins, sans-serif';
-          drawCenteredText(`${category.title} (cd.)`, canvas.width / 2, currentY + categoryHeaderHeight / 2, canvas.width - 160);
-          currentY += categoryHeaderHeight + 10;
+          ctx.font = '600 28px Poppins, sans-serif';
+          drawCenteredText(`${category.title} (cd.)`, canvas.width / 2, currentY + categoryHeaderHeight / 2, canvas.width - 200);
+          currentY += categoryHeaderHeight + 20;
         }
 
         const item = category.items[itemIndex];
         const isEven = itemIndex % 2 === 0;
         
-        // Item background with rounded corners
+        // Item background with better spacing
         ctx.fillStyle = isEven ? '#FCF2F8' : '#ffffff';
         if (isEven) {
-          drawRoundedRect(40, currentY, canvas.width - 80, itemHeight, 6);
+          drawRoundedRect(50, currentY, canvas.width - 100, itemHeight, 8);
         }
 
-        // Service name
+        // Service name with better font size
         ctx.fillStyle = '#333333';
-        ctx.font = '500 16px Poppins, sans-serif';
-        drawLeftText(item.name, 60, currentY + 20, 300);
+        ctx.font = '500 18px Poppins, sans-serif';
+        drawLeftText(item.name, 70, currentY + 25, 320);
 
-        // Description
+        // Description with improved positioning
         if (item.description) {
           ctx.fillStyle = '#666666';
-          ctx.font = '400 14px Poppins, sans-serif';
-          drawLeftText(item.description, 60, currentY + 40, 400);
+          ctx.font = '400 15px Poppins, sans-serif';
+          drawLeftText(item.description, 70, currentY + 45, 320);
         }
 
-        // Price
+        // Price with better positioning
         ctx.fillStyle = '#EC4899';
-        ctx.font = '600 16px Poppins, sans-serif';
-        drawRightText(formatPrice(item.price), canvas.width - 60, currentY + 30);
+        ctx.font = '600 18px Poppins, sans-serif';
+        drawRightText(formatPrice(item.price), canvas.width - 70, currentY + 35);
 
         currentY += itemHeight;
       }
 
-      currentY += 20; // Space between categories
+      // Add more space between categories
+      currentY += 30;
     }
 
     // Draw footer

@@ -152,32 +152,33 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d')!;
   
-  // Calculate canvas dimensions
-  const padding = 40;
-  const headerHeight = 80;
-  const categoryHeaderHeight = 60;
-  const itemRowHeight = 50;
-  const spaceBetweenCategories = 30;
+  // Calculate canvas dimensions with better spacing
+  const padding = 50;
+  const headerHeight = 100;
+  const categoryHeaderHeight = 70;
+  const itemRowHeight = 55;
+  const spaceBetweenCategories = 40;
+  const tableHeaderHeight = 45;
   
-  let totalHeight = headerHeight + padding * 2;
+  let totalHeight = headerHeight + padding * 2 + 40; // Extra space at top
   categories.forEach(category => {
-    totalHeight += categoryHeaderHeight + (category.items.length * itemRowHeight) + spaceBetweenCategories;
+    totalHeight += categoryHeaderHeight + tableHeaderHeight + (category.items.length * itemRowHeight) + spaceBetweenCategories;
   });
 
-  canvas.width = 800;
+  canvas.width = 850; // Slightly wider for better proportions
   canvas.height = totalHeight;
 
   // Set white background
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  let currentY = padding;
+  let currentY = padding + 20; // Extra top margin
 
-  // Draw main title
+  // Draw main title with better spacing
   ctx.fillStyle = '#EC4899';
-  ctx.font = `bold 32px ${FONTS.playfair}, serif`;
-  drawCenteredText(ctx, 'Cennik Usług', canvas.width / 2, currentY + 40);
-  currentY += headerHeight + 20;
+  ctx.font = `bold 36px ${FONTS.playfair}, serif`;
+  drawCenteredText(ctx, 'Cennik Usług', canvas.width / 2, currentY + 50);
+  currentY += headerHeight + 30; // More space after title
 
   // Draw categories
   categories.forEach((category, categoryIndex) => {
@@ -206,7 +207,7 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
     drawRightText(ctx, 'Cena', priceColumnX, currentY + itemRowHeight / 2);
     currentY += itemRowHeight;
 
-    // Table items
+    // Table items with improved layout
     category.items.forEach((item, itemIndex) => {
       const isEven = itemIndex % 2 === 0;
       
@@ -216,21 +217,21 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
         drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, itemRowHeight, 6);
       }
 
-      // Service name
+      // Service name with better positioning
       ctx.fillStyle = '#333333';
-      ctx.font = `500 14px ${FONTS.poppins}, sans-serif`;
-      drawLeftText(ctx, item.name, nameColumnX, currentY + itemRowHeight / 2, 230);
+      ctx.font = `500 16px ${FONTS.poppins}, sans-serif`;
+      drawLeftText(ctx, item.name, nameColumnX, currentY + itemRowHeight / 2, 260);
 
-      // Description
+      // Description with improved spacing
       if (item.description) {
         ctx.fillStyle = '#666666';
-        ctx.font = `400 13px ${FONTS.poppins}, sans-serif`;
-        drawLeftText(ctx, item.description, descColumnX, currentY + itemRowHeight / 2, 200);
+        ctx.font = `400 14px ${FONTS.poppins}, sans-serif`;
+        drawLeftText(ctx, item.description, descColumnX, currentY + itemRowHeight / 2, 220);
       }
 
-      // Price
+      // Price with better alignment
       ctx.fillStyle = '#EC4899';
-      ctx.font = `600 14px ${FONTS.poppins}, sans-serif`;
+      ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
       drawRightText(ctx, formatPrice(item.price), priceColumnX, currentY + itemRowHeight / 2);
 
       currentY += itemRowHeight;
