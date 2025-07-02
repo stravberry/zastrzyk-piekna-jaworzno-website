@@ -44,17 +44,77 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
 
     await loadFonts();
     
-    // Helper functions for text drawing
+    // Helper functions for drawing rounded rectangles and text
+    const drawRoundedRect = (x: number, y: number, width: number, height: number, radius: number = 8) => {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+      ctx.fill();
+    };
+
+    const wrapText = (text: string, maxWidth: number): string[] => {
+      const words = text.split(' ');
+      const lines: string[] = [];
+      let currentLine = '';
+
+      for (const word of words) {
+        const testLine = currentLine + (currentLine ? ' ' : '') + word;
+        const metrics = ctx.measureText(testLine);
+        
+        if (metrics.width > maxWidth && currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          currentLine = testLine;
+        }
+      }
+      
+      if (currentLine) {
+        lines.push(currentLine);
+      }
+      
+      return lines;
+    };
+
     const drawCenteredText = (text: string, x: number, y: number, maxWidth?: number) => {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(text, x, y, maxWidth);
+      
+      if (maxWidth) {
+        const lines = wrapText(text, maxWidth);
+        const lineHeight = 20;
+        const startY = y - ((lines.length - 1) * lineHeight) / 2;
+        
+        lines.forEach((line, index) => {
+          ctx.fillText(line, x, startY + (index * lineHeight));
+        });
+      } else {
+        ctx.fillText(text, x, y);
+      }
     };
 
     const drawLeftText = (text: string, x: number, y: number, maxWidth?: number) => {
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
-      ctx.fillText(text, x, y, maxWidth);
+      
+      if (maxWidth) {
+        const lines = wrapText(text, maxWidth);
+        const lineHeight = 18;
+        
+        lines.forEach((line, index) => {
+          ctx.fillText(line, x, y + (index * lineHeight));
+        });
+      } else {
+        ctx.fillText(text, x, y);
+      }
     };
 
     const drawRightText = (text: string, x: number, y: number, maxWidth?: number) => {
@@ -114,13 +174,13 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
         startNewPage();
       }
 
-      // Draw category header
+      // Draw category header with rounded corners
       ctx.fillStyle = '#EC4899';
-      ctx.fillRect(40, currentY, canvas.width - 80, categoryHeaderHeight);
+      drawRoundedRect(40, currentY, canvas.width - 80, categoryHeaderHeight, 12);
       
       ctx.fillStyle = '#ffffff';
       ctx.font = '600 24px Poppins, sans-serif';
-      drawCenteredText(category.title, canvas.width / 2, currentY + categoryHeaderHeight / 2);
+      drawCenteredText(category.title, canvas.width / 2, currentY + categoryHeaderHeight / 2, canvas.width - 160);
       currentY += categoryHeaderHeight + 10;
 
       // Draw items
@@ -129,22 +189,24 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
         if (currentY + itemHeight > availableHeight) {
           startNewPage();
           
-          // Redraw category header on new page
+          // Draw category header with rounded corners
           ctx.fillStyle = '#EC4899';
-          ctx.fillRect(40, currentY, canvas.width - 80, categoryHeaderHeight);
+          drawRoundedRect(40, currentY, canvas.width - 80, categoryHeaderHeight, 12);
           
           ctx.fillStyle = '#ffffff';
           ctx.font = '600 24px Poppins, sans-serif';
-          drawCenteredText(`${category.title} (cd.)`, canvas.width / 2, currentY + categoryHeaderHeight / 2);
+          drawCenteredText(`${category.title} (cd.)`, canvas.width / 2, currentY + categoryHeaderHeight / 2, canvas.width - 160);
           currentY += categoryHeaderHeight + 10;
         }
 
         const item = category.items[itemIndex];
         const isEven = itemIndex % 2 === 0;
         
-        // Item background
+        // Item background with rounded corners
         ctx.fillStyle = isEven ? '#FCF2F8' : '#ffffff';
-        ctx.fillRect(40, currentY, canvas.width - 80, itemHeight);
+        if (isEven) {
+          drawRoundedRect(40, currentY, canvas.width - 80, itemHeight, 6);
+        }
 
         // Service name
         ctx.fillStyle = '#333333';

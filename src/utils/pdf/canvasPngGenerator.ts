@@ -33,7 +33,59 @@ const formatPrice = (price: string): string => {
   return price.trim() + ' zł';
 };
 
-// Draw text with precise centering
+// Draw rounded rectangle
+const drawRoundedRect = (
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number = 8
+): void => {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+  ctx.fill();
+};
+
+// Wrap text to multiple lines if needed
+const wrapText = (
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number
+): string[] => {
+  const words = text.split(' ');
+  const lines: string[] = [];
+  let currentLine = '';
+
+  for (const word of words) {
+    const testLine = currentLine + (currentLine ? ' ' : '') + word;
+    const metrics = ctx.measureText(testLine);
+    
+    if (metrics.width > maxWidth && currentLine) {
+      lines.push(currentLine);
+      currentLine = word;
+    } else {
+      currentLine = testLine;
+    }
+  }
+  
+  if (currentLine) {
+    lines.push(currentLine);
+  }
+  
+  return lines;
+};
+
+// Draw text with proper centering and wrapping
 const drawCenteredText = (
   ctx: CanvasRenderingContext2D,
   text: string,
@@ -43,10 +95,21 @@ const drawCenteredText = (
 ): void => {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(text, x, y, maxWidth);
+  
+  if (maxWidth) {
+    const lines = wrapText(ctx, text, maxWidth);
+    const lineHeight = 20;
+    const startY = y - ((lines.length - 1) * lineHeight) / 2;
+    
+    lines.forEach((line, index) => {
+      ctx.fillText(line, x, startY + (index * lineHeight));
+    });
+  } else {
+    ctx.fillText(text, x, y);
+  }
 };
 
-// Draw left-aligned text
+// Draw left-aligned text with wrapping
 const drawLeftText = (
   ctx: CanvasRenderingContext2D,
   text: string,
@@ -56,7 +119,17 @@ const drawLeftText = (
 ): void => {
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
-  ctx.fillText(text, x, y, maxWidth);
+  
+  if (maxWidth) {
+    const lines = wrapText(ctx, text, maxWidth);
+    const lineHeight = 18;
+    
+    lines.forEach((line, index) => {
+      ctx.fillText(line, x, y + (index * lineHeight));
+    });
+  } else {
+    ctx.fillText(text, x, y);
+  }
 };
 
 // Draw right-aligned text
@@ -108,13 +181,13 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
 
   // Draw categories
   categories.forEach((category, categoryIndex) => {
-    // Category header
+    // Category header with rounded corners
     ctx.fillStyle = '#EC4899';
-    ctx.fillRect(padding, currentY, canvas.width - padding * 2, categoryHeaderHeight);
+    drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, categoryHeaderHeight, 12);
     
     ctx.fillStyle = '#ffffff';
     ctx.font = `600 24px ${FONTS.poppins}, sans-serif`;
-    drawCenteredText(ctx, category.title, canvas.width / 2, currentY + categoryHeaderHeight / 2);
+    drawCenteredText(ctx, category.title, canvas.width / 2, currentY + categoryHeaderHeight / 2, canvas.width - padding * 4);
     currentY += categoryHeaderHeight;
 
     // Table headers
@@ -124,7 +197,7 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
     const priceColumnX = canvas.width - padding - 20;
 
     ctx.fillStyle = '#FDF2F8';
-    ctx.fillRect(padding, currentY, canvas.width - padding * 2, itemRowHeight);
+    drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, itemRowHeight, 8);
     
     ctx.fillStyle = '#333333';
     ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
@@ -137,9 +210,11 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
     category.items.forEach((item, itemIndex) => {
       const isEven = itemIndex % 2 === 0;
       
-      // Row background
+      // Row background with rounded corners
       ctx.fillStyle = isEven ? '#FCF2F8' : '#ffffff';
-      ctx.fillRect(padding, currentY, canvas.width - padding * 2, itemRowHeight);
+      if (isEven) {
+        drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, itemRowHeight, 6);
+      }
 
       // Service name
       ctx.fillStyle = '#333333';
@@ -210,13 +285,13 @@ export const generateSingleCategoryPng = async (category: PriceCategory): Promis
   drawCenteredText(ctx, 'Zastrzyk Piękna', canvas.width / 2, currentY + 20);
   currentY += 60;
 
-  // Category title
+  // Category title with rounded corners
   ctx.fillStyle = '#EC4899';
-  ctx.fillRect(padding, currentY, canvas.width - padding * 2, 50);
+  drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, 50, 12);
   
   ctx.fillStyle = '#ffffff';
   ctx.font = `600 18px ${FONTS.poppins}, sans-serif`;
-  drawCenteredText(ctx, category.title, canvas.width / 2, currentY + 25);
+  drawCenteredText(ctx, category.title, canvas.width / 2, currentY + 25, canvas.width - padding * 4);
   currentY += 70;
 
   // Items
@@ -224,9 +299,11 @@ export const generateSingleCategoryPng = async (category: PriceCategory): Promis
   category.items.forEach((item, index) => {
     const isEven = index % 2 === 0;
     
-    // Item background
+    // Item background with rounded corners
     ctx.fillStyle = isEven ? '#FCF2F8' : '#ffffff';
-    ctx.fillRect(padding, currentY, canvas.width - padding * 2, itemHeight);
+    if (isEven) {
+      drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, itemHeight, 8);
+    }
 
     // Service name
     ctx.fillStyle = '#333333';
