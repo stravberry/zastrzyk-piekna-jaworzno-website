@@ -75,7 +75,10 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ data, isLoading, compact = 
                 dataKey="month" 
                 className="text-[10px] sm:text-xs"
                 tick={{ fontSize: compact ? 10 : 12 }}
-                interval={compact && data.length > 6 ? 1 : 0}
+                interval={data.length > 8 ? 1 : 0}
+                angle={data.length > 6 ? -45 : 0}
+                textAnchor={data.length > 6 ? "end" : "middle"}
+                height={data.length > 6 ? 60 : 30}
               />
               <YAxis 
                 className="text-[10px] sm:text-xs"
