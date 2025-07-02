@@ -4,6 +4,7 @@ import { getPriceCategories } from "./pricingCoreService";
 import html2canvas from "html2canvas";
 import { createPdfLayoutForPng, createSingleCategoryLayoutForPng } from "@/utils/pdf/pngGenerator";
 import { generatePricingPdf, generatePricingPdfFromHtml } from "@/utils/pdf";
+import { generateFullPricingPng, generateSingleCategoryPng } from "@/utils/pdf/canvasPngGenerator";
 import { toast } from "sonner";
 
 // Simple and reliable font preloading - removed Google Fonts for better compatibility
@@ -70,71 +71,65 @@ export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => 
 const downloadSingleCategoryPng = async (category: PriceCategory): Promise<void> => {
   console.log(`Rozpoczynam generowanie PNG dla kategorii: ${category.title}`);
   
-  // Preload fonts before starting
-  await preloadFonts();
-  
-  const tempContainer = document.createElement('div');
-  tempContainer.style.position = 'absolute';
-  tempContainer.style.left = '-9999px';
-  tempContainer.style.width = '450px'; // 9:16 aspect ratio width
-  tempContainer.style.height = '800px'; // 9:16 aspect ratio height
-  document.body.appendChild(tempContainer);
-  
   try {
-    // Use single category layout
-    tempContainer.innerHTML = createSingleCategoryLayoutForPng(category);
+    // Use new Canvas API generator
+    const blob = await generateSingleCategoryPng(category);
     
-    console.log(`Czekam na renderowanie kategorii: ${category.title}`);
-    // Wait longer for fonts and rendering
-    await new Promise(r => setTimeout(r, 2000));
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const date = new Date().toISOString().slice(0, 10);
+    link.download = `Zastrzyk-Piekna-${category.title.replace(/\s+/g, '-')}-${date}.png`;
+    link.click();
+    URL.revokeObjectURL(url);
+    console.log(`Pomyślnie pobrano PNG dla kategorii: ${category.title}`);
+  } catch (error) {
+    console.error(`Błąd Canvas API dla kategorii ${category.title}, używam fallback:`, error);
     
-    console.log(`Tworzę canvas dla kategorii: ${category.title}`);
-    // Convert to canvas with simplified settings
-    const canvas = await html2canvas(tempContainer, {
-      scale: 2,
-      backgroundColor: '#ffffff',
-      logging: false,
-      allowTaint: true,
-      useCORS: false,
-      width: 450,
-      height: 800,
-      onclone: (clonedDocument, clonedElement) => {
-        // Simple font override without external fonts
-        const styleTag = clonedDocument.createElement('style');
-        styleTag.innerHTML = `
-          * { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important; 
-            text-rendering: optimizeLegibility !important;
-            -webkit-font-smoothing: antialiased !important;
+    // Fallback to old html2canvas method
+    await preloadFonts();
+    
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.width = '450px';
+    tempContainer.style.height = '800px';
+    document.body.appendChild(tempContainer);
+    
+    try {
+      tempContainer.innerHTML = createSingleCategoryLayoutForPng(category);
+      await new Promise(r => setTimeout(r, 2000));
+      
+      const canvas = await html2canvas(tempContainer, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        logging: false,
+        allowTaint: true,
+        useCORS: false,
+        width: 450,
+        height: 800,
+      });
+      
+      return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            const date = new Date().toISOString().slice(0, 10);
+            link.download = `Zastrzyk-Piekna-${category.title.replace(/\s+/g, '-')}-${date}.png`;
+            link.click();
+            URL.revokeObjectURL(url);
+            console.log(`Pomyślnie pobrano PNG dla kategorii (fallback): ${category.title}`);
+            resolve();
+          } else {
+            reject(new Error("Nie udało się utworzyć obrazu"));
           }
-        `;
-        clonedDocument.head.appendChild(styleTag);
-        return clonedElement;
-      }
-    });
-    
-    console.log(`Konwertuję do blob kategorię: ${category.title}`);
-    // Convert to blob and download
-    return new Promise((resolve, reject) => {
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          const date = new Date().toISOString().slice(0, 10);
-          link.download = `Zastrzyk-Piekna-${category.title.replace(/\s+/g, '-')}-${date}.png`;
-          link.click();
-          URL.revokeObjectURL(url);
-          console.log(`Pomyślnie pobrano PNG dla kategorii: ${category.title}`);
-          resolve();
-        } else {
-          console.error(`Nie udało się utworzyć blob dla kategorii: ${category.title}`);
-          reject(new Error("Nie udało się utworzyć obrazu"));
-        }
-      }, 'image/png', 1.0);
-    });
-  } finally {
-    document.body.removeChild(tempContainer);
+        }, 'image/png', 1.0);
+      });
+    } finally {
+      document.body.removeChild(tempContainer);
+    }
   }
 };
 
@@ -142,68 +137,62 @@ const downloadSingleCategoryPng = async (category: PriceCategory): Promise<void>
 const downloadFullPricingTablePng = async (categories: PriceCategory[]): Promise<void> => {
   console.log('Rozpoczynam generowanie PNG dla pełnego cennika');
   
-  // Preload fonts before starting
-  await preloadFonts();
-  
-  const tempContainer = document.createElement('div');
-  tempContainer.style.position = 'absolute';
-  tempContainer.style.left = '-9999px';
-  tempContainer.style.width = '800px';
-  document.body.appendChild(tempContainer);
-  
   try {
-    // Use full pricing layout
-    tempContainer.innerHTML = createPdfLayoutForPng(categories);
+    // Use new Canvas API generator
+    const blob = await generateFullPricingPng(categories);
     
-    console.log('Czekam na renderowanie pełnego cennika');
-    // Wait longer for fonts and rendering
-    await new Promise(r => setTimeout(r, 2500));
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const date = new Date().toISOString().slice(0, 10);
+    link.download = `Zastrzyk-Piekna-Pelny-Cennik-${date}.png`;
+    link.click();
+    URL.revokeObjectURL(url);
+    console.log('Pomyślnie pobrano PNG pełnego cennika');
+  } catch (error) {
+    console.error('Błąd Canvas API dla pełnego cennika, używam fallback:', error);
     
-    console.log('Tworzę canvas dla pełnego cennika');
-    // Convert to canvas with simplified settings
-    const canvas = await html2canvas(tempContainer, {
-      scale: 2,
-      backgroundColor: '#ffffff',
-      logging: false,
-      allowTaint: true,
-      useCORS: false,
-      onclone: (clonedDocument, clonedElement) => {
-        // Simple font override without external fonts
-        const styleTag = clonedDocument.createElement('style');
-        styleTag.innerHTML = `
-          * { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important; 
-            text-rendering: optimizeLegibility !important;
-            -webkit-font-smoothing: antialiased !important;
+    // Fallback to old html2canvas method
+    await preloadFonts();
+    
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.width = '800px';
+    document.body.appendChild(tempContainer);
+    
+    try {
+      tempContainer.innerHTML = createPdfLayoutForPng(categories);
+      await new Promise(r => setTimeout(r, 2500));
+      
+      const canvas = await html2canvas(tempContainer, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        logging: false,
+        allowTaint: true,
+        useCORS: false,
+      });
+      
+      return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            const date = new Date().toISOString().slice(0, 10);
+            link.download = `Zastrzyk-Piekna-Pelny-Cennik-${date}.png`;
+            link.click();
+            URL.revokeObjectURL(url);
+            console.log('Pomyślnie pobrano PNG pełnego cennika (fallback)');
+            resolve();
+          } else {
+            reject(new Error("Nie udało się utworzyć obrazu pełnego cennika"));
           }
-        `;
-        clonedDocument.head.appendChild(styleTag);
-        return clonedElement;
-      }
-    });
-    
-    console.log('Konwertuję pełny cennik do blob');
-    // Convert to blob and download
-    return new Promise((resolve, reject) => {
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          const date = new Date().toISOString().slice(0, 10);
-          link.download = `Zastrzyk-Piekna-Pelny-Cennik-${date}.png`;
-          link.click();
-          URL.revokeObjectURL(url);
-          console.log('Pomyślnie pobrano PNG pełnego cennika');
-          resolve();
-        } else {
-          console.error('Nie udało się utworzyć blob dla pełnego cennika');
-          reject(new Error("Nie udało się utworzyć obrazu pełnego cennika"));
-        }
-      }, 'image/png', 1.0);
-    });
-  } finally {
-    document.body.removeChild(tempContainer);
+        }, 'image/png', 1.0);
+      });
+    } finally {
+      document.body.removeChild(tempContainer);
+    }
   }
 };
 
@@ -283,13 +272,15 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
       document.body.appendChild(tempContainer);
       
       try {
-        // Use single category layout
-        tempContainer.innerHTML = createSingleCategoryLayoutForPng(targetCategory);
+        // Use new Canvas API generator first
+        return await generateSingleCategoryPng(targetCategory);
+      } catch (error) {
+        console.error('Canvas API failed, using html2canvas fallback:', error);
         
-        // Wait longer for fonts and rendering
+        // Fallback to html2canvas
+        tempContainer.innerHTML = createSingleCategoryLayoutForPng(targetCategory);
         await new Promise(r => setTimeout(r, 2000));
         
-        // Use html2canvas to convert to image with simplified settings
         const canvas = await html2canvas(tempContainer, {
           scale: 2,
           backgroundColor: '#ffffff',
@@ -298,22 +289,8 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
           useCORS: false,
           width: 450,
           height: 800,
-          onclone: (clonedDocument, clonedElement) => {
-            // Simple font override without external fonts
-            const styleTag = clonedDocument.createElement('style');
-            styleTag.innerHTML = `
-              * { 
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important; 
-                text-rendering: optimizeLegibility !important;
-                -webkit-font-smoothing: antialiased !important;
-              }
-            `;
-            clonedDocument.head.appendChild(styleTag);
-            return clonedElement;
-          }
         });
         
-        // Convert canvas to blob
         return new Promise((resolve, reject) => {
           canvas.toBlob((blob) => {
             if (blob) {
