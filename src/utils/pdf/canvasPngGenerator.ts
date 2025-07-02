@@ -184,7 +184,7 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
   
   // Enhanced function to calculate required height for an item
   const calculateItemHeight = (item: any): number => {
-    const minHeight = baseItemRowHeight;
+    const minHeight = 80; // Increase minimum height
     const nameColumnWidth = 240;
     const descColumnWidth = 200;
     
@@ -197,23 +197,28 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
     if (item.description && item.description.trim() !== '') {
       measureCtx.font = `400 13px ${FONTS.poppins}, sans-serif`;
       const descLines = wrapText(measureCtx, item.description, descColumnWidth);
-      descHeight = descLines.length * 20; // Line height for descriptions
+      descHeight = descLines.length * 18; // Line height for descriptions
     }
     
-    // Calculate total height: name + description + generous padding
-    const totalContentHeight = nameHeight + descHeight;
-    const paddingTop = 20;
-    const paddingBottom = 25;
+    // Calculate total height with proper spacing
+    const paddingTop = 15;
+    const spaceBetweenNameAndDesc = item.description && item.description.trim() ? 8 : 0;
+    const paddingBottom = item.description && item.description.trim() ? 20 : 15;
+    
+    const totalContentHeight = nameHeight + spaceBetweenNameAndDesc + descHeight;
     const finalHeight = Math.max(minHeight, totalContentHeight + paddingTop + paddingBottom);
     
     console.log('Item height calc:', {
-      name: item.name?.substring(0, 20) + '...',
+      name: item.name?.substring(0, 30) + '...',
       hasDesc: !!item.description,
       nameLines: nameLines.length,
       descLines: item.description ? wrapText(measureCtx, item.description, descColumnWidth).length : 0,
       nameHeight,
       descHeight,
-      finalHeight
+      totalContentHeight,
+      finalHeight,
+      paddingTop,
+      paddingBottom
     });
     
     return finalHeight;
@@ -303,17 +308,25 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
       ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
       ctx.textAlign = 'left';
       ctx.textBaseline = 'top';
-      ctx.fillText(item.name || '', nameColumnX, currentY + 15);
+      const nameLines = wrapText(ctx, item.name || '', 240);
+      
+      // Draw each line of the name
+      nameLines.forEach((line, lineIndex) => {
+        ctx.fillText(line, nameColumnX, currentY + 15 + (lineIndex * 22));
+      });
 
-      // Description below the name in the description column
+      // Description below the name with proper spacing
       if (item.description && item.description.trim() !== '') {
         ctx.fillStyle = '#4B5563';
         ctx.font = `400 13px ${FONTS.poppins}, sans-serif`;
         const descLines = wrapText(ctx, item.description, 200);
         
+        // Calculate starting Y position for description (after name + spacing)
+        const nameEndY = currentY + 15 + (nameLines.length * 22) + 8;
+        
         // Draw each line of description
         descLines.forEach((line, lineIndex) => {
-          ctx.fillText(line, descColumnX, currentY + 40 + (lineIndex * 20));
+          ctx.fillText(line, descColumnX, nameEndY + (lineIndex * 18));
         });
       }
 
