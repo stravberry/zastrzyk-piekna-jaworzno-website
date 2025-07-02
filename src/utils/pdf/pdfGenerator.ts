@@ -6,179 +6,179 @@ import { addPolishFontSupport } from "./fontSupport";
 import html2canvas from "html2canvas";
 import { createPdfLayoutForPng } from "./pngGenerator";
 
-// Generate PDF for pricing data using jsPDF and autoTable with improved page breaks
+// Generate PDF using Canvas API similar to PNG generator for better consistency
 export const generatePricingPdf = async (categories: PriceCategory[]): Promise<Blob> => {
   try {
-    // Create PDF with larger page format for better readability
     const doc = new jsPDF({
       orientation: "portrait",
-      unit: "mm",
+      unit: "mm", 
       format: "a4",
-      putOnlyUsedFonts: true,
     });
+
+    const pageWidth = 210; // A4 width in mm
+    const pageHeight = 297; // A4 height in mm
+    const margin = 20;
+    const contentWidth = pageWidth - (margin * 2);
     
-    // Add support for Polish characters
-    await addPolishFontSupport(doc);
-    
-    const pageHeight = doc.internal.pageSize.height;
-    const pageWidth = doc.internal.pageSize.width;
-    
-    // Reduced margins for more content space
-    const leftMargin = 15;
-    const rightMargin = 15;
-    const topMargin = 20;
-    const bottomMargin = 20;
-    const contentWidth = pageWidth - leftMargin - rightMargin;
-    
-    // Main title with top margin
-    doc.setFontSize(24);
-    doc.setTextColor(236, 72, 153); // Pink color for title
-    doc.text("Cennik Usług", pageWidth / 2, topMargin + 10, { align: "center" });
-    
-    let yPosition = topMargin + 25;
-    
-    // Function to estimate category height with margins
-    const estimateCategoryHeight = (category: PriceCategory): number => {
-      const headerHeight = 15;
-      const tableHeaderHeight = 12;
-      const rowHeight = 20; // Increased row height for better spacing between rows
-      const padding = 15;
-      
-      // Calculate estimated rows (items + descriptions)
-      const estimatedRows = category.items.reduce((total, item) => {
-        return total + 1 + (item.description ? 1 : 0);
-      }, 0);
-      
-      return headerHeight + tableHeaderHeight + (estimatedRows * rowHeight) + padding;
-    };
-    
-    // Function to split category items if too large
-    const splitCategoryItems = (category: PriceCategory, maxItems: number): PriceCategory[] => {
-      if (category.items.length <= maxItems) {
-        return [category];
+    // Create canvas for each page
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+    canvas.width = 794; // A4 width in pixels at 96 DPI
+    canvas.height = 1123; // A4 height in pixels at 96 DPI
+
+    // Load fonts
+    const loadFonts = async () => {
+      try {
+        const playfairFont = new FontFace('Playfair Display', 'url(https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap)');
+        const poppinsFont = new FontFace('Poppins', 'url(https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap)');
+        
+        await playfairFont.load();
+        await poppinsFont.load();
+        
+        document.fonts.add(playfairFont);
+        document.fonts.add(poppinsFont);
+      } catch (error) {
+        console.warn('Fonts not loaded, using system fonts');
       }
-      
-      const chunks = [];
-      for (let i = 0; i < category.items.length; i += maxItems) {
-        chunks.push({
-          ...category,
-          title: i === 0 ? category.title : `${category.title} (cd.)`,
-          items: category.items.slice(i, i + maxItems)
-        });
-      }
-      return chunks;
     };
+
+    await loadFonts();
     
-    // Process each category with intelligent page breaks
-    for (const category of categories) {
-      const estimatedHeight = estimateCategoryHeight(category);
-      const remainingSpace = pageHeight - yPosition - bottomMargin;
-      
-      // If category won't fit on current page, start new page
-      if (estimatedHeight > remainingSpace && yPosition > topMargin + 50) {
+    // Helper functions for text drawing
+    const drawCenteredText = (text: string, x: number, y: number, maxWidth?: number) => {
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, x, y, maxWidth);
+    };
+
+    const drawLeftText = (text: string, x: number, y: number, maxWidth?: number) => {
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, x, y, maxWidth);
+    };
+
+    const drawRightText = (text: string, x: number, y: number, maxWidth?: number) => {
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, x, y, maxWidth);
+    };
+
+    const formatPrice = (price: string): string => {
+      if (price.toLowerCase().includes('zł')) {
+        return price;
+      }
+      return price.trim() + ' zł';
+    };
+
+    // Calculate items per page
+    const headerHeight = 120;
+    const categoryHeaderHeight = 70;
+    const itemHeight = 60;
+    const footerHeight = 80;
+    const availableHeight = canvas.height - headerHeight - footerHeight;
+    
+    let currentPage = 1;
+    let currentY = 0;
+    
+    const startNewPage = () => {
+      if (currentPage > 1) {
+        // Add current page to PDF
+        const imgData = canvas.toDataURL('image/png');
         doc.addPage();
-        yPosition = topMargin;
+        doc.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight);
       }
       
-      // If category is too large for a single page, split it
-      let categoriesToProcess = [category];
-      if (estimatedHeight > pageHeight - topMargin - bottomMargin - 20) {
-        // Estimate how many items can fit on a page with proper margins
-        const itemsPerPage = Math.floor((pageHeight - topMargin - bottomMargin - 80) / 24);
-        categoriesToProcess = splitCategoryItems(category, Math.max(itemsPerPage, 4));
-      }
+      // Clear canvas for new page
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      currentY = 40;
+      currentPage++;
+    };
+
+    // Start first page
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw main title
+    ctx.fillStyle = '#EC4899';
+    ctx.font = 'bold 36px Playfair Display, serif';
+    drawCenteredText('Cennik Usług', canvas.width / 2, 60);
+    currentY = 120;
+
+    // Process categories
+    for (let categoryIndex = 0; categoryIndex < categories.length; categoryIndex++) {
+      const category = categories[categoryIndex];
       
-      // Process each category chunk
-      for (let i = 0; i < categoriesToProcess.length; i++) {
-        const categoryChunk = categoriesToProcess[i];
-        
-        // If this is not the first chunk and we need more space, add new page
-        if (i > 0 && yPosition > pageHeight - bottomMargin - 120) {
-          doc.addPage();
-          yPosition = topMargin;
-        }
-        
-        // Category header with background
-        doc.setFillColor(236, 72, 153); // Pink background
-        doc.rect(leftMargin, yPosition - 5, contentWidth, 12, "F");
-        
-        // Category title text
-        doc.setFontSize(14);
-        doc.setTextColor(255, 255, 255); // White text
-        doc.text(categoryChunk.title, leftMargin + 5, yPosition + 2);
-        
-        yPosition += 15;
-        
-        // Create table for items with increased row spacing
-        autoTable(doc, {
-          startY: yPosition,
-          head: [["Nazwa zabiegu", "Opis", "Cena"]],
-          body: categoryChunk.items.map(item => [
-            item.name,
-            item.description || "",
-            item.price
-          ]),
-          theme: 'grid',
-          headStyles: {
-            fillColor: [253, 242, 248], // Light pink
-            textColor: [0, 0, 0],
-            fontStyle: 'bold',
-            fontSize: 12,
-            cellPadding: 10, // Increased padding for header
-          },
-          columnStyles: {
-            0: { cellWidth: contentWidth * 0.35 }, // 35% of content width
-            1: { cellWidth: contentWidth * 0.45 }, // 45% of content width
-            2: { cellWidth: contentWidth * 0.2, halign: 'right', textColor: [236, 72, 153], fontStyle: 'bold' } // 20% of content width
-          },
-          styles: {
-            font: 'helvetica', // jsPDF doesn't support custom fonts directly, but we'll use fallback
-            fontSize: 10,
-            cellPadding: 10, // Increased cell padding for more spacing between rows
-            overflow: 'linebreak',
-            minCellHeight: 22, // Increased minimum height for better row spacing
-            lineColor: [200, 200, 200],
-            lineWidth: 0.5,
-            valign: 'middle', // Improved vertical alignment
-          },
-          tableWidth: contentWidth,
-          margin: { left: leftMargin, right: rightMargin },
-          // Improved page break handling
-          rowPageBreak: 'avoid',
-          pageBreak: 'auto',
-          showHead: 'everyPage',
-          // Ensure table doesn't break too close to page bottom
-          pageBreakBefore: (cursor) => {
-            return cursor.y > pageHeight - bottomMargin - 60;
-          },
-        });
-        
-        // Update position based on table height with spacing
-        yPosition = (doc as any).lastAutoTable.finalY + 20;
-        
-        // Ensure minimum spacing before next category
-        if (i < categoriesToProcess.length - 1 && yPosition > pageHeight - bottomMargin - 80) {
-          doc.addPage();
-          yPosition = topMargin;
-        }
+      // Check if category header fits
+      if (currentY + categoryHeaderHeight + (category.items.length * itemHeight) > availableHeight) {
+        startNewPage();
       }
+
+      // Draw category header
+      ctx.fillStyle = '#EC4899';
+      ctx.fillRect(40, currentY, canvas.width - 80, categoryHeaderHeight);
+      
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '600 24px Poppins, sans-serif';
+      drawCenteredText(category.title, canvas.width / 2, currentY + categoryHeaderHeight / 2);
+      currentY += categoryHeaderHeight + 10;
+
+      // Draw items
+      for (let itemIndex = 0; itemIndex < category.items.length; itemIndex++) {
+        // Check if item fits on current page
+        if (currentY + itemHeight > availableHeight) {
+          startNewPage();
+          
+          // Redraw category header on new page
+          ctx.fillStyle = '#EC4899';
+          ctx.fillRect(40, currentY, canvas.width - 80, categoryHeaderHeight);
+          
+          ctx.fillStyle = '#ffffff';
+          ctx.font = '600 24px Poppins, sans-serif';
+          drawCenteredText(`${category.title} (cd.)`, canvas.width / 2, currentY + categoryHeaderHeight / 2);
+          currentY += categoryHeaderHeight + 10;
+        }
+
+        const item = category.items[itemIndex];
+        const isEven = itemIndex % 2 === 0;
+        
+        // Item background
+        ctx.fillStyle = isEven ? '#FCF2F8' : '#ffffff';
+        ctx.fillRect(40, currentY, canvas.width - 80, itemHeight);
+
+        // Service name
+        ctx.fillStyle = '#333333';
+        ctx.font = '500 16px Poppins, sans-serif';
+        drawLeftText(item.name, 60, currentY + 20, 300);
+
+        // Description
+        if (item.description) {
+          ctx.fillStyle = '#666666';
+          ctx.font = '400 14px Poppins, sans-serif';
+          drawLeftText(item.description, 60, currentY + 40, 400);
+        }
+
+        // Price
+        ctx.fillStyle = '#EC4899';
+        ctx.font = '600 16px Poppins, sans-serif';
+        drawRightText(formatPrice(item.price), canvas.width - 60, currentY + 30);
+
+        currentY += itemHeight;
+      }
+
+      currentY += 20; // Space between categories
     }
-    
-    // Add footer to all pages
-    const footerText = "Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej";
-    const dateText = `Wygenerowano ${new Date().toLocaleDateString('pl-PL')}`;
-    
-    const pageCount = doc.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(10);
-      doc.setTextColor(100);
-      doc.text(footerText, pageWidth / 2, pageHeight - bottomMargin + 10, { align: "center" });
-      doc.text(dateText, pageWidth / 2, pageHeight - bottomMargin + 15, { align: "center" });
-      doc.text(`Strona ${i} z ${pageCount}`, pageWidth - rightMargin, pageHeight - bottomMargin + 5, { align: "right" });
-    }
-    
-    // Return as blob
+
+    // Draw footer
+    ctx.fillStyle = '#666666';
+    ctx.font = '400 12px Poppins, sans-serif';
+    drawCenteredText('Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej', canvas.width / 2, canvas.height - 60);
+    drawCenteredText(`Wygenerowano ${new Date().toLocaleDateString('pl-PL')}`, canvas.width / 2, canvas.height - 40);
+
+    // Add final page to PDF
+    const imgData = canvas.toDataURL('image/png');
+    doc.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight);
+
     return doc.output('blob');
   } catch (error) {
     console.error("Error generating PDF:", error);
