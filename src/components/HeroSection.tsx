@@ -30,7 +30,7 @@ const HeroSection = () => {
       <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-sm"></div>
       
       {/* Animated 3D Background */}
-      <AnimatedBackground className="z-15" />
+      <AnimatedBackground className="z-[15]" />
       
       <div className="container-custom relative z-20 grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 pt-20">
         {/* Left side content */}

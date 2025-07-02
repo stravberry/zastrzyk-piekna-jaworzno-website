@@ -17,10 +17,10 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ className = '' 
     count: 12,
     types: ['heart', 'bubble', 'flower'],
     colors: [
-      'hsl(350 85% 85%)', // Light pink
-      'hsl(48 60% 88%)',  // Light gold
-      'hsl(280 50% 90%)', // Light lavender
-      'hsl(160 40% 88%)', // Light mint
+      '#f8b4d6', // Pink
+      '#f7dc6f', // Gold  
+      '#dcc9f3', // Lavender
+      '#a8e6cf', // Mint
     ]
   });
 
@@ -45,7 +45,7 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ className = '' 
         {Array.from({ length: 20 }).map((_, index) => (
           <div
             key={`particle-${index}`}
-            className="absolute w-1 h-1 rounded-full bg-pink-200/20 animate-pulse"
+            className="absolute w-2 h-2 rounded-full bg-pink-300/60 animate-pulse"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
