@@ -165,24 +165,24 @@ const TreatmentChart: React.FC<TreatmentChartProps> = ({ data, isLoading, compac
         </div>
 
         {/* Treatment Statistics Table */}
-        <div className="space-y-2 sm:space-y-3">
-          <h4 className="text-xs sm:text-sm font-medium">Szczegóły zabiegów</h4>
+        <div className="space-y-2 sm:space-y-3 px-1 sm:px-0">
+          <h4 className="text-xs sm:text-sm font-medium px-1 sm:px-0">Szczegóły zabiegów</h4>
           <div className="space-y-1 sm:space-y-2 max-h-48 sm:max-h-64 overflow-y-auto">
             {topTreatments.slice(0, compact ? 3 : 5).map((treatment, index) => (
-              <div key={treatment.name} className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded text-xs sm:text-sm">
-                <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+              <div key={treatment.name} className="flex items-start sm:items-center justify-between p-2 sm:p-3 bg-gray-50 rounded text-xs sm:text-sm mx-1 sm:mx-0 gap-2 sm:gap-3">
+                <div className="flex items-start sm:items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
                   <div 
-                    className="w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0" 
+                    className="w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0 mt-1 sm:mt-0" 
                     style={{ backgroundColor: COLORS[index % COLORS.length] }}
                   ></div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-medium truncate">{treatment.name}</p>
-                    <p className="text-[10px] sm:text-xs text-gray-500 truncate">{treatment.category}</p>
+                    <p className="font-medium text-[11px] xs:text-xs sm:text-sm break-words leading-tight">{treatment.name}</p>
+                    <p className="text-[9px] xs:text-[10px] sm:text-xs text-gray-500 break-words leading-tight">{treatment.category}</p>
                   </div>
                 </div>
-                <div className="text-right flex-shrink-0 ml-2">
-                  <p className="font-medium">{treatment.count} zabiegów</p>
-                  <p className="text-[10px] sm:text-xs text-gray-500">{formatCurrency(treatment.revenue)}</p>
+                <div className="text-right flex-shrink-0 min-w-0">
+                  <p className="font-medium text-[11px] xs:text-xs sm:text-sm whitespace-nowrap">{treatment.count} zabiegów</p>
+                  <p className="text-[9px] xs:text-[10px] sm:text-xs text-gray-500 whitespace-nowrap">{formatCurrency(treatment.revenue)}</p>
                 </div>
               </div>
             ))}
