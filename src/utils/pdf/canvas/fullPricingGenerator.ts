@@ -99,14 +99,14 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
       ctx.fillStyle = isEven ? '#FCF2F8' : '#F8F9FA';
       drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, itemHeight, 6);
       
-      // Optional: Debug border to see actual drawn area (commented out for production)
-      // ctx.strokeStyle = isEven ? '#EC4899' : '#6B7280';
-      // ctx.lineWidth = 1;
-      // ctx.strokeRect(padding, currentY, canvas.width - padding * 2, itemHeight);
+      // Debug border to see actual drawn area - temporary for testing
+      ctx.strokeStyle = isEven ? '#EC4899' : '#6B7280';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(padding, currentY, canvas.width - padding * 2, itemHeight);
 
       // Service name at top-left of the row with proper spacing
       const hasDescription = item.description && item.description.trim() !== '';
-      const nameStartY = hasDescription ? currentY + 20 : currentY + 15;
+      const nameStartY = hasDescription ? currentY + 25 : currentY + 15; // Match heightCalculator padding
       
       ctx.fillStyle = '#1F2937';
       ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
@@ -125,8 +125,8 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
         ctx.font = `400 13px ${FONTS.poppins}, sans-serif`;
         const descLines = wrapText(ctx, item.description, 200);
         
-        // Calculate starting Y position for description (after name + spacing)
-        const nameEndY = currentY + 20 + (nameLines.length * 22) + 12;
+        // Calculate starting Y position for description (after name + spacing) - match heightCalculator
+        const nameEndY = currentY + 25 + (nameLines.length * 22) + 15; // Match heightCalculator spacing
         
         // Draw each line of description
         descLines.forEach((line, lineIndex) => {

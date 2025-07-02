@@ -9,7 +9,7 @@ export const calculateItemHeight = (
   item: any
 ): number => {
   const hasDescription = item.description && item.description.trim() !== '';
-  const minHeight = hasDescription ? 100 : 70; // Bigger minimum height for items with descriptions
+  const minHeight = hasDescription ? 120 : 70; // Even bigger minimum height for items with descriptions
   const nameColumnWidth = 240;
   const descColumnWidth = 200;
   
@@ -25,10 +25,10 @@ export const calculateItemHeight = (
     descHeight = descLines.length * 20; // Line height for descriptions
   }
   
-  // Calculate total height with generous spacing for descriptions
-  const paddingTop = hasDescription ? 20 : 15;
-  const spaceBetweenNameAndDesc = hasDescription ? 12 : 0;
-  const paddingBottom = hasDescription ? 25 : 15;
+  // Calculate total height with EXTRA generous spacing for descriptions
+  const paddingTop = hasDescription ? 25 : 15;          // More top padding for descriptions
+  const spaceBetweenNameAndDesc = hasDescription ? 15 : 0;  // More space between name and desc
+  const paddingBottom = hasDescription ? 35 : 15;      // Much more bottom padding for descriptions
   
   const totalContentHeight = nameHeight + spaceBetweenNameAndDesc + descHeight;
   const finalHeight = Math.max(minHeight, totalContentHeight + paddingTop + paddingBottom);
