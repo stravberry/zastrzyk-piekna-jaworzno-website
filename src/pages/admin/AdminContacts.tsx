@@ -5,13 +5,15 @@ import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, Calendar, Eye, CheckCircle, MessageSquare } from "lucide-react";
+import { Mail, Phone, Calendar, Eye, CheckCircle, MessageSquare, Reply } from "lucide-react";
 import { getContactSubmissions, updateContactStatus, ContactSubmission } from "@/services/contactService";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
+import ContactReplyDialog from "@/components/admin/crm/ContactReplyDialog";
 
 const AdminContacts: React.FC = () => {
   const [selectedSubmission, setSelectedSubmission] = useState<ContactSubmission | null>(null);
+  const [replyDialogOpen, setReplyDialogOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: submissions, isLoading } = useQuery({
@@ -168,6 +170,19 @@ const AdminContacts: React.FC = () => {
                   </div>
 
                   <div className="flex flex-col gap-2 ml-4">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedSubmission(submission);
+                        setReplyDialogOpen(true);
+                      }}
+                      className="flex items-center gap-2"
+                    >
+                      <Reply className="h-4 w-4" />
+                      Reply
+                    </Button>
+                    
                     {submission.status === 'new' && (
                       <Button
                         size="sm"
@@ -210,6 +225,22 @@ const AdminContacts: React.FC = () => {
           </Card>
         )}
       </div>
+
+      {/* Reply Dialog */}
+      {selectedSubmission && (
+        <ContactReplyDialog
+          isOpen={replyDialogOpen}
+          onClose={() => {
+            setReplyDialogOpen(false);
+            setSelectedSubmission(null);
+          }}
+          submission={selectedSubmission}
+          onReplySent={() => {
+            queryClient.invalidateQueries({ queryKey: ['contact-submissions'] });
+            handleStatusUpdate(selectedSubmission.id, 'responded');
+          }}
+        />
+      )}
     </div>
   );
 };
