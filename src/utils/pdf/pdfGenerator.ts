@@ -57,14 +57,16 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
       // Clear canvas and reset position
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      currentY = 100; // Increased top margin to prevent title clipping
+      currentY = 120; // Much larger top margin to prevent any clipping
       currentPage++;
       
-      // Draw title on each page with proper positioning - increased margin
+      // Draw title with alphabetic baseline (most consistent across browsers)
       ctx.fillStyle = '#EC4899';
       ctx.font = `bold 36px ${FONTS.playfair}, serif`;
-      drawCenteredText(ctx, 'Cennik Usług', canvas.width / 2, currentY);
-      currentY += 80; // Space after title (36px font + spacing)
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'alphabetic'; // More reliable than 'top'
+      ctx.fillText('Cennik Usług', canvas.width / 2, currentY);
+      currentY += 100; // Larger space after title
     };
 
     // Start first page
