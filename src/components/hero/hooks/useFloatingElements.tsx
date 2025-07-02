@@ -35,7 +35,7 @@ export function useFloatingElements(options: UseFloatingElementsOptions = {}) {
       speed: 0.5 + Math.random() * 1.5, // 0.5 to 2.0
       delay: Math.random() * 5, // 0 to 5 seconds
       color: colors[Math.floor(Math.random() * colors.length)],
-      opacity: 0.4 + Math.random() * 0.5 // 0.4 to 0.9
+      opacity: 0.2 + Math.random() * 0.3 // 0.2 to 0.5
     }));
   }, [count, types, colors]);
 

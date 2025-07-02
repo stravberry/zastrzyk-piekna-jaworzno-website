@@ -9,12 +9,12 @@ interface AnimatedBackgroundProps {
 
 const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ className = '' }) => {
   const { mouseX, mouseY, scrollY } = useParallax({
-    mouseSensitivity: 0.02,
-    scrollSensitivity: 0.3,
+    mouseSensitivity: 0,
+    scrollSensitivity: 0.2,
   });
 
   const floatingElements = useFloatingElements({
-    count: 12,
+    count: 6,
     types: ['heart', 'bubble', 'flower'],
     colors: [
       '#f8b4d6', // Pink
@@ -42,7 +42,7 @@ const AnimatedBackground: React.FC<AnimatedBackgroundProps> = ({ className = '' 
       
       {/* Additional ambient particles */}
       <div className="absolute inset-0">
-        {Array.from({ length: 20 }).map((_, index) => (
+        {Array.from({ length: 8 }).map((_, index) => (
           <div
             key={`particle-${index}`}
             className="absolute w-2 h-2 rounded-full bg-pink-300/60 animate-pulse"
