@@ -33,20 +33,22 @@ export const calculateItemHeight = (
   const totalContentHeight = nameHeight + spaceBetweenNameAndDesc + descHeight;
   const finalHeight = Math.max(minHeight, totalContentHeight + paddingTop + paddingBottom);
   
-  console.log('Item height calc:', {
-    name: item.name?.substring(0, 30) + '...',
-    hasDesc: hasDescription,
-    nameLines: nameLines.length,
-    descLines: hasDescription ? wrapText(measureCtx, item.description, descColumnWidth).length : 0,
-    nameHeight,
-    descHeight,
-    totalContentHeight,
-    finalHeight,
-    minHeight,
-    paddingTop,
-    paddingBottom,
-    spaceBetweenNameAndDesc
-  });
+  
+  console.log('=== HEIGHT CALCULATION ===');
+  console.log('Item name:', item.name?.substring(0, 50));
+  console.log('Item description:', item.description);
+  console.log('Has description:', hasDescription);
+  console.log('Name lines count:', nameLines.length);
+  console.log('Name height:', nameHeight);
+  console.log('Desc lines count:', hasDescription ? wrapText(measureCtx, item.description, descColumnWidth).length : 0);
+  console.log('Desc height:', descHeight);
+  console.log('Padding top:', paddingTop);
+  console.log('Space between name and desc:', spaceBetweenNameAndDesc);
+  console.log('Padding bottom:', paddingBottom);
+  console.log('Total content height:', totalContentHeight);
+  console.log('Min height:', minHeight);
+  console.log('FINAL HEIGHT:', finalHeight);
+  console.log('========================');
   
   return finalHeight;
 };

@@ -88,21 +88,23 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
       const isEven = itemIndex % 2 === 0;
       const itemHeight = calculateItemHeight(measureCtx, item);
       
-      console.log('Drawing item row:', {
-        name: item.name?.substring(0, 20) + '...',
-        height: itemHeight,
-        y: currentY,
-        hasDesc: !!item.description
-      });
+      console.log('=== RENDERING ITEM ===');
+      console.log('Item name:', item.name);
+      console.log('Item description:', item.description);
+      console.log('Calculated height:', itemHeight);
+      console.log('Current Y position:', currentY);
+      console.log('Will draw background from Y:', currentY, 'to Y:', currentY + itemHeight);
       
       // Row background with rounded corners - ALWAYS draw background with calculated height
       ctx.fillStyle = isEven ? '#FCF2F8' : '#F8F9FA';
       drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, itemHeight, 6);
       
       // Debug border to see actual drawn area - temporary for testing
-      ctx.strokeStyle = isEven ? '#EC4899' : '#6B7280';
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = '#FF0000'; // Red border for debugging
+      ctx.lineWidth = 2;
       ctx.strokeRect(padding, currentY, canvas.width - padding * 2, itemHeight);
+      
+      console.log('Background drawn from:', padding, currentY, 'width:', canvas.width - padding * 2, 'height:', itemHeight);
 
       // Service name at top-left of the row with proper spacing
       const hasDescription = item.description && item.description.trim() !== '';

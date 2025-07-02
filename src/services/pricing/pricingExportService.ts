@@ -73,6 +73,10 @@ const downloadSingleCategoryPng = async (category: PriceCategory): Promise<void>
   
   try {
     // Check if category has many items and needs to be split
+    console.log('=== CATEGORY EXPORT CHECK ===');
+    console.log('Category:', category.title);
+    console.log('Item count:', category.items.length);
+    
     if (category.items.length > 8) {
       console.log(`Kategoria ${category.title} ma ${category.items.length} elementów, dzielę na strony`);
       toast.info(`Kategoria "${category.title}" zostanie podzielona na strony ze względu na dużą liczbę elementów`);
