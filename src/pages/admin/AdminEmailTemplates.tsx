@@ -208,28 +208,28 @@ const AdminEmailTemplates: React.FC = () => {
                 <p className="text-xs text-gray-500 mb-3">{getTemplateDescription(template.name)}</p>
                 <div className="flex flex-col xs:flex-row gap-2">
                   <Button 
-                    size="sm" 
+                    size="default" 
                     variant="outline"
                     onClick={(e) => {
                       e.stopPropagation();
                       setSelectedTemplate(template);
                       setIsEditing(true);
                     }}
-                    className="text-xs flex-1 xs:flex-initial"
+                    className="text-sm py-2 px-4 h-10 flex-1 xs:flex-initial min-w-[90px]"
                   >
-                    <Edit className="w-3 h-3 mr-1" />
+                    <Edit className="w-4 h-4 mr-2" />
                     Edytuj
                   </Button>
                   <Button 
-                    size="sm" 
+                    size="default" 
                     variant="outline"
                     onClick={(e) => {
                       e.stopPropagation();
                       setSelectedTemplate(template);
                     }}
-                    className="text-xs flex-1 xs:flex-initial"
+                    className="text-sm py-2 px-4 h-10 flex-1 xs:flex-initial min-w-[90px]"
                   >
-                    <Eye className="w-3 h-3 mr-1" />
+                    <Eye className="w-4 h-4 mr-2" />
                     Podgląd
                   </Button>
                 </div>
