@@ -298,13 +298,26 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
       document.body.appendChild(tempContainer);
       
       try {
-        // For single category export, use the Canvas API generator directly
-        // without triggering additional downloads since downloadSingleCategoryPng already handles that
+        // For single category export, handle multi-page downloads manually
         if (targetCategory.items.length > 7) {
           console.log(`Single category export: ${targetCategory.title} ma ${targetCategory.items.length} elementów, dzielę na strony`);
+          toast.info(`Kategoria "${targetCategory.title}" zostanie podzielona na strony ze względu na dużą liczbę elementów`);
           
-          // Use multi-page generator but only return the first blob for API compatibility
+          // Use multi-page generator and download all pages
           const blobs = await generateCategoryPagesAsPng(targetCategory);
+          const date = new Date().toISOString().slice(0, 10);
+          
+          // Download each page for single category export
+          blobs.forEach((blob, index) => {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `Zastrzyk-Piekna-${targetCategory.title.replace(/\s+/g, '-')}-${index + 1}-${date}.png`;
+            link.click();
+            URL.revokeObjectURL(url);
+          });
+          
+          // Return first blob for API compatibility
           return blobs[0];
         }
         
