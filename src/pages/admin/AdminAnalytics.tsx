@@ -127,7 +127,7 @@ const AdminAnalytics: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="overview" className="space-y-4 sm:space-y-6">
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             <RevenueChart 
               data={monthlyStats || []}
               isLoading={monthlyLoading}
@@ -139,11 +139,13 @@ const AdminAnalytics: React.FC = () => {
               compact
             />
           </div>
-          <TreatmentChart 
-            data={treatmentStats || []}
-            isLoading={treatmentLoading}
-            compact
-          />
+          <div className="w-full">
+            <TreatmentChart 
+              data={treatmentStats || []}
+              isLoading={treatmentLoading}
+              compact
+            />
+          </div>
         </TabsContent>
       </Tabs>
     </div>

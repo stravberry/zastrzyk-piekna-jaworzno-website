@@ -61,30 +61,36 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ data, isLoading, compact = 
           <span className="block sm:inline">Średnio: {formatCurrency(averageMonthlyRevenue)}/miesiąc</span>
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className={compact ? "h-40 sm:h-48" : "h-56 sm:h-72 lg:h-80"}>
+      <CardContent className="p-3 sm:p-6">
+        <ChartContainer config={chartConfig} className={compact ? "h-36 sm:h-44 lg:h-48" : "h-48 sm:h-64 lg:h-80"}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data} margin={{ 
               top: 5, 
-              right: 10, 
-              left: 10, 
-              bottom: compact ? 5 : 20 
+              right: compact ? 5 : 10, 
+              left: compact ? 5 : 10, 
+              bottom: compact ? 20 : 25 
             }}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis 
                 dataKey="month" 
-                className="text-[10px] sm:text-xs"
-                tick={{ fontSize: compact ? 10 : 12 }}
-                interval={data.length > 8 ? 1 : 0}
+                className="text-[9px] sm:text-[10px] lg:text-xs"
+                tick={{ fontSize: compact ? 9 : 11 }}
+                interval={data.length > 8 ? (compact ? 2 : 1) : 0}
                 angle={data.length > 6 ? -45 : 0}
                 textAnchor={data.length > 6 ? "end" : "middle"}
-                height={data.length > 6 ? 60 : 30}
+                height={data.length > 6 ? (compact ? 40 : 50) : 25}
               />
               <YAxis 
-                className="text-[10px] sm:text-xs"
-                tick={{ fontSize: compact ? 10 : 12 }}
-                tickFormatter={formatCurrency}
-                width={compact ? 60 : 80}
+                className="text-[9px] sm:text-[10px] lg:text-xs"
+                tick={{ fontSize: compact ? 9 : 11 }}
+                tickFormatter={(value) => {
+                  // Shorter format for compact mode
+                  if (compact && value >= 1000) {
+                    return `${Math.round(value/1000)}k`;
+                  }
+                  return formatCurrency(value);
+                }}
+                width={compact ? 45 : 70}
               />
               <ChartTooltip 
                 content={<ChartTooltipContent 
@@ -99,8 +105,8 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ data, isLoading, compact = 
                 dataKey="revenue" 
                 stroke="var(--color-revenue)" 
                 strokeWidth={compact ? 2 : 3}
-                dot={{ fill: "var(--color-revenue)", strokeWidth: 2, r: compact ? 3 : 4 }}
-                activeDot={{ r: compact ? 5 : 6, stroke: "var(--color-revenue)", strokeWidth: 2 }}
+                dot={{ fill: "var(--color-revenue)", strokeWidth: 2, r: compact ? 2 : 4 }}
+                activeDot={{ r: compact ? 4 : 6, stroke: "var(--color-revenue)", strokeWidth: 2 }}
               />
             </LineChart>
           </ResponsiveContainer>

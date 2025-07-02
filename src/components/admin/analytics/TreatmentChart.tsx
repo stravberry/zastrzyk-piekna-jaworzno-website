@@ -84,32 +84,32 @@ const TreatmentChart: React.FC<TreatmentChartProps> = ({ data, isLoading, compac
           Najczęściej wykonywane zabiegi (Top {topTreatments.length})
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4 sm:space-y-6">
+      <CardContent className="space-y-4 sm:space-y-6 p-3 sm:p-6">
         <div className={`grid ${compact ? 'grid-cols-1' : 'grid-cols-1 xl:grid-cols-2'} gap-4 sm:gap-6`}>
           {/* Bar Chart */}
-          <div className={compact ? "h-32 sm:h-40" : "h-48 sm:h-64 lg:h-72"}>
+          <div className={compact ? "h-28 sm:h-36 lg:h-40" : "h-40 sm:h-56 lg:h-64"}>
             <ChartContainer config={chartConfig} className="h-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={processedData} margin={{ 
                   top: 5, 
-                  right: 10, 
-                  left: 10, 
-                  bottom: compact ? 40 : 60 
+                  right: compact ? 5 : 10, 
+                  left: compact ? 5 : 10, 
+                  bottom: compact ? 30 : 50 
                 }}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis 
                     dataKey="shortName" 
-                    className="text-[8px] sm:text-[10px]"
-                    tick={{ fontSize: compact ? 8 : 10 }}
+                    className="text-[8px] sm:text-[9px] lg:text-[10px]"
+                    tick={{ fontSize: compact ? 7 : 9 }}
                     angle={-45}
                     textAnchor="end"
-                    height={compact ? 40 : 60}
+                    height={compact ? 30 : 50}
                     interval={0}
                   />
                   <YAxis 
-                    className="text-[10px] sm:text-xs"
-                    tick={{ fontSize: compact ? 10 : 12 }}
-                    width={compact ? 30 : 40}
+                    className="text-[8px] sm:text-[9px] lg:text-[10px]"
+                    tick={{ fontSize: compact ? 8 : 10 }}
+                    width={compact ? 25 : 35}
                   />
                   <ChartTooltip 
                     content={<ChartTooltipContent 
