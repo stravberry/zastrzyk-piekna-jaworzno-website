@@ -25,7 +25,7 @@ const HeroSection = () => {
   const isVideoVisible = useScrollAnimation(videoRef, { triggerOnce: true });
 
   return (
-    <div className="relative min-h-[90vh] flex items-center justify-center bg-gradient-to-r from-pink-50 to-white overflow-hidden">
+    <div className="relative min-h-[90vh] flex items-center justify-center bg-gradient-to-r from-pink-50 to-white overflow-hidden pb-8">
       <div className="absolute inset-0 z-0 opacity-20 bg-[url('/images/hero-pattern.jpg')] bg-cover bg-center"></div>
       <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-sm"></div>
       

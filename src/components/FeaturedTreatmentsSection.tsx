@@ -27,7 +27,7 @@ const FeaturedTreatmentsSection = () => {
   ];
 
   return (
-    <section className="section-padding bg-gradient-to-b from-background to-muted/30">
+    <section className="py-8 md:py-12 bg-gradient-to-b from-background to-muted/30">
       <div className="container-custom">
         <div 
           ref={sectionRef}
