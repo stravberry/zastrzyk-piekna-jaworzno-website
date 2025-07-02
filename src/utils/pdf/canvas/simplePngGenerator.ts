@@ -70,29 +70,8 @@ const calculateExactItemHeight = (ctx: CanvasRenderingContext2D, item: any): num
   return Math.max(totalHeight, minHeight);
 };
 
-// Split categories into pages
-const splitCategoryIntoPages = (category: PriceCategory, maxItemsPerPage: number = 7): PriceCategory[] => {
-  if (category.items.length <= maxItemsPerPage) {
-    return [category];
-  }
-
-  const pages: PriceCategory[] = [];
-  const totalPages = Math.ceil(category.items.length / maxItemsPerPage);
-
-  for (let i = 0; i < totalPages; i++) {
-    const startIndex = i * maxItemsPerPage;
-    const endIndex = Math.min(startIndex + maxItemsPerPage, category.items.length);
-    const pageItems = category.items.slice(startIndex, endIndex);
-
-    pages.push({
-      id: `${category.id}-page-${i + 1}`,
-      title: `${category.title} (${i + 1}/${totalPages})`,
-      items: pageItems
-    });
-  }
-
-  return pages;
-};
+// Import splitting function from separate utils file
+import { splitCategoryIntoPages } from './categoryUtils';
 
 // Generate single category PNG with proper text handling
 export const generateSimpleCategoryPng = async (category: PriceCategory): Promise<Blob> => {
@@ -333,7 +312,7 @@ export const generateSimpleFullPricingPng = async (categories: PriceCategory[]):
 
 // Generate multiple category pages
 export const generateSimpleCategoryPagesAsPng = async (category: PriceCategory): Promise<Blob[]> => {
-  const pages = splitCategoryIntoPages(category, 7); // Changed from 8 to 7
+  const pages = splitCategoryIntoPages(category, 7);
   const blobs: Blob[] = [];
 
   for (const page of pages) {
