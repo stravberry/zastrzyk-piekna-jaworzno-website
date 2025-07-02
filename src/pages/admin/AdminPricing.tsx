@@ -36,7 +36,7 @@ const AdminPricing = () => {
   useEffect(() => {
     // Refresh data when component mounts to ensure we have latest data
     refreshData();
-  }, [refreshData]);
+  }, []); // Remove refreshData dependency to prevent infinite loop
 
   // Function to handle exporting of full PDF without any categoryId
   const handleFullPdfExport = () => {

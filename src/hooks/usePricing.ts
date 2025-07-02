@@ -23,18 +23,20 @@ export const usePricing = () => {
       setIsLoading(true);
       const data = await getPriceCategories();
       
-      if (preserveOrder && categories.length > 0) {
-        // Maintain current order when preserving
-        const orderedData = [...categories];
-        data.forEach(newCategory => {
-          const existingIndex = orderedData.findIndex(c => c.id === newCategory.id);
-          if (existingIndex >= 0) {
-            orderedData[existingIndex] = newCategory;
-          } else {
-            orderedData.push(newCategory);
-          }
+      if (preserveOrder) {
+        // Maintain current order when preserving - use functional update to avoid dependency
+        setCategories(currentCategories => {
+          const orderedData = [...currentCategories];
+          data.forEach(newCategory => {
+            const existingIndex = orderedData.findIndex(c => c.id === newCategory.id);
+            if (existingIndex >= 0) {
+              orderedData[existingIndex] = newCategory;
+            } else {
+              orderedData.push(newCategory);
+            }
+          });
+          return orderedData;
         });
-        setCategories(orderedData);
       } else {
         setCategories(data);
       }
@@ -44,7 +46,7 @@ export const usePricing = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [categories]);
+  }, []); // Remove categories dependency to prevent infinite loop
 
   // Handle dialog close
   const handleCloseDialog = useCallback(() => {
