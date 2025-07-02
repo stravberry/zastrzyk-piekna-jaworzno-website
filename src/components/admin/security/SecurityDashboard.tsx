@@ -56,17 +56,21 @@ const SecurityDashboard: React.FC = () => {
       const totalUsers = users?.length || 0;
       const activeUsers = users?.filter(u => u.last_sign_in_at)?.length || 0;
       const adminUsers = users?.filter(u => u.roles.includes('admin'))?.length || 0;
-      const recentUsers = users?.filter(u => {
-        const oneWeekAgo = new Date();
-        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-        return u.last_sign_in_at && new Date(u.last_sign_in_at) > oneWeekAgo;
-      })?.length || 0;
+      
+      // Get recent logins (last 7 days)
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      
+      const recentLogins = users?.filter(u => {
+        return u.last_sign_in_at && new Date(u.last_sign_in_at) > sevenDaysAgo;
+      }).sort((a, b) => new Date(b.last_sign_in_at).getTime() - new Date(a.last_sign_in_at).getTime()) || [];
 
       return {
         totalUsers,
         activeUsers,
         adminUsers,
-        recentUsers
+        recentUsers: recentLogins.length,
+        recentLogins
       };
     }
   });
@@ -175,34 +179,33 @@ const SecurityDashboard: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {userStats && userStats.recentUsers > 0 ? (
-              // Placeholder for recent logins - would need actual login data
-              Array.from({ length: Math.min(userStats.recentUsers, 5) }).map((_, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+            {userStats?.recentLogins && userStats.recentLogins.length > 0 ? (
+              userStats.recentLogins.map((user, index) => (
+                <div key={user.user_id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center gap-3">
                     <User className="h-4 w-4 text-green-500" />
                     <div>
                       <div className="flex items-center gap-2">
                         <Badge className="bg-green-100 text-green-800">Successful Login</Badge>
                         <span className="text-sm text-gray-600">
-                          {format(new Date(Date.now() - index * 24 * 60 * 60 * 1000), 'MMM dd, yyyy HH:mm')}
+                          {format(new Date(user.last_sign_in_at), 'MMM dd, yyyy HH:mm')}
                         </span>
                       </div>
                       <div className="text-xs text-gray-500 mt-1 space-y-1">
-                        <div>IP: 192.168.1.{100 + index}</div>
-                        <div>Lokalizacja: Warszawa, Polska</div>
-                        <div>Przeglądarka: Chrome 120.0</div>
+                        <div>Rola: {user.roles.join(', ')}</div>
+                        <div>Status: {user.email_confirmed_at ? 'Zweryfikowany' : 'Niezweryfikowany'}</div>
+                        <div>Konto utworzone: {format(new Date(user.created_at), 'MMM dd, yyyy')}</div>
                       </div>
                     </div>
                   </div>
                   <div className="text-xs text-gray-400">
-                    user@example.com
+                    {user.email}
                   </div>
                 </div>
               ))
             ) : (
               <div className="text-center py-8 text-gray-500">
-                Brak ostatnich logowań
+                Brak logowań z ostatnich 7 dni
               </div>
             )}
           </div>
