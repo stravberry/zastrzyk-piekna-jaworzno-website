@@ -19,10 +19,8 @@ const FloatingElement: React.FC<FloatingElementProps> = ({
 }) => {
   const { type, x, y, size, speed, delay, color, opacity } = element;
 
-  // Calculate parallax offset based on element position
-  const parallaxOffsetX = parallaxX * (x / 100) * 0.5;
-  const parallaxOffsetY = parallaxY * (y / 100) * 0.3;
-  const scrollOffset = scrollY * speed * 0.1;
+  // Calculate only scroll offset, no mouse parallax
+  const scrollOffset = scrollY * speed * 0.05;
 
   const elementSize = 16 + size * 24; // 16-40px
 
@@ -30,7 +28,7 @@ const FloatingElement: React.FC<FloatingElementProps> = ({
     position: 'absolute',
     left: `${x}%`,
     top: `${y}%`,
-    transform: `translate3d(${parallaxOffsetX}px, ${parallaxOffsetY - scrollOffset}px, 0) scale(${size})`,
+    transform: `translate3d(0px, ${-scrollOffset}px, 0) scale(${size})`,
     opacity,
     color,
     animationDelay: `${delay}s`,
@@ -45,7 +43,7 @@ const FloatingElement: React.FC<FloatingElementProps> = ({
           <Heart 
             size={elementSize} 
             color={color}
-            className="animate-pulse"
+            className="animate-float"
           />
         );
       case 'bubble':
@@ -53,7 +51,7 @@ const FloatingElement: React.FC<FloatingElementProps> = ({
           <Bubble 
             size={elementSize} 
             color={color}
-            className="animate-bounce"
+            className="animate-gentle-bounce"
           />
         );
       case 'flower':
@@ -61,7 +59,7 @@ const FloatingElement: React.FC<FloatingElementProps> = ({
           <Flower 
             size={elementSize} 
             color={color}
-            className="animate-spin"
+            className="animate-slow-spin"
           />
         );
       default:
