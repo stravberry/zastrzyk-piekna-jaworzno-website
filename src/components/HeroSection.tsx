@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useScrollTo } from "@/hooks/useScrollTo";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import AnimatedBackground from "@/components/hero/AnimatedBackground";
 
 const HeroSection = () => {
   const servicesRef = useRef<HTMLDivElement>(null);
@@ -24,9 +25,12 @@ const HeroSection = () => {
   const isVideoVisible = useScrollAnimation(videoRef, { triggerOnce: true });
 
   return (
-    <div className="relative min-h-[90vh] flex items-center justify-center bg-gradient-to-r from-pink-50 to-white">
+    <div className="relative min-h-[90vh] flex items-center justify-center bg-gradient-to-r from-pink-50 to-white overflow-hidden">
       <div className="absolute inset-0 z-0 opacity-20 bg-[url('/images/hero-pattern.jpg')] bg-cover bg-center"></div>
       <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-sm"></div>
+      
+      {/* Animated 3D Background */}
+      <AnimatedBackground className="z-5" />
       
       <div className="container-custom relative z-20 grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 pt-20">
         {/* Left side content */}

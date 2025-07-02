@@ -147,6 +147,18 @@ export default {
 				collapse: {
 					'0%': { maxHeight: '500px', opacity: '1' },
 					'100%': { maxHeight: '0', opacity: '0' }
+				},
+				float: {
+					'0%, 100%': { transform: 'translateY(0px)' },
+					'50%': { transform: 'translateY(-10px)' }
+				},
+				'gentle-bounce': {
+					'0%, 100%': { transform: 'translateY(0px) scale(1)' },
+					'50%': { transform: 'translateY(-5px) scale(1.05)' }
+				},
+				'slow-spin': {
+					'0%': { transform: 'rotate(0deg)' },
+					'100%': { transform: 'rotate(360deg)' }
 				}
 			},
 			animation: {
@@ -158,7 +170,10 @@ export default {
 				'slide-left': 'slideLeft 0.5s ease-in-out',
 				'slide-right': 'slideRight 0.5s ease-in-out',
 				'zoom-in': 'zoomIn 0.5s ease-in-out',
-				'collapse': 'collapse 0.5s ease-in-out'
+				'collapse': 'collapse 0.5s ease-in-out',
+				'float': 'float 3s ease-in-out infinite',
+				'gentle-bounce': 'gentle-bounce 4s ease-in-out infinite',
+				'slow-spin': 'slow-spin 8s linear infinite'
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
