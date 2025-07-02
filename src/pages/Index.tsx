@@ -8,6 +8,7 @@ import AboutSection from "@/components/AboutSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import CTASection from "@/components/CTASection";
 import InstagramSection from "@/components/InstagramSection";
+import FeaturedTreatmentsSection from "@/components/FeaturedTreatmentsSection";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useScrollTracking } from "@/hooks/useScrollTracking";
@@ -81,6 +82,7 @@ const Index = () => {
       <Navbar />
       <main className="flex-grow">
         <HeroSection />
+        <FeaturedTreatmentsSection />
         <div 
           ref={servicesRef}
           id="services"
