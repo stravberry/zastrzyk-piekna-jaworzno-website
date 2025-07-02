@@ -125,51 +125,51 @@ const AdminContacts: React.FC = () => {
         {submissions && submissions.length > 0 ? (
           submissions.map((submission) => (
             <Card key={submission.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-semibold text-lg">{submission.name}</h3>
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                      <h3 className="font-semibold text-lg break-words">{submission.name}</h3>
                       {getStatusBadge(submission.status)}
                     </div>
                     
                     <div className="text-sm text-gray-600 space-y-1 mb-3">
                       <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4" />
-                        <span>{submission.email}</span>
+                        <Mail className="h-4 w-4 shrink-0" />
+                        <span className="break-all">{submission.email}</span>
                       </div>
                       {submission.phone && (
                         <div className="flex items-center gap-2">
-                          <Phone className="h-4 w-4" />
+                          <Phone className="h-4 w-4 shrink-0" />
                           <span>{submission.phone}</span>
                         </div>
                       )}
                       <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4" />
+                        <Calendar className="h-4 w-4 shrink-0" />
                         <span>{formatDate(submission.created_at)}</span>
                       </div>
                     </div>
 
                     <div className="mb-3">
                       <p className="font-medium text-gray-900 mb-1">Subject:</p>
-                      <p className="text-gray-700">{submission.subject}</p>
+                      <p className="text-gray-700 break-words">{submission.subject}</p>
                     </div>
 
                     <div className="mb-4">
                       <p className="font-medium text-gray-900 mb-1">Message:</p>
-                      <p className="text-gray-700 bg-gray-50 p-3 rounded-md">
+                      <p className="text-gray-700 bg-gray-50 p-3 rounded-md break-words">
                         {submission.message}
                       </p>
                     </div>
 
                     {submission.ip_address && (
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-500 break-all">
                         IP: {submission.ip_address}
                       </div>
                     )}
                   </div>
 
-                  <div className="flex flex-col gap-2 ml-4">
+                  <div className="flex flex-row lg:flex-col gap-2 lg:gap-2 lg:ml-4 lg:shrink-0 lg:w-auto">
                     <Button
                       size="sm"
                       variant="outline"
@@ -177,10 +177,10 @@ const AdminContacts: React.FC = () => {
                         setSelectedSubmission(submission);
                         setReplyDialogOpen(true);
                       }}
-                      className="flex items-center gap-2"
+                      className="flex items-center justify-center gap-2 min-w-0 flex-1 lg:flex-initial lg:min-w-[120px]"
                     >
-                      <Reply className="h-4 w-4" />
-                      Reply
+                      <Reply className="h-4 w-4 shrink-0" />
+                      <span className="hidden xs:inline">Reply</span>
                     </Button>
                     
                     {submission.status === 'new' && (
@@ -188,17 +188,20 @@ const AdminContacts: React.FC = () => {
                         size="sm"
                         variant="outline"
                         onClick={() => handleStatusUpdate(submission.id, 'reviewed')}
+                        className="flex-1 lg:flex-initial lg:min-w-[120px] text-xs sm:text-sm"
                       >
-                        Mark as Reviewed
+                        <span className="hidden sm:inline">Mark as Reviewed</span>
+                        <span className="sm:hidden">Reviewed</span>
                       </Button>
                     )}
                     {submission.status === 'reviewed' && (
                       <Button
                         size="sm"
-                        className="bg-green-600 hover:bg-green-700"
+                        className="bg-green-600 hover:bg-green-700 flex-1 lg:flex-initial lg:min-w-[120px] text-xs sm:text-sm"
                         onClick={() => handleStatusUpdate(submission.id, 'responded')}
                       >
-                        Mark as Responded
+                        <span className="hidden sm:inline">Mark as Responded</span>
+                        <span className="sm:hidden">Responded</span>
                       </Button>
                     )}
                     {submission.status === 'responded' && (
@@ -206,8 +209,10 @@ const AdminContacts: React.FC = () => {
                         size="sm"
                         variant="outline"
                         onClick={() => handleStatusUpdate(submission.id, 'reviewed')}
+                        className="flex-1 lg:flex-initial lg:min-w-[120px] text-xs sm:text-sm"
                       >
-                        Mark as Reviewed
+                        <span className="hidden sm:inline">Mark as Reviewed</span>
+                        <span className="sm:hidden">Reviewed</span>
                       </Button>
                     )}
                   </div>
