@@ -84,7 +84,7 @@ const TreatmentChart: React.FC<TreatmentChartProps> = ({ data, isLoading, compac
           Najczęściej wykonywane zabiegi (Top {topTreatments.length})
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4 sm:space-y-6 pb-6 sm:pb-8">
+      <CardContent className="space-y-6 p-4 sm:p-6 pb-8 sm:pb-12">
         <div className={`grid ${compact ? 'grid-cols-1' : 'grid-cols-1 xl:grid-cols-2'} gap-4 sm:gap-6`}>
           {/* Bar Chart */}
           <div className={compact ? "h-36 xs:h-44 sm:h-48 lg:h-52" : "h-48 sm:h-64 lg:h-72"}>

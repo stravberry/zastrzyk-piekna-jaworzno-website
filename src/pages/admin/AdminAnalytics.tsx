@@ -49,7 +49,7 @@ const AdminAnalytics: React.FC = () => {
   const isLoading = monthlyLoading || treatmentLoading || patientLoading || revenueLoading;
 
   return (
-    <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 pb-8 sm:pb-12 max-w-7xl">
+    <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 pb-16 sm:pb-20 max-w-7xl min-h-screen">
       <div className="flex flex-col gap-4 mb-6">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
           <div className="space-y-1">
