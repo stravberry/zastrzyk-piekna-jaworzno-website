@@ -69,7 +69,7 @@ const AdminPricing = () => {
   };
 
   return (
-    <div className="p-2 sm:p-6 w-full overflow-hidden">
+    <div className="p-3 sm:p-4 lg:p-6 w-full min-h-screen bg-gray-50">
       <PricingActions 
         onAddCategory={handleAddCategory} 
         onResetData={handleResetData}
@@ -126,7 +126,7 @@ const AdminPricing = () => {
         selectedCategory={selectedCategory}
         selectedItemIndex={selectedItemIndex}
         onClose={handleCloseDialog}
-        onSuccess={refreshData}
+        onSuccess={() => refreshData(true)} // Preserve order after edits
         categories={categories}
       />
     </div>

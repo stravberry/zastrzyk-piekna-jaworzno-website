@@ -34,7 +34,7 @@ const PricingCategoriesList: React.FC<PricingCategoriesListProps> = ({
   }
 
   return (
-    <div className="space-y-4 sm:space-y-8">
+    <div className="space-y-4 sm:space-y-6 lg:space-y-8">
       {categories.map((category) => (
         <PricingCategoryCard
           key={category.id}

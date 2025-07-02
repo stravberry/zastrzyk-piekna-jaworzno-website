@@ -18,18 +18,33 @@ export const usePricing = () => {
   const [dialogType, setDialogType] = useState<DialogType>(null);
   
   // Load categories
-  const refreshData = useCallback(async () => {
+  const refreshData = useCallback(async (preserveOrder: boolean = false) => {
     try {
       setIsLoading(true);
       const data = await getPriceCategories();
-      setCategories(data);
+      
+      if (preserveOrder && categories.length > 0) {
+        // Maintain current order when preserving
+        const orderedData = [...categories];
+        data.forEach(newCategory => {
+          const existingIndex = orderedData.findIndex(c => c.id === newCategory.id);
+          if (existingIndex >= 0) {
+            orderedData[existingIndex] = newCategory;
+          } else {
+            orderedData.push(newCategory);
+          }
+        });
+        setCategories(orderedData);
+      } else {
+        setCategories(data);
+      }
     } catch (error) {
       console.error('Error loading categories:', error);
       toast.error('Nie udało się załadować cennika');
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [categories]);
 
   // Handle dialog close
   const handleCloseDialog = useCallback(() => {
