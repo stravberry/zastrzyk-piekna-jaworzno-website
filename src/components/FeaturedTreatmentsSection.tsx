@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { Link } from "react-router-dom";
-import { Sparkles, User } from "lucide-react";
+import { Sparkles, User, Star } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const FeaturedTreatmentsSection = () => {
@@ -55,10 +56,17 @@ const FeaturedTreatmentsSection = () => {
             {treatments.map((treatment) => (
               <div
                 key={treatment.id}
-                className={`group bg-card border border-border rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ${
+                className={`group bg-card border border-border rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative ${
                   isVisible ? `animate-slide-up ${treatment.delay}` : ""
                 }`}
               >
+                {/* HIT Badge */}
+                <div className="absolute -top-3 -right-3 z-10">
+                  <Badge className="bg-gold-500 text-white hover:bg-gold-600 text-xs px-2 py-1 font-bold inline-flex items-center">
+                    <Star className="h-3 w-3 mr-1" />
+                    HIT
+                  </Badge>
+                </div>
                 {/* Icon */}
                 <div className="mb-6">
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors duration-300">
