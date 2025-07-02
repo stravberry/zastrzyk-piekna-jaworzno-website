@@ -30,35 +30,115 @@ export const createPdfLayoutForPng = (categories: PriceCategory[]): string => {
     return `<span style="display: inline-block; background: ${config.color}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; margin-left: 8px;">${config.text}</span>`;
   };
 
-  // Generate the HTML content for the PNG with explicit character encoding
+  // Generate the HTML content for the PNG with proper fonts and improved styling
   return `
-    <div style="font-family: Arial, Helvetica, sans-serif; background: white; padding: 30px; color: #333; width: 100%; max-width: 800px; text-align: left;">
+    <div style="font-family: 'Playfair Display', 'Poppins', serif; background: white; padding: 30px; color: #333; width: 100%; max-width: 800px; text-align: left; box-sizing: border-box;">
       <meta charset="UTF-8">
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
       <style>
         @charset "UTF-8";
-        * { font-family: Arial, Helvetica, sans-serif; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; table-layout: fixed; }
-        th { background: #FDF2F8; padding: 12px; text-align: left; font-weight: bold; font-size: 16px; }
-        td { padding: 12px; border-top: 1px solid #FCE7F3; word-break: break-word; font-size: 14px; }
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap');
+        
+        * { 
+          font-family: 'Poppins', Arial, Helvetica, sans-serif; 
+          box-sizing: border-box;
+          text-rendering: optimizeLegibility;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+        
+        table { 
+          width: 100%; 
+          border-collapse: collapse; 
+          margin-bottom: 30px; 
+          table-layout: fixed; 
+          font-family: 'Poppins', Arial, Helvetica, sans-serif;
+        }
+        
+        th { 
+          background: #FDF2F8; 
+          padding: 12px; 
+          text-align: left; 
+          font-weight: 600; 
+          font-size: 16px;
+          line-height: 1.4;
+          vertical-align: middle;
+          font-family: 'Poppins', Arial, Helvetica, sans-serif;
+        }
+        
+        td { 
+          padding: 12px; 
+          border-top: 1px solid #FCE7F3; 
+          word-break: break-word; 
+          font-size: 14px;
+          line-height: 1.5;
+          vertical-align: middle;
+          font-family: 'Poppins', Arial, Helvetica, sans-serif;
+        }
+        
         tr:nth-child(even) { background-color: #FCF2F8; }
-        .price { font-weight: bold; color: #EC4899; text-align: right; }
-        .description { font-style: italic; color: #666; font-size: 0.9em; padding: 8px 12px; }
+        
+        .price { 
+          font-weight: 600; 
+          color: #EC4899; 
+          text-align: right;
+          font-family: 'Poppins', Arial, Helvetica, sans-serif;
+        }
+        
+        .description { 
+          font-style: italic; 
+          color: #666; 
+          font-size: 0.9em; 
+          padding: 8px 12px;
+          line-height: 1.4;
+          font-family: 'Poppins', Arial, Helvetica, sans-serif;
+        }
+        
         .category-header { 
           background: #EC4899; 
           color: white; 
-          padding: 8px 12px; 
+          padding: 12px 16px; 
           margin-top: 20px; 
           font-size: 20px; 
           text-align: center;
-          font-weight: bold;
+          font-weight: 600;
           display: flex;
           align-items: center;
           justify-content: center;
-          min-height: 40px;
+          min-height: 50px;
+          line-height: 1.3;
+          font-family: 'Playfair Display', serif;
         }
-        .title { color: #EC4899; text-align: center; margin-bottom: 30px; font-size: 28px; font-weight: bold; }
-        .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
-        .service-name { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+        
+        .title { 
+          color: #EC4899; 
+          text-align: center; 
+          margin-bottom: 30px; 
+          font-size: 28px; 
+          font-weight: 700;
+          line-height: 1.2;
+          font-family: 'Playfair Display', serif;
+        }
+        
+        .footer { 
+          text-align: center; 
+          margin-top: 20px; 
+          color: #666; 
+          font-size: 12px;
+          line-height: 1.4;
+          font-family: 'Poppins', Arial, Helvetica, sans-serif;
+        }
+        
+        .service-name { 
+          display: flex; 
+          align-items: center; 
+          flex-wrap: wrap; 
+          gap: 8px;
+          line-height: 1.4;
+          font-family: 'Poppins', Arial, Helvetica, sans-serif;
+        }
       </style>
       
       <h1 class="title">Cennik Usług</h1>
@@ -127,36 +207,121 @@ export const createSingleCategoryLayoutForPng = (category: PriceCategory): strin
   };
 
   return `
-    <div style="font-family: Arial, Helvetica, sans-serif; background: white; padding: 20px; color: #333; width: 450px; height: 800px; display: flex; flex-direction: column; box-sizing: border-box;">
+    <div style="font-family: 'Playfair Display', 'Poppins', serif; background: white; padding: 20px; color: #333; width: 450px; height: 800px; display: flex; flex-direction: column; box-sizing: border-box;">
       <meta charset="UTF-8">
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
       <style>
         @charset "UTF-8";
-        * { font-family: Arial, Helvetica, sans-serif; box-sizing: border-box; }
-        .container { display: flex; flex-direction: column; height: 100%; }
-        .header { text-align: center; margin-bottom: 20px; }
-        .title { color: #EC4899; font-size: 20px; font-weight: bold; margin: 0 0 10px 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap');
+        
+        * { 
+          font-family: 'Poppins', Arial, Helvetica, sans-serif; 
+          box-sizing: border-box;
+          text-rendering: optimizeLegibility;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .container { 
+          display: flex; 
+          flex-direction: column; 
+          height: 100%; 
+          font-family: 'Poppins', Arial, Helvetica, sans-serif;
+        }
+        
+        .header { 
+          text-align: center; 
+          margin-bottom: 20px; 
+        }
+        
+        .title { 
+          color: #EC4899; 
+          font-size: 20px; 
+          font-weight: 700; 
+          margin: 0 0 10px 0;
+          line-height: 1.2;
+          font-family: 'Playfair Display', serif;
+        }
+        
         .category-title { 
           background: #EC4899; 
           color: white; 
-          padding: 8px 12px; 
+          padding: 10px 12px; 
           font-size: 18px; 
-          font-weight: bold; 
+          font-weight: 600; 
           text-align: center; 
           margin-bottom: 15px; 
           border-radius: 5px;
           display: flex;
           align-items: center;
           justify-content: center;
-          min-height: 40px;
+          min-height: 45px;
+          line-height: 1.3;
+          font-family: 'Playfair Display', serif;
         }
-        .content { flex: 1; overflow: hidden; }
-        .item { padding: 12px; border-bottom: 1px solid #FCE7F3; }
-        .item:nth-child(even) { background-color: #FCF2F8; }
-        .item-name { font-weight: bold; color: #333; font-size: 14px; margin-bottom: 4px; }
-        .item-price { color: #EC4899; font-weight: bold; font-size: 14px; margin-bottom: 4px; }
-        .item-description { color: #666; font-size: 12px; font-style: italic; line-height: 1.3; }
-        .footer { text-align: center; color: #666; font-size: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #FCE7F3; }
-        .item-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px; }
+        
+        .content { 
+          flex: 1; 
+          overflow: hidden; 
+        }
+        
+        .item { 
+          padding: 12px; 
+          border-bottom: 1px solid #FCE7F3;
+          font-family: 'Poppins', Arial, Helvetica, sans-serif;
+        }
+        
+        .item:nth-child(even) { 
+          background-color: #FCF2F8; 
+        }
+        
+        .item-name { 
+          font-weight: 600; 
+          color: #333; 
+          font-size: 14px; 
+          margin-bottom: 4px;
+          line-height: 1.4;
+          font-family: 'Poppins', Arial, Helvetica, sans-serif;
+        }
+        
+        .item-price { 
+          color: #EC4899; 
+          font-weight: 600; 
+          font-size: 14px; 
+          margin-bottom: 4px;
+          line-height: 1.4;
+          font-family: 'Poppins', Arial, Helvetica, sans-serif;
+        }
+        
+        .item-description { 
+          color: #666; 
+          font-size: 12px; 
+          font-style: italic; 
+          line-height: 1.4;
+          font-family: 'Poppins', Arial, Helvetica, sans-serif;
+        }
+        
+        .footer { 
+          text-align: center; 
+          color: #666; 
+          font-size: 10px; 
+          margin-top: 15px; 
+          padding-top: 15px; 
+          border-top: 1px solid #FCE7F3;
+          line-height: 1.4;
+          font-family: 'Poppins', Arial, Helvetica, sans-serif;
+        }
+        
+        .item-header { 
+          display: flex; 
+          align-items: center; 
+          justify-content: space-between; 
+          flex-wrap: wrap; 
+          gap: 4px;
+          line-height: 1.4;
+        }
       </style>
       
       <div class="container">

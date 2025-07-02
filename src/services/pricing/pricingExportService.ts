@@ -6,6 +6,41 @@ import { createPdfLayoutForPng, createSingleCategoryLayoutForPng } from "@/utils
 import { generatePricingPdf, generatePricingPdfFromHtml } from "@/utils/pdf";
 import { toast } from "sonner";
 
+// Font preloading function to ensure fonts are loaded before rendering
+const preloadFonts = async (): Promise<void> => {
+  try {
+    console.log('Rozpoczynam ładowanie fontów...');
+    
+    // Load Playfair Display font
+    await document.fonts.load('400 16px "Playfair Display"');
+    await document.fonts.load('600 16px "Playfair Display"');
+    await document.fonts.load('700 16px "Playfair Display"');
+    
+    // Load Poppins font
+    await document.fonts.load('400 14px "Poppins"');
+    await document.fonts.load('500 14px "Poppins"');
+    await document.fonts.load('600 14px "Poppins"');
+    
+    console.log('Fonty zostały załadowane pomyślnie');
+    
+    // Additional check to verify fonts are actually available
+    const fonts = Array.from(document.fonts.values());
+    const playfairLoaded = fonts.some(f => f.family.includes('Playfair Display') && f.status === 'loaded');
+    const poppinsLoaded = fonts.some(f => f.family.includes('Poppins') && f.status === 'loaded');
+    
+    console.log(`Playfair Display dostępny: ${playfairLoaded}`);
+    console.log(`Poppins dostępny: ${poppinsLoaded}`);
+    
+    if (!playfairLoaded || !poppinsLoaded) {
+      console.warn('Nie wszystkie fonty zostały załadowane prawidłowo');
+    }
+    
+  } catch (error) {
+    console.error('Błąd podczas ładowania fontów:', error);
+    // Don't throw error, continue with fallback fonts
+  }
+};
+
 // Export pricing data as PDF
 export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => {
   try {
@@ -58,6 +93,9 @@ export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => 
 const downloadSingleCategoryPng = async (category: PriceCategory): Promise<void> => {
   console.log(`Rozpoczynam generowanie PNG dla kategorii: ${category.title}`);
   
+  // Preload fonts before starting
+  await preloadFonts();
+  
   const tempContainer = document.createElement('div');
   tempContainer.style.position = 'absolute';
   tempContainer.style.left = '-9999px';
@@ -70,24 +108,40 @@ const downloadSingleCategoryPng = async (category: PriceCategory): Promise<void>
     tempContainer.innerHTML = createSingleCategoryLayoutForPng(category);
     
     console.log(`Czekam na renderowanie kategorii: ${category.title}`);
-    // Wait for rendering
-    await new Promise(r => setTimeout(r, 1000));
+    // Wait longer for fonts and rendering
+    await new Promise(r => setTimeout(r, 2000));
     
     console.log(`Tworzę canvas dla kategorii: ${category.title}`);
-    // Convert to canvas
+    // Convert to canvas with improved settings
     const canvas = await html2canvas(tempContainer, {
       scale: 2,
       backgroundColor: '#ffffff',
       logging: false,
-      allowTaint: true,
+      allowTaint: false,
       useCORS: true,
       width: 450,
       height: 800,
-      onclone: (document, element) => {
-        const styleTag = document.createElement('style');
-        styleTag.innerHTML = `* { font-family: Arial, Helvetica, sans-serif !important; }`;
-        document.head.appendChild(styleTag);
-        return element;
+      foreignObjectRendering: true,
+      onclone: (clonedDocument, clonedElement) => {
+        // Add Google Fonts link to cloned document
+        const fontLink = clonedDocument.createElement('link');
+        fontLink.rel = 'stylesheet';
+        fontLink.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap';
+        clonedDocument.head.appendChild(fontLink);
+        
+        // Add improved font styling
+        const styleTag = clonedDocument.createElement('style');
+        styleTag.innerHTML = `
+          @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap');
+          * { 
+            font-family: 'Poppins', Arial, Helvetica, sans-serif !important; 
+            text-rendering: optimizeLegibility !important;
+            -webkit-font-smoothing: antialiased !important;
+          }
+          .title, .category-title { font-family: 'Playfair Display', serif !important; }
+        `;
+        clonedDocument.head.appendChild(styleTag);
+        return clonedElement;
       }
     });
     
@@ -120,6 +174,9 @@ const downloadSingleCategoryPng = async (category: PriceCategory): Promise<void>
 const downloadFullPricingTablePng = async (categories: PriceCategory[]): Promise<void> => {
   console.log('Rozpoczynam generowanie PNG dla pełnego cennika');
   
+  // Preload fonts before starting
+  await preloadFonts();
+  
   const tempContainer = document.createElement('div');
   tempContainer.style.position = 'absolute';
   tempContainer.style.left = '-9999px';
@@ -131,22 +188,38 @@ const downloadFullPricingTablePng = async (categories: PriceCategory[]): Promise
     tempContainer.innerHTML = createPdfLayoutForPng(categories);
     
     console.log('Czekam na renderowanie pełnego cennika');
-    // Wait for rendering
-    await new Promise(r => setTimeout(r, 1500));
+    // Wait longer for fonts and rendering
+    await new Promise(r => setTimeout(r, 2500));
     
     console.log('Tworzę canvas dla pełnego cennika');
-    // Convert to canvas
+    // Convert to canvas with improved settings
     const canvas = await html2canvas(tempContainer, {
       scale: 2,
       backgroundColor: '#ffffff',
       logging: false,
-      allowTaint: true,
+      allowTaint: false,
       useCORS: true,
-      onclone: (document, element) => {
-        const styleTag = document.createElement('style');
-        styleTag.innerHTML = `* { font-family: Arial, Helvetica, sans-serif !important; }`;
-        document.head.appendChild(styleTag);
-        return element;
+      foreignObjectRendering: true,
+      onclone: (clonedDocument, clonedElement) => {
+        // Add Google Fonts link to cloned document
+        const fontLink = clonedDocument.createElement('link');
+        fontLink.rel = 'stylesheet';
+        fontLink.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap';
+        clonedDocument.head.appendChild(fontLink);
+        
+        // Add improved font styling
+        const styleTag = clonedDocument.createElement('style');
+        styleTag.innerHTML = `
+          @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap');
+          * { 
+            font-family: 'Poppins', Arial, Helvetica, sans-serif !important; 
+            text-rendering: optimizeLegibility !important;
+            -webkit-font-smoothing: antialiased !important;
+          }
+          .title, .category-header { font-family: 'Playfair Display', serif !important; }
+        `;
+        clonedDocument.head.appendChild(styleTag);
+        return clonedElement;
       }
     });
     
@@ -239,6 +312,9 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
       
       console.log(`Eksport pojedynczej kategorii: ${targetCategory.title}`);
       
+      // Preload fonts before starting
+      await preloadFonts();
+      
       // Create a temporary container for rendering
       const tempContainer = document.createElement('div');
       tempContainer.style.position = 'absolute';
@@ -251,23 +327,39 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
         // Use single category layout
         tempContainer.innerHTML = createSingleCategoryLayoutForPng(targetCategory);
         
-        // Wait for rendering
-        await new Promise(r => setTimeout(r, 1000));
+        // Wait longer for fonts and rendering
+        await new Promise(r => setTimeout(r, 2000));
         
-        // Use html2canvas to convert to image
+        // Use html2canvas to convert to image with improved settings
         const canvas = await html2canvas(tempContainer, {
           scale: 2,
           backgroundColor: '#ffffff',
           logging: false,
-          allowTaint: true,
+          allowTaint: false,
           useCORS: true,
           width: 450,
           height: 800,
-          onclone: (document, element) => {
-            const styleTag = document.createElement('style');
-            styleTag.innerHTML = `* { font-family: Arial, Helvetica, sans-serif !important; }`;
-            document.head.appendChild(styleTag);
-            return element;
+          foreignObjectRendering: true,
+          onclone: (clonedDocument, clonedElement) => {
+            // Add Google Fonts link to cloned document
+            const fontLink = clonedDocument.createElement('link');
+            fontLink.rel = 'stylesheet';
+            fontLink.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap';
+            clonedDocument.head.appendChild(fontLink);
+            
+            // Add improved font styling
+            const styleTag = clonedDocument.createElement('style');
+            styleTag.innerHTML = `
+              @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap');
+              * { 
+                font-family: 'Poppins', Arial, Helvetica, sans-serif !important; 
+                text-rendering: optimizeLegibility !important;
+                -webkit-font-smoothing: antialiased !important;
+              }
+              .title, .category-title { font-family: 'Playfair Display', serif !important; }
+            `;
+            clonedDocument.head.appendChild(styleTag);
+            return clonedElement;
           }
         });
         
