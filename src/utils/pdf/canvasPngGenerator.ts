@@ -167,17 +167,42 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d')!;
   
-  // Calculate canvas dimensions with better spacing for descriptions
+  // Calculate canvas dimensions with dynamic item heights based on content
   const padding = 50;
   const headerHeight = 100;
   const categoryHeaderHeight = 70;
-  const itemRowHeight = 70; // Increased for better description display
+  const baseItemRowHeight = 50; // Minimum height for items
   const spaceBetweenCategories = 40;
   const tableHeaderHeight = 45;
   
+  // Function to calculate required height for an item based on its description
+  const calculateItemHeight = (item: any): number => {
+    const minHeight = baseItemRowHeight;
+    const maxWidth = 200; // Max width for description column
+    
+    if (!item.description || item.description.trim() === '') {
+      return minHeight + 20; // Base height + small padding
+    }
+    
+    // Set font for measurement
+    ctx.font = `400 13px ${FONTS.poppins}, sans-serif`;
+    const lines = wrapText(ctx, item.description, maxWidth);
+    const lineHeight = 18; // Line height for descriptions
+    const descriptionHeight = lines.length * lineHeight;
+    
+    // Calculate total needed height: base content + description + padding
+    const neededHeight = Math.max(minHeight, 35 + descriptionHeight + 25); // Service name + description + padding
+    
+    return neededHeight;
+  };
+  
+  // Calculate total height with dynamic item heights
   let totalHeight = headerHeight + padding * 2 + 40; // Extra space at top
   categories.forEach(category => {
-    totalHeight += categoryHeaderHeight + tableHeaderHeight + (category.items.length * itemRowHeight) + spaceBetweenCategories;
+    totalHeight += categoryHeaderHeight + tableHeaderHeight + spaceBetweenCategories;
+    category.items.forEach(item => {
+      totalHeight += calculateItemHeight(item);
+    });
   });
 
   canvas.width = 850; // Slightly wider for better proportions
@@ -213,31 +238,35 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
     const priceColumnX = canvas.width - padding - 20;
 
     ctx.fillStyle = '#FDF2F8';
-    drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, itemRowHeight, 8);
+    drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, tableHeaderHeight, 8);
     
     ctx.fillStyle = '#333333';
     ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
-    drawLeftText(ctx, 'Nazwa zabiegu', nameColumnX, currentY + itemRowHeight / 2);
-    drawLeftText(ctx, 'Opis', descColumnX, currentY + itemRowHeight / 2);
-    drawRightText(ctx, 'Cena', priceColumnX, currentY + itemRowHeight / 2);
-    currentY += itemRowHeight;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Nazwa zabiegu', nameColumnX, currentY + tableHeaderHeight / 2);
+    ctx.fillText('Opis', descColumnX, currentY + tableHeaderHeight / 2);
+    ctx.textAlign = 'right';
+    ctx.fillText('Cena', priceColumnX, currentY + tableHeaderHeight / 2);
+    currentY += tableHeaderHeight;
 
-    // Table items with improved layout
+    // Table items with dynamic heights based on content
     category.items.forEach((item, itemIndex) => {
       const isEven = itemIndex % 2 === 0;
+      const itemHeight = calculateItemHeight(item);
       
       // Row background with rounded corners
       ctx.fillStyle = isEven ? '#FCF2F8' : '#ffffff';
       if (isEven) {
-        drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, itemRowHeight, 6);
+        drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, itemHeight, 6);
       }
 
-      // Service name positioned at top of row
+      // Service name positioned at top of row with proper spacing
       ctx.fillStyle = '#333333';
       ctx.font = `500 16px ${FONTS.poppins}, sans-serif`;
-      drawLeftText(ctx, item.name, nameColumnX, currentY + 12, 240);
+      drawLeftText(ctx, item.name, nameColumnX, currentY + 15, 240);
 
-      // Description positioned below service name with more space
+      // Description positioned in its own column with proper wrapping and spacing
       if (item.description) {
         ctx.fillStyle = '#666666';
         ctx.font = `400 13px ${FONTS.poppins}, sans-serif`;
@@ -249,9 +278,9 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
       ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
       ctx.textAlign = 'right';
       ctx.textBaseline = 'middle';
-      ctx.fillText(formatPrice(item.price), priceColumnX, currentY + itemRowHeight / 2);
+      ctx.fillText(formatPrice(item.price), priceColumnX, currentY + itemHeight / 2);
 
-      currentY += itemRowHeight;
+      currentY += itemHeight;
     });
 
     // Add spacing between categories
