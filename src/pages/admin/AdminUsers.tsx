@@ -108,48 +108,49 @@ const AdminUsers: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <Users className="h-6 w-6 text-pink-500" />
-          <h2 className="text-xl font-semibold">Lista użytkowników</h2>
+          <Users className="h-5 w-5 sm:h-6 sm:w-6 text-pink-500 flex-shrink-0" />
+          <h2 className="text-lg sm:text-xl font-semibold">Lista użytkowników</h2>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col xs:flex-row gap-2 w-full sm:w-auto">
           <Button 
             variant="outline" 
             onClick={loadUsers}
             disabled={isLoading}
-            className="flex items-center gap-2"
+            className="flex items-center justify-center gap-2 w-full xs:w-auto"
+            size="sm"
           >
             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-            Odśwież
+            <span className="hidden xs:inline">Odśwież</span>
           </Button>
           <UserInviteDialog onUserInvited={handleUserInvited} />
         </div>
       </div>
 
       {/* Statystyki */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
+            <CardTitle className="text-xs sm:text-sm font-medium text-gray-500">
               Wszystkich użytkowników
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{users.length}</div>
+          <CardContent className="pt-0">
+            <div className="text-xl sm:text-2xl font-bold">{users.length}</div>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
+            <CardTitle className="text-xs sm:text-sm font-medium text-gray-500">
               Administratorzy
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">
+          <CardContent className="pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-red-600">
               {users.filter(u => u.roles.includes('admin')).length}
             </div>
           </CardContent>
@@ -157,12 +158,12 @@ const AdminUsers: React.FC = () => {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
+            <CardTitle className="text-xs sm:text-sm font-medium text-gray-500">
               Edytorzy
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
+          <CardContent className="pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-blue-600">
               {users.filter(u => u.roles.includes('editor')).length}
             </div>
           </CardContent>
@@ -170,12 +171,12 @@ const AdminUsers: React.FC = () => {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
+            <CardTitle className="text-xs sm:text-sm font-medium text-gray-500">
               Aktywni użytkownicy
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+          <CardContent className="pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-green-600">
               {users.filter(u => u.last_sign_in_at).length}
             </div>
           </CardContent>
@@ -184,7 +185,7 @@ const AdminUsers: React.FC = () => {
 
       {/* Tabela użytkowników */}
       <Card>
-        <CardContent className="p-6">
+        <CardContent className="p-3 sm:p-6">
           <UserManagementTable 
             users={users}
             onRoleChange={handleRoleChange}

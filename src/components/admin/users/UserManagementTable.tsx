@@ -103,8 +103,8 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
     <>
       <div className="space-y-4">
         {/* Filtry */}
-        <div className="flex gap-4 items-center">
-          <div className="relative flex-1">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
+          <div className="relative flex-1 min-w-0">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
               placeholder="Wyszukaj użytkownika..."
@@ -116,7 +116,7 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 w-full sm:w-auto min-w-0 sm:min-w-[140px]"
           >
             <option value="all">Wszystkie role</option>
             <option value="admin">Admin</option>
@@ -126,25 +126,31 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
         </div>
 
         {/* Tabela */}
-        <div className="border rounded-lg">
+        <div className="border rounded-lg overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="flex items-center gap-2">
-                  <Mail className="h-4 w-4" />
-                  Email
+                <TableHead className="min-w-[200px]">
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-4 w-4 flex-shrink-0" />
+                    <span>Email</span>
+                  </div>
                 </TableHead>
-                <TableHead className="flex items-center gap-2">
-                  <Shield className="h-4 w-4" />
-                  Rola
+                <TableHead className="min-w-[120px]">
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-4 w-4 flex-shrink-0" />
+                    <span>Rola</span>
+                  </div>
                 </TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  Data utworzenia
+                <TableHead className="min-w-[100px]">Status</TableHead>
+                <TableHead className="min-w-[140px] hidden md:table-cell">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 flex-shrink-0" />
+                    <span>Data utworzenia</span>
+                  </div>
                 </TableHead>
-                <TableHead>Ostatnie logowanie</TableHead>
-                <TableHead>Akcje</TableHead>
+                <TableHead className="min-w-[140px] hidden lg:table-cell">Ostatnie logowanie</TableHead>
+                <TableHead className="min-w-[100px]">Akcje</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -160,10 +166,12 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
               ) : (
                 filteredUsers.map((user) => (
                   <TableRow key={user.user_id}>
-                    <TableCell className="font-medium">
-                      {user.email}
+                    <TableCell className="font-medium min-w-0">
+                      <div className="truncate max-w-[200px] sm:max-w-none" title={user.email}>
+                        {user.email}
+                      </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="min-w-0">
                       <UserRoleSelect
                         currentRoles={user.roles}
                         userId={user.user_id}
@@ -174,21 +182,25 @@ const UserManagementTable: React.FC<UserManagementTableProps> = ({
                     <TableCell>
                       {getStatusBadge(user)}
                     </TableCell>
-                    <TableCell>
-                      {formatDate(user.created_at)}
+                    <TableCell className="hidden md:table-cell">
+                      <div className="text-sm text-gray-600">
+                        {formatDate(user.created_at)}
+                      </div>
                     </TableCell>
-                    <TableCell>
-                      {formatDate(user.last_sign_in_at)}
+                    <TableCell className="hidden lg:table-cell">
+                      <div className="text-sm text-gray-600">
+                        {formatDate(user.last_sign_in_at)}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => handleUserDetails(user)}
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-1 whitespace-nowrap"
                       >
-                        <Eye className="h-3 w-3" />
-                        Szczegóły
+                        <Eye className="h-3 w-3 flex-shrink-0" />
+                        <span className="hidden sm:inline">Szczegóły</span>
                       </Button>
                     </TableCell>
                   </TableRow>
