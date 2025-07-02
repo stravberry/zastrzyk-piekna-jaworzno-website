@@ -255,11 +255,9 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
       const isEven = itemIndex % 2 === 0;
       const itemHeight = calculateItemHeight(item);
       
-      // Row background with rounded corners
+      // Row background with rounded corners - draw for all rows with proper height
       ctx.fillStyle = isEven ? '#FCF2F8' : '#ffffff';
-      if (isEven) {
-        drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, itemHeight, 6);
-      }
+      drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, itemHeight, 6);
 
       // Service name positioned at top of row with proper spacing
       ctx.fillStyle = '#333333';
