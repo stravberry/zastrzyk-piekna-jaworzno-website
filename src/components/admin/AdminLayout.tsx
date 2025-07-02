@@ -230,10 +230,18 @@ const AdminSidebar: React.FC<{
   setShowLogoutDialog,
   handleSecureLogout 
 }) => {
-  const { state } = useSidebar();
+  const { state, setOpenMobile } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
+
+  // Function to close mobile sidebar after navigation
+  const handleMobileNavClick = () => {
+    // Check if we're on mobile (screen width < 1024px)
+    if (window.innerWidth < 1024) {
+      setOpenMobile(false);
+    }
+  };
 
   const getNavCls = (href: string) => {
     const isActiveRoute = isActive(href);
@@ -320,6 +328,7 @@ const AdminSidebar: React.FC<{
                       <NavLink 
                         to={item.href} 
                         className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${getNavCls(item.href)}`}
+                        onClick={handleMobileNavClick}
                       >
                         <Icon className="w-4 h-4 flex-shrink-0" />
                         {!collapsed && (
