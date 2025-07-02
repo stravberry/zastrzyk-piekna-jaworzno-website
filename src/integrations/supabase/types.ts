@@ -548,6 +548,30 @@ export type Database = {
           },
         ]
       }
+      keep_alive_log: {
+        Row: {
+          created_at: string | null
+          id: string
+          response_data: Json | null
+          status: string
+          timestamp: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          response_data?: Json | null
+          status: string
+          timestamp?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          response_data?: Json | null
+          status?: string
+          timestamp?: string | null
+        }
+        Relationships: []
+      }
       patient_appointments: {
         Row: {
           calendar_sync_enabled: boolean | null
