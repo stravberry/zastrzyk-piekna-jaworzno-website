@@ -61,13 +61,13 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ data, isLoading, compact = 
           <span className="block sm:inline">Średnio: {formatCurrency(averageMonthlyRevenue)}/miesiąc</span>
         </CardDescription>
       </CardHeader>
-      <CardContent className="p-2 xs:p-3 sm:p-6">
+      <CardContent className="p-2 pr-1 xs:p-3 xs:pr-2 sm:p-6">
         <ChartContainer config={chartConfig} className={compact ? "h-32 xs:h-36 sm:h-44 lg:h-48" : "h-40 xs:h-48 sm:h-64 lg:h-80"}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data} margin={{ 
               top: 3, 
-              right: compact ? 2 : 5, 
-              left: compact ? 2 : 5, 
+              right: 0, 
+              left: 0, 
               bottom: compact ? 15 : 20 
             }}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
@@ -93,7 +93,7 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ data, isLoading, compact = 
                   }
                   return value.toString();
                 }}
-                width={compact ? 30 : 50}
+                width={25}
               />
               <ChartTooltip 
                 content={<ChartTooltipContent 
