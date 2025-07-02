@@ -9,3 +9,6 @@ verify_jwt = true
 
 [functions.send-appointment-reminders]
 verify_jwt = true
+
+[functions.keep-alive-ping]
+verify_jwt = false
