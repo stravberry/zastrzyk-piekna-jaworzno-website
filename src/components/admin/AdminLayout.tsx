@@ -80,10 +80,29 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   };
 
   const getSessionInfo = () => {
-    if (!session?.expires_at) return null;
+    if (!session?.expires_at) {
+      console.log('[SESSION DEBUG] No session expires_at found:', session);
+      return null;
+    }
     
-    const expiresAt = new Date(session.expires_at);
+    // Debug session info
+    console.log('[SESSION DEBUG] Raw expires_at:', session.expires_at);
+    console.log('[SESSION DEBUG] Current time:', currentTime.toISOString());
+    
+    // Handle both timestamp (number) and ISO string formats
+    let expiresAt: Date;
+    if (typeof session.expires_at === 'number') {
+      // Unix timestamp (seconds)
+      expiresAt = new Date(session.expires_at * 1000);
+    } else {
+      // ISO string
+      expiresAt = new Date(session.expires_at);
+    }
+    
+    console.log('[SESSION DEBUG] Parsed expires_at:', expiresAt.toISOString());
+    
     const timeLeft = expiresAt.getTime() - currentTime.getTime();
+    console.log('[SESSION DEBUG] Time left (ms):', timeLeft);
     
     // Jeśli sesja już wygasła
     if (timeLeft <= 0) {
