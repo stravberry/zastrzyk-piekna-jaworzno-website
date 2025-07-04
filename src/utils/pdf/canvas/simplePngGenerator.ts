@@ -104,7 +104,7 @@ export const generateSimpleCategoryPng = async (category: PriceCategory): Promis
   
   ctx.fillStyle = '#ffffff';
   ctx.font = `600 18px ${FONTS.poppins}, sans-serif`;
-  drawCenteredText(ctx, category.title, canvas.width / 2, currentY + 10, canvas.width - padding * 4);
+  drawCenteredText(ctx, category.title, canvas.width / 2, currentY + 14, canvas.width - padding * 4);
   currentY += 70;
 
   // Items with proper spacing
@@ -212,7 +212,7 @@ export const generateSimpleFullPricingPng = async (categories: PriceCategory[]):
     
     ctx.fillStyle = '#ffffff';
     ctx.font = `600 24px ${FONTS.poppins}, sans-serif`;
-    drawCenteredText(ctx, category.title, canvas.width / 2, currentY + 15);
+    drawCenteredText(ctx, category.title, canvas.width / 2, currentY + 20);
     currentY += 90;
 
     // Table headers
