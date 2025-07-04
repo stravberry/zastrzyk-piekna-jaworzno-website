@@ -62,7 +62,7 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
     
     ctx.fillStyle = '#ffffff';
     ctx.font = `600 24px ${FONTS.poppins}, sans-serif`;
-    drawCenteredText(ctx, category.title, canvas.width / 2, currentY + 12, canvas.width - padding * 4); // Moved even higher for better centering
+    drawCenteredText(ctx, category.title, canvas.width / 2, currentY + 6, canvas.width - padding * 4); // Much higher positioning
     currentY += categoryHeaderHeight;
 
     // Table headers
