@@ -34,7 +34,7 @@ export const generateSingleCategoryPng = async (category: PriceCategory): Promis
   
   ctx.fillStyle = '#ffffff';
   ctx.font = `600 18px ${FONTS.poppins}, sans-serif`;
-  drawCenteredText(ctx, category.title, canvas.width / 2, currentY + 25, canvas.width - padding * 4);
+  drawCenteredText(ctx, category.title, canvas.width / 2, currentY + 15, canvas.width - padding * 4);
   currentY += 70;
 
   // Items
