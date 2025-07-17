@@ -2,6 +2,12 @@ import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertDialog,
@@ -30,7 +36,8 @@ import {
   Download,
   Edit,
   Trash2,
-  ArrowLeft
+  ArrowLeft,
+  Menu
 } from "lucide-react";
 import { toast } from "sonner";
 import AppointmentForm from "./AppointmentForm";
@@ -239,12 +246,42 @@ const PatientProfile: React.FC<PatientProfileProps> = ({
 
       {/* Content */}
       <Tabs defaultValue="info" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 bg-muted p-1 h-auto">
-          <TabsTrigger value="info" className="py-3">Informacje</TabsTrigger>
-          <TabsTrigger value="appointments" className="py-3">Wizyty</TabsTrigger>
-          <TabsTrigger value="medical" className="py-3">Medyczne</TabsTrigger>
-          <TabsTrigger value="photos" className="py-3">Zdjęcia</TabsTrigger>
-        </TabsList>
+        <div className="flex justify-start">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Menu className="w-4 h-4" />
+                Wybierz zakładkę
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-48 bg-background">
+              <TabsTrigger value="info" asChild>
+                <DropdownMenuItem className="cursor-pointer">
+                  <User className="w-4 h-4 mr-2" />
+                  Informacje
+                </DropdownMenuItem>
+              </TabsTrigger>
+              <TabsTrigger value="appointments" asChild>
+                <DropdownMenuItem className="cursor-pointer">
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Wizyty
+                </DropdownMenuItem>
+              </TabsTrigger>
+              <TabsTrigger value="medical" asChild>
+                <DropdownMenuItem className="cursor-pointer">
+                  <FileText className="w-4 h-4 mr-2" />
+                  Medyczne
+                </DropdownMenuItem>
+              </TabsTrigger>
+              <TabsTrigger value="photos" asChild>
+                <DropdownMenuItem className="cursor-pointer">
+                  <Camera className="w-4 h-4 mr-2" />
+                  Zdjęcia
+                </DropdownMenuItem>
+              </TabsTrigger>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
         <TabsContent value="info" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
