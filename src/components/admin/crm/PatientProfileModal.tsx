@@ -204,7 +204,7 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="w-[95vw] max-w-4xl max-h-[95vh] mx-auto overflow-y-auto">
+        <DialogContent className="w-[95vw] max-w-4xl max-h-[95vh] mx-auto overflow-y-auto p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4 px-1">
             <div>
               <h2 className="text-xl sm:text-2xl font-bold">
@@ -217,14 +217,14 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
                 onClick={() => setIsEditing(true)}
                 variant="outline"
                 size="sm"
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto py-3 text-sm"
               >
                 <Edit className="w-4 h-4 mr-2" />
                 Edytuj dane
               </Button>
               <Button 
                 onClick={() => setShowAddAppointment(true)}
-                className="bg-pink-500 hover:bg-pink-600 w-full sm:w-auto"
+                className="bg-pink-500 hover:bg-pink-600 w-full sm:w-auto py-3 text-sm"
                 size="sm"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -235,10 +235,10 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
 
           <Tabs defaultValue="info" className="w-full">
             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
-              <TabsTrigger value="info" className="text-xs sm:text-sm">Info</TabsTrigger>
-              <TabsTrigger value="appointments" className="text-xs sm:text-sm">Wizyty</TabsTrigger>
-              <TabsTrigger value="medical" className="text-xs sm:text-sm">Medyczne</TabsTrigger>
-              <TabsTrigger value="photos" className="text-xs sm:text-sm">Zdjęcia</TabsTrigger>
+              <TabsTrigger value="info" className="text-xs sm:text-sm py-3">Info</TabsTrigger>
+              <TabsTrigger value="appointments" className="text-xs sm:text-sm py-3">Wizyty</TabsTrigger>
+              <TabsTrigger value="medical" className="text-xs sm:text-sm py-3">Medyczne</TabsTrigger>
+              <TabsTrigger value="photos" className="text-xs sm:text-sm py-3">Zdjęcia</TabsTrigger>
             </TabsList>
 
             <TabsContent value="info" className="space-y-4 px-1">
@@ -315,50 +315,51 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
 
               <div className="space-y-3">
                 {appointments?.map((appointment) => (
-                  <Card key={appointment.id} className="p-4">
-                    <div className="flex justify-between items-start">
+                  <Card key={appointment.id} className="p-4 sm:p-5">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h4 className="font-medium">{appointment.treatments.name}</h4>
-                          <Badge className={getStatusColor(appointment.status || 'scheduled')}>
+                        <div className="flex flex-wrap items-center gap-3 mb-2">
+                          <h4 className="font-medium text-base">{appointment.treatments.name}</h4>
+                          <Badge className={`${getStatusColor(appointment.status || 'scheduled')} px-3 py-1`}>
                             {getStatusText(appointment.status || 'scheduled')}
                           </Badge>
                         </div>
                         
-                        <p className="text-sm text-gray-600 mb-1">
+                        <p className="text-sm sm:text-base text-gray-600 mb-1">
                           {formatDate(appointment.scheduled_date)}
                         </p>
                         
                         {appointment.cost && (
-                          <p className="text-sm font-medium">
+                          <p className="text-sm sm:text-base font-medium my-2">
                             Koszt: {appointment.cost} zł
                           </p>
                         )}
                         
                         {appointment.post_treatment_notes && (
-                          <p className="text-sm text-gray-600 mt-2">
-                            <FileText className="w-3 h-3 inline mr-1" />
+                          <p className="text-sm sm:text-base text-gray-600 mt-2 p-2 bg-gray-50 rounded-md">
+                            <FileText className="w-4 h-4 inline mr-2" />
                             {appointment.post_treatment_notes}
                           </p>
                         )}
                       </div>
                       
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 mt-2 sm:mt-0">
                         <Button 
                           size="sm" 
                           variant="outline"
                           onClick={() => downloadCalendarEvent(appointment.id)}
+                          className="px-4 py-2 h-auto"
                         >
-                          <Download className="w-3 h-3 mr-1" />
-                          .ics
+                          <Download className="w-4 h-4 mr-2" />
+                          Pobierz .ics
                         </Button>
                         <Button 
                           size="sm" 
                           variant="outline"
                           onClick={() => setAppointmentToDelete(appointment.id)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 h-auto"
                         >
-                          <Trash2 className="w-3 h-3" />
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
@@ -377,31 +378,31 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
               <div className="grid gap-6">
                 {displayPatient.allergies && (
                   <div>
-                    <h3 className="text-lg font-semibold flex items-center mb-2">
+                    <h3 className="text-lg font-semibold flex items-center mb-3">
                       <AlertTriangle className="w-5 h-5 mr-2 text-orange-500" />
                       Alergie
                     </h3>
-                    <p className="text-sm bg-orange-50 p-3 rounded">{displayPatient.allergies}</p>
+                    <p className="text-sm sm:text-base bg-orange-50 p-4 rounded-md">{displayPatient.allergies}</p>
                   </div>
                 )}
 
                 {displayPatient.contraindications && (
                   <div>
-                    <h3 className="text-lg font-semibold flex items-center mb-2">
+                    <h3 className="text-lg font-semibold flex items-center mb-3">
                       <AlertTriangle className="w-5 h-5 mr-2 text-red-500" />
                       Przeciwwskazania
                     </h3>
-                    <p className="text-sm bg-red-50 p-3 rounded">{displayPatient.contraindications}</p>
+                    <p className="text-sm sm:text-base bg-red-50 p-4 rounded-md">{displayPatient.contraindications}</p>
                   </div>
                 )}
 
                 {displayPatient.medical_notes && (
                   <div>
-                    <h3 className="text-lg font-semibold flex items-center mb-2">
+                    <h3 className="text-lg font-semibold flex items-center mb-3">
                       <Heart className="w-5 h-5 mr-2 text-pink-500" />
                       Notatki medyczne
                     </h3>
-                    <p className="text-sm bg-gray-50 p-3 rounded">{displayPatient.medical_notes}</p>
+                    <p className="text-sm sm:text-base bg-gray-50 p-4 rounded-md">{displayPatient.medical_notes}</p>
                   </div>
                 )}
 
@@ -431,19 +432,19 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
 
       {/* Delete Appointment Confirmation Dialog */}
       <AlertDialog open={!!appointmentToDelete} onOpenChange={() => setAppointmentToDelete(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="p-5 sm:p-6 w-[90vw] max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Potwierdź usunięcie wizyty</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-xl">Potwierdź usunięcie wizyty</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm sm:text-base py-2">
               Czy na pewno chcesz usunąć tę wizytę? Ta operacja jest nieodwracalna.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Anuluj</AlertDialogCancel>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2 sm:gap-3 mt-4">
+            <AlertDialogCancel className="w-full sm:w-auto py-3 text-base">Anuluj</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => appointmentToDelete && deleteAppointment(appointmentToDelete)}
               disabled={isDeleting}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-red-600 hover:bg-red-700 w-full sm:w-auto py-3 text-base"
             >
               {isDeleting ? "Usuwanie..." : "Usuń wizytę"}
             </AlertDialogAction>
