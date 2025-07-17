@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate, NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { 
   BarChart3, 
   Users, 
@@ -234,6 +235,10 @@ const AdminSidebar: React.FC<{
   const location = useLocation();
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
+  const isMobile = useIsMobile();
+  
+  // On mobile, never show collapsed state - always show full menu when open
+  const shouldShowFullContent = !collapsed || isMobile;
 
   // Function to close mobile sidebar after navigation
   const handleMobileNavClick = () => {
@@ -253,8 +258,8 @@ const AdminSidebar: React.FC<{
   return (
     <Sidebar className={collapsed ? "w-14" : "w-64"} collapsible="icon">
       <SidebarContent className="bg-white">
-        {/* Header - only show when not collapsed */}
-        {!collapsed && (
+        {/* Header - always show on mobile, hide only when collapsed on desktop */}
+        {shouldShowFullContent && (
           <div className="p-6 border-b">
             <Link to="/" className="text-xl font-bold text-pink-600">
               Zastrzyk Piękna
@@ -330,15 +335,15 @@ const AdminSidebar: React.FC<{
                         className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${getNavCls(item.href)}`}
                         onClick={handleMobileNavClick}
                       >
-                        <Icon className="w-4 h-4 flex-shrink-0" />
-                        {!collapsed && (
-                          <>
-                            <span className="ml-3">{item.name}</span>
-                            {item.adminOnly && (
-                              <Shield className="w-3 h-3 ml-auto text-red-500" />
-                            )}
-                          </>
-                        )}
+                         <Icon className="w-4 h-4 flex-shrink-0" />
+                         {shouldShowFullContent && (
+                           <>
+                             <span className="ml-3">{item.name}</span>
+                             {item.adminOnly && (
+                               <Shield className="w-3 h-3 ml-auto text-red-500" />
+                             )}
+                           </>
+                         )}
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -357,8 +362,8 @@ const AdminSidebar: React.FC<{
                 className={`w-full text-red-600 border-red-200 hover:bg-red-50 ${collapsed ? 'px-2' : ''}`}
                 size={collapsed ? "sm" : "default"}
               >
-                <LogOut className="w-4 h-4 flex-shrink-0" />
-                {!collapsed && <span className="ml-2">Wyloguj się</span>}
+                 <LogOut className="w-4 h-4 flex-shrink-0" />
+                 {shouldShowFullContent && <span className="ml-2">Wyloguj się</span>}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
