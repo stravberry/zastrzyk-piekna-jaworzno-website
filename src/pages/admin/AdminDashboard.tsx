@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { FileText, Eye, Clock, Info } from "lucide-react";
+import { FileText, Eye, Clock, Info, Plus, Calendar } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -56,6 +56,25 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div>
+      {/* Quick Actions */}
+      <div className="mb-6">
+        <h2 className="text-lg font-semibold mb-3">Szybkie akcje</h2>
+        <div className="flex gap-3">
+          <Button asChild>
+            <Link to="/admin/appointments/new">
+              <Plus className="w-4 h-4 mr-2" />
+              Umów wizytę
+            </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link to="/admin/crm">
+              <Calendar className="w-4 h-4 mr-2" />
+              Przejdź do CRM
+            </Link>
+          </Button>
+        </div>
+      </div>
+
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-pulse">
           {[...Array(3)].map((_, i) => (

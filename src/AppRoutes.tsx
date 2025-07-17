@@ -29,6 +29,7 @@ import AdminPatientProfile from "./pages/admin/AdminPatientProfile";
 import AdminPatientEdit from "./pages/admin/AdminPatientEdit";
 import AdminEmailTemplates from "./pages/admin/AdminEmailTemplates";
 import AdminAppointments from "./pages/admin/AdminAppointments";
+import AdminAppointmentNew from "./pages/admin/AdminAppointmentNew";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 
 const AppRoutes = () => {
@@ -106,6 +107,11 @@ const AppRoutes = () => {
         <Route path="appointments" element={
           <AdminProtectedRoute requiredRole="editor">
             <AdminAppointments />
+          </AdminProtectedRoute>
+        } />
+        <Route path="appointments/new" element={
+          <AdminProtectedRoute requiredRole="editor">
+            <AdminAppointmentNew />
           </AdminProtectedRoute>
         } />
         <Route path="email-templates" element={
