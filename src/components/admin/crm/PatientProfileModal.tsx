@@ -470,8 +470,7 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
       {isEditing && displayPatient && (
         <PatientEditForm
           patient={displayPatient}
-          isOpen={isEditing}
-          onClose={() => setIsEditing(false)}
+          onCancel={() => setIsEditing(false)}
           onSuccess={handleEditSuccess}
         />
       )}

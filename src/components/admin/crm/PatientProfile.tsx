@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -41,7 +42,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import AppointmentForm from "./AppointmentForm";
-import PatientEditForm from "./PatientEditForm";
 
 type Patient = Tables<"patients">;
 type Appointment = Tables<"patient_appointments"> & {
@@ -57,8 +57,8 @@ const PatientProfile: React.FC<PatientProfileProps> = ({
   patient, 
   onBack
 }) => {
+  const navigate = useNavigate();
   const [showAddAppointment, setShowAddAppointment] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
   const [appointmentToDelete, setAppointmentToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -190,9 +190,8 @@ const PatientProfile: React.FC<PatientProfileProps> = ({
     }
   };
 
-  const handleEditSuccess = () => {
-    setIsEditing(false);
-    refetchPatient();
+  const handleEditClick = () => {
+    navigate(`/admin/crm/patient/${displayPatient.id}/edit`);
   };
 
   const handleAppointmentSuccess = () => {
@@ -227,7 +226,7 @@ const PatientProfile: React.FC<PatientProfileProps> = ({
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
           <Button 
-            onClick={() => setIsEditing(true)}
+            onClick={handleEditClick}
             variant="outline"
             size="default"
           >
@@ -517,15 +516,6 @@ const PatientProfile: React.FC<PatientProfileProps> = ({
           onClose={() => setShowAddAppointment(false)}
           onSuccess={handleAppointmentSuccess}
           selectedPatient={displayPatient}
-        />
-      )}
-
-      {isEditing && (
-        <PatientEditForm
-          patient={displayPatient}
-          isOpen={isEditing}
-          onClose={() => setIsEditing(false)}
-          onSuccess={handleEditSuccess}
         />
       )}
 
