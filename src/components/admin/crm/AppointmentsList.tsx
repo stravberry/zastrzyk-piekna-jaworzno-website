@@ -57,23 +57,26 @@ const AppointmentsList: React.FC = () => {
           patients (*),
           treatments (*)
         `, { count: 'exact' })
-        .order('scheduled_date', { ascending: false })
-        .range(from, to);
+        .order('scheduled_date', { ascending: false });
 
+      // Apply search filter if provided
+      if (searchTerm.trim()) {
+        const searchPattern = `%${searchTerm.trim()}%`;
+        query = query.or(`patients.first_name.ilike.${searchPattern},patients.last_name.ilike.${searchPattern},treatments.name.ilike.${searchPattern}`);
+      }
+
+      // Apply status filter if not "all"
       if (statusFilter !== "all") {
-        // Only apply filter for valid appointment statuses, excluding "all"
         const validAppointmentStatuses: AppointmentStatus[] = ["scheduled", "completed", "cancelled", "no_show"];
         const isValidStatus = validAppointmentStatuses.includes(statusFilter as AppointmentStatus);
         if (isValidStatus) {
-          // Explicitly cast to AppointmentStatus since we've validated it
           const validStatus = statusFilter as AppointmentStatus;
           query = query.eq('status', validStatus);
         }
       }
 
-      if (searchTerm.trim()) {
-        query = query.or(`patients.first_name.ilike.%${searchTerm}%,patients.last_name.ilike.%${searchTerm}%,treatments.name.ilike.%${searchTerm}%`);
-      }
+      // Apply pagination
+      query = query.range(from, to);
 
       const { data, error, count } = await query;
       if (error) throw error;
@@ -82,7 +85,9 @@ const AppointmentsList: React.FC = () => {
         appointments: data as AppointmentWithDetails[] || [],
         totalCount: count || 0
       };
-    }
+    },
+    refetchOnWindowFocus: false,
+    refetchOnMount: true
   });
 
   // Mutation for quick status updates
