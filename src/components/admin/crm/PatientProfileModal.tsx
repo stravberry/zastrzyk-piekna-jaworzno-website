@@ -204,91 +204,92 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <div className="flex justify-between items-start mb-4">
+        <DialogContent className="w-[95vw] max-w-4xl max-h-[95vh] mx-auto overflow-y-auto">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4 px-1">
             <div>
-              <h2 className="text-2xl font-bold">
+              <h2 className="text-xl sm:text-2xl font-bold">
                 {displayPatient.first_name} {displayPatient.last_name}
               </h2>
-              <p className="text-gray-600">Profil pacjenta</p>
+              <p className="text-gray-600 text-sm">Profil pacjenta</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <Button 
                 onClick={() => setIsEditing(true)}
                 variant="outline"
                 size="sm"
+                className="w-full sm:w-auto"
               >
                 <Edit className="w-4 h-4 mr-2" />
-                Edytuj
+                Edytuj dane
               </Button>
               <Button 
                 onClick={() => setShowAddAppointment(true)}
-                className="bg-pink-500 hover:bg-pink-600"
+                className="bg-pink-500 hover:bg-pink-600 w-full sm:w-auto"
                 size="sm"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Umów wizytę
+                Nowa wizyta
               </Button>
             </div>
           </div>
 
           <Tabs defaultValue="info" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="info">Informacje</TabsTrigger>
-              <TabsTrigger value="appointments">Wizyty</TabsTrigger>
-              <TabsTrigger value="medical">Medyczne</TabsTrigger>
-              <TabsTrigger value="photos">Zdjęcia</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
+              <TabsTrigger value="info" className="text-xs sm:text-sm">Info</TabsTrigger>
+              <TabsTrigger value="appointments" className="text-xs sm:text-sm">Wizyty</TabsTrigger>
+              <TabsTrigger value="medical" className="text-xs sm:text-sm">Medyczne</TabsTrigger>
+              <TabsTrigger value="photos" className="text-xs sm:text-sm">Zdjęcia</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="info" className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold flex items-center">
-                    <User className="w-5 h-5 mr-2" />
+            <TabsContent value="info" className="space-y-4 px-1">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                <div className="space-y-3 sm:space-y-4">
+                  <h3 className="text-base sm:text-lg font-semibold flex items-center">
+                    <User className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                     Dane kontaktowe
                   </h3>
                   
                   {displayPatient.phone && (
-                    <div className="flex items-center">
-                      <Phone className="w-4 h-4 mr-2 text-gray-500" />
-                      <span>{displayPatient.phone}</span>
+                    <div className="flex items-center text-sm sm:text-base">
+                      <Phone className="w-3 h-3 sm:w-4 sm:h-4 mr-2 text-gray-500 flex-shrink-0" />
+                      <span className="break-all">{displayPatient.phone}</span>
                     </div>
                   )}
                   
                   {displayPatient.email && (
-                    <div className="flex items-center">
-                      <Mail className="w-4 h-4 mr-2 text-gray-500" />
-                      <span>{displayPatient.email}</span>
+                    <div className="flex items-center text-sm sm:text-base">
+                      <Mail className="w-3 h-3 sm:w-4 sm:h-4 mr-2 text-gray-500 flex-shrink-0" />
+                      <span className="break-all">{displayPatient.email}</span>
                     </div>
                   )}
                   
                   {displayPatient.address && (
-                    <div className="flex items-center">
-                      <MapPin className="w-4 h-4 mr-2 text-gray-500" />
-                      <span>{displayPatient.address}</span>
+                    <div className="flex items-start text-sm sm:text-base">
+                      <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" />
+                      <span className="break-words">{displayPatient.address}</span>
                     </div>
                   )}
                   
                   {displayPatient.date_of_birth && (
-                    <div className="flex items-center">
-                      <Calendar className="w-4 h-4 mr-2 text-gray-500" />
+                    <div className="flex items-center text-sm sm:text-base">
+                      <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-2 text-gray-500 flex-shrink-0" />
                       <span>{new Date(displayPatient.date_of_birth).toLocaleDateString('pl-PL')}</span>
                     </div>
                   )}
                 </div>
 
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Dodatkowe informacje</h3>
+                <div className="space-y-3 sm:space-y-4">
+                  <h3 className="text-base sm:text-lg font-semibold">Dodatkowe informacje</h3>
                   
                   <div className="space-y-2">
                     {displayPatient.skin_type && (
-                      <Badge variant="secondary">
+                      <Badge variant="secondary" className="text-xs">
                         Typ skóry: {displayPatient.skin_type}
                       </Badge>
                     )}
                     
                     {displayPatient.source && (
-                      <Badge variant="outline">
+                      <Badge variant="outline" className="text-xs">
                         Źródło: {displayPatient.source}
                       </Badge>
                     )}
@@ -296,8 +297,8 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
 
                   {displayPatient.notes && (
                     <div>
-                      <h4 className="font-medium text-sm text-gray-700 mb-1">Notatki:</h4>
-                      <p className="text-sm">{displayPatient.notes}</p>
+                      <h4 className="font-medium text-xs sm:text-sm text-gray-700 mb-1">Notatki:</h4>
+                      <p className="text-xs sm:text-sm break-words">{displayPatient.notes}</p>
                     </div>
                   )}
                 </div>
