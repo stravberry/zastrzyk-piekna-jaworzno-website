@@ -2,6 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,12 +11,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useGoogleCalendar } from "@/hooks/useGoogleCalendar";
-import { Calendar, Mail } from "lucide-react";
+import { CalendarIcon, Mail } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type Patient = Tables<"patients">;
 type Treatment = Tables<"treatments">;
@@ -27,7 +31,10 @@ type Appointment = Tables<"patient_appointments"> & {
 const appointmentSchema = z.object({
   patient_id: z.string().min(1, "Wybierz pacjenta"),
   treatment_id: z.string().min(1, "Wybierz zabieg"),
-  scheduled_date: z.string().min(1, "Wybierz datę i godzinę"),
+  scheduled_date: z.date({
+    required_error: "Wybierz datę i godzinę",
+  }),
+  scheduled_time: z.string().min(1, "Wybierz godzinę"),
   duration_minutes: z.number().min(1, "Czas trwania musi być większy niż 0"),
   pre_treatment_notes: z.string().optional(),
   post_treatment_notes: z.string().optional(),
@@ -52,21 +59,21 @@ interface AppointmentFormProps {
   editingAppointment?: Appointment | null;
 }
 
-// Helper function to format date for datetime-local input (keeps local timezone)
-const formatDateTimeLocal = (date: string | Date) => {
-  const d = new Date(date);
-  // Get timezone offset in minutes
-  const timezoneOffset = d.getTimezoneOffset();
-  // Adjust for timezone to get local time
-  const localTime = new Date(d.getTime() - (timezoneOffset * 60000));
-  return localTime.toISOString().slice(0, 16);
+// Helper function to parse date and time
+const parseAppointmentDate = (dateString: string) => {
+  const appointmentDate = new Date(dateString);
+  return {
+    date: appointmentDate,
+    time: format(appointmentDate, "HH:mm")
+  };
 };
 
-// Helper function to convert datetime-local to UTC for database
-const convertToUTC = (localDateString: string) => {
-  // Create date object from local datetime string
-  const localDate = new Date(localDateString);
-  return localDate.toISOString();
+// Helper function to combine date and time for database
+const combineDateAndTime = (date: Date, time: string) => {
+  const [hours, minutes] = time.split(':');
+  const combined = new Date(date);
+  combined.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+  return combined.toISOString();
 };
 
 const AppointmentForm: React.FC<AppointmentFormProps> = ({ 
@@ -85,8 +92,11 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
       patient_id: selectedPatient?.id || editingAppointment?.patient_id || "",
       treatment_id: editingAppointment?.treatment_id || "",
       scheduled_date: editingAppointment?.scheduled_date 
-        ? formatDateTimeLocal(editingAppointment.scheduled_date)
-        : "",
+        ? new Date(editingAppointment.scheduled_date)
+        : undefined,
+      scheduled_time: editingAppointment?.scheduled_date 
+        ? parseAppointmentDate(editingAppointment.scheduled_date).time
+        : "09:00",
       duration_minutes: editingAppointment?.duration_minutes || 60,
       pre_treatment_notes: editingAppointment?.pre_treatment_notes || "",
       post_treatment_notes: editingAppointment?.post_treatment_notes || "",
@@ -102,10 +112,12 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
   // Reset form when editingAppointment changes
   React.useEffect(() => {
     if (editingAppointment) {
+      const parsedDate = parseAppointmentDate(editingAppointment.scheduled_date);
       form.reset({
         patient_id: editingAppointment.patient_id,
         treatment_id: editingAppointment.treatment_id,
-        scheduled_date: formatDateTimeLocal(editingAppointment.scheduled_date),
+        scheduled_date: new Date(editingAppointment.scheduled_date),
+        scheduled_time: parsedDate.time,
         duration_minutes: editingAppointment.duration_minutes || 60,
         pre_treatment_notes: editingAppointment.pre_treatment_notes || "",
         post_treatment_notes: editingAppointment.post_treatment_notes || "",
@@ -119,6 +131,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     } else if (selectedPatient) {
       form.reset({
         patient_id: selectedPatient.id,
+        scheduled_time: "09:00",
         duration_minutes: 60,
         email_reminders_enabled: true,
         calendar_sync_enabled: true,
@@ -162,8 +175,8 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     try {
       let appointmentId;
 
-      // Convert local datetime to UTC for database storage
-      const utcScheduledDate = convertToUTC(data.scheduled_date);
+      // Combine date and time for database storage
+      const scheduledDateTime = combineDateAndTime(data.scheduled_date, data.scheduled_time);
 
       if (isEditing && editingAppointment) {
         // Update existing appointment
@@ -172,7 +185,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
           .update({
             patient_id: data.patient_id,
             treatment_id: data.treatment_id,
-            scheduled_date: utcScheduledDate,
+            scheduled_date: scheduledDateTime,
             duration_minutes: data.duration_minutes,
             pre_treatment_notes: data.pre_treatment_notes || null,
             post_treatment_notes: data.post_treatment_notes || null,
@@ -197,7 +210,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
             patient_id: data.patient_id,
             treatment_id: data.treatment_id,
             status: data.status,
-            scheduled_date: utcScheduledDate
+            scheduled_date: scheduledDateTime
           }
         });
         
@@ -209,7 +222,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
           .insert({
             patient_id: data.patient_id,
             treatment_id: data.treatment_id,
-            scheduled_date: utcScheduledDate,
+            scheduled_date: scheduledDateTime,
             duration_minutes: data.duration_minutes,
             pre_treatment_notes: data.pre_treatment_notes || null,
             post_treatment_notes: data.post_treatment_notes || null,
@@ -340,38 +353,83 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                   )}
                 />
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   <FormField
                     control={form.control}
                     name="scheduled_date"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Data i godzina *</FormLabel>
-                        <FormControl>
-                          <Input {...field} type="datetime-local" />
-                        </FormControl>
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Data *</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Wybierz datę</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date < new Date(new Date().setHours(0, 0, 0, 0))
+                              }
+                              initialFocus
+                              className={cn("p-3 pointer-events-auto")}
+                            />
+                          </PopoverContent>
+                        </Popover>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="duration_minutes"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Czas trwania (minuty)</FormLabel>
-                        <FormControl>
-                          <Input 
-                            {...field} 
-                            type="number" 
-                            onChange={(e) => field.onChange(parseInt(e.target.value))}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="scheduled_time"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Godzina *</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="time" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="duration_minutes"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Czas trwania (minuty)</FormLabel>
+                          <FormControl>
+                            <Input 
+                              {...field} 
+                              type="number" 
+                              onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
 
                 {isEditing && (
