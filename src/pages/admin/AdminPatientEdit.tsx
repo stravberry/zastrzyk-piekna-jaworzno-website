@@ -82,17 +82,19 @@ const AdminPatientEdit: React.FC = () => {
   return (
     <AdminLayout>
       <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header with back button */}
-        <div className="flex items-center gap-4 bg-white p-6 rounded-lg border">
-          <Button 
-            onClick={handleBack}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Wróć do profilu
-          </Button>
+        {/* Back button */}
+        <Button 
+          onClick={handleBack}
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Wróć do profilu
+        </Button>
+        
+        {/* Header */}
+        <div className="bg-white p-6 rounded-lg border">
           <div>
             <h1 className="text-2xl font-bold">
               Edytuj pacjenta: {patient.first_name} {patient.last_name}
