@@ -62,6 +62,7 @@ const PatientProfile: React.FC<PatientProfileProps> = ({
   const [showAddAppointment, setShowAddAppointment] = useState(false);
   const [appointmentToDelete, setAppointmentToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("info");
 
   // Fetch current patient data to ensure we have the latest information
   const { data: currentPatient, refetch: refetchPatient } = useQuery({
@@ -245,7 +246,7 @@ const PatientProfile: React.FC<PatientProfileProps> = ({
       </div>
 
       {/* Content */}
-      <Tabs defaultValue="info" className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <div className="flex justify-start">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -254,31 +255,35 @@ const PatientProfile: React.FC<PatientProfileProps> = ({
                 Wybierz zakładkę
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-48 bg-background">
-              <TabsTrigger value="info" asChild>
-                <DropdownMenuItem className="cursor-pointer">
-                  <User className="w-4 h-4 mr-2" />
-                  Informacje
-                </DropdownMenuItem>
-              </TabsTrigger>
-              <TabsTrigger value="appointments" asChild>
-                <DropdownMenuItem className="cursor-pointer">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  Wizyty
-                </DropdownMenuItem>
-              </TabsTrigger>
-              <TabsTrigger value="medical" asChild>
-                <DropdownMenuItem className="cursor-pointer">
-                  <FileText className="w-4 h-4 mr-2" />
-                  Medyczne
-                </DropdownMenuItem>
-              </TabsTrigger>
-              <TabsTrigger value="photos" asChild>
-                <DropdownMenuItem className="cursor-pointer">
-                  <Camera className="w-4 h-4 mr-2" />
-                  Zdjęcia
-                </DropdownMenuItem>
-              </TabsTrigger>
+            <DropdownMenuContent align="start" className="w-48 bg-background z-50">
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => setActiveTab("info")}
+              >
+                <User className="w-4 h-4 mr-2" />
+                Informacje
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => setActiveTab("appointments")}
+              >
+                <Calendar className="w-4 h-4 mr-2" />
+                Wizyty
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => setActiveTab("medical")}
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Medyczne
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="cursor-pointer"
+                onClick={() => setActiveTab("photos")}
+              >
+                <Camera className="w-4 h-4 mr-2" />
+                Zdjęcia
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
