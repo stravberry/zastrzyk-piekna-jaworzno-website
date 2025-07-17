@@ -30,7 +30,7 @@ const EmailTestingPanel: React.FC<EmailTestingPanelProps> = ({ templates }) => {
     time: '14:30',
     treatment_name: 'Botoks czoła',
     duration: '45',
-    pre_treatment_notes: 'Prosimy o nieużywanie kremów 24h przed zabiegiem'
+    pre_treatment_notes: 'Prosimy o wyspanie się przed zabiegiem'
   });
   const [isSending, setIsSending] = useState(false);
   const [lastResult, setLastResult] = useState<{ 
