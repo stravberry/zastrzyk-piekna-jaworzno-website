@@ -242,65 +242,71 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
             </TabsList>
 
             <TabsContent value="info" className="space-y-4 px-1">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                <div className="space-y-3 sm:space-y-4">
-                  <h3 className="text-base sm:text-lg font-semibold flex items-center">
-                    <User className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              <div className="grid grid-cols-1 gap-8">
+                <div className="bg-gray-50 rounded-lg p-6 space-y-6">
+                  <h3 className="text-lg font-semibold flex items-center">
+                    <User className="w-5 h-5 mr-3" />
                     Dane kontaktowe
                   </h3>
                   
-                  {displayPatient.phone && (
-                    <div className="flex items-center text-sm sm:text-base">
-                      <Phone className="w-3 h-3 sm:w-4 sm:h-4 mr-2 text-gray-500 flex-shrink-0" />
-                      <span className="break-all">{displayPatient.phone}</span>
-                    </div>
-                  )}
-                  
-                  {displayPatient.email && (
-                    <div className="flex items-center text-sm sm:text-base">
-                      <Mail className="w-3 h-3 sm:w-4 sm:h-4 mr-2 text-gray-500 flex-shrink-0" />
-                      <span className="break-all">{displayPatient.email}</span>
-                    </div>
-                  )}
-                  
-                  {displayPatient.address && (
-                    <div className="flex items-start text-sm sm:text-base">
-                      <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-2 mt-0.5 text-gray-500 flex-shrink-0" />
-                      <span className="break-words">{displayPatient.address}</span>
-                    </div>
-                  )}
-                  
-                  {displayPatient.date_of_birth && (
-                    <div className="flex items-center text-sm sm:text-base">
-                      <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-2 text-gray-500 flex-shrink-0" />
-                      <span>{new Date(displayPatient.date_of_birth).toLocaleDateString('pl-PL')}</span>
-                    </div>
-                  )}
+                  <div className="space-y-4">
+                    {displayPatient.phone && (
+                      <div className="flex items-center text-base p-3 bg-white rounded-md">
+                        <Phone className="w-4 h-4 mr-3 text-gray-500 flex-shrink-0" />
+                        <span className="break-all">{displayPatient.phone}</span>
+                      </div>
+                    )}
+                    
+                    {displayPatient.email && (
+                      <div className="flex items-center text-base p-3 bg-white rounded-md">
+                        <Mail className="w-4 h-4 mr-3 text-gray-500 flex-shrink-0" />
+                        <span className="break-all">{displayPatient.email}</span>
+                      </div>
+                    )}
+                    
+                    {displayPatient.address && (
+                      <div className="flex items-start text-base p-3 bg-white rounded-md">
+                        <MapPin className="w-4 h-4 mr-3 mt-0.5 text-gray-500 flex-shrink-0" />
+                        <span className="break-words">{displayPatient.address}</span>
+                      </div>
+                    )}
+                    
+                    {displayPatient.date_of_birth && (
+                      <div className="flex items-center text-base p-3 bg-white rounded-md">
+                        <Calendar className="w-4 h-4 mr-3 text-gray-500 flex-shrink-0" />
+                        <span>{new Date(displayPatient.date_of_birth).toLocaleDateString('pl-PL')}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                <div className="space-y-3 sm:space-y-4">
-                  <h3 className="text-base sm:text-lg font-semibold">Dodatkowe informacje</h3>
+                <div className="bg-gray-50 rounded-lg p-6 space-y-6">
+                  <h3 className="text-lg font-semibold">Dodatkowe informacje</h3>
                   
-                  <div className="space-y-2">
+                  <div className="space-y-4">
                     {displayPatient.skin_type && (
-                      <Badge variant="secondary" className="text-xs">
-                        Typ skóry: {displayPatient.skin_type}
-                      </Badge>
+                      <div className="p-3 bg-white rounded-md">
+                        <Badge variant="secondary" className="text-sm px-3 py-1">
+                          Typ skóry: {displayPatient.skin_type}
+                        </Badge>
+                      </div>
                     )}
                     
                     {displayPatient.source && (
-                      <Badge variant="outline" className="text-xs">
-                        Źródło: {displayPatient.source}
-                      </Badge>
+                      <div className="p-3 bg-white rounded-md">
+                        <Badge variant="outline" className="text-sm px-3 py-1">
+                          Źródło: {displayPatient.source}
+                        </Badge>
+                      </div>
+                    )}
+
+                    {displayPatient.notes && (
+                      <div className="p-4 bg-white rounded-md">
+                        <h4 className="font-medium text-sm text-gray-700 mb-3">Notatki:</h4>
+                        <p className="text-sm break-words leading-relaxed">{displayPatient.notes}</p>
+                      </div>
                     )}
                   </div>
-
-                  {displayPatient.notes && (
-                    <div>
-                      <h4 className="font-medium text-xs sm:text-sm text-gray-700 mb-1">Notatki:</h4>
-                      <p className="text-xs sm:text-sm break-words">{displayPatient.notes}</p>
-                    </div>
-                  )}
                 </div>
               </div>
             </TabsContent>
