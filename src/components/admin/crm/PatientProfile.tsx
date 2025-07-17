@@ -204,26 +204,26 @@ const PatientProfile: React.FC<PatientProfileProps> = ({
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
+      {/* Back button above header */}
+      {onBack && (
+        <Button 
+          onClick={onBack}
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Wróć
+        </Button>
+      )}
+      
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-6 bg-white p-6 rounded-lg border">
-        <div className="flex items-start gap-4">
-          {onBack && (
-            <Button 
-              onClick={onBack}
-              variant="outline"
-              size="sm"
-              className="mt-1"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Wróć
-            </Button>
-          )}
-          <div>
-            <h1 className="text-3xl font-bold">
-              {displayPatient.first_name} {displayPatient.last_name}
-            </h1>
-            <p className="text-muted-foreground">Profil pacjenta</p>
-          </div>
+        <div>
+          <h1 className="text-3xl font-bold">
+            {displayPatient.first_name} {displayPatient.last_name}
+          </h1>
+          <p className="text-muted-foreground">Profil pacjenta</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
           <Button 
