@@ -311,70 +311,79 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
               </div>
             </TabsContent>
 
-            <TabsContent value="appointments" className="space-y-4">
-              <div className="flex justify-between items-center">
+            <TabsContent value="appointments" className="space-y-6 p-2">
+              <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
                 <h3 className="text-lg font-semibold">Historia wizyt</h3>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 font-medium">
                   {appointments?.length || 0} wizyt
                 </span>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-6">
                 {appointments?.map((appointment) => (
-                  <Card key={appointment.id} className="p-4 sm:p-5">
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
-                      <div className="flex-1">
-                        <div className="flex flex-wrap items-center gap-3 mb-2">
-                          <h4 className="font-medium text-base">{appointment.treatments.name}</h4>
-                          <Badge className={`${getStatusColor(appointment.status || 'scheduled')} px-3 py-1`}>
-                            {getStatusText(appointment.status || 'scheduled')}
-                          </Badge>
+                  <Card key={appointment.id} className="p-6 bg-white border-l-4 border-l-blue-500">
+                    <div className="space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                        <div className="flex-1 space-y-3">
+                          <div className="flex flex-col gap-2">
+                            <h4 className="font-semibold text-lg text-gray-900">{appointment.treatments.name}</h4>
+                            <Badge className={`${getStatusColor(appointment.status || 'scheduled')} px-3 py-2 text-sm w-fit`}>
+                              {getStatusText(appointment.status || 'scheduled')}
+                            </Badge>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <p className="text-base text-gray-700 font-medium">
+                              📅 {formatDate(appointment.scheduled_date)}
+                            </p>
+                            
+                            {appointment.cost && (
+                              <p className="text-base font-semibold text-green-600 bg-green-50 px-3 py-2 rounded-md inline-block">
+                                💰 Koszt: {appointment.cost} zł
+                              </p>
+                            )}
+                          </div>
+                          
+                          {appointment.post_treatment_notes && (
+                            <div className="mt-4 p-4 bg-blue-50 rounded-lg border-l-4 border-l-blue-400">
+                              <div className="flex items-start gap-3">
+                                <FileText className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                                <p className="text-base text-gray-700 leading-relaxed">
+                                  {appointment.post_treatment_notes}
+                                </p>
+                              </div>
+                            </div>
+                          )}
                         </div>
                         
-                        <p className="text-sm sm:text-base text-gray-600 mb-1">
-                          {formatDate(appointment.scheduled_date)}
-                        </p>
-                        
-                        {appointment.cost && (
-                          <p className="text-sm sm:text-base font-medium my-2">
-                            Koszt: {appointment.cost} zł
-                          </p>
-                        )}
-                        
-                        {appointment.post_treatment_notes && (
-                          <p className="text-sm sm:text-base text-gray-600 mt-2 p-2 bg-gray-50 rounded-md">
-                            <FileText className="w-4 h-4 inline mr-2" />
-                            {appointment.post_treatment_notes}
-                          </p>
-                        )}
-                      </div>
-                      
-                      <div className="flex gap-2 mt-2 sm:mt-0">
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => downloadCalendarEvent(appointment.id)}
-                          className="px-4 py-2 h-auto"
-                        >
-                          <Download className="w-4 h-4 mr-2" />
-                          Pobierz .ics
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => setAppointmentToDelete(appointment.id)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 h-auto"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        <div className="flex flex-col sm:flex-row gap-3 mt-4 sm:mt-0">
+                          <Button 
+                            size="default" 
+                            variant="outline"
+                            onClick={() => downloadCalendarEvent(appointment.id)}
+                            className="px-6 py-3 h-auto text-sm font-medium"
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Pobierz .ics
+                          </Button>
+                          <Button 
+                            size="default" 
+                            variant="outline"
+                            onClick={() => setAppointmentToDelete(appointment.id)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 px-4 py-3 h-auto border-red-200"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Usuń
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </Card>
                 ))}
 
                 {(!appointments || appointments.length === 0) && (
-                  <div className="text-center py-8 text-gray-500">
-                    Brak wizyt w historii
+                  <div className="text-center py-12 text-gray-500 bg-gray-50 rounded-lg">
+                    <p className="text-lg">Brak wizyt w historii</p>
                   </div>
                 )}
               </div>
