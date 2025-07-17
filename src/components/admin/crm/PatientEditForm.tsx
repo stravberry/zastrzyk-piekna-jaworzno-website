@@ -120,7 +120,17 @@ const PatientEditForm: React.FC<PatientEditFormProps> = ({
       });
       
       toast.success('Dane pacjenta zostały zaktualizowane');
-      onSuccess();
+      // Refetch the latest patient data to ensure UI is updated
+      const { data: updatedPatient } = await supabase
+        .from('patients')
+        .select('*')
+        .eq('id', patient.id)
+        .single();
+
+      // Trigger success callback
+      if (updatedPatient) {
+        onSuccess();
+      }
     } catch (error: any) {
       console.error('Error updating patient:', error);
       toast.error('Błąd podczas aktualizacji pacjenta: ' + (error.message || 'Nieznany błąd'));

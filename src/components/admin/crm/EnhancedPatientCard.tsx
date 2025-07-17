@@ -32,7 +32,7 @@ const EnhancedPatientCard: React.FC<EnhancedPatientCardProps> = ({
   onEdit
 }) => {
   // Fetch patient statistics
-  const { data: stats } = useQuery({
+  const { data: stats, refetch } = useQuery({
     queryKey: ['patient-stats', patient.id],
     queryFn: async () => {
       const { data: appointments, error } = await supabase
@@ -55,7 +55,10 @@ const EnhancedPatientCard: React.FC<EnhancedPatientCardProps> = ({
         totalSpent,
         lastVisit: lastVisit?.scheduled_date
       };
-    }
+    },
+    // Force a refetch when the component re-renders to keep data fresh
+    refetchOnMount: true,
+    refetchOnWindowFocus: true
   });
 
   const formatDate = (dateString: string) => {

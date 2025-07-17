@@ -29,8 +29,12 @@ const AdminCRM: React.FC = () => {
   };
 
   const handlePatientUpdate = () => {
-    // Refresh patient data when patient is updated
+    // This will force a re-render and refresh the data
     setSelectedPatient(null);
+    // Temporarily clear and reset search to trigger refetch
+    const currentSearch = searchTerm;
+    setSearchTerm("");
+    setTimeout(() => setSearchTerm(currentSearch), 100);
   };
 
   const handlePatientFormSuccess = () => {
