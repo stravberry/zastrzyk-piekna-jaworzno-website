@@ -57,6 +57,7 @@ const PatientProfile: React.FC<PatientProfileProps> = ({
   patient, 
   onBack
 }) => {
+  console.log('[DEBUG] PatientProfile component loaded - FIXED', { patientId: patient?.id });
   const navigate = useNavigate();
   const [showAddAppointment, setShowAddAppointment] = useState(false);
   const [appointmentToDelete, setAppointmentToDelete] = useState<string | null>(null);
