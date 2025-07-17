@@ -33,7 +33,6 @@ type StatusFilter = "all" | "scheduled" | "completed" | "cancelled" | "no_show";
 type AppointmentStatus = "scheduled" | "completed" | "cancelled" | "no_show";
 
 const AppointmentsList: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [appointmentToDelete, setAppointmentToDelete] = useState<string | null>(null);
@@ -45,7 +44,7 @@ const AppointmentsList: React.FC = () => {
   const queryClient = useQueryClient();
 
   const { data: appointmentsData, isLoading, refetch } = useQuery({
-    queryKey: ['appointments-list', searchTerm, statusFilter, currentPage],
+    queryKey: ['appointments-list', statusFilter, currentPage],
     queryFn: async () => {
       const from = (currentPage - 1) * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
@@ -58,12 +57,6 @@ const AppointmentsList: React.FC = () => {
           treatments (*)
         `, { count: 'exact' })
         .order('scheduled_date', { ascending: false });
-
-      // Apply search filter if provided
-      if (searchTerm.trim()) {
-        const searchPattern = `%${searchTerm.trim()}%`;
-        query = query.or(`patients.first_name.ilike.${searchPattern},patients.last_name.ilike.${searchPattern},treatments.name.ilike.${searchPattern}`);
-      }
 
       // Apply status filter if not "all"
       if (statusFilter !== "all") {
@@ -271,20 +264,8 @@ const AppointmentsList: React.FC = () => {
   return (
     <>
       <div className="space-y-3 sm:space-y-4">
-        {/* Filters and Manual Reminder Button */}
+          {/* Filters and Manual Reminder Button */}
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Szukaj po pacjencie lub zabiegu..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="pl-9 text-sm"
-            />
-          </div>
           <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
             <SelectTrigger className="w-full sm:w-[180px]">
               <Filter className="w-4 h-4 mr-2" />
@@ -434,7 +415,7 @@ const AppointmentsList: React.FC = () => {
 
           {appointments.length === 0 && (
             <div className="text-center py-8 text-gray-500 text-sm">
-              {searchTerm || statusFilter !== "all" 
+              {statusFilter !== "all" 
                 ? "Nie znaleziono wizyt spełniających kryteria"
                 : "Brak wizyt w systemie"
               }
