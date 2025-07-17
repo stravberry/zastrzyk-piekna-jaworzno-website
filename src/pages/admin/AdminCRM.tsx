@@ -3,6 +3,9 @@ import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Badge } from "@/components/ui/badge";
 import PatientsList from "@/components/admin/crm/PatientsList";
 import AppointmentsCalendarView from "@/components/admin/crm/AppointmentsCalendarView";
 import AllAppointmentsList from "@/components/admin/crm/AllAppointmentsList";
@@ -11,7 +14,7 @@ import AppointmentForm from "@/components/admin/crm/AppointmentForm";
 import IntegrationsPanel from "@/components/admin/crm/IntegrationsPanel";
 import PatientProfileModal from "@/components/admin/crm/PatientProfileModal";
 import ReminderControls from "@/components/admin/crm/ReminderControls";
-import { Users, Calendar, ClipboardList, Settings, Search, Mail } from "lucide-react";
+import { Users, Calendar, ClipboardList, Settings, Search, Mail, Filter, SortAsc, Eye, UserPlus, CalendarPlus } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 
 type Patient = Tables<"patients">;
@@ -53,11 +56,92 @@ const AdminCRM: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">System CRM</h1>
-        <p className="text-muted-foreground">
-          Zarządzaj pacjentami, wizytami i integracjami
-        </p>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">System CRM</h1>
+          <p className="text-muted-foreground">
+            Zarządzaj pacjentami, wizytami i integracjami
+          </p>
+        </div>
+        
+        {/* Quick Actions Popup */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2">
+              <Filter className="w-4 h-4" />
+              Szybkie akcje
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 bg-white z-50" align="end">
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium text-sm mb-2">Szybkie akcje</h4>
+                <div className="grid gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start gap-2"
+                    onClick={() => setIsPatientFormOpen(true)}
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    Dodaj nowego pacjenta
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start gap-2"
+                    onClick={() => setIsAppointmentFormOpen(true)}
+                  >
+                    <CalendarPlus className="w-4 h-4" />
+                    Dodaj nową wizytę
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start gap-2"
+                  >
+                    <Eye className="w-4 h-4" />
+                    Podgląd statystyk
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="border-t pt-4">
+                <h4 className="font-medium text-sm mb-2">Filtrowanie</h4>
+                <div className="grid gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start gap-2"
+                  >
+                    <SortAsc className="w-4 h-4" />
+                    Sortuj po dacie
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="justify-start gap-2"
+                  >
+                    <Filter className="w-4 h-4" />
+                    Filtruj aktywnych
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="border-t pt-4">
+                <h4 className="font-medium text-sm mb-2">Status</h4>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary" className="text-xs">
+                    Aktywni pacjenci
+                  </Badge>
+                  <Badge variant="outline" className="text-xs">
+                    Nadchodzące wizyty
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       <Tabs defaultValue="patients" className="space-y-4">
