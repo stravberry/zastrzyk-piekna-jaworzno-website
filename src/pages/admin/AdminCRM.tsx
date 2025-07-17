@@ -161,8 +161,8 @@ const AdminCRM: React.FC = () => {
                 Menu
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-80 sm:w-96 md:w-[400px]">
-              <div className="space-y-6 pt-8 px-2">
+            <SheetContent side="right" className="w-80 sm:w-96 md:w-[400px] mt-16">
+              <div className="space-y-6 pt-4 px-4">
                 <h3 className="text-xl font-semibold mb-6 text-center">Nawigacja</h3>
                 <div className="space-y-3">
                   {tabItems.map((item) => {
