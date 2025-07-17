@@ -8,7 +8,7 @@ import AppointmentsList from "./AppointmentsList";
 import AppointmentsCalendar from "./AppointmentsCalendar";
 
 interface AppointmentsCalendarViewProps {
-  onAddAppointment: () => void;
+  onAddAppointment?: () => void;
 }
 
 const AppointmentsCalendarView: React.FC<AppointmentsCalendarViewProps> = ({ onAddAppointment }) => {

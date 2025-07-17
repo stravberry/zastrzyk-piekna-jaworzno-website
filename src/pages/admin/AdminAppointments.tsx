@@ -1,13 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CalendarPlus } from "lucide-react";
 import AppointmentsCalendarView from "@/components/admin/crm/AppointmentsCalendarView";
-import AppointmentForm from "@/components/admin/crm/AppointmentForm";
 import AdminLayout from "@/components/admin/AdminLayout";
 
 const AdminAppointments: React.FC = () => {
-  const [isAppointmentFormOpen, setIsAppointmentFormOpen] = useState(false);
 
   return (
     <AdminLayout>
@@ -21,21 +20,18 @@ const AdminAppointments: React.FC = () => {
           </div>
           
           <Button
-            onClick={() => setIsAppointmentFormOpen(true)}
+            asChild
             className="gap-2 w-full sm:w-auto"
             size="sm"
           >
-            <CalendarPlus className="w-4 h-4" />
-            Dodaj wizytę
+            <Link to="/admin/appointments/new">
+              <CalendarPlus className="w-4 h-4" />
+              Dodaj wizytę
+            </Link>
           </Button>
         </div>
 
-        <AppointmentsCalendarView onAddAppointment={() => setIsAppointmentFormOpen(true)} />
-
-        <AppointmentForm
-          isOpen={isAppointmentFormOpen}
-          onClose={() => setIsAppointmentFormOpen(false)}
-        />
+        <AppointmentsCalendarView />
       </div>
     </AdminLayout>
   );
