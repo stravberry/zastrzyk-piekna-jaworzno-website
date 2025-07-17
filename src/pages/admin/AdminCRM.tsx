@@ -151,60 +151,39 @@ const AdminCRM: React.FC = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        {/* Mobile/Tablet Burger Menu */}
-        {isMobile ? (
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">{getActiveTabLabel()}</h2>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-2">
-                  <Menu className="w-4 h-4" />
-                  Menu
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-80">
-                <div className="space-y-4 pt-6">
-                  <h3 className="text-lg font-semibold mb-4">Nawigacja</h3>
-                  <div className="space-y-2">
-                    {tabItems.map((item) => {
-                      const Icon = item.icon;
-                      return (
-                        <Button
-                          key={item.value}
-                          variant={activeTab === item.value ? "default" : "ghost"}
-                          className="w-full justify-start gap-3"
-                          onClick={() => setActiveTab(item.value)}
-                        >
-                          <Icon className="w-4 h-4" />
-                          {item.label}
-                        </Button>
-                      );
-                    })}
-                  </div>
+        {/* Burger Menu for all screen sizes */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold">{getActiveTabLabel()}</h2>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Menu className="w-4 h-4" />
+                Menu
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-80">
+              <div className="space-y-4 pt-6">
+                <h3 className="text-lg font-semibold mb-4">Nawigacja</h3>
+                <div className="space-y-2">
+                  {tabItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Button
+                        key={item.value}
+                        variant={activeTab === item.value ? "default" : "ghost"}
+                        className="w-full justify-start gap-3"
+                        onClick={() => setActiveTab(item.value)}
+                      >
+                        <Icon className="w-4 h-4" />
+                        {item.label}
+                      </Button>
+                    );
+                  })}
                 </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        ) : (
-          /* Desktop Tabs */
-          <div className="overflow-x-auto">
-            <TabsList className="grid grid-cols-5 w-full h-auto p-1">
-              {tabItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <TabsTrigger 
-                    key={item.value}
-                    value={item.value} 
-                    className="flex items-center gap-2 text-sm py-2 px-3"
-                  >
-                    <Icon className="w-4 h-4 flex-shrink-0" />
-                    <span>{item.label}</span>
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
-          </div>
-        )}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
 
         <TabsContent value="patients">
           <Card>
