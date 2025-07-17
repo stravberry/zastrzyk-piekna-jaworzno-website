@@ -76,31 +76,15 @@ const EnhancedPatientCard: React.FC<EnhancedPatientCardProps> = ({
       }`}
       onClick={() => onSelect(patient)}
     >
-      <CardContent className="p-4">
-        <div className="flex justify-between items-start mb-3">
-          <div className="flex-1">
-            <h4 className="font-semibold text-lg flex items-center gap-2">
-              <User className="w-4 h-4 text-gray-500" />
+      <CardContent className="p-4 space-y-3">
+        {/* Header with name and edit button */}
+        <div className="flex justify-between items-start">
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-base flex items-center gap-2 truncate">
+              <User className="w-4 h-4 text-gray-500 flex-shrink-0" />
               {patient.first_name} {patient.last_name}
             </h4>
-            
-            <div className="flex flex-wrap gap-3 mt-2 text-sm text-gray-600">
-              {patient.phone && (
-                <div className="flex items-center gap-1">
-                  <Phone className="w-3 h-3" />
-                  <span>{patient.phone}</span>
-                </div>
-              )}
-              
-              {patient.email && (
-                <div className="flex items-center gap-1">
-                  <Mail className="w-3 h-3" />
-                  <span className="truncate max-w-[200px]">{patient.email}</span>
-                </div>
-              )}
-            </div>
           </div>
-
           <Button
             variant="outline"
             size="sm"
@@ -108,15 +92,32 @@ const EnhancedPatientCard: React.FC<EnhancedPatientCardProps> = ({
               e.stopPropagation();
               onEdit(patient);
             }}
-            className="ml-2"
+            className="ml-2 flex-shrink-0"
           >
             <Edit className="w-3 h-3 mr-1" />
             Edytuj
           </Button>
         </div>
 
+        {/* Contact information */}
+        <div className="space-y-1">
+          {patient.phone && (
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <Phone className="w-3 h-3 flex-shrink-0" />
+              <span>{patient.phone}</span>
+            </div>
+          )}
+          
+          {patient.email && (
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <Mail className="w-3 h-3 flex-shrink-0" />
+              <span className="truncate">{patient.email}</span>
+            </div>
+          )}
+        </div>
+
         {/* Patient badges */}
-        <div className="flex flex-wrap gap-2 mb-3">
+        <div className="flex flex-wrap gap-2">
           {patient.skin_type && (
             <Badge variant="secondary" className="text-xs">
               Skóra: {patient.skin_type}
@@ -138,26 +139,28 @@ const EnhancedPatientCard: React.FC<EnhancedPatientCardProps> = ({
 
         {/* Statistics */}
         {stats && (
-          <div className="flex justify-between items-center text-xs text-gray-500 border-t pt-2">
-            <div className="flex items-center gap-4">
-              {stats.totalSpent > 0 && (
+          <div className="border-t pt-3 space-y-2">
+            <div className="grid grid-cols-1 gap-2 text-xs text-gray-500">
+              <div className="flex justify-between items-center">
+                {stats.totalSpent > 0 && (
+                  <div className="flex items-center gap-1">
+                    <Euro className="w-3 h-3" />
+                    <span>{stats.totalSpent} zł</span>
+                  </div>
+                )}
+                
                 <div className="flex items-center gap-1">
-                  <Euro className="w-3 h-3" />
-                  <span>{stats.totalSpent} zł</span>
+                  <Calendar className="w-3 h-3" />
+                  <span>Dołączył: {formatDate(patient.created_at!)}</span>
                 </div>
-              )}
+              </div>
               
               {stats.lastVisit && (
                 <div className="flex items-center gap-1">
                   <Clock className="w-3 h-3" />
-                  <span>Ostatnia: {formatDate(stats.lastVisit)}</span>
+                  <span>Ostatnia wizyta: {formatDate(stats.lastVisit)}</span>
                 </div>
               )}
-            </div>
-            
-            <div className="flex items-center gap-1">
-              <Calendar className="w-3 h-3" />
-              <span>Dołączył: {formatDate(patient.created_at!)}</span>
             </div>
           </div>
         )}
