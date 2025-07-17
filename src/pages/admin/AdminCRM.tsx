@@ -6,15 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import PatientsList from "@/components/admin/crm/PatientsList";
 import AppointmentsCalendarView from "@/components/admin/crm/AppointmentsCalendarView";
 import AllAppointmentsList from "@/components/admin/crm/AllAppointmentsList";
 import PatientForm from "@/components/admin/crm/PatientForm";
 import AppointmentForm from "@/components/admin/crm/AppointmentForm";
 import IntegrationsPanel from "@/components/admin/crm/IntegrationsPanel";
-
 import ReminderControls from "@/components/admin/crm/ReminderControls";
-import { Users, Calendar, ClipboardList, Settings, Search, Mail, Filter, SortAsc, Eye, UserPlus, CalendarPlus } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Users, Calendar, ClipboardList, Settings, Search, Mail, Filter, SortAsc, Eye, UserPlus, CalendarPlus, Menu } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 
 type Patient = Tables<"patients">;
@@ -24,6 +25,8 @@ const AdminCRM: React.FC = () => {
   const [isAppointmentFormOpen, setIsAppointmentFormOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [activeTab, setActiveTab] = useState("patients");
+  const isMobile = useIsMobile();
 
   const handlePatientSelect = (patient: Patient) => {
     setSelectedPatient(patient);
@@ -43,6 +46,19 @@ const AdminCRM: React.FC = () => {
     handlePatientUpdate();
   };
 
+
+  const tabItems = [
+    { value: "patients", label: "Pacjenci", icon: Users },
+    { value: "appointments", label: "Wizyty", icon: Calendar },
+    { value: "all-appointments", label: "Wszystkie wizyty", icon: ClipboardList },
+    { value: "reminders", label: "Przypomnienia", icon: Mail },
+    { value: "integrations", label: "Integracje", icon: Settings },
+  ];
+
+  const getActiveTabLabel = () => {
+    const activeTabItem = tabItems.find(item => item.value === activeTab);
+    return activeTabItem ? activeTabItem.label : "Menu";
+  };
 
   return (
     <div className="space-y-6 p-6">
@@ -134,36 +150,61 @@ const AdminCRM: React.FC = () => {
         </Popover>
       </div>
 
-      <Tabs defaultValue="patients" className="space-y-4">
-        <div className="overflow-x-auto">
-          <TabsList className="grid grid-cols-3 sm:grid-cols-5 w-full h-auto p-1">
-            <TabsTrigger value="patients" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 px-3">
-              <Users className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-              <span className="hidden sm:inline">Pacjenci</span>
-              <span className="sm:hidden">P</span>
-            </TabsTrigger>
-            <TabsTrigger value="appointments" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 px-3">
-              <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-              <span className="hidden sm:inline">Wizyty</span>
-              <span className="sm:hidden">W</span>
-            </TabsTrigger>
-            <TabsTrigger value="all-appointments" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 px-3">
-              <ClipboardList className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-              <span className="hidden lg:inline">Wszystkie wizyty</span>
-              <span className="lg:hidden">Lista</span>
-            </TabsTrigger>
-            <TabsTrigger value="reminders" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 px-3 hidden sm:flex">
-              <Mail className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-              <span className="hidden sm:inline">Przypomnienia</span>
-              <span className="sm:hidden">Mail</span>
-            </TabsTrigger>
-            <TabsTrigger value="integrations" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 px-3 hidden sm:flex">
-              <Settings className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-              <span className="hidden sm:inline">Integracje</span>
-              <span className="sm:hidden">Set</span>
-            </TabsTrigger>
-          </TabsList>
-        </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        {/* Mobile/Tablet Burger Menu */}
+        {isMobile ? (
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold">{getActiveTabLabel()}</h2>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Menu className="w-4 h-4" />
+                  Menu
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80">
+                <div className="space-y-4 pt-6">
+                  <h3 className="text-lg font-semibold mb-4">Nawigacja</h3>
+                  <div className="space-y-2">
+                    {tabItems.map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <Button
+                          key={item.value}
+                          variant={activeTab === item.value ? "default" : "ghost"}
+                          className="w-full justify-start gap-3"
+                          onClick={() => setActiveTab(item.value)}
+                        >
+                          <Icon className="w-4 h-4" />
+                          {item.label}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        ) : (
+          /* Desktop Tabs */
+          <div className="overflow-x-auto">
+            <TabsList className="grid grid-cols-5 w-full h-auto p-1">
+              {tabItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <TabsTrigger 
+                    key={item.value}
+                    value={item.value} 
+                    className="flex items-center gap-2 text-sm py-2 px-3"
+                  >
+                    <Icon className="w-4 h-4 flex-shrink-0" />
+                    <span>{item.label}</span>
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+          </div>
+        )}
 
         <TabsContent value="patients">
           <Card>
