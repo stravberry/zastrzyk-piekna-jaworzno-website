@@ -71,7 +71,8 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const navigation = [
     { name: "Dashboard", href: "/admin/dashboard", icon: BarChart3 },
-    { name: "CRM", href: "/admin/crm", icon: Calendar },
+    { name: "CRM", href: "/admin/crm", icon: Users },
+    { name: "Wizyty", href: "/admin/appointments", icon: Calendar },
     { name: "Posty", href: "/admin/posts", icon: FileText },
     { name: "Galeria", href: "/admin/gallery", icon: Image },
     { name: "Cennik", href: "/admin/pricing", icon: DollarSign },

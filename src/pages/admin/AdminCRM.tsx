@@ -8,7 +8,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import PatientsList from "@/components/admin/crm/PatientsList";
-import AppointmentsCalendarView from "@/components/admin/crm/AppointmentsCalendarView";
 import AllAppointmentsList from "@/components/admin/crm/AllAppointmentsList";
 import PatientForm from "@/components/admin/crm/PatientForm";
 import AppointmentForm from "@/components/admin/crm/AppointmentForm";
@@ -49,7 +48,6 @@ const AdminCRM: React.FC = () => {
 
   const tabItems = [
     { value: "patients", label: "Pacjenci", icon: Users },
-    { value: "appointments", label: "Wizyty", icon: Calendar },
     { value: "all-appointments", label: "Wszystkie wizyty", icon: ClipboardList },
     { value: "reminders", label: "Przypomnienia", icon: Mail },
     { value: "integrations", label: "Integracje", icon: Settings },
@@ -66,7 +64,7 @@ const AdminCRM: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">System CRM</h1>
           <p className="text-muted-foreground">
-            Zarządzaj pacjentami, wizytami i integracjami
+            Zarządzaj pacjentami i integracjami
           </p>
         </div>
         
@@ -213,10 +211,6 @@ const AdminCRM: React.FC = () => {
               />
             </CardContent>
           </Card>
-        </TabsContent>
-
-        <TabsContent value="appointments">
-          <AppointmentsCalendarView onAddAppointment={() => setIsAppointmentFormOpen(true)} />
         </TabsContent>
 
         <TabsContent value="all-appointments">
