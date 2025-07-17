@@ -1,9 +1,18 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Tables } from "@/integrations/supabase/types";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,11 +26,15 @@ import {
   Camera,
   AlertTriangle,
   Heart,
-  X,
   Plus,
-  Download
+  Download,
+  Edit,
+  Trash2,
+  ArrowLeft
 } from "lucide-react";
+import { toast } from "sonner";
 import AppointmentForm from "./AppointmentForm";
+import PatientEditForm from "./PatientEditForm";
 
 type Patient = Tables<"patients">;
 type Appointment = Tables<"patient_appointments"> & {
@@ -30,28 +43,58 @@ type Appointment = Tables<"patient_appointments"> & {
 
 interface PatientProfileProps {
   patient: Patient;
-  onClose: () => void;
+  onBack?: () => void;
 }
 
-const PatientProfile: React.FC<PatientProfileProps> = ({ patient, onClose }) => {
+const PatientProfile: React.FC<PatientProfileProps> = ({ 
+  patient, 
+  onBack
+}) => {
   const [showAddAppointment, setShowAddAppointment] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [appointmentToDelete, setAppointmentToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Fetch current patient data to ensure we have the latest information
+  const { data: currentPatient, refetch: refetchPatient } = useQuery({
+    queryKey: ['current-patient', patient?.id],
+    queryFn: async () => {
+      if (!patient?.id) return null;
+      
+      const { data, error } = await supabase
+        .from('patients')
+        .select('*')
+        .eq('id', patient.id)
+        .single();
+
+      if (error) throw error;
+      return data as Patient;
+    },
+    enabled: !!patient?.id
+  });
+
+  // Use current patient data if available, fallback to prop
+  const displayPatient = currentPatient || patient;
 
   // Fetch patient appointments
-  const { data: appointments, refetch } = useQuery({
-    queryKey: ['patient-appointments', patient.id],
+  const { data: appointments, refetch: refetchAppointments } = useQuery({
+    queryKey: ['patient-appointments', displayPatient?.id],
     queryFn: async () => {
+      if (!displayPatient?.id) return [];
+      
       const { data, error } = await supabase
         .from('patient_appointments')
         .select(`
           *,
           treatments (*)
         `)
-        .eq('patient_id', patient.id)
+        .eq('patient_id', displayPatient.id)
         .order('scheduled_date', { ascending: false });
 
       if (error) throw error;
       return data as Appointment[];
-    }
+    },
+    enabled: !!displayPatient?.id
   });
 
   const formatDate = (dateString: string) => {
@@ -108,231 +151,374 @@ const PatientProfile: React.FC<PatientProfileProps> = ({ patient, onClose }) => 
     }
   };
 
+  const deleteAppointment = async (appointmentId: string) => {
+    setIsDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('patient_appointments')
+        .delete()
+        .eq('id', appointmentId);
+
+      if (error) throw error;
+
+      // Log the deletion activity
+      await supabase.rpc('log_admin_activity', {
+        _action: 'delete_appointment',
+        _resource_type: 'patient_appointment',
+        _resource_id: appointmentId,
+        _details: {
+          patient_id: displayPatient?.id,
+          patient_name: `${displayPatient?.first_name} ${displayPatient?.last_name}`
+        }
+      });
+
+      toast.success("Wizyta została usunięta");
+      refetchAppointments();
+    } catch (error) {
+      console.error('Error deleting appointment:', error);
+      toast.error("Błąd podczas usuwania wizyty");
+    } finally {
+      setIsDeleting(false);
+      setAppointmentToDelete(null);
+    }
+  };
+
+  const handleEditSuccess = () => {
+    setIsEditing(false);
+    refetchPatient();
+  };
+
+  const handleAppointmentSuccess = () => {
+    refetchAppointments();
+    setShowAddAppointment(false);
+  };
+
+  if (!displayPatient) return null;
+
   return (
-    <Card className="w-full">
-      <CardHeader className="pb-4">
-        <div className="flex justify-between items-start">
-          <div>
-            <CardTitle className="text-2xl">
-              {patient.first_name} {patient.last_name}
-            </CardTitle>
-            <CardDescription>Profil pacjenta</CardDescription>
-          </div>
-          <div className="flex gap-2">
+    <div className="max-w-6xl mx-auto space-y-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-6 bg-white p-6 rounded-lg border">
+        <div className="flex items-start gap-4">
+          {onBack && (
             <Button 
-              onClick={() => setShowAddAppointment(true)}
-              className="bg-pink-500 hover:bg-pink-600"
+              onClick={onBack}
+              variant="outline"
+              size="sm"
+              className="mt-1"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Umów wizytę
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Wróć
             </Button>
-            <Button variant="outline" size="icon" onClick={onClose}>
-              <X className="w-4 h-4" />
-            </Button>
+          )}
+          <div>
+            <h1 className="text-3xl font-bold">
+              {displayPatient.first_name} {displayPatient.last_name}
+            </h1>
+            <p className="text-muted-foreground">Profil pacjenta</p>
           </div>
         </div>
-      </CardHeader>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button 
+            onClick={() => setIsEditing(true)}
+            variant="outline"
+            size="default"
+          >
+            <Edit className="w-4 h-4 mr-2" />
+            Edytuj dane
+          </Button>
+          <Button 
+            onClick={() => setShowAddAppointment(true)}
+            className="bg-primary hover:bg-primary/90"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Nowa wizyta
+          </Button>
+        </div>
+      </div>
 
-      <CardContent>
-        <Tabs defaultValue="info" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="info">Informacje</TabsTrigger>
-            <TabsTrigger value="appointments">Wizyty</TabsTrigger>
-            <TabsTrigger value="medical">Medyczne</TabsTrigger>
-            <TabsTrigger value="photos">Zdjęcia</TabsTrigger>
-          </TabsList>
+      {/* Content */}
+      <Tabs defaultValue="info" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4 bg-muted p-1 h-auto">
+          <TabsTrigger value="info" className="py-3">Informacje</TabsTrigger>
+          <TabsTrigger value="appointments" className="py-3">Wizyty</TabsTrigger>
+          <TabsTrigger value="medical" className="py-3">Medyczne</TabsTrigger>
+          <TabsTrigger value="photos" className="py-3">Zdjęcia</TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="info" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold flex items-center">
-                  <User className="w-5 h-5 mr-2" />
+        <TabsContent value="info" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <User className="w-5 h-5 mr-3" />
                   Dane kontaktowe
-                </h3>
-                
-                {patient.phone && (
-                  <div className="flex items-center">
-                    <Phone className="w-4 h-4 mr-2 text-gray-500" />
-                    <span>{patient.phone}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {displayPatient.phone && (
+                  <div className="flex items-center space-x-3">
+                    <Phone className="w-5 h-5 text-muted-foreground" />
+                    <span className="text-lg">{displayPatient.phone}</span>
                   </div>
                 )}
                 
-                {patient.email && (
-                  <div className="flex items-center">
-                    <Mail className="w-4 h-4 mr-2 text-gray-500" />
-                    <span>{patient.email}</span>
+                {displayPatient.email && (
+                  <div className="flex items-center space-x-3">
+                    <Mail className="w-5 h-5 text-muted-foreground" />
+                    <span className="text-lg">{displayPatient.email}</span>
                   </div>
                 )}
                 
-                {patient.address && (
-                  <div className="flex items-center">
-                    <MapPin className="w-4 h-4 mr-2 text-gray-500" />
-                    <span>{patient.address}</span>
+                {displayPatient.address && (
+                  <div className="flex items-start space-x-3">
+                    <MapPin className="w-5 h-5 text-muted-foreground mt-1" />
+                    <span className="text-lg">{displayPatient.address}</span>
                   </div>
                 )}
                 
-                {patient.date_of_birth && (
-                  <div className="flex items-center">
-                    <Calendar className="w-4 h-4 mr-2 text-gray-500" />
-                    <span>{new Date(patient.date_of_birth).toLocaleDateString('pl-PL')}</span>
+                {displayPatient.date_of_birth && (
+                  <div className="flex items-center space-x-3">
+                    <Calendar className="w-5 h-5 text-muted-foreground" />
+                    <span className="text-lg">
+                      {new Date(displayPatient.date_of_birth).toLocaleDateString('pl-PL')}
+                    </span>
                   </div>
                 )}
-              </div>
+              </CardContent>
+            </Card>
 
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Dodatkowe informacje</h3>
-                
-                <div className="space-y-2">
-                  {patient.skin_type && (
-                    <Badge variant="secondary">
-                      Typ skóry: {patient.skin_type}
-                    </Badge>
+            <Card>
+              <CardHeader>
+                <CardTitle>Dodatkowe informacje</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  {displayPatient.skin_type && (
+                    <div>
+                      <Badge variant="secondary" className="px-4 py-2">
+                        Typ skóry: {displayPatient.skin_type}
+                      </Badge>
+                    </div>
                   )}
                   
-                  {patient.source && (
-                    <Badge variant="outline">
-                      Źródło: {patient.source}
-                    </Badge>
+                  {displayPatient.source && (
+                    <div>
+                      <Badge variant="outline" className="px-4 py-2">
+                        Źródło: {displayPatient.source}
+                      </Badge>
+                    </div>
+                  )}
+
+                  {displayPatient.notes && (
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-muted-foreground">Notatki:</h4>
+                      <p className="text-lg leading-relaxed">{displayPatient.notes}</p>
+                    </div>
                   )}
                 </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
 
-                {patient.notes && (
-                  <div>
-                    <h4 className="font-medium text-sm text-gray-700 mb-1">Notatki:</h4>
-                    <p className="text-sm">{patient.notes}</p>
+        <TabsContent value="appointments" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Historia wizyt</CardTitle>
+              <CardDescription>
+                {appointments?.length || 0} wizyt w systemie
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {appointments?.map((appointment) => (
+                  <Card key={appointment.id} className="border-l-4 border-l-primary">
+                    <CardContent className="pt-6">
+                      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6">
+                        <div className="space-y-4 flex-1">
+                          <div className="space-y-2">
+                            <h4 className="text-xl font-semibold">{appointment.treatments.name}</h4>
+                            <Badge className={`${getStatusColor(appointment.status || 'scheduled')} px-3 py-1 text-sm w-fit`}>
+                              {getStatusText(appointment.status || 'scheduled')}
+                            </Badge>
+                          </div>
+                          
+                          <div className="space-y-3">
+                            <p className="text-lg text-muted-foreground">
+                              📅 {formatDate(appointment.scheduled_date)}
+                            </p>
+                            
+                            {appointment.cost && (
+                              <p className="text-lg font-semibold text-green-600">
+                                💰 Koszt: {appointment.cost} zł
+                              </p>
+                            )}
+                          </div>
+                          
+                          {appointment.post_treatment_notes && (
+                            <div className="p-4 bg-muted rounded-lg border-l-4 border-l-blue-500">
+                              <div className="flex items-start gap-3">
+                                <FileText className="w-5 h-5 text-blue-600 mt-0.5" />
+                                <p className="text-base leading-relaxed">
+                                  {appointment.post_treatment_notes}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="flex flex-col gap-3">
+                          <Button 
+                            variant="outline"
+                            onClick={() => downloadCalendarEvent(appointment.id)}
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Pobierz .ics
+                          </Button>
+                          <Button 
+                            variant="outline"
+                            onClick={() => setAppointmentToDelete(appointment.id)}
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Usuń
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+
+                {(!appointments || appointments.length === 0) && (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <p className="text-lg">Brak wizyt w historii</p>
                   </div>
                 )}
               </div>
-            </div>
-          </TabsContent>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-          <TabsContent value="appointments" className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold">Historia wizyt</h3>
-              <span className="text-sm text-gray-500">
-                {appointments?.length || 0} wizyt
-              </span>
-            </div>
-
-            <div className="space-y-3">
-              {appointments?.map((appointment) => (
-                <Card key={appointment.id} className="p-4">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h4 className="font-medium">{appointment.treatments.name}</h4>
-                        <Badge className={getStatusColor(appointment.status || 'scheduled')}>
-                          {getStatusText(appointment.status || 'scheduled')}
-                        </Badge>
-                      </div>
-                      
-                      <p className="text-sm text-gray-600 mb-1">
-                        {formatDate(appointment.scheduled_date)}
-                      </p>
-                      
-                      {appointment.cost && (
-                        <p className="text-sm font-medium">
-                          Koszt: {appointment.cost} zł
-                        </p>
-                      )}
-                      
-                      {appointment.post_treatment_notes && (
-                        <p className="text-sm text-gray-600 mt-2">
-                          <FileText className="w-3 h-3 inline mr-1" />
-                          {appointment.post_treatment_notes}
-                        </p>
-                      )}
-                    </div>
-                    
-                    <div className="flex gap-2">
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => downloadCalendarEvent(appointment.id)}
-                      >
-                        <Download className="w-3 h-3 mr-1" />
-                        .ics
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-
-              {(!appointments || appointments.length === 0) && (
-                <div className="text-center py-8 text-gray-500">
-                  Brak wizyt w historii
-                </div>
-              )}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="medical" className="space-y-4">
-            <div className="grid gap-6">
-              {patient.allergies && (
-                <div>
-                  <h3 className="text-lg font-semibold flex items-center mb-2">
-                    <AlertTriangle className="w-5 h-5 mr-2 text-orange-500" />
+        <TabsContent value="medical" className="space-y-6">
+          <div className="grid gap-6">
+            {displayPatient.allergies && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center text-orange-600">
+                    <AlertTriangle className="w-5 h-5 mr-2" />
                     Alergie
-                  </h3>
-                  <p className="text-sm bg-orange-50 p-3 rounded">{patient.allergies}</p>
-                </div>
-              )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-lg leading-relaxed">{displayPatient.allergies}</p>
+                </CardContent>
+              </Card>
+            )}
 
-              {patient.contraindications && (
-                <div>
-                  <h3 className="text-lg font-semibold flex items-center mb-2">
-                    <AlertTriangle className="w-5 h-5 mr-2 text-red-500" />
+            {displayPatient.contraindications && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center text-red-600">
+                    <AlertTriangle className="w-5 h-5 mr-2" />
                     Przeciwwskazania
-                  </h3>
-                  <p className="text-sm bg-red-50 p-3 rounded">{patient.contraindications}</p>
-                </div>
-              )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-lg leading-relaxed">{displayPatient.contraindications}</p>
+                </CardContent>
+              </Card>
+            )}
 
-              {patient.medical_notes && (
-                <div>
-                  <h3 className="text-lg font-semibold flex items-center mb-2">
-                    <Heart className="w-5 h-5 mr-2 text-pink-500" />
+            {displayPatient.medical_notes && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center text-pink-600">
+                    <Heart className="w-5 h-5 mr-2" />
                     Notatki medyczne
-                  </h3>
-                  <p className="text-sm bg-gray-50 p-3 rounded">{patient.medical_notes}</p>
-                </div>
-              )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-lg leading-relaxed">{displayPatient.medical_notes}</p>
+                </CardContent>
+              </Card>
+            )}
 
-              {!patient.allergies && !patient.contraindications && !patient.medical_notes && (
-                <div className="text-center py-8 text-gray-500">
-                  Brak informacji medycznych
-                </div>
-              )}
-            </div>
-          </TabsContent>
+            {!displayPatient.allergies && !displayPatient.contraindications && !displayPatient.medical_notes && (
+              <Card>
+                <CardContent className="py-12">
+                  <div className="text-center text-muted-foreground">
+                    <p className="text-lg">Brak informacji medycznych</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </TabsContent>
 
-          <TabsContent value="photos" className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold flex items-center">
+        <TabsContent value="photos" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
                 <Camera className="w-5 h-5 mr-2" />
                 Zdjęcia zabiegów
-              </h3>
-            </div>
-            
-            <div className="text-center py-8 text-gray-500">
-              Funkcja galerii zdjęć będzie dostępna wkrótce
-            </div>
-          </TabsContent>
-        </Tabs>
-      </CardContent>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12 text-muted-foreground">
+                <p className="text-lg">Funkcja galerii zdjęć będzie dostępna wkrótce</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
+      {/* Forms and Modals */}
       {showAddAppointment && (
         <AppointmentForm
           isOpen={showAddAppointment}
           onClose={() => setShowAddAppointment(false)}
-          selectedPatient={patient}
-          onSuccess={() => {
-            refetch();
-            setShowAddAppointment(false);
-          }}
+          onSuccess={handleAppointmentSuccess}
+          selectedPatient={displayPatient}
         />
       )}
-    </Card>
+
+      {isEditing && (
+        <PatientEditForm
+          patient={displayPatient}
+          isOpen={isEditing}
+          onClose={() => setIsEditing(false)}
+          onSuccess={handleEditSuccess}
+        />
+      )}
+
+      {/* Delete Appointment Confirmation Dialog */}
+      <AlertDialog 
+        open={!!appointmentToDelete} 
+        onOpenChange={() => setAppointmentToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Usuń wizytę</AlertDialogTitle>
+            <AlertDialogDescription>
+              Czy na pewno chcesz usunąć tę wizytę? Ta akcja jest nieodwracalna.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>
+              Anuluj
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => appointmentToDelete && deleteAppointment(appointmentToDelete)}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? "Usuwanie..." : "Usuń"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 };
 

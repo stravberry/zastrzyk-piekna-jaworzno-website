@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import PatientForm from "./PatientForm";
 import EnhancedPatientCard from "./EnhancedPatientCard";
 
@@ -30,6 +31,7 @@ const PatientsList: React.FC<PatientsListProps> = ({
   const [showAddPatient, setShowAddPatient] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   // Reset to first page when search term changes
   React.useEffect(() => {
@@ -96,8 +98,13 @@ const PatientsList: React.FC<PatientsListProps> = ({
   };
 
   const handlePatientEdit = (patient: Patient) => {
-    // Open patient profile modal for editing
-    onPatientSelect(patient);
+    // Navigate to patient profile page
+    navigate(`/admin/crm/patient/${patient.id}`);
+  };
+
+  const handlePatientView = (patient: Patient) => {
+    // Navigate to patient profile page
+    navigate(`/admin/crm/patient/${patient.id}`);
   };
 
   const renderPaginationItems = () => {
@@ -165,7 +172,7 @@ const PatientsList: React.FC<PatientsListProps> = ({
             key={patient.id}
             patient={patient}
             isSelected={selectedPatient?.id === patient.id}
-            onSelect={onPatientSelect}
+            onSelect={handlePatientView}
             onEdit={handlePatientEdit}
           />
         ))}

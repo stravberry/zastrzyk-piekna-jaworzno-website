@@ -12,7 +12,7 @@ import AllAppointmentsList from "@/components/admin/crm/AllAppointmentsList";
 import PatientForm from "@/components/admin/crm/PatientForm";
 import AppointmentForm from "@/components/admin/crm/AppointmentForm";
 import IntegrationsPanel from "@/components/admin/crm/IntegrationsPanel";
-import PatientProfileModal from "@/components/admin/crm/PatientProfileModal";
+
 import ReminderControls from "@/components/admin/crm/ReminderControls";
 import { Users, Calendar, ClipboardList, Settings, Search, Mail, Filter, SortAsc, Eye, UserPlus, CalendarPlus } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
@@ -24,11 +24,9 @@ const AdminCRM: React.FC = () => {
   const [isAppointmentFormOpen, setIsAppointmentFormOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
-  const [isPatientProfileOpen, setIsPatientProfileOpen] = useState(false);
 
   const handlePatientSelect = (patient: Patient) => {
     setSelectedPatient(patient);
-    setIsPatientProfileOpen(true);
   };
 
   const handlePatientUpdate = () => {
@@ -45,14 +43,6 @@ const AdminCRM: React.FC = () => {
     handlePatientUpdate();
   };
 
-  const handleProfileClose = () => {
-    setIsPatientProfileOpen(false);
-    setSelectedPatient(null);
-  };
-
-  const handleProfileUpdate = () => {
-    handlePatientUpdate();
-  };
 
   return (
     <div className="space-y-6">
@@ -257,12 +247,6 @@ const AdminCRM: React.FC = () => {
         onClose={() => setIsAppointmentFormOpen(false)}
       />
 
-      <PatientProfileModal
-        patient={selectedPatient}
-        isOpen={isPatientProfileOpen}
-        onClose={handleProfileClose}
-        onUpdate={handleProfileUpdate}
-      />
     </div>
   );
 };

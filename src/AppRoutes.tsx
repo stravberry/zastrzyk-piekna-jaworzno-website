@@ -25,6 +25,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminSecurity from "./pages/admin/AdminSecurity";
 import AdminCodeSettings from "./pages/admin/AdminCodeSettings";
 import AdminCRM from "./pages/admin/AdminCRM";
+import AdminPatientProfile from "./pages/admin/AdminPatientProfile";
 import AdminEmailTemplates from "./pages/admin/AdminEmailTemplates";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 
@@ -88,6 +89,11 @@ const AppRoutes = () => {
         <Route path="crm" element={
           <AdminProtectedRoute requiredRole="editor">
             <AdminCRM />
+          </AdminProtectedRoute>
+        } />
+        <Route path="crm/patient/:id" element={
+          <AdminProtectedRoute requiredRole="editor">
+            <AdminPatientProfile />
           </AdminProtectedRoute>
         } />
         <Route path="email-templates" element={
