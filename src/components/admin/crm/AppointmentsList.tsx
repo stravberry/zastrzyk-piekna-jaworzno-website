@@ -263,12 +263,12 @@ const AppointmentsList: React.FC = () => {
 
   return (
     <>
-      <div className="space-y-3 sm:space-y-4">
-          {/* Filters and Manual Reminder Button */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
+      <div className="space-y-3">
+        {/* Filters and Manual Reminder Button */}
+        <div className="flex flex-col gap-2 sm:flex-row sm:gap-3 sm:items-center">
           <Select value={statusFilter} onValueChange={handleStatusFilterChange}>
-            <SelectTrigger className="w-full sm:w-[180px]">
-              <Filter className="w-4 h-4 mr-2" />
+            <SelectTrigger className="w-full sm:w-[160px] text-xs sm:text-sm">
+              <Filter className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -282,14 +282,15 @@ const AppointmentsList: React.FC = () => {
           <Button
             onClick={() => sendRemindersMutation.mutate()}
             disabled={sendRemindersMutation.isPending}
-            className="bg-green-600 hover:bg-green-700"
+            className="bg-green-600 hover:bg-green-700 text-xs sm:text-sm"
+            size="sm"
           >
             {sendRemindersMutation.isPending ? "Wysyłanie..." : "Wyślij przypomnienia"}
           </Button>
         </div>
 
         {/* Results info */}
-        <div className="text-xs sm:text-sm text-gray-600">
+        <div className="text-xs text-gray-600">
           Znaleziono {totalCount} wizyt
           {totalPages > 1 && (
             <span> (strona {currentPage} z {totalPages})</span>
@@ -297,40 +298,40 @@ const AppointmentsList: React.FC = () => {
         </div>
 
         {/* Appointments List */}
-        <div className="space-y-2 sm:space-y-3 max-h-[500px] sm:max-h-[600px] overflow-y-auto">
+        <div className="space-y-2 max-h-[400px] sm:max-h-[500px] lg:max-h-[600px] overflow-y-auto">
           {appointments.map((appointment) => {
             const dateInfo = formatDate(appointment.scheduled_date);
             
             return (
-              <Card key={appointment.id} className={`p-4 ${dateInfo.isUpcoming ? 'border-l-4 border-l-blue-500' : ''}`}>
-                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
-                  <div className="flex-1 min-w-0 space-y-3">
-                    <div className="flex flex-col lg:flex-row lg:items-center gap-3">
-                      <h4 className="font-medium text-base truncate">{appointment.treatments.name}</h4>
-                      <div className="flex gap-2 flex-wrap">
-                        <Badge className={`${getStatusColor(appointment.status || 'scheduled')}`}>
+              <Card key={appointment.id} className={`p-3 sm:p-4 ${dateInfo.isUpcoming ? 'border-l-4 border-l-blue-500' : ''}`}>
+                <div className="flex flex-col gap-3 sm:gap-4">
+                  <div className="flex-1 min-w-0 space-y-2 sm:space-y-3">
+                    <div className="flex flex-col gap-2 sm:gap-3">
+                      <h4 className="font-medium text-sm sm:text-base truncate">{appointment.treatments.name}</h4>
+                      <div className="flex gap-1 sm:gap-2 flex-wrap">
+                        <Badge className={`text-xs ${getStatusColor(appointment.status || 'scheduled')}`}>
                           {getStatusText(appointment.status || 'scheduled')}
                         </Badge>
                         {dateInfo.isUpcoming && (
-                          <Badge variant="outline" className="text-blue-600 border-blue-600">
+                          <Badge variant="outline" className="text-xs text-blue-600 border-blue-600">
                             Nadchodząca
                           </Badge>
                         )}
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <User className="w-4 h-4 mr-2 flex-shrink-0" />
+                    <div className="space-y-2">
+                      <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                        <User className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
                         <span className="truncate">{appointment.patients.first_name} {appointment.patients.last_name}</span>
                       </div>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
-                        <span>{dateInfo.formatted}</span>
+                      <div className="flex items-center text-xs sm:text-sm text-gray-600">
+                        <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 flex-shrink-0" />
+                        <span className="text-xs sm:text-sm">{dateInfo.formatted}</span>
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div className="space-y-2 sm:space-y-3">
                       {/* Quick Status Change */}
                       <div>
                         <QuickStatusChange 
@@ -347,23 +348,23 @@ const AppointmentsList: React.FC = () => {
                     </div>
                     
                     {appointment.cost && (
-                      <p className="text-sm font-medium">
+                      <p className="text-xs sm:text-sm font-medium">
                         Koszt: {appointment.cost} zł
                       </p>
                     )}
                     
                     {(appointment.pre_treatment_notes || appointment.post_treatment_notes) && (
-                      <div className="space-y-2">
+                      <div className="space-y-1 sm:space-y-2">
                         {appointment.pre_treatment_notes && (
-                          <p className="text-sm text-gray-600 line-clamp-2">
-                            <FileText className="w-4 h-4 inline mr-2 text-blue-500" />
+                          <p className="text-xs sm:text-sm text-gray-600 line-clamp-2">
+                            <FileText className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2 text-blue-500" />
                             <span className="font-medium">Przed:</span> {appointment.pre_treatment_notes}
                           </p>
                         )}
                         
                         {appointment.post_treatment_notes && (
-                          <p className="text-sm text-gray-600 line-clamp-2">
-                            <FileText className="w-4 h-4 inline mr-2 text-green-500" />
+                          <p className="text-xs sm:text-sm text-gray-600 line-clamp-2">
+                            <FileText className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2 text-green-500" />
                             <span className="font-medium">Po:</span> {appointment.post_treatment_notes}
                           </p>
                         )}
@@ -371,16 +372,17 @@ const AppointmentsList: React.FC = () => {
                     )}
                   </div>
                   
-                  <div className="flex flex-col lg:flex-row gap-2 lg:justify-start">
-                    <div className="flex gap-2">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex gap-1 sm:gap-2">
                       <Button 
                         size="sm" 
                         variant="outline"
                         onClick={() => handleEditAppointment(appointment)}
-                        className="flex-1 lg:flex-none"
+                        className="flex-1 text-xs sm:text-sm"
                       >
-                        <Edit className="w-4 h-4 mr-2" />
-                        Edytuj
+                        <Edit className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                        <span className="hidden sm:inline">Edytuj</span>
+                        <span className="sm:hidden">Edit</span>
                       </Button>
                       <ManualReminderButton
                         appointmentId={appointment.id}
@@ -388,23 +390,24 @@ const AppointmentsList: React.FC = () => {
                         disabled={updateStatusMutation.isPending}
                       />
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-1 sm:gap-2">
                       <Button 
                         size="sm" 
                         variant="outline"
                         onClick={() => downloadCalendarEvent(appointment.id)}
-                        className="flex-1 lg:flex-none"
+                        className="flex-1 text-xs sm:text-sm"
                       >
-                        <Download className="w-4 h-4 mr-2" />
-                        Pobierz .ics
+                        <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                        <span className="hidden sm:inline">Pobierz .ics</span>
+                        <span className="sm:hidden">.ics</span>
                       </Button>
                       <Button 
                         size="sm" 
                         variant="outline"
                         onClick={() => setAppointmentToDelete(appointment.id)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 px-2 sm:px-3"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>
                     </div>
                   </div>
@@ -425,18 +428,18 @@ const AppointmentsList: React.FC = () => {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-2 mt-4">
+          <div className="flex justify-center items-center gap-2 mt-3">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage <= 1}
-              className="text-xs w-full sm:w-auto"
+              className="text-xs flex-1 sm:flex-none sm:w-auto"
             >
               Poprzednia
             </Button>
             
-            <span className="flex items-center px-3 text-xs sm:text-sm order-first sm:order-none">
+            <span className="flex items-center px-2 sm:px-3 text-xs whitespace-nowrap">
               {currentPage} z {totalPages}
             </span>
             
@@ -445,7 +448,7 @@ const AppointmentsList: React.FC = () => {
               size="sm"
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage >= totalPages}
-              className="text-xs w-full sm:w-auto"
+              className="text-xs flex-1 sm:flex-none sm:w-auto"
             >
               Następna
             </Button>

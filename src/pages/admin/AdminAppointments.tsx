@@ -11,35 +11,26 @@ const AdminAppointments: React.FC = () => {
 
   return (
     <AdminLayout>
-      <div className="space-y-6 p-6">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+      <div className="space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start sm:gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Wizyty</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">Wizyty</h1>
+            <p className="text-sm text-muted-foreground">
               Zarządzaj kalendarzem wizyt i terminami pacjentów
             </p>
           </div>
           
           <Button
             onClick={() => setIsAppointmentFormOpen(true)}
-            className="gap-2"
+            className="gap-2 w-full sm:w-auto"
+            size="sm"
           >
             <CalendarPlus className="w-4 h-4" />
             Dodaj wizytę
           </Button>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Kalendarz wizyt</CardTitle>
-            <CardDescription>
-              Przegląd wszystkich zaplanowanych wizyt w kalendarzu
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <AppointmentsCalendarView onAddAppointment={() => setIsAppointmentFormOpen(true)} />
-          </CardContent>
-        </Card>
+        <AppointmentsCalendarView onAddAppointment={() => setIsAppointmentFormOpen(true)} />
 
         <AppointmentForm
           isOpen={isAppointmentFormOpen}
