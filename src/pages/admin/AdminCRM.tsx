@@ -57,28 +57,35 @@ const AdminCRM: React.FC = () => {
       </div>
 
       <Tabs defaultValue="patients" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="patients" className="flex items-center gap-2">
-            <Users className="w-4 h-4" />
-            Pacjenci
-          </TabsTrigger>
-          <TabsTrigger value="appointments" className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            Wizyty
-          </TabsTrigger>
-          <TabsTrigger value="all-appointments" className="flex items-center gap-2">
-            <ClipboardList className="w-4 h-4" />
-            Wszystkie wizyty
-          </TabsTrigger>
-          <TabsTrigger value="reminders" className="flex items-center gap-2">
-            <Mail className="w-4 h-4" />
-            Przypomnienia
-          </TabsTrigger>
-          <TabsTrigger value="integrations" className="flex items-center gap-2">
-            <Settings className="w-4 h-4" />
-            Integracje
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto">
+          <TabsList className="grid w-full min-w-[600px] grid-cols-5 h-auto p-1">
+            <TabsTrigger value="patients" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 px-3">
+              <Users className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="hidden sm:inline">Pacjenci</span>
+              <span className="sm:hidden">P</span>
+            </TabsTrigger>
+            <TabsTrigger value="appointments" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 px-3">
+              <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="hidden sm:inline">Wizyty</span>
+              <span className="sm:hidden">W</span>
+            </TabsTrigger>
+            <TabsTrigger value="all-appointments" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 px-3">
+              <ClipboardList className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="hidden lg:inline">Wszystkie wizyty</span>
+              <span className="lg:hidden">Lista</span>
+            </TabsTrigger>
+            <TabsTrigger value="reminders" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 px-3">
+              <Mail className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="hidden sm:inline">Przypomnienia</span>
+              <span className="sm:hidden">Mail</span>
+            </TabsTrigger>
+            <TabsTrigger value="integrations" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 px-3">
+              <Settings className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+              <span className="hidden sm:inline">Integracje</span>
+              <span className="sm:hidden">Set</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="patients">
           <Card>

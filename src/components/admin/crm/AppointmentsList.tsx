@@ -316,101 +316,111 @@ const AppointmentsList: React.FC = () => {
             const dateInfo = formatDate(appointment.scheduled_date);
             
             return (
-              <Card key={appointment.id} className={`p-3 sm:p-4 ${dateInfo.isUpcoming ? 'border-l-4 border-l-blue-500' : ''}`}>
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                      <h4 className="font-medium text-sm sm:text-base truncate">{appointment.treatments.name}</h4>
+              <Card key={appointment.id} className={`p-4 ${dateInfo.isUpcoming ? 'border-l-4 border-l-blue-500' : ''}`}>
+                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+                  <div className="flex-1 min-w-0 space-y-3">
+                    <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+                      <h4 className="font-medium text-base truncate">{appointment.treatments.name}</h4>
                       <div className="flex gap-2 flex-wrap">
-                        <Badge className={`text-xs ${getStatusColor(appointment.status || 'scheduled')}`}>
+                        <Badge className={`${getStatusColor(appointment.status || 'scheduled')}`}>
                           {getStatusText(appointment.status || 'scheduled')}
                         </Badge>
                         {dateInfo.isUpcoming && (
-                          <Badge variant="outline" className="text-blue-600 border-blue-600 text-xs">
+                          <Badge variant="outline" className="text-blue-600 border-blue-600">
                             Nadchodząca
                           </Badge>
                         )}
                       </div>
                     </div>
                     
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 mb-2">
-                      <div className="flex items-center">
-                        <User className="w-3 h-3 mr-1 flex-shrink-0" />
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                      <div className="flex items-center text-sm text-gray-600">
+                        <User className="w-4 h-4 mr-2 flex-shrink-0" />
                         <span className="truncate">{appointment.patients.first_name} {appointment.patients.last_name}</span>
                       </div>
-                      <div className="flex items-center">
-                        <Calendar className="w-3 h-3 mr-1 flex-shrink-0" />
-                        <span className="text-xs sm:text-sm">{dateInfo.formatted}</span>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
+                        <span>{dateInfo.formatted}</span>
                       </div>
                     </div>
                     
-                    {/* Quick Status Change */}
-                    <div className="mb-2">
-                      <QuickStatusChange 
-                        currentStatus={appointment.status || 'scheduled'}
-                        onStatusChange={(newStatus) => handleQuickStatusChange(appointment.id, newStatus)}
-                        disabled={updateStatusMutation.isPending}
-                      />
-                    </div>
-                    
-                    {/* Reminder Status */}
-                    <div className="mb-2">
-                      <AppointmentReminderStatus appointmentId={appointment.id} />
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      {/* Quick Status Change */}
+                      <div>
+                        <QuickStatusChange 
+                          currentStatus={appointment.status || 'scheduled'}
+                          onStatusChange={(newStatus) => handleQuickStatusChange(appointment.id, newStatus)}
+                          disabled={updateStatusMutation.isPending}
+                        />
+                      </div>
+                      
+                      {/* Reminder Status */}
+                      <div>
+                        <AppointmentReminderStatus appointmentId={appointment.id} />
+                      </div>
                     </div>
                     
                     {appointment.cost && (
-                      <p className="text-xs sm:text-sm font-medium mb-2">
+                      <p className="text-sm font-medium">
                         Koszt: {appointment.cost} zł
                       </p>
                     )}
                     
-                    {appointment.pre_treatment_notes && (
-                      <p className="text-xs text-gray-600 mb-1 line-clamp-2">
-                        <FileText className="w-3 h-3 inline mr-1" />
-                        Notatki przed: {appointment.pre_treatment_notes}
-                      </p>
-                    )}
-                    
-                    {appointment.post_treatment_notes && (
-                      <p className="text-xs text-gray-600 line-clamp-2">
-                        <FileText className="w-3 h-3 inline mr-1" />
-                        Notatki po: {appointment.post_treatment_notes}
-                      </p>
+                    {(appointment.pre_treatment_notes || appointment.post_treatment_notes) && (
+                      <div className="space-y-2">
+                        {appointment.pre_treatment_notes && (
+                          <p className="text-sm text-gray-600 line-clamp-2">
+                            <FileText className="w-4 h-4 inline mr-2 text-blue-500" />
+                            <span className="font-medium">Przed:</span> {appointment.pre_treatment_notes}
+                          </p>
+                        )}
+                        
+                        {appointment.post_treatment_notes && (
+                          <p className="text-sm text-gray-600 line-clamp-2">
+                            <FileText className="w-4 h-4 inline mr-2 text-green-500" />
+                            <span className="font-medium">Po:</span> {appointment.post_treatment_notes}
+                          </p>
+                        )}
+                      </div>
                     )}
                   </div>
                   
-                  <div className="flex gap-2 justify-end sm:justify-start flex-shrink-0">
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => handleEditAppointment(appointment)}
-                      className="text-xs px-2 py-1"
-                    >
-                      <Edit className="w-3 h-3 mr-1" />
-                      Edytuj
-                    </Button>
-                    <ManualReminderButton
-                      appointmentId={appointment.id}
-                      patientEmail={appointment.patients.email}
-                      disabled={updateStatusMutation.isPending}
-                    />
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => downloadCalendarEvent(appointment.id)}
-                      className="text-xs px-2 py-1"
-                    >
-                      <Download className="w-3 h-3 mr-1" />
-                      .ics
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => setAppointmentToDelete(appointment.id)}
-                      className="text-xs px-2 py-1 text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
+                  <div className="flex flex-col lg:flex-row gap-2 lg:justify-start">
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleEditAppointment(appointment)}
+                        className="flex-1 lg:flex-none"
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        Edytuj
+                      </Button>
+                      <ManualReminderButton
+                        appointmentId={appointment.id}
+                        patientEmail={appointment.patients.email}
+                        disabled={updateStatusMutation.isPending}
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => downloadCalendarEvent(appointment.id)}
+                        className="flex-1 lg:flex-none"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Pobierz .ics
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => setAppointmentToDelete(appointment.id)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </Card>
