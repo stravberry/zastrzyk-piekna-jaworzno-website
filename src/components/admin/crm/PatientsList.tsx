@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
@@ -8,6 +8,7 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useDebounce } from "@/hooks/useDebounce";
 import PatientForm from "./PatientForm";
 import EnhancedPatientCard from "./EnhancedPatientCard";
 
@@ -33,20 +34,27 @@ const PatientsList: React.FC<PatientsListProps> = ({
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
+  // Debounce search term to reduce API calls
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
   // Reset to first page when search term changes
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm]);
+  }, [debouncedSearchTerm]);
+
+  // For instant display while typing, show results immediately for short searches
+  const shouldShowInstantResults = searchTerm.length >= 2 && searchTerm.length <= 3;
+  const effectiveSearchTerm = shouldShowInstantResults ? searchTerm : debouncedSearchTerm;
 
   const { data: patientsData, isLoading, refetch } = useQuery({
-    queryKey: ['patients', searchTerm, currentPage],
+    queryKey: ['patients', effectiveSearchTerm, currentPage],
     queryFn: async () => {
       const from = (currentPage - 1) * PATIENTS_PER_PAGE;
       const to = from + PATIENTS_PER_PAGE - 1;
 
-      if (searchTerm.trim()) {
-        const { data, error, count } = await supabase.rpc('search_patients', {
-          search_term: searchTerm
+      if (effectiveSearchTerm.trim()) {
+        const { data, error } = await supabase.rpc('search_patients', {
+          search_term: effectiveSearchTerm
         });
         
         if (error) throw error;
@@ -72,7 +80,9 @@ const PatientsList: React.FC<PatientsListProps> = ({
           totalCount: count || 0
         };
       }
-    }
+    },
+    enabled: effectiveSearchTerm.length === 0 || effectiveSearchTerm.length >= 2, // Only search when empty or 2+ characters
+    staleTime: effectiveSearchTerm.length >= 2 ? 30000 : 0, // Cache results for 30 seconds for searches
   });
 
   const patients = patientsData?.patients || [];
@@ -139,7 +149,10 @@ const PatientsList: React.FC<PatientsListProps> = ({
     return items;
   };
 
-  if (isLoading) {
+  // Show different loading states
+  const isSearching = searchTerm !== effectiveSearchTerm && searchTerm.length >= 2;
+  
+  if (isLoading && !isSearching) {
     return <div className="text-center py-4 text-sm">Ładowanie pacjentów...</div>;
   }
 
@@ -147,8 +160,13 @@ const PatientsList: React.FC<PatientsListProps> = ({
     <div className="space-y-3 sm:space-y-4">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <div>
-          <h3 className="text-base sm:text-lg font-semibold">
+          <h3 className="text-base sm:text-lg font-semibold flex items-center gap-2">
             Znaleziono {totalCount} pacjentów
+            {isSearching && (
+              <span className="text-xs text-blue-500 font-normal">
+                (szukanie...)
+              </span>
+            )}
           </h3>
           {totalPages > 1 && (
             <p className="text-xs sm:text-sm text-gray-500">
@@ -167,7 +185,13 @@ const PatientsList: React.FC<PatientsListProps> = ({
       </div>
 
       <div className="grid gap-3 sm:gap-4">
-        {patients.map((patient) => (
+        {isLoading && isSearching && (
+          <div className="text-center py-4 text-sm text-blue-500">
+            Szukanie pacjentów...
+          </div>
+        )}
+        
+        {!isLoading && patients.map((patient) => (
           <EnhancedPatientCard
             key={patient.id}
             patient={patient}
@@ -177,9 +201,15 @@ const PatientsList: React.FC<PatientsListProps> = ({
           />
         ))}
 
-        {patients.length === 0 && (
+        {!isLoading && patients.length === 0 && effectiveSearchTerm.length >= 2 && (
           <div className="text-center py-8 text-gray-500 text-sm">
-            {searchTerm ? 'Nie znaleziono pacjentów' : 'Brak pacjentów w systemie'}
+            Nie znaleziono pacjentów dla: "{effectiveSearchTerm}"
+          </div>
+        )}
+        
+        {!isLoading && patients.length === 0 && effectiveSearchTerm.length === 0 && (
+          <div className="text-center py-8 text-gray-500 text-sm">
+            Brak pacjentów w systemie
           </div>
         )}
       </div>
