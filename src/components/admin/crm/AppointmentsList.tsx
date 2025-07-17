@@ -298,7 +298,7 @@ const AppointmentsList: React.FC = () => {
         </div>
 
         {/* Appointments List */}
-        <div className="space-y-2 max-h-[400px] sm:max-h-[500px] lg:max-h-[600px] overflow-y-auto">
+        <div className="space-y-2">
           {appointments.map((appointment) => {
             const dateInfo = formatDate(appointment.scheduled_date);
             
