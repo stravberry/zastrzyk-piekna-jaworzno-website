@@ -161,20 +161,20 @@ const AdminCRM: React.FC = () => {
                 Menu
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-80">
-              <div className="space-y-4 pt-6">
-                <h3 className="text-lg font-semibold mb-4">Nawigacja</h3>
-                <div className="space-y-2">
+            <SheetContent side="right" className="w-80 sm:w-96 md:w-[400px]">
+              <div className="space-y-6 pt-8 px-2">
+                <h3 className="text-xl font-semibold mb-6 text-center">Nawigacja</h3>
+                <div className="space-y-3">
                   {tabItems.map((item) => {
                     const Icon = item.icon;
                     return (
                       <Button
                         key={item.value}
                         variant={activeTab === item.value ? "default" : "ghost"}
-                        className="w-full justify-start gap-3"
+                        className="w-full justify-start gap-4 h-12 text-base px-4 py-3"
                         onClick={() => setActiveTab(item.value)}
                       >
-                        <Icon className="w-4 h-4" />
+                        <Icon className="w-5 h-5" />
                         {item.label}
                       </Button>
                     );
