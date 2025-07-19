@@ -14,7 +14,7 @@ const FeaturedTreatmentsSection = () => {
       title: "Sculptra",
       description: "Pobudza naturalną produkcję kolagenu i przywraca objętość bez przerysowania.",
       icon: <User className="w-8 h-8" />,
-      link: "/zabiegi-przeciwstarzeniowe",
+      link: "/sculptra",
       delay: "delay-100"
     },
     {
