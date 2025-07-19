@@ -10,6 +10,7 @@ import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import LipModeling from "./pages/LipModeling";
 import AntiAgingTherapies from "./pages/AntiAgingTherapies";
+import Sculptra from "./pages/Sculptra";
 
 // Admin imports
 import AdminWrapper from "./pages/admin/AdminWrapper";
@@ -45,6 +46,7 @@ const AppRoutes = () => {
       <Route path="/kontakt" element={<Contact />} />
       <Route path="/zabiegi/modelowanie-ust" element={<LipModeling />} />
       <Route path="/zabiegi/terapie-antystarzeniowe" element={<AntiAgingTherapies />} />
+      <Route path="/sculptra" element={<Sculptra />} />
       
       {/* Admin routes - all wrapped by AdminWrapper which provides AdminProvider and security */}
       <Route path="/admin/*" element={<AdminWrapper />}>
