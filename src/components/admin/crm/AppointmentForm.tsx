@@ -280,8 +280,8 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-              {/* Podstawowe informacje */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Lewa kolumna - Podstawowe informacje */}
               <div className="space-y-4">
                 {!selectedPatient && !isEditing && (
                   <FormField
@@ -353,14 +353,14 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                   )}
                 />
 
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="scheduled_date"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>Data *</FormLabel>
-                        <Popover modal={true}>
+                        <Popover>
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
@@ -380,50 +380,19 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                             </FormControl>
                           </PopoverTrigger>
                           <PopoverContent 
-                            className="w-auto p-0 z-[9999] bg-background border shadow-lg" 
+                            className="w-auto p-0" 
                             align="start"
-                            side="bottom"
-                            sideOffset={4}
-                            avoidCollisions={true}
-                            collisionPadding={8}
                           >
-                            <div className="relative">
-                              <Calendar
-                                mode="single"
-                                selected={field.value}
-                                onSelect={(date) => {
-                                  field.onChange(date);
-                                }}
-                                disabled={(date) =>
-                                  date < new Date(new Date().setHours(0, 0, 0, 0))
-                                }
-                                initialFocus
-                                className="p-3 pointer-events-auto bg-background"
-                                classNames={{
-                                  months: "flex flex-col space-y-4",
-                                  month: "space-y-4 w-full",
-                                  caption: "flex justify-center pt-1 relative items-center w-full",
-                                  caption_label: "text-sm font-medium",
-                                  nav: "space-x-1 flex items-center",
-                                  nav_button: "h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100 hover:bg-accent rounded-sm transition-colors",
-                                  nav_button_previous: "absolute left-1",
-                                  nav_button_next: "absolute right-1",
-                                  table: "w-full border-collapse space-y-1",
-                                  head_row: "flex w-full",
-                                  head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem] text-center",
-                                  row: "flex w-full mt-2",
-                                  cell: "h-9 w-9 text-center text-sm p-0 relative hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer rounded-md transition-colors",
-                                  day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground rounded-md transition-colors",
-                                  day_range_end: "day-range-end",
-                                  day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-md",
-                                  day_today: "bg-accent text-accent-foreground rounded-md",
-                                  day_outside: "text-muted-foreground opacity-50 hover:opacity-70",
-                                  day_disabled: "text-muted-foreground opacity-30 cursor-not-allowed hover:bg-transparent",
-                                  day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
-                                  day_hidden: "invisible",
-                                }}
-                              />
-                            </div>
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date < new Date(new Date().setHours(0, 0, 0, 0))
+                              }
+                              initialFocus
+                              className="p-3 pointer-events-auto"
+                            />
                           </PopoverContent>
                         </Popover>
                         <FormMessage />
@@ -431,40 +400,38 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                     )}
                   />
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="scheduled_time"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Godzina *</FormLabel>
-                          <FormControl>
-                            <Input {...field} type="time" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="duration_minutes"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Czas trwania (minuty)</FormLabel>
-                          <FormControl>
-                            <Input 
-                              {...field} 
-                              type="number" 
-                              onChange={(e) => field.onChange(parseInt(e.target.value))}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="scheduled_time"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Godzina *</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="time" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name="duration_minutes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Czas trwania (minuty)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          type="number" 
+                          onChange={(e) => field.onChange(parseInt(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 {isEditing && (
                   <FormField
