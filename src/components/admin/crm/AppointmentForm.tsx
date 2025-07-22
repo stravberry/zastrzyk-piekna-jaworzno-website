@@ -525,40 +525,8 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                 )}
               </div>
 
-              {/* Konfiguracja integracji */}
+              {/* Opis zabiegu */}
               <div className="space-y-4">
-                <Card>
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-blue-500" />
-                      <CardTitle className="text-sm">Synchronizacja z kalendarzem</CardTitle>
-                    </div>
-                    <CardDescription className="text-xs">
-                      Automatyczne dodawanie do Google Calendar
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <FormField
-                      control={form.control}
-                      name="calendar_sync_enabled"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <FormLabel className="text-sm font-normal">
-                            Synchronizuj z Google Calendar
-                          </FormLabel>
-                        </FormItem>
-                      )}
-                    />
-                  </CardContent>
-                </Card>
-
-
                 {selectedTreatment?.description && (
                   <Card>
                     <CardHeader className="pb-2">
@@ -572,77 +540,112 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
               </div>
             </div>
 
-            {/* Przypomnienia mailowe - przeniesione na dół */}
-            <Card className="mt-6">
-              <CardHeader className="pb-3">
-                <div className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-green-500" />
-                  <CardTitle className="text-sm">Przypomnienia mailowe</CardTitle>
-                </div>
-                <CardDescription className="text-xs">
-                  Automatyczne wysyłanie przypomnień pacjentowi
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <FormField
-                  control={form.control}
-                  name="email_reminders_enabled"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel className="text-sm font-normal">
-                        Włącz przypomnienia mailowe
-                      </FormLabel>
-                    </FormItem>
-                  )}
-                />
-
-                {form.watch('email_reminders_enabled') && (
-                  <div className="space-y-2 pl-6">
-                    <FormField
-                      control={form.control}
-                      name="reminder_preferences.24h"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <FormLabel className="text-sm font-normal">
-                            Przypomnienie 24h wcześniej
-                          </FormLabel>
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="reminder_preferences.2h"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <FormLabel className="text-sm font-normal">
-                            Przypomnienie 2h wcześniej
-                          </FormLabel>
-                        </FormItem>
-                      )}
-                    />
+            {/* Przypomnienia i integracje */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+              {/* Przypomnienia mailowe */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-green-500" />
+                    <CardTitle className="text-sm">Przypomnienia mailowe</CardTitle>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                  <CardDescription className="text-xs">
+                    Automatyczne wysyłanie przypomnień pacjentowi
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <FormField
+                    control={form.control}
+                    name="email_reminders_enabled"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-normal">
+                          Włącz przypomnienia mailowe
+                        </FormLabel>
+                      </FormItem>
+                    )}
+                  />
+
+                  {form.watch('email_reminders_enabled') && (
+                    <div className="space-y-2 pl-6">
+                      <FormField
+                        control={form.control}
+                        name="reminder_preferences.24h"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormLabel className="text-sm font-normal">
+                              Przypomnienie 24h wcześniej
+                            </FormLabel>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="reminder_preferences.2h"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormLabel className="text-sm font-normal">
+                              Przypomnienie 2h wcześniej
+                            </FormLabel>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Synchronizacja z kalendarzem */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-2">
+                    <CalendarIcon className="w-4 h-4 text-blue-500" />
+                    <CardTitle className="text-sm">Synchronizacja z kalendarzem</CardTitle>
+                  </div>
+                  <CardDescription className="text-xs">
+                    Automatyczne dodawanie do Google Calendar
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <FormField
+                    control={form.control}
+                    name="calendar_sync_enabled"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-normal">
+                          Synchronizuj z Google Calendar
+                        </FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            </div>
 
             <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4 border-t">
               <Button type="button" variant="outline" onClick={onClose}>
