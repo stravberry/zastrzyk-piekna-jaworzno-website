@@ -1,46 +1,68 @@
+
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { User, Award, GraduationCap, Heart, Shield, BookOpen, Instagram, Star } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+
 const AboutMe = () => {
   const isMobile = useIsMobile();
-  const comparisonData = [{
-    category: "Podejście do klienta",
-    others: "Standardowe, często schematyczne",
-    clinic: "Indywidualne, holistyczne podejście"
-  }, {
-    category: "Doświadczenie",
-    others: "Różne poziomy",
-    clinic: "Laureatka Kosmetologa Roku woj. śląskiego"
-  }, {
-    category: "Wykształcenie",
-    others: "Kursy i szkolenia",
-    clinic: "Magister kosmetologii, studentka pielęgniarstwa"
-  }, {
-    category: "Specjalizacja",
-    others: "Ogólna",
-    clinic: "Anti-aging, usta, makijaż permanentny brwi"
-  }, {
-    category: "Jakość preparatów",
-    others: "Niejednokrotnie niska",
-    clinic: "Tylko sprawdzone, certyfikowane preparaty"
-  }, {
-    category: "Efekty zabiegów",
-    others: "Niekiedy powierzchowne",
-    clinic: "Widoczne, precyzyjne i trwałe rezultaty"
-  }, {
-    category: "Wiedza i rozwój",
-    others: "Rzadko aktualizowana",
-    clinic: "Ciągłe szkolenia, aktualna wiedza branżowa"
-  }, {
-    category: "Komunikacja z klientem",
-    others: "Głównie telefoniczna",
-    clinic: "Dostępność online, Instagram, rolki edukacyjne"
-  }];
-  return <div className="min-h-screen flex flex-col">
+  
+  const advantages = [
+    {
+      number: "01",
+      icon: User,
+      title: "Indywidualne podejście",
+      description: "Każdy zabieg dostosowuję do indywidualnych potrzeb i oczekiwań klientki, zapewniając holistyczne podejście do urody."
+    },
+    {
+      number: "02", 
+      icon: Award,
+      title: "Udokumentowane doświadczenie",
+      description: "Laureatka konkursu na Kosmetologa Roku województwa śląskiego - potwierdzenie najwyższej jakości usług."
+    },
+    {
+      number: "03",
+      icon: GraduationCap,
+      title: "Wysokie wykształcenie",
+      description: "Magister kosmetologii Uniwersytetu Śląskiego, studentka pielęgniarstwa - solidne podstawy teoretyczne."
+    },
+    {
+      number: "04",
+      icon: Heart,
+      title: "Specjalizacja anti-aging",
+      description: "Ekspertka w terapiach przeciwstarzeniowych, modelowaniu ust oraz makijażu permanentnym brwi."
+    },
+    {
+      number: "05",
+      icon: Shield,
+      title: "Certyfikowane preparaty",
+      description: "Używam wyłącznie sprawdzonych, certyfikowanych preparatów najwyższej jakości dla bezpieczeństwa klientek."
+    },
+    {
+      number: "06",
+      icon: BookOpen,
+      title: "Ciągły rozwój",
+      description: "Regularne uczestnictwo w szkoleniach i kursach zapewnia mi aktualną wiedzę z zakresu medycyny estetycznej."
+    },
+    {
+      number: "07",
+      icon: Instagram,
+      title: "Dostępność online",
+      description: "Aktywność na Instagramie @zastrzyk_piekna z rolkami edukacyjnymi i stałą komunikacją z klientkami."
+    },
+    {
+      number: "08",
+      icon: Star,
+      title: "Widoczne efekty",
+      description: "Precyzyjne i trwałe rezultaty zabiegów, które poprawiają nie tylko wygląd, ale przede wszystkim samopoczucie."
+    }
+  ];
+
+  return (
+    <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow pt-24">
         {/* Hero Section */}
@@ -109,7 +131,7 @@ Zapraszam na mój Instagram @zastrzyk_piekna oraz zachęcam do obejrzenia wszyst
           </div>
         </section>
 
-        {/* Comparison Table */}
+        {/* Advantages Section */}
         <section className="py-16 bg-pink-50">
           <div className="container-custom">
             <h2 className="text-3xl font-bold mb-8 font-playfair text-center">
@@ -117,23 +139,31 @@ Zapraszam na mój Instagram @zastrzyk_piekna oraz zachęcam do obejrzenia wszyst
               <span className="text-pink-500">mój gabinet?</span>
             </h2>
             
-            <div className="bg-white rounded-lg shadow-md overflow-hidden max-w-4xl mx-auto">
-              <Table className="w-full text-sm md:text-base">
-                <TableHeader>
-                  <TableRow className="bg-pink-500 text-white">
-                    <TableHead className="py-3 px-2 md:px-4 text-left font-medium text-white">Kategoria</TableHead>
-                    <TableHead className="py-3 px-2 md:px-4 text-left font-medium text-white">Inne gabinety</TableHead>
-                    <TableHead className="py-3 px-2 md:px-4 text-left font-medium text-white">Zastrzyk Piękna – Anna Gajęcka</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {comparisonData.map((item, index) => <TableRow key={index} className={index % 2 === 0 ? 'bg-pink-50/30' : 'bg-white'}>
-                      <TableCell className="py-2 px-2 md:px-4 font-medium text-xs md:text-sm">{item.category}</TableCell>
-                      <TableCell className="py-2 px-2 md:px-4 text-gray-600 text-xs md:text-sm">{item.others}</TableCell>
-                      <TableCell className="py-2 px-2 md:px-4 text-pink-600 font-medium text-xs md:text-sm">{item.clinic}</TableCell>
-                    </TableRow>)}
-                </TableBody>
-              </Table>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+              {advantages.map((advantage, index) => {
+                const IconComponent = advantage.icon;
+                return (
+                  <div 
+                    key={index}
+                    className="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 group"
+                  >
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-12 h-12 bg-pink-500 text-white rounded-full flex items-center justify-center font-bold text-lg font-playfair">
+                        {advantage.number}
+                      </div>
+                      <div className="w-10 h-10 text-pink-500 group-hover:text-pink-600 transition-colors">
+                        <IconComponent className="w-full h-full" />
+                      </div>
+                    </div>
+                    <h3 className="text-lg font-semibold mb-3 font-playfair text-gray-800">
+                      {advantage.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      {advantage.description}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -155,6 +185,8 @@ Zapraszam na mój Instagram @zastrzyk_piekna oraz zachęcam do obejrzenia wszyst
         </section>
       </main>
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default AboutMe;
