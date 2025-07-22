@@ -140,18 +140,35 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     }
   }, [editingAppointment, selectedPatient, form]);
 
-  // Fetch treatments
+  // Fetch treatments from pricing categories to keep them in sync
   const { data: treatments } = useQuery({
-    queryKey: ['treatments'],
+    queryKey: ['pricing-treatments'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('treatments')
+        .from('pricing_categories')
         .select('*')
-        .eq('is_active', true)
-        .order('category', { ascending: true });
+        .order('title', { ascending: true });
       
       if (error) throw error;
-      return data as Treatment[];
+      
+      // Flatten all items from all categories into a single array
+      const allTreatments: any[] = [];
+      data?.forEach(category => {
+        const items = category.items as any[];
+        items?.forEach(item => {
+          allTreatments.push({
+            id: `${category.id}_${item.name}`, // Unique ID combining category and item
+            name: item.name,
+            category: category.title,
+            description: item.description || null,
+            price: parseFloat(item.price?.replace(/[^\d.]/g, '') || '0'),
+            duration_minutes: 60, // Default duration
+            is_active: true
+          });
+        });
+      });
+      
+      return allTreatments;
     }
   });
 
@@ -263,13 +280,13 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     }
   }, [selectedTreatment, form]);
 
-  const groupedTreatments = treatments?.reduce((acc, treatment) => {
+  const groupedTreatments = treatments?.reduce((acc: Record<string, any[]>, treatment: any) => {
     if (!acc[treatment.category]) {
       acc[treatment.category] = [];
     }
     acc[treatment.category].push(treatment);
     return acc;
-  }, {} as Record<string, Treatment[]>);
+  }, {} as Record<string, any[]>);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -335,13 +352,13 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                         <SelectValue placeholder="Wybierz zabieg" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="max-h-60 overflow-y-auto">
                       {Object.entries(groupedTreatments || {}).map(([category, categoryTreatments]) => (
                         <div key={category}>
                           <div className="px-2 py-1 text-sm font-medium text-gray-500 border-b">
                             {category}
                           </div>
-                          {categoryTreatments.map((treatment) => (
+                          {Array.isArray(categoryTreatments) && categoryTreatments.map((treatment: any) => (
                             <SelectItem key={treatment.id} value={treatment.id}>
                               {treatment.name} {treatment.price && `(${treatment.price} zł)`}
                             </SelectItem>
