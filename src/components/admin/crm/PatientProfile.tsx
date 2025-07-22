@@ -4,13 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -37,11 +30,12 @@ import {
   Download,
   Edit,
   Trash2,
-  ArrowLeft,
-  Menu
+  ArrowLeft
 } from "lucide-react";
 import { toast } from "sonner";
 import AppointmentForm from "./AppointmentForm";
+import AppointmentTimeline from "./AppointmentTimeline";
+import PatientPhotosSection from "./PatientPhotosSection";
 
 type Patient = Tables<"patients">;
 type Appointment = Tables<"patient_appointments"> & {
@@ -62,7 +56,6 @@ const PatientProfile: React.FC<PatientProfileProps> = ({
   const [showAddAppointment, setShowAddAppointment] = useState(false);
   const [appointmentToDelete, setAppointmentToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>("info");
 
   // Fetch current patient data to ensure we have the latest information
   const { data: currentPatient, refetch: refetchPatient } = useQuery({
@@ -105,36 +98,6 @@ const PatientProfile: React.FC<PatientProfileProps> = ({
     },
     enabled: !!displayPatient?.id
   });
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pl-PL', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'scheduled': return 'bg-blue-100 text-blue-800';
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      case 'no_show': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'scheduled': return 'Zaplanowana';
-      case 'completed': return 'Zakończona';
-      case 'cancelled': return 'Anulowana';
-      case 'no_show': return 'Nieobecność';
-      default: return status;
-    }
-  };
 
   const downloadCalendarEvent = async (appointmentId: string) => {
     try {
@@ -204,353 +167,271 @@ const PatientProfile: React.FC<PatientProfileProps> = ({
   if (!displayPatient) return null;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
-      {/* Back button above header */}
-      {onBack && (
-        <Button 
-          onClick={onBack}
-          variant="outline"
-          size="sm"
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Wróć
-        </Button>
-      )}
-      
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-6 bg-white p-6 rounded-lg border">
-        <div>
-          <h1 className="text-3xl font-bold">
-            {displayPatient.first_name} {displayPatient.last_name}
-          </h1>
-          <p className="text-muted-foreground">Profil pacjenta</p>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-3">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Back button */}
+        {onBack && (
           <Button 
-            onClick={handleEditClick}
+            onClick={onBack}
             variant="outline"
-            size="default"
+            size="sm"
+            className="flex items-center gap-2 mb-6"
           >
-            <Edit className="w-4 h-4 mr-2" />
-            Edytuj dane
+            <ArrowLeft className="w-4 h-4" />
+            Wróć
           </Button>
-          <Button 
-            onClick={() => setShowAddAppointment(true)}
-            className="bg-primary hover:bg-primary/90"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Nowa wizyta
-          </Button>
-        </div>
-      </div>
-
-      {/* Content */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <div className="flex justify-start">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2">
-                <Menu className="w-4 h-4" />
-                Wybierz zakładkę
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-48 bg-background z-50">
-              <DropdownMenuItem 
-                className="cursor-pointer"
-                onClick={() => setActiveTab("info")}
-              >
-                <User className="w-4 h-4 mr-2" />
-                Informacje
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                className="cursor-pointer"
-                onClick={() => setActiveTab("appointments")}
-              >
-                <Calendar className="w-4 h-4 mr-2" />
-                Wizyty
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                className="cursor-pointer"
-                onClick={() => setActiveTab("medical")}
-              >
-                <FileText className="w-4 h-4 mr-2" />
-                Medyczne
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                className="cursor-pointer"
-                onClick={() => setActiveTab("photos")}
-              >
-                <Camera className="w-4 h-4 mr-2" />
-                Zdjęcia
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        )}
+        
+        {/* Header */}
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6 bg-card p-6 rounded-xl border shadow-sm mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">
+              {displayPatient.first_name} {displayPatient.last_name}
+            </h1>
+            <p className="text-muted-foreground mt-1">Profil pacjenta</p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button 
+              onClick={handleEditClick}
+              variant="outline"
+              size="default"
+            >
+              <Edit className="w-4 h-4 mr-2" />
+              Edytuj dane
+            </Button>
+            <Button 
+              onClick={() => setShowAddAppointment(true)}
+              className="bg-primary hover:bg-primary/90"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Nowa wizyta
+            </Button>
+          </div>
         </div>
 
-        <TabsContent value="info" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <User className="w-5 h-5 mr-3" />
-                  Dane kontaktowe
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {displayPatient.phone && (
-                  <div className="flex items-center space-x-3">
-                    <Phone className="w-5 h-5 text-muted-foreground" />
-                    <span className="text-lg">{displayPatient.phone}</span>
-                  </div>
-                )}
-                
-                {displayPatient.email && (
-                  <div className="flex items-center space-x-3">
-                    <Mail className="w-5 h-5 text-muted-foreground" />
-                    <span className="text-lg">{displayPatient.email}</span>
-                  </div>
-                )}
-                
-                {displayPatient.address && (
-                  <div className="flex items-start space-x-3">
-                    <MapPin className="w-5 h-5 text-muted-foreground mt-1" />
-                    <span className="text-lg">{displayPatient.address}</span>
-                  </div>
-                )}
-                
-                {displayPatient.date_of_birth && (
-                  <div className="flex items-center space-x-3">
-                    <Calendar className="w-5 h-5 text-muted-foreground" />
-                    <span className="text-lg">
-                      {new Date(displayPatient.date_of_birth).toLocaleDateString('pl-PL')}
-                    </span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Dodatkowe informacje</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  {displayPatient.skin_type && (
-                    <div>
-                      <Badge variant="secondary" className="px-4 py-2">
-                        Typ skóry: {displayPatient.skin_type}
-                      </Badge>
+        {/* Content - All sections visible on one page */}
+        <div className="space-y-8">
+          {/* Basic Information Section */}
+          <section className="space-y-6">
+            <h2 className="text-2xl font-semibold text-foreground flex items-center gap-2">
+              <User className="w-6 h-6" />
+              Informacje podstawowe
+            </h2>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <User className="w-5 h-5 mr-3" />
+                    Dane kontaktowe
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {displayPatient.phone && (
+                    <div className="flex items-center space-x-3">
+                      <Phone className="w-5 h-5 text-muted-foreground" />
+                      <span className="text-lg">{displayPatient.phone}</span>
                     </div>
                   )}
                   
-                  {displayPatient.source && (
-                    <div>
-                      <Badge variant="outline" className="px-4 py-2">
-                        Źródło: {displayPatient.source}
-                      </Badge>
+                  {displayPatient.email && (
+                    <div className="flex items-center space-x-3">
+                      <Mail className="w-5 h-5 text-muted-foreground" />
+                      <span className="text-lg">{displayPatient.email}</span>
                     </div>
                   )}
+                  
+                  {displayPatient.address && (
+                    <div className="flex items-start space-x-3">
+                      <MapPin className="w-5 h-5 text-muted-foreground mt-1" />
+                      <span className="text-lg">{displayPatient.address}</span>
+                    </div>
+                  )}
+                  
+                  {displayPatient.date_of_birth && (
+                    <div className="flex items-center space-x-3">
+                      <Calendar className="w-5 h-5 text-muted-foreground" />
+                      <span className="text-lg">
+                        {new Date(displayPatient.date_of_birth).toLocaleDateString('pl-PL')}
+                      </span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
-                  {displayPatient.notes && (
-                    <div className="space-y-2">
-                      <h4 className="font-medium text-muted-foreground">Notatki:</h4>
-                      <p className="text-lg leading-relaxed">{displayPatient.notes}</p>
-                    </div>
-                  )}
-                </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Dodatkowe informacje</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    {displayPatient.skin_type && (
+                      <div>
+                        <Badge variant="secondary" className="px-4 py-2">
+                          Typ skóry: {displayPatient.skin_type}
+                        </Badge>
+                      </div>
+                    )}
+                    
+                    {displayPatient.source && (
+                      <div>
+                        <Badge variant="outline" className="px-4 py-2">
+                          Źródło: {displayPatient.source}
+                        </Badge>
+                      </div>
+                    )}
+
+                    {displayPatient.notes && (
+                      <div className="space-y-2">
+                        <h4 className="font-medium text-muted-foreground">Notatki:</h4>
+                        <p className="text-lg leading-relaxed">{displayPatient.notes}</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
+          {/* Appointments Timeline Section */}
+          <section className="space-y-6">
+            <h2 className="text-2xl font-semibold text-foreground flex items-center gap-2">
+              <Calendar className="w-6 h-6" />
+              Historia wizyt
+              {appointments?.length && (
+                <Badge variant="secondary" className="ml-2">
+                  {appointments.length}
+                </Badge>
+              )}
+            </h2>
+            
+            <Card>
+              <CardContent className="p-6">
+                <AppointmentTimeline
+                  appointments={appointments || []}
+                  onDownloadCalendar={downloadCalendarEvent}
+                  onDeleteAppointment={setAppointmentToDelete}
+                />
               </CardContent>
             </Card>
-          </div>
-        </TabsContent>
+          </section>
 
-        <TabsContent value="appointments" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Historia wizyt</CardTitle>
-              <CardDescription>
-                {appointments?.length || 0} wizyt w systemie
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {appointments?.map((appointment) => (
-                  <Card key={appointment.id} className="border-l-4 border-l-primary">
-                    <CardContent className="pt-6">
-                      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6">
-                        <div className="space-y-4 flex-1">
-                          <div className="space-y-2">
-                            <h4 className="text-xl font-semibold">{appointment.treatments.name}</h4>
-                            <Badge className={`${getStatusColor(appointment.status || 'scheduled')} px-3 py-1 text-sm w-fit`}>
-                              {getStatusText(appointment.status || 'scheduled')}
-                            </Badge>
-                          </div>
-                          
-                          <div className="space-y-3">
-                            <p className="text-lg text-muted-foreground">
-                              📅 {formatDate(appointment.scheduled_date)}
-                            </p>
-                            
-                            {appointment.cost && (
-                              <p className="text-lg font-semibold text-green-600">
-                                💰 Koszt: {appointment.cost} zł
-                              </p>
-                            )}
-                          </div>
-                          
-                          {appointment.post_treatment_notes && (
-                            <div className="p-4 bg-muted rounded-lg border-l-4 border-l-blue-500">
-                              <div className="flex items-start gap-3">
-                                <FileText className="w-5 h-5 text-blue-600 mt-0.5" />
-                                <p className="text-base leading-relaxed">
-                                  {appointment.post_treatment_notes}
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className="flex flex-col gap-3">
-                          <Button 
-                            variant="outline"
-                            onClick={() => downloadCalendarEvent(appointment.id)}
-                          >
-                            <Download className="w-4 h-4 mr-2" />
-                            Pobierz .ics
-                          </Button>
-                          <Button 
-                            variant="outline"
-                            onClick={() => setAppointmentToDelete(appointment.id)}
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/20"
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Usuń
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+          {/* Medical Information Section */}
+          <section className="space-y-6">
+            <h2 className="text-2xl font-semibold text-foreground flex items-center gap-2">
+              <Heart className="w-6 h-6" />
+              Informacje medyczne
+            </h2>
+            
+            <div className="grid gap-6">
+              {displayPatient.allergies && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center text-orange-600">
+                      <AlertTriangle className="w-5 h-5 mr-2" />
+                      Alergie
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-lg leading-relaxed">{displayPatient.allergies}</p>
+                  </CardContent>
+                </Card>
+              )}
 
-                {(!appointments || appointments.length === 0) && (
-                  <div className="text-center py-12 text-muted-foreground">
-                    <p className="text-lg">Brak wizyt w historii</p>
-                  </div>
-                )}
+              {displayPatient.contraindications && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center text-red-600">
+                      <AlertTriangle className="w-5 h-5 mr-2" />
+                      Przeciwwskazania
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-lg leading-relaxed">{displayPatient.contraindications}</p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {displayPatient.medical_notes && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center text-pink-600">
+                      <Heart className="w-5 h-5 mr-2" />
+                      Notatki medyczne
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-lg leading-relaxed">{displayPatient.medical_notes}</p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {!displayPatient.allergies && !displayPatient.contraindications && !displayPatient.medical_notes && (
+                <Card>
+                  <CardContent className="py-12 text-center">
+                    <p className="text-muted-foreground">Brak informacji medycznych</p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </section>
+
+          {/* Photos Section */}
+          <section className="space-y-6">
+            <h2 className="text-2xl font-semibold text-foreground flex items-center gap-2">
+              <Camera className="w-6 h-6" />
+              Galeria zdjęć
+            </h2>
+            
+            <PatientPhotosSection patientId={displayPatient.id} />
+          </section>
+        </div>
+
+        {/* Appointment Form Dialog */}
+        {showAddAppointment && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold">Nowa wizyta</h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowAddAppointment(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </Button>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="medical" className="space-y-6">
-          <div className="grid gap-6">
-            {displayPatient.allergies && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center text-orange-600">
-                    <AlertTriangle className="w-5 h-5 mr-2" />
-                    Alergie
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-lg leading-relaxed">{displayPatient.allergies}</p>
-                </CardContent>
-              </Card>
-            )}
-
-            {displayPatient.contraindications && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center text-red-600">
-                    <AlertTriangle className="w-5 h-5 mr-2" />
-                    Przeciwwskazania
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-lg leading-relaxed">{displayPatient.contraindications}</p>
-                </CardContent>
-              </Card>
-            )}
-
-            {displayPatient.medical_notes && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center text-pink-600">
-                    <Heart className="w-5 h-5 mr-2" />
-                    Notatki medyczne
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-lg leading-relaxed">{displayPatient.medical_notes}</p>
-                </CardContent>
-              </Card>
-            )}
-
-            {!displayPatient.allergies && !displayPatient.contraindications && !displayPatient.medical_notes && (
-              <Card>
-                <CardContent className="py-12">
-                  <div className="text-center text-muted-foreground">
-                    <p className="text-lg">Brak informacji medycznych</p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+              <AppointmentForm
+                onSuccess={handleAppointmentSuccess}
+                onCancel={() => setShowAddAppointment(false)}
+              />
+            </div>
           </div>
-        </TabsContent>
+        )}
 
-        <TabsContent value="photos" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Camera className="w-5 h-5 mr-2" />
-                Zdjęcia zabiegów
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12 text-muted-foreground">
-                <p className="text-lg">Funkcja galerii zdjęć będzie dostępna wkrótce</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      {/* Forms and Modals */}
-      {showAddAppointment && (
-        <AppointmentForm
-          isOpen={showAddAppointment}
-          onClose={() => setShowAddAppointment(false)}
-          onSuccess={handleAppointmentSuccess}
-          selectedPatient={displayPatient}
-        />
-      )}
-
-      {/* Delete Appointment Confirmation Dialog */}
-      <AlertDialog 
-        open={!!appointmentToDelete} 
-        onOpenChange={() => setAppointmentToDelete(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Usuń wizytę</AlertDialogTitle>
-            <AlertDialogDescription>
-              Czy na pewno chcesz usunąć tę wizytę? Ta akcja jest nieodwracalna.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>
-              Anuluj
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => appointmentToDelete && deleteAppointment(appointmentToDelete)}
-              disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {isDeleting ? "Usuwanie..." : "Usuń"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={!!appointmentToDelete} onOpenChange={() => setAppointmentToDelete(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Usunąć wizytę?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Ta akcja jest nieodwracalna. Wizyta zostanie trwale usunięta z systemu.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Anuluj</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => appointmentToDelete && deleteAppointment(appointmentToDelete)}
+                disabled={isDeleting}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                {isDeleting ? "Usuwanie..." : "Usuń wizytę"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
     </div>
   );
 };
