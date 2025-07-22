@@ -273,390 +273,393 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-4xl max-h-[95vh] overflow-y-auto mx-4 sm:mx-auto">
-        <DialogHeader>
+      <DialogContent className="w-full max-w-md mx-auto max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="text-center">
           <DialogTitle>{isEditing ? 'Edytuj wizytę' : 'Umów wizytę'}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Lewa kolumna - Podstawowe informacje */}
-              <div className="space-y-4">
-                {!selectedPatient && !isEditing && (
-                  <FormField
-                    control={form.control}
-                    name="patient_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Pacjent *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Wybierz pacjenta" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {patients?.map((patient) => (
-                              <SelectItem key={patient.id} value={patient.id}>
-                                {patient.first_name} {patient.last_name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Wszystko pod sobą - mobile first */}
+            
+            {/* Wybór pacjenta */}
+            {!selectedPatient && !isEditing && (
+              <FormField
+                control={form.control}
+                name="patient_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Pacjent *</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Wybierz pacjenta" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {patients?.map((patient) => (
+                          <SelectItem key={patient.id} value={patient.id}>
+                            {patient.first_name} {patient.last_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
                 )}
+              />
+            )}
 
-                {(selectedPatient || isEditing) && (
-                  <div className="p-3 bg-gray-50 rounded">
-                    <p className="font-medium">
-                      Pacjent: {selectedPatient ? 
-                        `${selectedPatient.first_name} ${selectedPatient.last_name}` : 
-                        `${editingAppointment?.patients.first_name} ${editingAppointment?.patients.last_name}`
-                      }
-                    </p>
-                  </div>
-                )}
+            {/* Informacja o wybranym pacjencie */}
+            {(selectedPatient || isEditing) && (
+              <div className="p-3 bg-gray-50 rounded text-center">
+                <p className="font-medium">
+                  Pacjent: {selectedPatient ? 
+                    `${selectedPatient.first_name} ${selectedPatient.last_name}` : 
+                    `${editingAppointment?.patients.first_name} ${editingAppointment?.patients.last_name}`
+                  }
+                </p>
+              </div>
+            )}
 
-                <FormField
-                  control={form.control}
-                  name="treatment_id"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Zabieg *</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Wybierz zabieg" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {Object.entries(groupedTreatments || {}).map(([category, categoryTreatments]) => (
-                            <div key={category}>
-                              <div className="px-2 py-1 text-sm font-medium text-gray-500 border-b">
-                                {category}
-                              </div>
-                              {categoryTreatments.map((treatment) => (
-                                <SelectItem key={treatment.id} value={treatment.id}>
-                                  {treatment.name} {treatment.price && `(${treatment.price} zł)`}
-                                </SelectItem>
-                              ))}
-                            </div>
+            {/* Wybór zabiegu */}
+            <FormField
+              control={form.control}
+              name="treatment_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Zabieg *</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Wybierz zabieg" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {Object.entries(groupedTreatments || {}).map(([category, categoryTreatments]) => (
+                        <div key={category}>
+                          <div className="px-2 py-1 text-sm font-medium text-gray-500 border-b">
+                            {category}
+                          </div>
+                          {categoryTreatments.map((treatment) => (
+                            <SelectItem key={treatment.id} value={treatment.id}>
+                              {treatment.name} {treatment.price && `(${treatment.price} zł)`}
+                            </SelectItem>
                           ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        </div>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="scheduled_date"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Data *</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal justify-start",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "PPP", { locale: undefined })
-                                ) : (
-                                  <span>Wybierz datę</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent 
-                            className="w-auto p-0" 
-                            align="start"
-                          >
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date) =>
-                                date < new Date(new Date().setHours(0, 0, 0, 0))
-                              }
-                              initialFocus
-                              className="p-3 pointer-events-auto"
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="scheduled_time"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Godzina *</FormLabel>
-                        <FormControl>
-                          <Input {...field} type="time" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="duration_minutes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Czas trwania (minuty)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          {...field} 
-                          type="number" 
-                          onChange={(e) => field.onChange(parseInt(e.target.value))}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {isEditing && (
-                  <FormField
-                    control={form.control}
-                    name="status"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Status</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Wybierz status" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="scheduled">Zaplanowana</SelectItem>
-                            <SelectItem value="completed">Zakończona</SelectItem>
-                            <SelectItem value="cancelled">Anulowana</SelectItem>
-                            <SelectItem value="no_show">Nieobecność</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-
-                <FormField
-                  control={form.control}
-                  name="cost"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Koszt (zł)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          {...field} 
-                          type="number" 
-                          step="0.01"
-                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="pre_treatment_notes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Notatki przed zabiegiem</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} placeholder="Dodatkowe informacje, przygotowanie..." />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {isEditing && (
-                  <>
-                    <FormField
-                      control={form.control}
-                      name="products_used"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Produkty użyte podczas zabiegu</FormLabel>
-                          <FormControl>
-                            <Textarea {...field} placeholder="Lista produktów użytych podczas zabiegu..." />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="post_treatment_notes"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Notatki po zabiegu</FormLabel>
-                          <FormControl>
-                            <Textarea {...field} placeholder="Przebieg zabiegu, obserwacje, zalecenia..." />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </>
-                )}
-              </div>
-
-              {/* Opis zabiegu */}
-              <div className="space-y-4">
-                {selectedTreatment?.description && (
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm">Opis zabiegu</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-xs text-gray-600">{selectedTreatment.description}</p>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            </div>
-
-            {/* Przypomnienia i integracje */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-              {/* Przypomnienia mailowe */}
+            {/* Opis zabiegu */}
+            {selectedTreatment?.description && (
               <Card>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-green-500" />
-                    <CardTitle className="text-sm">Przypomnienia mailowe</CardTitle>
-                  </div>
-                  <CardDescription className="text-xs">
-                    Automatyczne wysyłanie przypomnień pacjentowi
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <FormField
-                    control={form.control}
-                    name="email_reminders_enabled"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <FormLabel className="text-sm font-normal">
-                          Włącz przypomnienia mailowe
-                        </FormLabel>
-                      </FormItem>
-                    )}
-                  />
-
-                  {form.watch('email_reminders_enabled') && (
-                    <div className="space-y-2 pl-6">
-                      <FormField
-                        control={form.control}
-                        name="reminder_preferences.24h"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <FormLabel className="text-sm font-normal">
-                              Przypomnienie 24h wcześniej
-                            </FormLabel>
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="reminder_preferences.2h"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <FormLabel className="text-sm font-normal">
-                              Przypomnienie 2h wcześniej
-                            </FormLabel>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Synchronizacja z kalendarzem */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-2">
-                    <CalendarIcon className="w-4 h-4 text-blue-500" />
-                    <CardTitle className="text-sm">Synchronizacja z kalendarzem</CardTitle>
-                  </div>
-                  <CardDescription className="text-xs">
-                    Automatyczne dodawanie do Google Calendar
-                  </CardDescription>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-center">Opis zabiegu</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <FormField
-                    control={form.control}
-                    name="calendar_sync_enabled"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <FormLabel className="text-sm font-normal">
-                          Synchronizuj z Google Calendar
-                        </FormLabel>
-                      </FormItem>
-                    )}
-                  />
+                  <p className="text-xs text-gray-600 text-center">{selectedTreatment.description}</p>
                 </CardContent>
               </Card>
+            )}
+
+            {/* Data i godzina */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="scheduled_date"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Data *</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal justify-start",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP", { locale: undefined })
+                            ) : (
+                              <span>Wybierz datę</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent 
+                        className="w-auto p-0" 
+                        align="start"
+                      >
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) =>
+                            date < new Date(new Date().setHours(0, 0, 0, 0))
+                          }
+                          initialFocus
+                          className="p-3 pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="scheduled_time"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Godzina *</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="time" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4 border-t">
-              <Button type="button" variant="outline" onClick={onClose}>
-                Anuluj
-              </Button>
+            {/* Czas trwania i koszt */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="duration_minutes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Czas trwania (minuty)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        type="number" 
+                        onChange={(e) => field.onChange(parseInt(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="cost"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Koszt (zł)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        type="number" 
+                        step="0.01"
+                        onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Status - tylko przy edycji */}
+            {isEditing && (
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Wybierz status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="scheduled">Zaplanowana</SelectItem>
+                        <SelectItem value="completed">Zakończona</SelectItem>
+                        <SelectItem value="cancelled">Anulowana</SelectItem>
+                        <SelectItem value="no_show">Nieobecność</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            {/* Notatki przed zabiegiem */}
+            <FormField
+              control={form.control}
+              name="pre_treatment_notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notatki przed zabiegiem</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} placeholder="Dodatkowe informacje, przygotowanie..." />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Pola tylko przy edycji */}
+            {isEditing && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="products_used"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Produkty użyte podczas zabiegu</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} placeholder="Lista produktów użytych podczas zabiegu..." />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="post_treatment_notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Notatki po zabiegu</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} placeholder="Przebieg zabiegu, obserwacje, zalecenia..." />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
+
+            {/* Przypomnienia mailowe */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-center gap-2">
+                  <Mail className="w-4 h-4 text-green-500" />
+                  <CardTitle className="text-sm">Przypomnienia mailowe</CardTitle>
+                </div>
+                <CardDescription className="text-xs text-center">
+                  Automatyczne wysyłanie przypomnień pacjentowi
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <FormField
+                  control={form.control}
+                  name="email_reminders_enabled"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-center space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="text-sm font-normal">
+                        Włącz przypomnienia mailowe
+                      </FormLabel>
+                    </FormItem>
+                  )}
+                />
+
+                {form.watch('email_reminders_enabled') && (
+                  <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name="reminder_preferences.24h"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-center space-x-3 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormLabel className="text-sm font-normal">
+                            Przypomnienie 24h wcześniej
+                          </FormLabel>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="reminder_preferences.2h"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-center space-x-3 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormLabel className="text-sm font-normal">
+                            Przypomnienie 2h wcześniej
+                          </FormLabel>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Synchronizacja z kalendarzem */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-center gap-2">
+                  <CalendarIcon className="w-4 h-4 text-blue-500" />
+                  <CardTitle className="text-sm">Synchronizacja z kalendarzem</CardTitle>
+                </div>
+                <CardDescription className="text-xs text-center">
+                  Automatyczne dodawanie do Google Calendar
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FormField
+                  control={form.control}
+                  name="calendar_sync_enabled"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-center space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="text-sm font-normal">
+                        Synchronizuj z Google Calendar
+                      </FormLabel>
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Przyciski */}
+            <div className="flex flex-col space-y-2 pt-4 border-t">
               <Button 
                 type="submit" 
-                className="bg-pink-500 hover:bg-pink-600"
+                className="bg-pink-500 hover:bg-pink-600 w-full"
                 disabled={isSyncing}
               >
                 {isEditing ? 'Zaktualizuj wizytę' : 'Umów wizytę'}
+              </Button>
+              <Button type="button" variant="outline" onClick={onClose} className="w-full">
+                Anuluj
               </Button>
             </div>
           </form>
