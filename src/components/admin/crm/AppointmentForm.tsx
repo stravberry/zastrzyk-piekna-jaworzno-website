@@ -352,19 +352,34 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                         <SelectValue placeholder="Wybierz zabieg" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="max-h-60 overflow-y-auto">
-                      {Object.entries(groupedTreatments || {}).map(([category, categoryTreatments]) => (
-                        <div key={category}>
-                          <div className="px-2 py-1 text-sm font-medium text-gray-500 border-b">
-                            {category}
+                    <SelectContent 
+                      className="max-h-60 overflow-y-auto"
+                      position="popper"
+                      sideOffset={4}
+                    >
+                      <div className="p-1">
+                        {Object.entries(groupedTreatments || {}).map(([category, categoryTreatments]) => (
+                          <div key={category}>
+                            <div className="px-2 py-1.5 text-sm font-medium text-gray-500 border-b bg-gray-50">
+                              {category}
+                            </div>
+                            {Array.isArray(categoryTreatments) && categoryTreatments.map((treatment: any) => (
+                              <SelectItem 
+                                key={treatment.id} 
+                                value={treatment.id}
+                                className="cursor-pointer"
+                              >
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{treatment.name}</span>
+                                  {treatment.price && (
+                                    <span className="text-sm text-gray-500">{treatment.price} zł</span>
+                                  )}
+                                </div>
+                              </SelectItem>
+                            ))}
                           </div>
-                          {Array.isArray(categoryTreatments) && categoryTreatments.map((treatment: any) => (
-                            <SelectItem key={treatment.id} value={treatment.id}>
-                              {treatment.name} {treatment.price && `(${treatment.price} zł)`}
-                            </SelectItem>
-                          ))}
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </SelectContent>
                   </Select>
                   <FormMessage />
