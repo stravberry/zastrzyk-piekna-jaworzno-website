@@ -162,14 +162,14 @@ const PatientProfile: React.FC<PatientProfileProps> = ({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         {/* Back button */}
         {onBack && (
           <Button 
             onClick={onBack}
             variant="outline"
             size="sm"
-            className="flex items-center gap-2 mb-6"
+            className="flex items-center gap-2 mb-4 text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
             Wróć
@@ -177,14 +177,14 @@ const PatientProfile: React.FC<PatientProfileProps> = ({
         )}
         
         {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-6 bg-card p-6 rounded-xl border shadow-sm mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 bg-card p-4 sm:p-6 rounded-xl border shadow-sm mb-6">
+          <div className="text-center lg:text-left">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
               {displayPatient.first_name} {displayPatient.last_name}
             </h1>
-            <p className="text-muted-foreground mt-1">Profil pacjenta</p>
+            <p className="text-sm sm:text-base text-muted-foreground mt-1">Profil pacjenta</p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-end">
             <Button 
               onClick={handleEditClick}
               variant="outline"
