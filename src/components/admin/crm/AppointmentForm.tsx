@@ -273,14 +273,14 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-4xl max-h-[95vh] overflow-y-auto mx-4 sm:mx-auto">
         <DialogHeader>
           <DialogTitle>{isEditing ? 'Edytuj wizytę' : 'Umów wizytę'}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
               {/* Podstawowe informacje */}
               <div className="space-y-4">
                 {!selectedPatient && !isEditing && (
@@ -379,7 +379,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
+                          <PopoverContent className="w-auto p-0 z-50" align="start">
                             <Calendar
                               mode="single"
                               selected={field.value}
@@ -388,7 +388,27 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                                 date < new Date(new Date().setHours(0, 0, 0, 0))
                               }
                               initialFocus
-                              className={cn("p-3 pointer-events-auto")}
+                              className="p-3 pointer-events-auto"
+                              classNames={{
+                                months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                                month: "space-y-4",
+                                caption: "flex justify-center pt-1 relative items-center",
+                                caption_label: "text-sm font-medium",
+                                nav: "space-x-1 flex items-center",
+                                nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+                                table: "w-full border-collapse space-y-1",
+                                head_row: "flex",
+                                head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
+                                row: "flex w-full mt-2",
+                                cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                                day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
+                                day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                                day_today: "bg-accent text-accent-foreground",
+                                day_outside: "text-muted-foreground opacity-50",
+                                day_disabled: "text-muted-foreground opacity-50",
+                                day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                                day_hidden: "invisible",
+                              }}
                             />
                           </PopoverContent>
                         </Popover>
@@ -397,7 +417,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                     )}
                   />
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="scheduled_time"
@@ -524,79 +544,8 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                 )}
               </div>
 
-              {/* Konfiguracja przypomnień i integracji */}
+              {/* Konfiguracja integracji */}
               <div className="space-y-4">
-                <Card>
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-green-500" />
-                      <CardTitle className="text-sm">Przypomnienia mailowe</CardTitle>
-                    </div>
-                    <CardDescription className="text-xs">
-                      Automatyczne wysyłanie przypomnień pacjentowi
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <FormField
-                      control={form.control}
-                      name="email_reminders_enabled"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <FormLabel className="text-sm font-normal">
-                            Włącz przypomnienia mailowe
-                          </FormLabel>
-                        </FormItem>
-                      )}
-                    />
-
-                    {form.watch('email_reminders_enabled') && (
-                      <div className="space-y-2 pl-6">
-                        <FormField
-                          control={form.control}
-                          name="reminder_preferences.24h"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />
-                              </FormControl>
-                              <FormLabel className="text-sm font-normal">
-                                Przypomnienie 24h wcześniej
-                              </FormLabel>
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="reminder_preferences.2h"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />
-                              </FormControl>
-                              <FormLabel className="text-sm font-normal">
-                                Przypomnienie 2h wcześniej
-                              </FormLabel>
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-
                 <Card>
                   <CardHeader className="pb-3">
                     <div className="flex items-center gap-2">
@@ -628,6 +577,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                   </CardContent>
                 </Card>
 
+
                 {selectedTreatment?.description && (
                   <Card>
                     <CardHeader className="pb-2">
@@ -641,7 +591,79 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
               </div>
             </div>
 
-            <div className="flex justify-end space-x-2 pt-4 border-t">
+            {/* Przypomnienia mailowe - przeniesione na dół */}
+            <Card className="mt-6">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-green-500" />
+                  <CardTitle className="text-sm">Przypomnienia mailowe</CardTitle>
+                </div>
+                <CardDescription className="text-xs">
+                  Automatyczne wysyłanie przypomnień pacjentowi
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <FormField
+                  control={form.control}
+                  name="email_reminders_enabled"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="text-sm font-normal">
+                        Włącz przypomnienia mailowe
+                      </FormLabel>
+                    </FormItem>
+                  )}
+                />
+
+                {form.watch('email_reminders_enabled') && (
+                  <div className="space-y-2 pl-6">
+                    <FormField
+                      control={form.control}
+                      name="reminder_preferences.24h"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormLabel className="text-sm font-normal">
+                            Przypomnienie 24h wcześniej
+                          </FormLabel>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="reminder_preferences.2h"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormLabel className="text-sm font-normal">
+                            Przypomnienie 2h wcześniej
+                          </FormLabel>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4 border-t">
               <Button type="button" variant="outline" onClick={onClose}>
                 Anuluj
               </Button>
