@@ -390,21 +390,24 @@ const PatientProfile: React.FC<PatientProfileProps> = ({
         {/* Appointment Form Dialog */}
         {showAddAppointment && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">Nowa wizyta</h2>
+                <h2 className="text-2xl font-bold text-foreground">Dodaj nową wizytę</h2>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowAddAppointment(false)}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-muted-foreground hover:text-foreground"
                 >
                   ✕
                 </Button>
               </div>
+              
               <AppointmentForm
+                isOpen={true}
+                onClose={() => setShowAddAppointment(false)}
+                selectedPatient={displayPatient}
                 onSuccess={handleAppointmentSuccess}
-                onCancel={() => setShowAddAppointment(false)}
               />
             </div>
           </div>
