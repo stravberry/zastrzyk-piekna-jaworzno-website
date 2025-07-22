@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -19,7 +20,7 @@ import { Tables } from "@/integrations/supabase/types";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useGoogleCalendar } from "@/hooks/useGoogleCalendar";
-import { CalendarIcon, ArrowLeft, Save, Mail } from "lucide-react";
+import { CalendarIcon, ArrowLeft, Save, Mail, Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { PatientSelector } from "@/components/admin/crm/PatientSelector";
@@ -58,6 +59,7 @@ const AdminAppointmentNew: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [treatmentSearchOpen, setTreatmentSearchOpen] = useState(false);
   const { syncAppointment, isSyncing } = useGoogleCalendar();
 
   // Get patient ID from URL params (both query param and route param)
@@ -255,55 +257,72 @@ const AdminAppointmentNew: React.FC = () => {
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Treatment Selection */}
-                      <div className="md:col-span-2">
-                        <FormField
-                          control={form.control}
-                          name="treatment_id"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Zabieg *</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Wybierz zabieg" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent 
-                                  className="max-h-60 overflow-y-auto"
-                                  position="popper"
-                                  sideOffset={4}
-                                >
-                                  <div className="p-1">
-                                    {Object.entries(groupedTreatments || {}).map(([category, categoryTreatments]) => (
-                                      <div key={category}>
-                                        <div className="px-2 py-1.5 text-sm font-medium text-gray-500 border-b bg-gray-50">
-                                          {category}
-                                        </div>
-                                        {Array.isArray(categoryTreatments) && categoryTreatments.map((treatment: any) => (
-                                          <SelectItem 
-                                            key={treatment.id} 
-                                            value={treatment.id}
-                                            className="cursor-pointer"
-                                          >
-                                             <div className="flex flex-col">
-                                               <span className="font-medium">{treatment.name}</span>
-                                               {treatment.price > 0 && (
-                                                 <span className="text-sm text-gray-500">{treatment.price} zł</span>
-                                               )}
-                                             </div>
-                                          </SelectItem>
-                                        ))}
-                                      </div>
-                                    ))}
-                                  </div>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
+                       {/* Treatment Selection */}
+                       <div className="md:col-span-2">
+                         <FormField
+                           control={form.control}
+                           name="treatment_id"
+                           render={({ field }) => (
+                             <FormItem className="flex flex-col">
+                               <FormLabel>Zabieg *</FormLabel>
+                               <Popover open={treatmentSearchOpen} onOpenChange={setTreatmentSearchOpen}>
+                                 <PopoverTrigger asChild>
+                                   <FormControl>
+                                     <Button
+                                       variant="outline"
+                                       role="combobox"
+                                       aria-expanded={treatmentSearchOpen}
+                                       className="w-full justify-between text-left font-normal"
+                                     >
+                                       {field.value
+                                         ? treatments?.find((treatment) => treatment.id === field.value)?.name
+                                         : "Wybierz zabieg..."}
+                                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                     </Button>
+                                   </FormControl>
+                                 </PopoverTrigger>
+                                 <PopoverContent className="w-full p-0 z-50" align="start">
+                                   <Command>
+                                     <CommandInput placeholder="Wyszukaj zabieg..." className="h-9" />
+                                     <CommandEmpty>Nie znaleziono zabiegu.</CommandEmpty>
+                                     <CommandList className="max-h-80 overflow-y-auto">
+                                       {Object.entries(groupedTreatments || {}).map(([category, categoryTreatments]) => (
+                                         <CommandGroup key={category} heading={category}>
+                                           {Array.isArray(categoryTreatments) && categoryTreatments.map((treatment: any) => (
+                                             <CommandItem
+                                               key={treatment.id}
+                                               value={`${treatment.name} ${category}`}
+                                               onSelect={() => {
+                                                 field.onChange(treatment.id);
+                                                 setTreatmentSearchOpen(false);
+                                               }}
+                                               className="cursor-pointer"
+                                             >
+                                               <Check
+                                                 className={cn(
+                                                   "mr-2 h-4 w-4",
+                                                   field.value === treatment.id ? "opacity-100" : "opacity-0"
+                                                 )}
+                                               />
+                                               <div className="flex flex-col flex-1">
+                                                 <span className="font-medium">{treatment.name}</span>
+                                                 {treatment.price > 0 && (
+                                                   <span className="text-sm text-muted-foreground">{treatment.price} zł</span>
+                                                 )}
+                                               </div>
+                                             </CommandItem>
+                                           ))}
+                                         </CommandGroup>
+                                       ))}
+                                     </CommandList>
+                                   </Command>
+                                 </PopoverContent>
+                               </Popover>
+                               <FormMessage />
+                             </FormItem>
+                           )}
+                         />
+                       </div>
 
                       {/* Date and Time */}
                       <FormField
