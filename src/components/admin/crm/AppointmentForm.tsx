@@ -280,9 +280,9 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Lewa kolumna - Podstawowe informacje (2/3 szerokości na desktop) */}
-              <div className="lg:col-span-2 space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Lewa kolumna - Podstawowe informacje */}
+              <div className="space-y-4">
                 {!selectedPatient && !isEditing && (
                   <FormField
                     control={form.control}
@@ -360,7 +360,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>Data *</FormLabel>
-                        <Popover modal={true}>
+                        <Popover>
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
@@ -380,11 +380,8 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                             </FormControl>
                           </PopoverTrigger>
                           <PopoverContent 
-                            className="w-auto p-0 z-[9999]" 
+                            className="w-auto p-0" 
                             align="start"
-                            side="bottom"
-                            avoidCollisions={true}
-                            collisionPadding={20}
                           >
                             <Calendar
                               mode="single"
@@ -418,44 +415,23 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="duration_minutes"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Czas trwania (minuty)</FormLabel>
-                        <FormControl>
-                          <Input 
-                            {...field} 
-                            type="number" 
-                            onChange={(e) => field.onChange(parseInt(e.target.value))}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="cost"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Koszt (zł)</FormLabel>
-                        <FormControl>
-                          <Input 
-                            {...field} 
-                            type="number" 
-                            step="0.01"
-                            onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="duration_minutes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Czas trwania (minuty)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          type="number" 
+                          onChange={(e) => field.onChange(parseInt(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 {isEditing && (
                   <FormField
@@ -482,6 +458,25 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                     )}
                   />
                 )}
+
+                <FormField
+                  control={form.control}
+                  name="cost"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Koszt (zł)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          type="number" 
+                          step="0.01"
+                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}
@@ -530,8 +525,40 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                 )}
               </div>
 
-              {/* Prawa kolumna - Opis zabiegu (1/3 szerokości na desktop) */}
-              <div className="lg:col-span-1 space-y-4">
+              {/* Konfiguracja integracji */}
+              <div className="space-y-4">
+                <Card>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-blue-500" />
+                      <CardTitle className="text-sm">Synchronizacja z kalendarzem</CardTitle>
+                    </div>
+                    <CardDescription className="text-xs">
+                      Automatyczne dodawanie do Google Calendar
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <FormField
+                      control={form.control}
+                      name="calendar_sync_enabled"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormLabel className="text-sm font-normal">
+                            Synchronizuj z Google Calendar
+                          </FormLabel>
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
+
+
                 {selectedTreatment?.description && (
                   <Card>
                     <CardHeader className="pb-2">
@@ -545,112 +572,77 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
               </div>
             </div>
 
-            {/* Sekcja integracji - na dole formularza */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
-              {/* Synchronizacja z kalendarzem */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-blue-500" />
-                    <CardTitle className="text-sm">Synchronizacja z kalendarzem</CardTitle>
-                  </div>
-                  <CardDescription className="text-xs">
-                    Automatyczne dodawanie do Google Calendar
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <FormField
-                    control={form.control}
-                    name="calendar_sync_enabled"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <FormLabel className="text-sm font-normal">
-                          Synchronizuj z Google Calendar
-                        </FormLabel>
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
-
-              {/* Przypomnienia mailowe */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-green-500" />
-                    <CardTitle className="text-sm">Przypomnienia mailowe</CardTitle>
-                  </div>
-                  <CardDescription className="text-xs">
-                    Automatyczne wysyłanie przypomnień pacjentowi
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <FormField
-                    control={form.control}
-                    name="email_reminders_enabled"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <FormLabel className="text-sm font-normal">
-                          Włącz przypomnienia mailowe
-                        </FormLabel>
-                      </FormItem>
-                    )}
-                  />
-
-                  {form.watch('email_reminders_enabled') && (
-                    <div className="space-y-2 pl-6">
-                      <FormField
-                        control={form.control}
-                        name="reminder_preferences.24h"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <FormLabel className="text-sm font-normal">
-                              Przypomnienie 24h wcześniej
-                            </FormLabel>
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="reminder_preferences.2h"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <FormLabel className="text-sm font-normal">
-                              Przypomnienie 2h wcześniej
-                            </FormLabel>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+            {/* Przypomnienia mailowe - przeniesione na dół */}
+            <Card className="mt-6">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-green-500" />
+                  <CardTitle className="text-sm">Przypomnienia mailowe</CardTitle>
+                </div>
+                <CardDescription className="text-xs">
+                  Automatyczne wysyłanie przypomnień pacjentowi
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <FormField
+                  control={form.control}
+                  name="email_reminders_enabled"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="text-sm font-normal">
+                        Włącz przypomnienia mailowe
+                      </FormLabel>
+                    </FormItem>
                   )}
-                </CardContent>
-              </Card>
-            </div>
+                />
+
+                {form.watch('email_reminders_enabled') && (
+                  <div className="space-y-2 pl-6">
+                    <FormField
+                      control={form.control}
+                      name="reminder_preferences.24h"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormLabel className="text-sm font-normal">
+                            Przypomnienie 24h wcześniej
+                          </FormLabel>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="reminder_preferences.2h"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormLabel className="text-sm font-normal">
+                            Przypomnienie 2h wcześniej
+                          </FormLabel>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4 border-t">
               <Button type="button" variant="outline" onClick={onClose}>
