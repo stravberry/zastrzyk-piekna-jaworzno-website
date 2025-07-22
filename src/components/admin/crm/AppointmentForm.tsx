@@ -360,18 +360,18 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
                         <FormLabel>Data *</FormLabel>
-                        <Popover>
+                        <Popover modal={true}>
                           <PopoverTrigger asChild>
                             <FormControl>
                               <Button
                                 variant={"outline"}
                                 className={cn(
-                                  "w-full pl-3 text-left font-normal",
+                                  "w-full pl-3 text-left font-normal justify-start",
                                   !field.value && "text-muted-foreground"
                                 )}
                               >
                                 {field.value ? (
-                                  format(field.value, "PPP")
+                                  format(field.value, "PPP", { locale: undefined })
                                 ) : (
                                   <span>Wybierz datę</span>
                                 )}
@@ -379,37 +379,51 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0 z-50" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date) =>
-                                date < new Date(new Date().setHours(0, 0, 0, 0))
-                              }
-                              initialFocus
-                              className="p-3 pointer-events-auto"
-                              classNames={{
-                                months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                                month: "space-y-4",
-                                caption: "flex justify-center pt-1 relative items-center",
-                                caption_label: "text-sm font-medium",
-                                nav: "space-x-1 flex items-center",
-                                nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
-                                table: "w-full border-collapse space-y-1",
-                                head_row: "flex",
-                                head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
-                                row: "flex w-full mt-2",
-                                cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                                day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
-                                day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-                                day_today: "bg-accent text-accent-foreground",
-                                day_outside: "text-muted-foreground opacity-50",
-                                day_disabled: "text-muted-foreground opacity-50",
-                                day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
-                                day_hidden: "invisible",
-                              }}
-                            />
+                          <PopoverContent 
+                            className="w-auto p-0 z-[9999] bg-background border shadow-lg" 
+                            align="start"
+                            side="bottom"
+                            sideOffset={4}
+                            avoidCollisions={true}
+                            collisionPadding={8}
+                          >
+                            <div className="relative">
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={(date) => {
+                                  field.onChange(date);
+                                }}
+                                disabled={(date) =>
+                                  date < new Date(new Date().setHours(0, 0, 0, 0))
+                                }
+                                initialFocus
+                                className="p-3 pointer-events-auto bg-background"
+                                classNames={{
+                                  months: "flex flex-col space-y-4",
+                                  month: "space-y-4 w-full",
+                                  caption: "flex justify-center pt-1 relative items-center w-full",
+                                  caption_label: "text-sm font-medium",
+                                  nav: "space-x-1 flex items-center",
+                                  nav_button: "h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100 hover:bg-accent rounded-sm transition-colors",
+                                  nav_button_previous: "absolute left-1",
+                                  nav_button_next: "absolute right-1",
+                                  table: "w-full border-collapse space-y-1",
+                                  head_row: "flex w-full",
+                                  head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem] text-center",
+                                  row: "flex w-full mt-2",
+                                  cell: "h-9 w-9 text-center text-sm p-0 relative hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer rounded-md transition-colors",
+                                  day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground rounded-md transition-colors",
+                                  day_range_end: "day-range-end",
+                                  day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-md",
+                                  day_today: "bg-accent text-accent-foreground rounded-md",
+                                  day_outside: "text-muted-foreground opacity-50 hover:opacity-70",
+                                  day_disabled: "text-muted-foreground opacity-30 cursor-not-allowed hover:bg-transparent",
+                                  day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                                  day_hidden: "invisible",
+                                }}
+                              />
+                            </div>
                           </PopoverContent>
                         </Popover>
                         <FormMessage />
