@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -19,12 +19,12 @@ import { Tables } from "@/integrations/supabase/types";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useGoogleCalendar } from "@/hooks/useGoogleCalendar";
-import { CalendarIcon, ArrowLeft, Save } from "lucide-react";
+import { CalendarIcon, ArrowLeft, Save, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
+
 import { PatientSelector } from "@/components/admin/crm/PatientSelector";
 
 type Patient = Tables<"patients">;
-type Treatment = Tables<"treatments">;
 
 const appointmentSchema = z.object({
   treatment_id: z.string().min(1, "Wybierz zabieg"),
@@ -55,9 +55,37 @@ const combineDateAndTime = (date: Date, time: string) => {
 
 const AdminAppointmentNew: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { syncAppointment, isSyncing } = useGoogleCalendar();
+
+  // Get patient ID from URL params (both query param and route param)
+  const patientIdFromQuery = searchParams.get('patientId');
+  const patientIdFromUrl = window.location.pathname.split('/').pop(); // Get last segment
+  const patientId = patientIdFromQuery || (patientIdFromUrl && patientIdFromUrl !== 'new' ? patientIdFromUrl : null);
+  
+  const { data: urlPatient } = useQuery({
+    queryKey: ['patient', patientId],
+    queryFn: async () => {
+      if (!patientId) return null;
+      const { data, error } = await supabase
+        .from('patients')
+        .select('*')
+        .eq('id', patientId)
+        .single();
+      if (error) throw error;
+      return data as Patient;
+    },
+    enabled: !!patientId
+  });
+
+  // Auto-select patient if loaded from URL
+  useEffect(() => {
+    if (urlPatient && !selectedPatient) {
+      setSelectedPatient(urlPatient);
+    }
+  }, [urlPatient, selectedPatient]);
 
   const form = useForm<AppointmentFormData>({
     resolver: zodResolver(appointmentSchema),
@@ -70,20 +98,55 @@ const AdminAppointmentNew: React.FC = () => {
     }
   });
 
-  // Fetch treatments
+  // Fetch treatments from pricing categories to keep them in sync
   const { data: treatments } = useQuery({
-    queryKey: ['treatments'],
+    queryKey: ['pricing-treatments'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('treatments')
+        .from('pricing_categories')
         .select('*')
-        .eq('is_active', true)
-        .order('category', { ascending: true });
+        .order('title', { ascending: true });
       
       if (error) throw error;
-      return data as Treatment[];
+      
+      // Flatten all items from all categories into a single array
+      const allTreatments: any[] = [];
+      data?.forEach(category => {
+        const items = category.items as any[];
+        items?.forEach(item => {
+          allTreatments.push({
+            id: `${category.id}_${item.name}`, // Unique ID combining category and item
+            name: item.name,
+            category: category.title,
+            description: item.description || null,
+            price: parseFloat(item.price?.replace(/[^\d.]/g, '') || '0'),
+            duration_minutes: 60, // Default duration
+            is_active: true
+          });
+        });
+      });
+      
+      return allTreatments;
     }
   });
+
+  const selectedTreatment = treatments?.find(t => t.id === form.watch('treatment_id'));
+
+  // Update duration and cost when treatment changes
+  useEffect(() => {
+    if (selectedTreatment) {
+      form.setValue('duration_minutes', selectedTreatment.duration_minutes || 60);
+      form.setValue('cost', selectedTreatment.price ? Number(selectedTreatment.price) : undefined);
+    }
+  }, [selectedTreatment, form]);
+
+  const groupedTreatments = treatments?.reduce((acc: Record<string, any[]>, treatment: any) => {
+    if (!acc[treatment.category]) {
+      acc[treatment.category] = [];
+    }
+    acc[treatment.category].push(treatment);
+    return acc;
+  }, {} as Record<string, any[]>);
 
   const onSubmit = async (data: AppointmentFormData) => {
     if (!selectedPatient) {
@@ -129,24 +192,6 @@ const AdminAppointmentNew: React.FC = () => {
       setIsSubmitting(false);
     }
   };
-
-  const selectedTreatment = treatments?.find(t => t.id === form.watch('treatment_id'));
-
-  // Update duration and cost when treatment changes
-  React.useEffect(() => {
-    if (selectedTreatment) {
-      form.setValue('duration_minutes', selectedTreatment.duration_minutes || 60);
-      form.setValue('cost', selectedTreatment.price ? Number(selectedTreatment.price) : undefined);
-    }
-  }, [selectedTreatment, form]);
-
-  const groupedTreatments = treatments?.reduce((acc, treatment) => {
-    if (!acc[treatment.category]) {
-      acc[treatment.category] = [];
-    }
-    acc[treatment.category].push(treatment);
-    return acc;
-  }, {} as Record<string, Treatment[]>);
 
   return (
     <div className="space-y-6">
@@ -224,19 +269,34 @@ const AdminAppointmentNew: React.FC = () => {
                                     <SelectValue placeholder="Wybierz zabieg" />
                                   </SelectTrigger>
                                 </FormControl>
-                                <SelectContent>
-                                  {Object.entries(groupedTreatments || {}).map(([category, categoryTreatments]) => (
-                                    <div key={category}>
-                                      <div className="px-2 py-1 text-sm font-medium text-gray-500 border-b">
-                                        {category}
+                                <SelectContent 
+                                  className="max-h-60 overflow-y-auto"
+                                  position="popper"
+                                  sideOffset={4}
+                                >
+                                  <div className="p-1">
+                                    {Object.entries(groupedTreatments || {}).map(([category, categoryTreatments]) => (
+                                      <div key={category}>
+                                        <div className="px-2 py-1.5 text-sm font-medium text-gray-500 border-b bg-gray-50">
+                                          {category}
+                                        </div>
+                                        {Array.isArray(categoryTreatments) && categoryTreatments.map((treatment: any) => (
+                                          <SelectItem 
+                                            key={treatment.id} 
+                                            value={treatment.id}
+                                            className="cursor-pointer"
+                                          >
+                                             <div className="flex flex-col">
+                                               <span className="font-medium">{treatment.name}</span>
+                                               {treatment.price > 0 && (
+                                                 <span className="text-sm text-gray-500">{treatment.price} zł</span>
+                                               )}
+                                             </div>
+                                          </SelectItem>
+                                        ))}
                                       </div>
-                                      {categoryTreatments.map((treatment) => (
-                                        <SelectItem key={treatment.id} value={treatment.id}>
-                                          {treatment.name} {treatment.price && `(${treatment.price} zł)`}
-                                        </SelectItem>
-                                      ))}
-                                    </div>
-                                  ))}
+                                    ))}
+                                  </div>
                                 </SelectContent>
                               </Select>
                               <FormMessage />

@@ -34,7 +34,7 @@ import {
   Trash2
 } from "lucide-react";
 import { toast } from "sonner";
-import AppointmentForm from "./AppointmentForm";
+import { useNavigate } from "react-router-dom";
 import PatientEditForm from "./PatientEditForm";
 
 type Patient = Tables<"patients">;
@@ -55,7 +55,7 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
   onClose, 
   onUpdate 
 }) => {
-  const [showAddAppointment, setShowAddAppointment] = useState(false);
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [appointmentToDelete, setAppointmentToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -194,10 +194,6 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
     onUpdate(); // Notify parent to refresh its data
   };
 
-  const handleAppointmentSuccess = () => {
-    refetchAppointments();
-    setShowAddAppointment(false);
-  };
 
   if (!displayPatient) return null;
 
@@ -223,7 +219,10 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
                 Edytuj dane
               </Button>
               <Button 
-                onClick={() => setShowAddAppointment(true)}
+                      onClick={() => {
+                        onClose();
+                        navigate(`/admin/appointments/new?patientId=${patient.id}`);
+                      }}
                 className="bg-pink-500 hover:bg-pink-600 w-full sm:w-auto py-3 text-sm"
                 size="sm"
               >
@@ -475,14 +474,6 @@ const PatientProfileModal: React.FC<PatientProfileModalProps> = ({
         />
       )}
 
-      {showAddAppointment && (
-        <AppointmentForm
-          isOpen={showAddAppointment}
-          onClose={() => setShowAddAppointment(false)}
-          selectedPatient={displayPatient}
-          onSuccess={handleAppointmentSuccess}
-        />
-      )}
     </>
   );
 };

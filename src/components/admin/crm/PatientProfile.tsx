@@ -33,7 +33,6 @@ import {
   ArrowLeft
 } from "lucide-react";
 import { toast } from "sonner";
-import AppointmentForm from "./AppointmentForm";
 import AppointmentTimeline from "./AppointmentTimeline";
 import PatientPhotosSection from "./PatientPhotosSection";
 
@@ -53,7 +52,6 @@ const PatientProfile: React.FC<PatientProfileProps> = ({
 }) => {
   console.log('[DEBUG] PatientProfile component loaded - FIXED', { patientId: patient?.id });
   const navigate = useNavigate();
-  const [showAddAppointment, setShowAddAppointment] = useState(false);
   const [appointmentToDelete, setAppointmentToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -159,10 +157,6 @@ const PatientProfile: React.FC<PatientProfileProps> = ({
     navigate(`/admin/crm/patient/${displayPatient.id}/edit`);
   };
 
-  const handleAppointmentSuccess = () => {
-    refetchAppointments();
-    setShowAddAppointment(false);
-  };
 
   if (!displayPatient) return null;
 
@@ -199,8 +193,8 @@ const PatientProfile: React.FC<PatientProfileProps> = ({
               <Edit className="w-4 h-4 mr-2" />
               Edytuj dane
             </Button>
-            <Button 
-              onClick={() => setShowAddAppointment(true)}
+             <Button 
+               onClick={() => navigate(`/admin/appointments/new?patientId=${displayPatient.id}`)}
               className="bg-primary hover:bg-primary/90"
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -387,31 +381,6 @@ const PatientProfile: React.FC<PatientProfileProps> = ({
           </section>
         </div>
 
-        {/* Appointment Form Dialog */}
-        {showAddAppointment && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-foreground">Dodaj nową wizytę</h2>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowAddAppointment(false)}
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  ✕
-                </Button>
-              </div>
-              
-              <AppointmentForm
-                isOpen={true}
-                onClose={() => setShowAddAppointment(false)}
-                selectedPatient={displayPatient}
-                onSuccess={handleAppointmentSuccess}
-              />
-            </div>
-          </div>
-        )}
 
         {/* Delete Confirmation Dialog */}
         <AlertDialog open={!!appointmentToDelete} onOpenChange={() => setAppointmentToDelete(null)}>

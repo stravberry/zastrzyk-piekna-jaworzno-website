@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,18 +11,17 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import PatientsList from "@/components/admin/crm/PatientsList";
 import AllAppointmentsList from "@/components/admin/crm/AllAppointmentsList";
 import PatientForm from "@/components/admin/crm/PatientForm";
-import AppointmentForm from "@/components/admin/crm/AppointmentForm";
 import IntegrationsPanel from "@/components/admin/crm/IntegrationsPanel";
 import ReminderControls from "@/components/admin/crm/ReminderControls";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Users, Calendar, ClipboardList, Settings, Search, Mail, Filter, SortAsc, Eye, UserPlus, CalendarPlus, Menu } from "lucide-react";
+import { Users, Calendar, ClipboardList, Settings, Search, Mail, Filter, SortAsc, Eye, UserPlus, CalendarPlus, Menu, Plus } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 
 type Patient = Tables<"patients">;
 
 const AdminCRM: React.FC = () => {
+  const navigate = useNavigate();
   const [isPatientFormOpen, setIsPatientFormOpen] = useState(false);
-  const [isAppointmentFormOpen, setIsAppointmentFormOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [activeTab, setActiveTab] = useState("patients");
@@ -94,7 +94,7 @@ const AdminCRM: React.FC = () => {
                     variant="ghost"
                     size="sm"
                     className="justify-start gap-2"
-                    onClick={() => setIsAppointmentFormOpen(true)}
+                    onClick={() => navigate('/admin/appointments/new')}
                   >
                     <CalendarPlus className="w-4 h-4" />
                     Dodaj nową wizytę
@@ -256,10 +256,6 @@ const AdminCRM: React.FC = () => {
         onSuccess={handlePatientFormSuccess}
       />
 
-      <AppointmentForm
-        isOpen={isAppointmentFormOpen}
-        onClose={() => setIsAppointmentFormOpen(false)}
-      />
 
     </div>
   );

@@ -116,6 +116,11 @@ const AppRoutes = () => {
             <AdminAppointmentNew />
           </AdminProtectedRoute>
         } />
+        <Route path="appointments/new/:patientId" element={
+          <AdminProtectedRoute requiredRole="editor">
+            <AdminAppointmentNew />
+          </AdminProtectedRoute>
+        } />
         <Route path="email-templates" element={
           <AdminProtectedRoute requiredRole="editor">
             <AdminEmailTemplates />
