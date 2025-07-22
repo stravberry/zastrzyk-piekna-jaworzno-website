@@ -78,13 +78,18 @@ export const PatientSelector: React.FC<PatientSelectorProps> = ({
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <User className="w-5 h-5" />
-            Wybrany pacjent
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <User className="w-5 h-5" />
+              Wybrany pacjent
+            </div>
+            <Button variant="outline" size="sm" onClick={onClearSelection}>
+              Zmień
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+          <div className="p-4 bg-muted/50 rounded-lg">
             <div>
               <h3 className="font-semibold">
                 {selectedPatient.first_name} {selectedPatient.last_name}
@@ -100,9 +105,6 @@ export const PatientSelector: React.FC<PatientSelectorProps> = ({
                 </p>
               )}
             </div>
-            <Button variant="outline" size="sm" onClick={onClearSelection}>
-              Zmień
-            </Button>
           </div>
         </CardContent>
       </Card>
