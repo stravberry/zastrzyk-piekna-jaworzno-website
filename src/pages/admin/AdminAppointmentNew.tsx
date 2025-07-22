@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -26,6 +27,7 @@ import { cn } from "@/lib/utils";
 import { PatientSelector } from "@/components/admin/crm/PatientSelector";
 
 type Patient = Tables<"patients">;
+type Treatment = Tables<"treatments">;
 
 const appointmentSchema = z.object({
   treatment_id: z.string().min(1, "Wybierz zabieg"),
@@ -100,35 +102,19 @@ const AdminAppointmentNew: React.FC = () => {
     }
   });
 
-  // Fetch treatments from pricing categories to keep them in sync
+  // Fetch treatments from the treatments table
   const { data: treatments } = useQuery({
-    queryKey: ['pricing-treatments'],
+    queryKey: ['treatments'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('pricing_categories')
+        .from('treatments')
         .select('*')
-        .order('title', { ascending: true });
+        .eq('is_active', true)
+        .order('category', { ascending: true })
+        .order('name', { ascending: true });
       
       if (error) throw error;
-      
-      // Flatten all items from all categories into a single array
-      const allTreatments: any[] = [];
-      data?.forEach(category => {
-        const items = category.items as any[];
-        items?.forEach(item => {
-          allTreatments.push({
-            id: `${category.id}_${item.name}`, // Unique ID combining category and item
-            name: item.name,
-            category: category.title,
-            description: item.description || null,
-            price: parseFloat(item.price?.replace(/[^\d.]/g, '') || '0'),
-            duration_minutes: 60, // Default duration
-            is_active: true
-          });
-        });
-      });
-      
-      return allTreatments;
+      return data as Treatment[];
     }
   });
 
@@ -142,13 +128,14 @@ const AdminAppointmentNew: React.FC = () => {
     }
   }, [selectedTreatment, form]);
 
-  const groupedTreatments = treatments?.reduce((acc: Record<string, any[]>, treatment: any) => {
+  // Group treatments by category
+  const groupedTreatments = treatments?.reduce((acc: Record<string, Treatment[]>, treatment: Treatment) => {
     if (!acc[treatment.category]) {
       acc[treatment.category] = [];
     }
     acc[treatment.category].push(treatment);
     return acc;
-  }, {} as Record<string, any[]>);
+  }, {} as Record<string, Treatment[]>);
 
   const onSubmit = async (data: AppointmentFormData) => {
     if (!selectedPatient) {
@@ -167,7 +154,7 @@ const AdminAppointmentNew: React.FC = () => {
         .from('patient_appointments')
         .insert({
           patient_id: selectedPatient.id,
-          treatment_id: data.treatment_id,
+          treatment_id: data.treatment_id, // Now this will be a proper UUID
           scheduled_date: scheduledDateTime,
           duration_minutes: data.duration_minutes,
           pre_treatment_notes: data.pre_treatment_notes || null,
@@ -288,7 +275,7 @@ const AdminAppointmentNew: React.FC = () => {
                                      <CommandList className="max-h-80 overflow-y-auto">
                                        {Object.entries(groupedTreatments || {}).map(([category, categoryTreatments]) => (
                                          <CommandGroup key={category} heading={category}>
-                                           {Array.isArray(categoryTreatments) && categoryTreatments.map((treatment: any) => (
+                                           {Array.isArray(categoryTreatments) && categoryTreatments.map((treatment: Treatment) => (
                                              <CommandItem
                                                key={treatment.id}
                                                value={`${treatment.name} ${category}`}
@@ -306,7 +293,7 @@ const AdminAppointmentNew: React.FC = () => {
                                                />
                                                <div className="flex flex-col flex-1">
                                                  <span className="font-medium">{treatment.name}</span>
-                                                 {treatment.price > 0 && (
+                                                 {treatment.price && (
                                                    <span className="text-sm text-muted-foreground">{treatment.price} zł</span>
                                                  )}
                                                </div>
