@@ -1,13 +1,13 @@
-// Unified PNG generator exports with improved quality and spacing
+// Unified PNG generator exports with card-based layout and high quality
 
 import { PriceCategory } from "@/components/pricing/PriceCard";
 
-// Use improved generators as primary exports
+// Use card-based generators as primary exports
 export { 
-  generateImprovedFullPricingPng as generateFullPricingPng,
-  generateImprovedCategoryPng as generateSingleCategoryPng,
-  generateImprovedCategoryPages as generateCategoryPagesAsPng
-} from './improvedPngGenerator';
+  generateCardBasedFullPricingPng as generateFullPricingPng,
+  generateCardBasedCategoryPng as generateSingleCategoryPng,
+  generateCardBasedCategoryPages as generateCategoryPagesAsPng
+} from './cardBasedPngGenerator';
 
 // Legacy exports for backward compatibility
 export { 

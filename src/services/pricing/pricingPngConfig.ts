@@ -1,4 +1,4 @@
-// Configuration service for PNG generation with different presets
+// Configuration service for PNG generation with different presets and quality options
 
 export interface PngGenerationConfig {
   maxItemsPerPage: number;
@@ -11,6 +11,8 @@ export interface PngGenerationConfig {
   priceColumnWidth: number;
   canvasWidth: number;
   canvasHeight: number;
+  quality?: 'web' | 'print' | 'social';
+  scale?: number;
 }
 
 // Default configuration for balanced layout
@@ -67,10 +69,28 @@ export const PRINT_CONFIG: PngGenerationConfig = {
   priceColumnWidth: 240,
   canvasWidth: 900,
   canvasHeight: 1600,
+  quality: 'print',
+  scale: 3,
+};
+
+// Social media optimized configuration
+export const SOCIAL_CONFIG: PngGenerationConfig = {
+  maxItemsPerPage: 5,
+  minItemHeight: 80,
+  maxItemHeight: 180,
+  padding: 25,
+  lineSpacing: 20,
+  nameColumnWidth: 320,
+  descColumnWidth: 260,
+  priceColumnWidth: 120,
+  canvasWidth: 600,
+  canvasHeight: 800,
+  quality: 'social',
+  scale: 2,
 };
 
 // Get configuration by name
-export const getConfigByName = (configName: 'default' | 'compact' | 'spacious' | 'print'): PngGenerationConfig => {
+export const getConfigByName = (configName: 'default' | 'compact' | 'spacious' | 'print' | 'social'): PngGenerationConfig => {
   switch (configName) {
     case 'compact':
       return COMPACT_CONFIG;
@@ -78,8 +98,22 @@ export const getConfigByName = (configName: 'default' | 'compact' | 'spacious' |
       return SPACIOUS_CONFIG;
     case 'print':
       return PRINT_CONFIG;
+    case 'social':
+      return SOCIAL_CONFIG;
     default:
       return DEFAULT_CONFIG;
+  }
+};
+
+// Get configuration by quality
+export const getConfigByQuality = (quality: 'web' | 'print' | 'social'): PngGenerationConfig => {
+  switch (quality) {
+    case 'print':
+      return PRINT_CONFIG;
+    case 'social':
+      return SOCIAL_CONFIG;
+    default:
+      return { ...DEFAULT_CONFIG, quality: 'web', scale: 2 };
   }
 };
 
