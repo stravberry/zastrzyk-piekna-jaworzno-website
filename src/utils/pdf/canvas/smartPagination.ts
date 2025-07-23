@@ -81,28 +81,28 @@ export function calculateSmartCardHeight(
   cardWidth: number,
   padding: number
 ): number {
-  let height = padding * 1.6; // Reduced top and bottom padding
+  let height = padding * 2; // Top and bottom padding
 
   // Treatment name height
   ctx.font = `bold ${fontConfig.treatmentName}px system-ui, -apple-system, sans-serif`;
   const nameLines = wrapTextSmart(ctx, item.name, cardWidth - padding * 2);
-  height += nameLines.length * (fontConfig.treatmentName * 1.1);
+  height += nameLines.length * (fontConfig.treatmentName * 1.4);
 
   // Space between name and price
-  height += 8;
+  height += 12;
   
   // Price height
-  height += fontConfig.price * 1.1;
+  height += fontConfig.price * 1.4;
 
   // Description height (if exists)
   if (item.description) {
-    height += 12; // Reduced space before description
+    height += 16; // Space before description
     ctx.font = `400 ${fontConfig.description}px system-ui, -apple-system, sans-serif`;
     const descLines = wrapTextSmart(ctx, item.description, cardWidth - padding * 2);
-    height += descLines.length * (fontConfig.description * 1.1);
+    height += descLines.length * (fontConfig.description * 1.3);
   }
   
-  return Math.max(height, 100); // Reduced minimum height to fit more cards
+  return Math.max(height, 140); // Minimum height for readability
 }
 
 // Improved text wrapping with better word breaking
@@ -319,9 +319,9 @@ export function getSmartPaginationConfig(
     case 'maxItems':
       return {
         ...baseConfig,
-        maxItemsPerPage: 15, // Restored to realistic value
-        preferredItemsPerPage: 12, // Restored to realistic value
-        headerHeight: 130, // Optimized header height
+        maxItemsPerPage: 25,
+        preferredItemsPerPage: 15,
+        headerHeight: 140, // Fixed header height to prevent cutoff
         footerHeight: 40
       };
     

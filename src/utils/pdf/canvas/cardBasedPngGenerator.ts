@@ -168,7 +168,7 @@ function drawSmartTreatmentCard(
     2
   );
   
-  let currentY = y + cardDimensions.padding * 1.6; // Synchronized with calculateSmartCardHeight
+  let currentY = y + cardDimensions.padding;
   
   // Draw treatment name (bold, dynamic size)
   ctx.fillStyle = colors.text;
@@ -178,11 +178,11 @@ function drawSmartTreatmentCard(
   const nameLines = wrapTextSmart(ctx, item.name, width - cardDimensions.padding * 2);
   nameLines.forEach(line => {
     ctx.fillText(line, x + cardDimensions.padding, currentY);
-    currentY += fontConfig.treatmentName * 1.1; // Synchronized with calculateSmartCardHeight
+    currentY += fontConfig.treatmentName * 1.4;
   });
   
   // Space between name and price
-  currentY += 8; // Synchronized with calculateSmartCardHeight
+  currentY += 12;
   
   // Draw price (prominent, colored, dynamic size)
   ctx.fillStyle = colors.price;
@@ -191,11 +191,11 @@ function drawSmartTreatmentCard(
   
   const price = item.price.includes('zł') ? item.price : `${item.price} zł`;
   ctx.fillText(price, x + width - cardDimensions.padding, currentY);
-  currentY += fontConfig.price * 1.1; // Synchronized with calculateSmartCardHeight
+  currentY += fontConfig.price * 1.4;
   
   // Draw description (dynamic size)
   if (item.description) {
-    currentY += 12; // Synchronized with calculateSmartCardHeight
+    currentY += 16; // Space before description
     
     ctx.fillStyle = colors.secondary;
     ctx.font = `400 ${fontConfig.description}px system-ui, -apple-system, sans-serif`;
@@ -204,7 +204,7 @@ function drawSmartTreatmentCard(
     const descLines = wrapTextSmart(ctx, item.description, width - cardDimensions.padding * 2);
     descLines.forEach(line => {
       ctx.fillText(line, x + cardDimensions.padding, currentY);
-      currentY += fontConfig.description * 1.1; // Synchronized with calculateSmartCardHeight
+      currentY += fontConfig.description * 1.3;
     });
   }
 }
@@ -265,8 +265,8 @@ export async function generateCardBasedCategoryPng(
     renderConfig.cardDimensions.padding
   );
   
-  // Use smart pagination to fit as many items as possible on one page
-  const pageItems = pageBreakResult.pages[0]?.items || category.items;
+  // Use the first page for single category generation
+  const pageItems = pageBreakResult.pages[0]?.items || category.items.slice(0, 8);
   
   // Calculate card heights using smart calculation
   const cardHeights = pageItems.map(item => 
@@ -312,7 +312,7 @@ export async function generateCardBasedCategoryPng(
   
   // Draw treatment cards with smart layout
   let currentY = paginationConfig.headerHeight;
-  const cardWidth = pageWidth * 0.95; // 95% of screen width for better space utilization
+  const cardWidth = pageWidth * 0.9; // 90% of screen width
   const cardX = (pageWidth - cardWidth) / 2;
   
   pageItems.forEach((item, index) => {
@@ -329,7 +329,7 @@ export async function generateCardBasedCategoryPng(
       fontConfig
     );
     
-    currentY += cardHeight + 12; // Minimized margin between cards
+    currentY += cardHeight + 15; // Further reduced margin between cards
   });
   
   // Convert to blob with proper scaling
