@@ -23,19 +23,44 @@ interface RenderConfig {
   };
 }
 
+// Create rounded rectangle
+function drawRoundedCard(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+  fillColor: string,
+  strokeColor?: string,
+  lineWidth: number = 1
+): void {
+  ctx.beginPath();
+  ctx.roundRect(x, y, width, height, radius);
+  
+  ctx.fillStyle = fillColor;
+  ctx.fill();
+  
+  if (strokeColor) {
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = lineWidth;
+    ctx.stroke();
+  }
+}
+
 // High-quality render configuration
 const RENDER_CONFIG: RenderConfig = {
   scale: window.devicePixelRatio || 2,
   cardDimensions: {
     width: 400,
     height: 'auto' as any,
-    padding: 20,
-    margin: 16,
+    padding: 24,
+    margin: 20,
   },
   colors: {
     background: '#ffffff',
     cardBackground: '#ffffff',
-    cardBorder: '#f1f5f9',
+    cardBorder: '#e2e8f0',
     primary: '#ec4899',
     secondary: '#64748b',
     text: '#1e293b',
@@ -118,14 +143,19 @@ function drawTreatmentCard(
 ): void {
   const { cardDimensions, colors } = config;
   
-  // Draw card background with subtle border
-  ctx.fillStyle = colors.cardBackground;
-  ctx.fillRect(x, y, width, height);
-  
-  // Draw subtle border
-  ctx.strokeStyle = colors.cardBorder;
-  ctx.lineWidth = 1 * config.scale;
-  ctx.strokeRect(x, y, width, height);
+  // Draw rounded card with subtle border
+  const borderRadius = 12 * config.scale;
+  drawRoundedCard(
+    ctx,
+    x,
+    y,
+    width,
+    height,
+    borderRadius,
+    colors.cardBackground,
+    colors.cardBorder,
+    1.5 * config.scale
+  );
   
   let currentY = y + cardDimensions.padding;
   
@@ -173,15 +203,24 @@ export async function generateCardBasedCategoryPng(
   category: PriceCategory,
   config: PngGenerationConfig = DEFAULT_CONFIG
 ): Promise<Blob> {
-  const renderConfig = { ...RENDER_CONFIG };
+  const renderConfig = { 
+    ...RENDER_CONFIG,
+    scale: config.scale || RENDER_CONFIG.scale,
+    cardDimensions: {
+      ...RENDER_CONFIG.cardDimensions,
+      width: config.canvasWidth ? config.canvasWidth * 0.85 : RENDER_CONFIG.cardDimensions.width,
+      padding: config.padding || RENDER_CONFIG.cardDimensions.padding,
+      margin: Math.round((config.padding || 20) * 1.2),
+    }
+  };
   
   // Create high-resolution canvas
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d')!;
   
   // Calculate total dimensions
-  const pageWidth = 450 * renderConfig.scale;
-  const headerHeight = 80 * renderConfig.scale;
+  const pageWidth = (config.canvasWidth || 450) * renderConfig.scale;
+  const headerHeight = 100 * renderConfig.scale;
   const footerHeight = 40 * renderConfig.scale;
   
   // Calculate card heights
@@ -210,20 +249,20 @@ export async function generateCardBasedCategoryPng(
   
   // Draw header
   ctx.fillStyle = renderConfig.colors.primary;
-  ctx.font = `bold ${24 * renderConfig.scale}px system-ui, -apple-system, sans-serif`;
+  ctx.font = `bold ${28 * renderConfig.scale}px system-ui, -apple-system, sans-serif`;
   ctx.textAlign = 'center';
   ctx.fillText(
-    'Beauty Estetic',
+    'Kosmetolog Anna Gajęcka',
     pageWidth / 2,
-    20 * renderConfig.scale
+    25 * renderConfig.scale
   );
   
   ctx.fillStyle = renderConfig.colors.text;
-  ctx.font = `600 ${18 * renderConfig.scale}px system-ui, -apple-system, sans-serif`;
+  ctx.font = `600 ${20 * renderConfig.scale}px system-ui, -apple-system, sans-serif`;
   ctx.fillText(
     category.title,
     pageWidth / 2,
-    50 * renderConfig.scale
+    65 * renderConfig.scale
   );
   
   // Draw treatment cards
@@ -262,16 +301,25 @@ export async function generateCardBasedFullPricingPng(
   categories: PriceCategory[],
   config: PngGenerationConfig = DEFAULT_CONFIG
 ): Promise<Blob> {
-  const renderConfig = { ...RENDER_CONFIG };
+  const renderConfig = { 
+    ...RENDER_CONFIG,
+    scale: config.scale || RENDER_CONFIG.scale,
+    cardDimensions: {
+      ...RENDER_CONFIG.cardDimensions,
+      width: config.canvasWidth ? config.canvasWidth * 0.85 : RENDER_CONFIG.cardDimensions.width,
+      padding: config.padding || RENDER_CONFIG.cardDimensions.padding,
+      margin: Math.round((config.padding || 20) * 1.2),
+    }
+  };
   
   // Create high-resolution canvas
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d')!;
   
   // Calculate dimensions for all categories
-  const pageWidth = 450 * renderConfig.scale;
-  const headerHeight = 80 * renderConfig.scale;
-  const categoryHeaderHeight = 50 * renderConfig.scale;
+  const pageWidth = (config.canvasWidth || 450) * renderConfig.scale;
+  const headerHeight = 100 * renderConfig.scale;
+  const categoryHeaderHeight = 60 * renderConfig.scale;
   const footerHeight = 40 * renderConfig.scale;
   
   let totalHeight = headerHeight + footerHeight;
@@ -305,12 +353,12 @@ export async function generateCardBasedFullPricingPng(
   
   // Draw main header
   ctx.fillStyle = renderConfig.colors.primary;
-  ctx.font = `bold ${24 * renderConfig.scale}px system-ui, -apple-system, sans-serif`;
+  ctx.font = `bold ${28 * renderConfig.scale}px system-ui, -apple-system, sans-serif`;
   ctx.textAlign = 'center';
   ctx.fillText(
-    'Beauty Estetic - Cennik',
+    'Kosmetolog Anna Gajęcka - Cennik',
     pageWidth / 2,
-    20 * renderConfig.scale
+    25 * renderConfig.scale
   );
   
   // Draw categories

@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import PngQualitySelector from "./PngQualitySelector";
 
 interface PricingCategoryHeaderProps {
   category: PriceCategory;
@@ -17,7 +18,7 @@ interface PricingCategoryHeaderProps {
   onEditCategory: (category: PriceCategory) => void;
   onDeleteCategory: (category: PriceCategory) => void;
   onExportPdf?: (categoryId: string) => void;
-  onExportPng?: (categoryId: string) => void;
+  onExportPng?: (categoryId: string, quality?: 'web' | 'print' | 'social' | 'instagram') => void;
   isMobile?: boolean;
 }
 
@@ -54,9 +55,9 @@ const PricingCategoryHeader: React.FC<PricingCategoryHeaderProps> = ({
                 </DropdownMenuItem>
               )}
               {onExportPng && (
-                <DropdownMenuItem onClick={() => onExportPng(category.id)}>
+                <DropdownMenuItem onClick={() => onExportPng(category.id, 'instagram')}>
                   <FileImage className="mr-2 h-4 w-4" />
-                  Eksportuj do PNG
+                  Eksportuj do PNG (Instagram)
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
@@ -115,15 +116,9 @@ const PricingCategoryHeader: React.FC<PricingCategoryHeaderProps> = ({
           )}
           
           {onExportPng && (
-            <Button 
-              onClick={() => onExportPng(category.id)} 
-              size="sm" 
-              variant="outline"
-              className="bg-white hover:bg-gray-50"
-            >
-              <FileImage className="mr-2 h-4 w-4" />
-              PNG
-            </Button>
+            <PngQualitySelector 
+              onExport={(quality) => onExportPng(category.id, quality)}
+            />
           )}
           
           <DropdownMenu>

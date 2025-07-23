@@ -89,8 +89,24 @@ export const SOCIAL_CONFIG: PngGenerationConfig = {
   scale: 2,
 };
 
+// Instagram Stories optimized configuration (9:16 aspect ratio)
+export const INSTAGRAM_STORIES_CONFIG: PngGenerationConfig = {
+  maxItemsPerPage: 6,
+  minItemHeight: 120,
+  maxItemHeight: 300,
+  padding: 30,
+  lineSpacing: 24,
+  nameColumnWidth: 460,
+  descColumnWidth: 400,
+  priceColumnWidth: 200,
+  canvasWidth: 1080,
+  canvasHeight: 1920,
+  quality: 'social',
+  scale: 3,
+};
+
 // Get configuration by name
-export const getConfigByName = (configName: 'default' | 'compact' | 'spacious' | 'print' | 'social'): PngGenerationConfig => {
+export const getConfigByName = (configName: 'default' | 'compact' | 'spacious' | 'print' | 'social' | 'instagram'): PngGenerationConfig => {
   switch (configName) {
     case 'compact':
       return COMPACT_CONFIG;
@@ -100,18 +116,22 @@ export const getConfigByName = (configName: 'default' | 'compact' | 'spacious' |
       return PRINT_CONFIG;
     case 'social':
       return SOCIAL_CONFIG;
+    case 'instagram':
+      return INSTAGRAM_STORIES_CONFIG;
     default:
       return DEFAULT_CONFIG;
   }
 };
 
 // Get configuration by quality
-export const getConfigByQuality = (quality: 'web' | 'print' | 'social'): PngGenerationConfig => {
+export const getConfigByQuality = (quality: 'web' | 'print' | 'social' | 'instagram'): PngGenerationConfig => {
   switch (quality) {
     case 'print':
       return PRINT_CONFIG;
     case 'social':
       return SOCIAL_CONFIG;
+    case 'instagram':
+      return INSTAGRAM_STORIES_CONFIG;
     default:
       return { ...DEFAULT_CONFIG, quality: 'web', scale: 2 };
   }

@@ -5,6 +5,7 @@ import html2canvas from "html2canvas";
 import { createPdfLayoutForPng, createSingleCategoryLayoutForPng } from "@/utils/pdf/pngGenerator";
 import { generatePricingPdf, generatePricingPdfFromHtml } from "@/utils/pdf";
 import { generateFullPricingPng, generateSingleCategoryPng, generateCategoryPagesAsPng } from "@/utils/pdf/canvas";
+import { getConfigByQuality } from "./pricingPngConfig";
 import { toast } from "sonner";
 
 // Improved font handling - no preloading needed with system fonts
@@ -61,8 +62,8 @@ export const exportPricingToPdf = async (categoryId?: string): Promise<Blob> => 
   }
 };
 
-// Helper function to download a single category as PNG in 9:16 format
-const downloadSingleCategoryPng = async (category: PriceCategory): Promise<void> => {
+// Helper function to download a single category as PNG with configurable quality
+const downloadSingleCategoryPng = async (category: PriceCategory, quality: 'web' | 'print' | 'social' | 'instagram' = 'instagram'): Promise<void> => {
   console.log(`Rozpoczynam generowanie PNG dla kategorii: ${category.title}`);
   
   try {
@@ -74,8 +75,11 @@ const downloadSingleCategoryPng = async (category: PriceCategory): Promise<void>
     // Use intelligent height-based page splitting instead of fixed item count
     console.log(`Sprawdzam czy kategoria ${category.title} z ${category.items.length} elementami wymaga podziału`);
     
+    // Get configuration based on quality setting
+    const config = getConfigByQuality(quality);
+    
     // Always try to generate and let the improved generator decide on splitting
-    const blobs = await generateCategoryPagesAsPng(category);
+    const blobs = await generateCategoryPagesAsPng(category, config);
     
     if (blobs.length > 1) {
       console.log(`Kategoria ${category.title} została podzielona na ${blobs.length} stron`);
@@ -157,13 +161,16 @@ const downloadSingleCategoryPng = async (category: PriceCategory): Promise<void>
   }
 };
 
-// Helper function to download full pricing table as PNG
-const downloadFullPricingTablePng = async (categories: PriceCategory[]): Promise<void> => {
+// Helper function to download full pricing table as PNG with configurable quality
+const downloadFullPricingTablePng = async (categories: PriceCategory[], quality: 'web' | 'print' | 'social' | 'instagram' = 'instagram'): Promise<void> => {
   console.log('Rozpoczynam generowanie PNG dla pełnego cennika');
   
   try {
+    // Get configuration based on quality setting
+    const config = getConfigByQuality(quality);
+    
     // Use new Canvas API generator
-    const blob = await generateFullPricingPng(categories);
+    const blob = await generateFullPricingPng(categories, config);
     
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -220,8 +227,8 @@ const downloadFullPricingTablePng = async (categories: PriceCategory[]): Promise
   }
 };
 
-// Export pricing data as PNG - updated to handle both full table and separate categories
-export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => {
+// Export pricing data as PNG - updated to handle both full table and separate categories  
+export const exportPricingToPng = async (categoryId?: string, quality: 'web' | 'print' | 'social' | 'instagram' = 'instagram'): Promise<Blob> => {
   try {
     // Get the categories to render
     const categories = await getPriceCategories();
@@ -240,7 +247,7 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
       
       // First download the full pricing table
       try {
-        await downloadFullPricingTablePng(categories);
+        await downloadFullPricingTablePng(categories, quality);
         console.log('Zakończono pobieranie pełnego cennika');
       } catch (error) {
         console.error('Błąd podczas pobierania pełnego cennika:', error);
@@ -257,7 +264,7 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
         toast.info(`Generowanie PNG kategorii ${i + 1}/${categories.length}: ${category.title}`);
         
         try {
-          await downloadSingleCategoryPng(category);
+          await downloadSingleCategoryPng(category, quality);
           console.log(`Zakończono pobieranie kategorii ${i + 1}/${categories.length}: ${category.title}`);
         } catch (error) {
           console.error(`Błąd podczas pobierania kategorii ${category.title}:`, error);
@@ -296,8 +303,11 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
       document.body.appendChild(tempContainer);
       
       try {
+        // Get configuration based on quality setting
+        const config = getConfigByQuality(quality);
+        
         // Use improved generator that handles page splitting automatically
-        const blobs = await generateCategoryPagesAsPng(targetCategory);
+        const blobs = await generateCategoryPagesAsPng(targetCategory, config);
         const date = new Date().toISOString().slice(0, 10);
         
         if (blobs.length > 1) {

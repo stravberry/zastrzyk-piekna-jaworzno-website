@@ -11,7 +11,7 @@ import {
 import { Download, Settings } from "lucide-react";
 
 interface PngQualitySelectorProps {
-  onExport: (quality: 'web' | 'print' | 'social') => void;
+  onExport: (quality: 'web' | 'print' | 'social' | 'instagram') => void;
   isFullExport?: boolean;
 }
 
@@ -55,6 +55,15 @@ const PngQualitySelector: React.FC<PngQualitySelectorProps> = ({
             <span className="font-medium">Social Media</span>
             <span className="text-xs text-muted-foreground">
               Zoptymalizowane dla mediów społecznościowych
+            </span>
+          </div>
+        </DropdownMenuItem>
+        
+        <DropdownMenuItem onClick={() => onExport('instagram')}>
+          <div className="flex flex-col">
+            <span className="font-medium">Instagram Stories</span>
+            <span className="text-xs text-muted-foreground">
+              Pionowy format 9:16 (1080x1920px)
             </span>
           </div>
         </DropdownMenuItem>

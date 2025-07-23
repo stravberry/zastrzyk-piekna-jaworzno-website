@@ -8,12 +8,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import PngQualitySelector from "./PngQualitySelector";
 
 interface PricingActionsProps {
   onAddCategory: () => void;
   onResetData: () => void;
   onExportPdf: () => void;
-  onExportPng: () => void;
+  onExportPng: (quality?: 'web' | 'print' | 'social' | 'instagram') => void;
   isMobile?: boolean;
 }
 
@@ -48,9 +49,9 @@ const PricingActions: React.FC<PricingActionsProps> = ({
               <FileDown className="mr-2 h-4 w-4" />
               Eksportuj pełny cennik do PDF
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={onExportPng}>
+            <DropdownMenuItem onClick={() => onExportPng('instagram')}>
               <FileImage className="mr-2 h-4 w-4" />
-              Eksportuj do PNG
+              Eksportuj do PNG (Instagram)
             </DropdownMenuItem>
             <DropdownMenuItem onClick={onResetData}>
               <RefreshCw className="mr-2 h-4 w-4" />
@@ -78,10 +79,7 @@ const PricingActions: React.FC<PricingActionsProps> = ({
           Eksportuj pełny cennik do PDF
         </Button>
         
-        <Button onClick={onExportPng} variant="outline">
-          <FileImage className="mr-2 h-4 w-4" />
-          Eksportuj do PNG
-        </Button>
+        <PngQualitySelector onExport={onExportPng} isFullExport={true} />
       </div>
 
       <Button onClick={onResetData} variant="ghost" size="sm">
