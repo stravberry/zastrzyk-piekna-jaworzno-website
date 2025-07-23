@@ -78,39 +78,17 @@ const downloadSingleCategoryPng = async (category: PriceCategory, quality: 'web'
     // Get configuration based on quality setting
     const config = getConfigByQuality(quality);
     
-    // Always try to generate and let the improved generator decide on splitting
-    const blobs = await generateCategoryPagesAsPng(category, config);
+    // Generate single PNG for the entire category
+    const blob = await generateSingleCategoryPng(category, config);
     
-    if (blobs.length > 1) {
-      console.log(`Kategoria ${category.title} została podzielona na ${blobs.length} stron`);
-      toast.info(`Kategoria "${category.title}" została podzielona na ${blobs.length} stron ze względu na zawartość`);
-      const date = new Date().toISOString().slice(0, 10);
-      
-      // Download each page
-      blobs.forEach((blob, index) => {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        const suffix = blobs.length > 1 ? `-${index + 1}` : '';
-        link.download = `Zastrzyk-Piekna-${category.title.replace(/\s+/g, '-')}${suffix}-${date}.png`;
-        link.click();
-        URL.revokeObjectURL(url);
-      });
-      
-      console.log(`Pomyślnie pobrano ${blobs.length} plików PNG dla kategorii: ${category.title}`);
-    } else {
-      // This case is now handled above, but kept for safety
-      const blob = blobs[0];
-      
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      const date = new Date().toISOString().slice(0, 10);
-      link.download = `Zastrzyk-Piekna-${category.title.replace(/\s+/g, '-')}-${date}.png`;
-      link.click();
-      URL.revokeObjectURL(url);
-      console.log(`Pomyślnie pobrano PNG dla kategorii: ${category.title}`);
-    }
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const date = new Date().toISOString().slice(0, 10);
+    link.download = `Zastrzyk-Piekna-${category.title.replace(/\s+/g, '-')}-${date}.png`;
+    link.click();
+    URL.revokeObjectURL(url);
+    console.log(`Pomyślnie pobrano PNG dla kategorii: ${category.title}`);
   } catch (error) {
     console.error(`Błąd Canvas API dla kategorii ${category.title}, używam fallback:`, error);
     
@@ -306,30 +284,12 @@ export const exportPricingToPng = async (categoryId?: string, quality: 'web' | '
         // Get configuration based on quality setting
         const config = getConfigByQuality(quality);
         
-        // Use improved generator that handles page splitting automatically
-        const blobs = await generateCategoryPagesAsPng(targetCategory, config);
+        // Generate single PNG for the entire category
+        const blob = await generateSingleCategoryPng(targetCategory, config);
         const date = new Date().toISOString().slice(0, 10);
         
-        if (blobs.length > 1) {
-          console.log(`Single category export: ${targetCategory.title} podzielone na ${blobs.length} stron`);
-          toast.info(`Kategoria "${targetCategory.title}" została podzielona na ${blobs.length} stron`);
-          
-          // Download each page for single category export
-          blobs.forEach((blob, index) => {
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `Zastrzyk-Piekna-${targetCategory.title.replace(/\s+/g, '-')}-${index + 1}-${date}.png`;
-            link.click();
-            URL.revokeObjectURL(url);
-          });
-          
-          // Return first blob for API compatibility
-          return blobs[0];
-        } else {
-          // Single page - return the blob directly
-          return blobs[0];
-        }
+        // Return the single blob
+        return blob;
       } catch (error) {
         console.error('Canvas API failed, using html2canvas fallback:', error);
         
