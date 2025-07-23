@@ -265,48 +265,55 @@ export async function generateCardBasedCategoryPng(
     renderConfig.cardDimensions.padding
   );
   
-  // Check if all items can fit on single page before using pagination
-  const tempCanvas = document.createElement('canvas');
-  const tempCtx = tempCanvas.getContext('2d')!;
-  const availableHeight = pageHeight - paginationConfig.headerHeight - 60; // Available space for cards
-  const checkCardWidth = pageWidth * 0.9;
+  // ALWAYS use all items from category - no pagination for single category
+  const pageItems = category.items;
   
-  // Calculate total height needed for all items
-  let totalRequiredHeight = 0;
-  category.items.forEach(item => {
-    const cardHeight = calculateSmartCardHeight(
-      tempCtx, 
-      item, 
-      fontConfig,
-      checkCardWidth,
-      renderConfig.cardDimensions.padding
-    );
-    totalRequiredHeight += cardHeight + 10; // 10px margin between cards
-  });
+  // Calculate available space
+  const headerHeight = 100;
+  const footerSpace = 60;
+  const availableHeight = pageHeight - headerHeight - footerSpace;
+  const singleCardWidth = pageWidth * 0.9;
   
-  // If all items fit, use all items; otherwise use pagination
-  const pageItems = totalRequiredHeight <= availableHeight 
-    ? category.items 
-    : pageBreakResult.pages[0]?.items || category.items.slice(0, 5);
-  
-  console.log('🎯 Space analysis:', {
-    totalItems: category.items.length,
+  console.log('🎯 Generating single PNG with all items:', {
+    totalItems: pageItems.length,
     availableHeight,
-    totalRequiredHeight,
-    willFitAllItems: totalRequiredHeight <= availableHeight,
-    usingItems: pageItems.length
+    pageHeight,
+    headerHeight
   });
   
-  // Calculate card heights using smart calculation
-  const cardHeights = pageItems.map(item => 
-    calculateSmartCardHeight(
-      ctx, 
-      item, 
-      fontConfig,
-      pageWidth * 0.9,
-      renderConfig.cardDimensions.padding
-    )
+  // Calculate card heights with current font config
+  let adjustedFontConfig = { ...fontConfig };
+  let adjustedPadding = renderConfig.cardDimensions.padding;
+  
+  // Try with normal settings first
+  let cardHeights = pageItems.map(item => 
+    calculateSmartCardHeight(ctx, item, adjustedFontConfig, singleCardWidth, adjustedPadding)
   );
+  let totalHeight = cardHeights.reduce((sum, height) => sum + height + 10, 0);
+  
+  // If doesn't fit, reduce font sizes and padding
+  if (totalHeight > availableHeight) {
+    adjustedPadding = 20; // Reduce padding
+    adjustedFontConfig = {
+      treatmentName: Math.max(adjustedFontConfig.treatmentName * 0.85, 16),
+      description: Math.max(adjustedFontConfig.description * 0.85, 12),
+      price: Math.max(adjustedFontConfig.price * 0.85, 14),
+      categoryHeader: Math.max(adjustedFontConfig.categoryHeader * 0.9, 16),
+      mainHeader: Math.max(adjustedFontConfig.mainHeader * 0.9, 20)
+    };
+    
+    // Recalculate with smaller fonts
+    cardHeights = pageItems.map(item => 
+      calculateSmartCardHeight(ctx, item, adjustedFontConfig, singleCardWidth, adjustedPadding)
+    );
+    totalHeight = cardHeights.reduce((sum, height) => sum + height + 10, 0);
+    
+    console.log('🔧 Adjusted fonts and padding:', {
+      newTotalHeight: totalHeight,
+      willFit: totalHeight <= availableHeight,
+      newPadding: adjustedPadding
+    });
+  }
   
   // Set canvas dimensions to Instagram Stories format
   canvas.width = pageWidth;
@@ -334,15 +341,15 @@ export async function generateCardBasedCategoryPng(
   ctx.fillStyle = renderConfig.colors.text;
   ctx.font = `600 ${fontConfig.categoryHeader}px system-ui, -apple-system, sans-serif`;
   ctx.fillText(
-    pageBreakResult.totalPages > 1 ? `${category.title} (1/${pageBreakResult.totalPages})` : category.title,
+    category.title, // Always just the category title - no pagination info
     pageWidth / 2,
     90
   );
   
   // Draw treatment cards with optimized layout
-  let currentY = 140; // Fixed header position
-  const cardWidth = pageWidth * 0.9; // 90% of screen width
-  const cardX = (pageWidth - cardWidth) / 2;
+  let currentY = headerHeight + 40; // Start after header
+  const finalCardWidth = singleCardWidth;
+  const cardX = (pageWidth - finalCardWidth) / 2;
   
   pageItems.forEach((item, index) => {
     const cardHeight = cardHeights[index];
@@ -352,13 +359,13 @@ export async function generateCardBasedCategoryPng(
       item,
       cardX,
       currentY,
-      cardWidth,
+      finalCardWidth,
       cardHeight,
       renderConfig,
-      fontConfig
+      adjustedFontConfig // Use adjusted font config
     );
     
-    currentY += cardHeight + 10; // Reduced margin for better space utilization
+    currentY += cardHeight + 10; // Consistent margin
   });
   
   // Convert to blob with proper scaling
