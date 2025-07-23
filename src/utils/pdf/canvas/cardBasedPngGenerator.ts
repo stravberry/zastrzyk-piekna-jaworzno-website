@@ -265,8 +265,8 @@ export async function generateCardBasedCategoryPng(
     renderConfig.cardDimensions.padding
   );
   
-  // Use the first page for single category generation
-  const pageItems = pageBreakResult.pages[0]?.items || category.items.slice(0, 8);
+  // Use smart pagination to fit as many items as possible on one page
+  const pageItems = pageBreakResult.pages[0]?.items || category.items;
   
   // Calculate card heights using smart calculation
   const cardHeights = pageItems.map(item => 
@@ -312,7 +312,7 @@ export async function generateCardBasedCategoryPng(
   
   // Draw treatment cards with smart layout
   let currentY = paginationConfig.headerHeight;
-  const cardWidth = pageWidth * 0.9; // 90% of screen width
+  const cardWidth = pageWidth * 0.95; // 95% of screen width for better space utilization
   const cardX = (pageWidth - cardWidth) / 2;
   
   pageItems.forEach((item, index) => {
@@ -329,7 +329,7 @@ export async function generateCardBasedCategoryPng(
       fontConfig
     );
     
-    currentY += cardHeight + 15; // Further reduced margin between cards
+    currentY += cardHeight + 12; // Minimized margin between cards
   });
   
   // Convert to blob with proper scaling
