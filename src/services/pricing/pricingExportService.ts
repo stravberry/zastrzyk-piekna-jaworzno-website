@@ -88,8 +88,9 @@ const downloadSingleCategoryPng = async (category: PriceCategory, quality: 'web'
       
       const date = new Date().toISOString().slice(0, 10);
       
-      // Download each page
-      blobs.forEach((blob, index) => {
+      // Download each page with delay to prevent browser blocking
+      for (let index = 0; index < blobs.length; index++) {
+        const blob = blobs[index];
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -97,7 +98,12 @@ const downloadSingleCategoryPng = async (category: PriceCategory, quality: 'web'
         link.download = `Zastrzyk-Piekna-${category.title.replace(/\s+/g, '-')}${suffix}-${date}.png`;
         link.click();
         URL.revokeObjectURL(url);
-      });
+        
+        // Small delay between downloads to prevent browser blocking
+        if (index < blobs.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+      }
       
       console.log(`Pomyślnie pobrano ${blobs.length} plików PNG dla kategorii: ${category.title}`);
     } else {
