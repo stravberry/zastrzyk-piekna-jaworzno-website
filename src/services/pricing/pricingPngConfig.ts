@@ -92,7 +92,7 @@ export const SOCIAL_CONFIG: PngGenerationConfig = {
 
 // Instagram Stories optimized configuration (9:16 aspect ratio)
 export const INSTAGRAM_STORIES_CONFIG: PngGenerationConfig = {
-  maxItemsPerPage: 6,
+  maxItemsPerPage: 12,
   minItemHeight: 120,
   maxItemHeight: 300,
   padding: 30,
@@ -104,6 +104,7 @@ export const INSTAGRAM_STORIES_CONFIG: PngGenerationConfig = {
   canvasHeight: 1920,
   quality: 'social',
   scale: 3,
+  qualityMode: 'maxItems',
 };
 
 // Get configuration by name

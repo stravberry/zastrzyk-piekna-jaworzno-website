@@ -266,7 +266,7 @@ export async function generateCardBasedCategoryPng(
   );
   
   // Use the first page for single category generation
-  const pageItems = pageBreakResult.pages[0]?.items || category.items.slice(0, 4);
+  const pageItems = pageBreakResult.pages[0]?.items || category.items.slice(0, 8);
   
   // Calculate card heights using smart calculation
   const cardHeights = pageItems.map(item => 
@@ -329,7 +329,7 @@ export async function generateCardBasedCategoryPng(
       fontConfig
     );
     
-    currentY += cardHeight + 30; // Fixed margin between cards
+    currentY += cardHeight + 20; // Reduced margin between cards
   });
   
   // Convert to blob with proper scaling

@@ -38,20 +38,20 @@ export function calculateOptimalFontSizes(
   canvasHeight: number
 ): FontConfig {
   const baseConfig: FontConfig = {
-    treatmentName: 26,
-    description: 18,
-    price: 20,
-    categoryHeader: 28,
-    mainHeader: 36
+    treatmentName: 32,
+    description: 22,
+    price: 26,
+    categoryHeader: 32,
+    mainHeader: 42
   };
 
   switch (qualityMode) {
     case 'maxItems':
-      // Smaller fonts to fit more items
+      // Smaller fonts to fit more items but still readable
       return {
-        treatmentName: Math.max(22, baseConfig.treatmentName - Math.floor(itemCount / 8)),
-        description: Math.max(16, baseConfig.description - Math.floor(itemCount / 10)),
-        price: Math.max(18, baseConfig.price - Math.floor(itemCount / 12)),
+        treatmentName: Math.max(28, baseConfig.treatmentName - Math.floor(itemCount / 12)),
+        description: Math.max(20, baseConfig.description - Math.floor(itemCount / 15)),
+        price: Math.max(24, baseConfig.price - Math.floor(itemCount / 15)),
         categoryHeader: baseConfig.categoryHeader,
         mainHeader: baseConfig.mainHeader
       };
@@ -59,11 +59,11 @@ export function calculateOptimalFontSizes(
     case 'readability':
       // Larger fonts for better readability
       return {
-        treatmentName: baseConfig.treatmentName + 2,
-        description: baseConfig.description + 2,
-        price: baseConfig.price + 2,
-        categoryHeader: baseConfig.categoryHeader + 2,
-        mainHeader: baseConfig.mainHeader + 2
+        treatmentName: baseConfig.treatmentName + 4,
+        description: baseConfig.description + 4,
+        price: baseConfig.price + 4,
+        categoryHeader: baseConfig.categoryHeader + 4,
+        mainHeader: baseConfig.mainHeader + 4
       };
     
     case 'aesthetic':
@@ -180,7 +180,7 @@ export function calculateOptimalItemsPerPage(
   const tempCtx = tempCanvas.getContext('2d')!;
   
   const availableHeight = config.maxPageHeight - config.headerHeight - config.footerHeight;
-  const marginBetweenCards = 30;
+  const marginBetweenCards = 20;
   
   // Start with preferred number and adjust
   let optimalCount = config.preferredItemsPerPage;
@@ -216,7 +216,7 @@ export function smartPageBreaking(
   const tempCtx = tempCanvas.getContext('2d')!;
   
   const availableHeight = config.maxPageHeight - config.headerHeight - config.footerHeight;
-  const marginBetweenCards = 30;
+  const marginBetweenCards = 20;
   
   const pages: PageBreakResult['pages'] = [];
   let currentPageItems: PriceItem[] = [];
@@ -307,11 +307,11 @@ export function getSmartPaginationConfig(
 ): PaginationConfig {
   const baseConfig: PaginationConfig = {
     maxPageHeight: canvasHeight,
-    headerHeight: 160,
+    headerHeight: 120,
     footerHeight: 60,
-    minItemsPerPage: 2,
-    maxItemsPerPage: 12,
-    preferredItemsPerPage: 6,
+    minItemsPerPage: 3,
+    maxItemsPerPage: 20,
+    preferredItemsPerPage: 10,
     qualityMode
   };
   
@@ -319,18 +319,18 @@ export function getSmartPaginationConfig(
     case 'maxItems':
       return {
         ...baseConfig,
-        maxItemsPerPage: 15,
-        preferredItemsPerPage: 10,
-        headerHeight: 140, // Smaller headers to fit more content
+        maxItemsPerPage: 25,
+        preferredItemsPerPage: 15,
+        headerHeight: 100, // Smaller headers to fit more content
         footerHeight: 40
       };
     
     case 'readability':
       return {
         ...baseConfig,
-        maxItemsPerPage: 8,
-        preferredItemsPerPage: 4,
-        headerHeight: 180, // Larger headers for better hierarchy
+        maxItemsPerPage: 12,
+        preferredItemsPerPage: 6,
+        headerHeight: 140, // Larger headers for better hierarchy
         footerHeight: 80
       };
     
