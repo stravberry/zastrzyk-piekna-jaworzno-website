@@ -209,7 +209,7 @@ function drawSmartTreatmentCard(
   }
 }
 
-// Generate single category PNG with smart dynamic pagination
+// Generate single category PNG - ALWAYS one file for the entire category
 export async function generateCardBasedCategoryPng(
   category: PriceCategory,
   config: PngGenerationConfig = DEFAULT_CONFIG
@@ -230,7 +230,7 @@ export async function generateCardBasedCategoryPng(
   const qualityMode = (config as any).qualityMode || 'aesthetic';
   console.log('📝 Quality mode:', qualityMode);
   
-  // Calculate optimal font sizes WITHOUT using smart pagination
+  // Calculate optimal font sizes for ALL items in the category
   const fontConfig = calculateOptimalFontSizes(
     category.items.length,
     qualityMode,
