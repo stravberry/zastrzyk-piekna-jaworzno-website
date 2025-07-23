@@ -1,6 +1,16 @@
-// Card-based PNG generator with improved quality and spacing
+// Card-based PNG generator with smart dynamic pagination
 import { PriceCategory, PriceItem } from "@/components/pricing/PriceCard";
 import { PngGenerationConfig, DEFAULT_CONFIG } from "@/services/pricing/pricingPngConfig";
+import { 
+  smartPageBreaking, 
+  calculateOptimalFontSizes, 
+  calculateSmartCardHeight,
+  wrapTextSmart,
+  getSmartPaginationConfig,
+  previewOptimization,
+  FontConfig,
+  PaginationConfig
+} from "./smartPagination";
 
 interface CardDimensions {
   width: number;
@@ -131,15 +141,16 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number)
   return lines.length > 0 ? lines : [''];
 }
 
-// Draw a single treatment card
-function drawTreatmentCard(
+// Draw a single treatment card with dynamic font sizing
+function drawSmartTreatmentCard(
   ctx: CanvasRenderingContext2D,
   item: PriceItem,
   x: number,
   y: number,
   width: number,
   height: number,
-  config: RenderConfig
+  config: RenderConfig,
+  fontConfig: FontConfig
 ): void {
   const { cardDimensions, colors } = config;
   
@@ -159,56 +170,79 @@ function drawTreatmentCard(
   
   let currentY = y + cardDimensions.padding;
   
-  // Draw treatment name (bold, larger for Instagram)
+  // Draw treatment name (bold, dynamic size)
   ctx.fillStyle = colors.text;
-  ctx.font = `bold 24px system-ui, -apple-system, sans-serif`;
+  ctx.font = `bold ${fontConfig.treatmentName}px system-ui, -apple-system, sans-serif`;
   ctx.textAlign = 'left';
   
-  const nameLines = wrapText(ctx, item.name, width - cardDimensions.padding * 2);
+  const nameLines = wrapTextSmart(ctx, item.name, width - cardDimensions.padding * 2);
   nameLines.forEach(line => {
     ctx.fillText(line, x + cardDimensions.padding, currentY);
-    currentY += 32;
+    currentY += fontConfig.treatmentName * 1.4;
   });
   
   // Space between name and price
   currentY += 12;
   
-  // Draw price (prominent, colored, larger)
+  // Draw price (prominent, colored, dynamic size)
   ctx.fillStyle = colors.price;
-  ctx.font = `600 18px system-ui, -apple-system, sans-serif`;
+  ctx.font = `600 ${fontConfig.price}px system-ui, -apple-system, sans-serif`;
   ctx.textAlign = 'right';
   
   const price = item.price.includes('zł') ? item.price : `${item.price} zł`;
   ctx.fillText(price, x + width - cardDimensions.padding, currentY);
-  currentY += 26;
+  currentY += fontConfig.price * 1.4;
   
-  // Draw description (larger for Instagram)
+  // Draw description (dynamic size)
   if (item.description) {
     currentY += 16; // Space before description
     
     ctx.fillStyle = colors.secondary;
-    ctx.font = `400 16px system-ui, -apple-system, sans-serif`;
+    ctx.font = `400 ${fontConfig.description}px system-ui, -apple-system, sans-serif`;
     ctx.textAlign = 'left';
     
-    const descLines = wrapText(ctx, item.description, width - cardDimensions.padding * 2);
+    const descLines = wrapTextSmart(ctx, item.description, width - cardDimensions.padding * 2);
     descLines.forEach(line => {
       ctx.fillText(line, x + cardDimensions.padding, currentY);
-      currentY += 22;
+      currentY += fontConfig.description * 1.3;
     });
   }
 }
 
-// Generate single category PNG with card-based layout
+// Generate single category PNG with smart dynamic pagination
 export async function generateCardBasedCategoryPng(
   category: PriceCategory,
   config: PngGenerationConfig = DEFAULT_CONFIG
 ): Promise<Blob> {
+  // Determine quality mode based on config or default to aesthetic
+  const qualityMode = (config as any).qualityMode || 'aesthetic';
+  
+  // Preview optimization to show recommendations
+  const preview = previewOptimization(category.items, config.canvasHeight || 1920);
+  console.log('🎯 Smart PNG Generation Preview:', preview);
+  
+  // Get smart pagination configuration
+  const paginationConfig = getSmartPaginationConfig(
+    category.items.length, 
+    qualityMode, 
+    config.canvasHeight || 1920
+  );
+  
+  // Calculate optimal font sizes
+  const fontConfig = calculateOptimalFontSizes(
+    category.items.length,
+    qualityMode,
+    config.canvasHeight || 1920
+  );
+  
+  console.log('🎨 Font configuration:', fontConfig);
+  
   const renderConfig = { 
     ...RENDER_CONFIG,
     scale: config.scale || RENDER_CONFIG.scale,
     cardDimensions: {
       ...RENDER_CONFIG.cardDimensions,
-      width: config.canvasWidth ? config.canvasWidth * 0.85 : RENDER_CONFIG.cardDimensions.width,
+      width: config.canvasWidth ? config.canvasWidth * 0.9 : RENDER_CONFIG.cardDimensions.width,
       padding: config.padding || RENDER_CONFIG.cardDimensions.padding,
       margin: Math.round((config.padding || 20) * 1.2),
     }
@@ -221,28 +255,29 @@ export async function generateCardBasedCategoryPng(
   // Use config dimensions directly for proper Instagram Stories format
   const pageWidth = config.canvasWidth || 1080;
   const pageHeight = config.canvasHeight || 1920;
-  const headerHeight = 120;
-  const footerHeight = 60;
   
-  // Debug logging
-  console.log('PNG Generation Config:', {
-    configWidth: config.canvasWidth,
-    configHeight: config.canvasHeight,
-    pageWidth,
-    pageHeight,
-    scale: renderConfig.scale
-  });
-  
-  // Calculate card heights
-  const cardHeights = category.items.map(item => 
-    calculateCardHeight(ctx, item, renderConfig)
+  // Smart page breaking
+  const pageBreakResult = smartPageBreaking(
+    category.items,
+    paginationConfig,
+    fontConfig,
+    pageWidth * 0.9,
+    renderConfig.cardDimensions.padding
   );
   
-  const totalContentHeight = cardHeights.reduce((sum, height) => 
-    sum + height + renderConfig.cardDimensions.margin * renderConfig.scale, 0
-  );
+  // Use the first page for single category generation
+  const pageItems = pageBreakResult.pages[0]?.items || category.items.slice(0, 4);
   
-  const totalHeight = headerHeight + totalContentHeight + footerHeight;
+  // Calculate card heights using smart calculation
+  const cardHeights = pageItems.map(item => 
+    calculateSmartCardHeight(
+      ctx, 
+      item, 
+      fontConfig,
+      pageWidth * 0.9,
+      renderConfig.cardDimensions.padding
+    )
+  );
   
   // Set canvas dimensions to Instagram Stories format
   canvas.width = pageWidth;
@@ -257,9 +292,9 @@ export async function generateCardBasedCategoryPng(
   ctx.fillStyle = renderConfig.colors.background;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   
-  // Draw header with larger fonts for Instagram Stories
+  // Draw header with dynamic fonts
   ctx.fillStyle = renderConfig.colors.primary;
-  ctx.font = `bold 36px system-ui, -apple-system, sans-serif`;
+  ctx.font = `bold ${fontConfig.mainHeader}px system-ui, -apple-system, sans-serif`;
   ctx.textAlign = 'center';
   ctx.fillText(
     'Kosmetolog Anna Gajęcka',
@@ -268,29 +303,30 @@ export async function generateCardBasedCategoryPng(
   );
   
   ctx.fillStyle = renderConfig.colors.text;
-  ctx.font = `600 28px system-ui, -apple-system, sans-serif`;
+  ctx.font = `600 ${fontConfig.categoryHeader}px system-ui, -apple-system, sans-serif`;
   ctx.fillText(
-    category.title,
+    pageBreakResult.totalPages > 1 ? `${category.title} (1/${pageBreakResult.totalPages})` : category.title,
     pageWidth / 2,
     90
   );
   
-  // Draw treatment cards with proper Instagram Stories dimensions
-  let currentY = headerHeight + 40;
+  // Draw treatment cards with smart layout
+  let currentY = paginationConfig.headerHeight;
   const cardWidth = pageWidth * 0.9; // 90% of screen width
   const cardX = (pageWidth - cardWidth) / 2;
   
-  category.items.forEach((item, index) => {
+  pageItems.forEach((item, index) => {
     const cardHeight = cardHeights[index];
     
-    drawTreatmentCard(
+    drawSmartTreatmentCard(
       ctx,
       item,
       cardX,
       currentY,
       cardWidth,
       cardHeight,
-      renderConfig
+      renderConfig,
+      fontConfig
     );
     
     currentY += cardHeight + 30; // Fixed margin between cards
@@ -393,14 +429,24 @@ export async function generateCardBasedFullPricingPng(
     category.items.forEach((item, index) => {
       const cardHeight = cardHeights[index];
       
-      drawTreatmentCard(
+      // Use legacy function for full pricing - will be updated in future
+      const legacyFontConfig: FontConfig = {
+        treatmentName: 24,
+        description: 16,
+        price: 18,
+        categoryHeader: 20,
+        mainHeader: 28
+      };
+      
+      drawSmartTreatmentCard(
         ctx,
         item,
         cardX,
         currentY,
         cardWidth,
         cardHeight,
-        renderConfig
+        renderConfig,
+        legacyFontConfig
       );
       
       currentY += cardHeight + renderConfig.cardDimensions.margin * renderConfig.scale;

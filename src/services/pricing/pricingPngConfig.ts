@@ -12,6 +12,7 @@ export interface PngGenerationConfig {
   canvasWidth: number;
   canvasHeight: number;
   quality?: 'web' | 'print' | 'social';
+  qualityMode?: 'maxItems' | 'readability' | 'aesthetic';
   scale?: number;
 }
 
