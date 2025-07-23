@@ -307,11 +307,11 @@ export function getSmartPaginationConfig(
 ): PaginationConfig {
   const baseConfig: PaginationConfig = {
     maxPageHeight: canvasHeight,
-    headerHeight: 120,
+    headerHeight: 100, // Reduced header height for more space
     footerHeight: 60,
     minItemsPerPage: 3,
-    maxItemsPerPage: 20,
-    preferredItemsPerPage: 10,
+    maxItemsPerPage: 15, // Increased max items
+    preferredItemsPerPage: 8,
     qualityMode
   };
   
@@ -319,9 +319,9 @@ export function getSmartPaginationConfig(
     case 'maxItems':
       return {
         ...baseConfig,
-        maxItemsPerPage: 25,
-        preferredItemsPerPage: 15,
-        headerHeight: 140, // Fixed header height to prevent cutoff
+        maxItemsPerPage: 15, // More realistic max for Instagram Stories
+        preferredItemsPerPage: 8,
+        headerHeight: 100, // Optimized header height
         footerHeight: 40
       };
     

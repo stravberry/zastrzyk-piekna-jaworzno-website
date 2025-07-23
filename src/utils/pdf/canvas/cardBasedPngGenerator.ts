@@ -64,8 +64,8 @@ const RENDER_CONFIG: RenderConfig = {
   cardDimensions: {
     width: 900, // Wider cards for Instagram format
     height: 'auto' as any,
-    padding: 36, // Increased padding
-    margin: 30,
+    padding: 30, // Reduced padding for more space
+    margin: 20,
   },
   colors: {
     background: '#ffffff',
@@ -265,8 +265,37 @@ export async function generateCardBasedCategoryPng(
     renderConfig.cardDimensions.padding
   );
   
-  // Use the first page for single category generation
-  const pageItems = pageBreakResult.pages[0]?.items || category.items.slice(0, 8);
+  // Check if all items can fit on single page before using pagination
+  const tempCanvas = document.createElement('canvas');
+  const tempCtx = tempCanvas.getContext('2d')!;
+  const availableHeight = pageHeight - paginationConfig.headerHeight - 60; // Available space for cards
+  const checkCardWidth = pageWidth * 0.9;
+  
+  // Calculate total height needed for all items
+  let totalRequiredHeight = 0;
+  category.items.forEach(item => {
+    const cardHeight = calculateSmartCardHeight(
+      tempCtx, 
+      item, 
+      fontConfig,
+      checkCardWidth,
+      renderConfig.cardDimensions.padding
+    );
+    totalRequiredHeight += cardHeight + 10; // 10px margin between cards
+  });
+  
+  // If all items fit, use all items; otherwise use pagination
+  const pageItems = totalRequiredHeight <= availableHeight 
+    ? category.items 
+    : pageBreakResult.pages[0]?.items || category.items.slice(0, 5);
+  
+  console.log('🎯 Space analysis:', {
+    totalItems: category.items.length,
+    availableHeight,
+    totalRequiredHeight,
+    willFitAllItems: totalRequiredHeight <= availableHeight,
+    usingItems: pageItems.length
+  });
   
   // Calculate card heights using smart calculation
   const cardHeights = pageItems.map(item => 
@@ -310,8 +339,8 @@ export async function generateCardBasedCategoryPng(
     90
   );
   
-  // Draw treatment cards with smart layout
-  let currentY = paginationConfig.headerHeight;
+  // Draw treatment cards with optimized layout
+  let currentY = 140; // Fixed header position
   const cardWidth = pageWidth * 0.9; // 90% of screen width
   const cardX = (pageWidth - cardWidth) / 2;
   
@@ -329,7 +358,7 @@ export async function generateCardBasedCategoryPng(
       fontConfig
     );
     
-    currentY += cardHeight + 15; // Further reduced margin between cards
+    currentY += cardHeight + 10; // Reduced margin for better space utilization
   });
   
   // Convert to blob with proper scaling
@@ -409,8 +438,8 @@ export async function generateCardBasedFullPricingPng(
   
   // Draw categories
   let currentY = headerHeight + 20 * renderConfig.scale;
-  const cardWidth = renderConfig.cardDimensions.width * renderConfig.scale;
-  const cardX = (pageWidth - cardWidth) / 2;
+  const fullPricingCardWidth = renderConfig.cardDimensions.width * renderConfig.scale;
+  const cardX = (pageWidth - fullPricingCardWidth) / 2;
   
   categoryData.forEach(({ category, cardHeights }) => {
     // Draw category header
@@ -443,7 +472,7 @@ export async function generateCardBasedFullPricingPng(
         item,
         cardX,
         currentY,
-        cardWidth,
+        fullPricingCardWidth,
         cardHeight,
         renderConfig,
         legacyFontConfig
