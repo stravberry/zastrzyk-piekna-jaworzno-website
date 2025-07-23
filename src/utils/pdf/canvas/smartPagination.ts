@@ -38,20 +38,20 @@ export function calculateOptimalFontSizes(
   canvasHeight: number
 ): FontConfig {
   const baseConfig: FontConfig = {
-    treatmentName: 32,
-    description: 22,
-    price: 26,
-    categoryHeader: 32,
-    mainHeader: 42
+    treatmentName: 36,
+    description: 24,
+    price: 28,
+    categoryHeader: 34,
+    mainHeader: 46
   };
 
   switch (qualityMode) {
     case 'maxItems':
       // Smaller fonts to fit more items but still readable
       return {
-        treatmentName: Math.max(28, baseConfig.treatmentName - Math.floor(itemCount / 12)),
-        description: Math.max(20, baseConfig.description - Math.floor(itemCount / 15)),
-        price: Math.max(24, baseConfig.price - Math.floor(itemCount / 15)),
+        treatmentName: Math.max(32, baseConfig.treatmentName - Math.floor(itemCount / 15)),
+        description: Math.max(22, baseConfig.description - Math.floor(itemCount / 18)),
+        price: Math.max(26, baseConfig.price - Math.floor(itemCount / 18)),
         categoryHeader: baseConfig.categoryHeader,
         mainHeader: baseConfig.mainHeader
       };
@@ -180,7 +180,7 @@ export function calculateOptimalItemsPerPage(
   const tempCtx = tempCanvas.getContext('2d')!;
   
   const availableHeight = config.maxPageHeight - config.headerHeight - config.footerHeight;
-  const marginBetweenCards = 20;
+  const marginBetweenCards = 15;
   
   // Start with preferred number and adjust
   let optimalCount = config.preferredItemsPerPage;
@@ -216,7 +216,7 @@ export function smartPageBreaking(
   const tempCtx = tempCanvas.getContext('2d')!;
   
   const availableHeight = config.maxPageHeight - config.headerHeight - config.footerHeight;
-  const marginBetweenCards = 20;
+  const marginBetweenCards = 15;
   
   const pages: PageBreakResult['pages'] = [];
   let currentPageItems: PriceItem[] = [];
@@ -321,7 +321,7 @@ export function getSmartPaginationConfig(
         ...baseConfig,
         maxItemsPerPage: 25,
         preferredItemsPerPage: 15,
-        headerHeight: 100, // Smaller headers to fit more content
+        headerHeight: 140, // Fixed header height to prevent cutoff
         footerHeight: 40
       };
     

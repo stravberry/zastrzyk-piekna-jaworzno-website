@@ -329,7 +329,7 @@ export async function generateCardBasedCategoryPng(
       fontConfig
     );
     
-    currentY += cardHeight + 20; // Reduced margin between cards
+    currentY += cardHeight + 15; // Further reduced margin between cards
   });
   
   // Convert to blob with proper scaling
