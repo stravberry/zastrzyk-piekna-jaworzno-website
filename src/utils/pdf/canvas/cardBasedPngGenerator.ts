@@ -48,14 +48,14 @@ function drawRoundedCard(
   }
 }
 
-// High-quality render configuration
+// High-quality render configuration for Instagram Stories
 const RENDER_CONFIG: RenderConfig = {
-  scale: window.devicePixelRatio || 2,
+  scale: 1, // No scaling needed for direct dimensions
   cardDimensions: {
-    width: 400,
+    width: 900, // Wider cards for Instagram format
     height: 'auto' as any,
-    padding: 24,
-    margin: 20,
+    padding: 36, // Increased padding
+    margin: 30,
   },
   colors: {
     background: '#ffffff',
@@ -77,27 +77,27 @@ function calculateCardHeight(
   const { cardDimensions } = config;
   let height = cardDimensions.padding * 2; // Top and bottom padding
 
-  // Name height (bold, larger font)
-  ctx.font = `bold ${16 * config.scale}px system-ui, -apple-system, sans-serif`;
+  // Name height (bold, larger font for Instagram)
+  ctx.font = `bold 24px system-ui, -apple-system, sans-serif`;
   const nameLines = wrapText(ctx, item.name, cardDimensions.width - cardDimensions.padding * 2);
-  height += nameLines.length * 24 * config.scale;
+  height += nameLines.length * 32;
 
   // Space between name and price
-  height += 8 * config.scale;
-
+  height += 12;
+  
   // Price height
-  ctx.font = `600 ${14 * config.scale}px system-ui, -apple-system, sans-serif`;
-  height += 20 * config.scale;
+  ctx.font = `600 18px system-ui, -apple-system, sans-serif`;
+  height += 26;
 
   // Description height (if exists)
   if (item.description) {
-    height += 12 * config.scale; // Space before description
-    ctx.font = `400 ${12 * config.scale}px system-ui, -apple-system, sans-serif`;
+    height += 16; // Space before description
+    ctx.font = `400 16px system-ui, -apple-system, sans-serif`;
     const descLines = wrapText(ctx, item.description, cardDimensions.width - cardDimensions.padding * 2);
-    height += descLines.length * 18 * config.scale;
+    height += descLines.length * 22;
   }
-
-  return Math.max(height, 80 * config.scale); // Minimum height
+  
+  return Math.max(height, 120); // Minimum height for Instagram
 }
 
 // Improved text wrapping
@@ -143,8 +143,8 @@ function drawTreatmentCard(
 ): void {
   const { cardDimensions, colors } = config;
   
-  // Draw rounded card with subtle border
-  const borderRadius = 12 * config.scale;
+  // Draw rounded card with larger border radius for Instagram
+  const borderRadius = 20; // Larger radius for Instagram format
   drawRoundedCard(
     ctx,
     x,
@@ -154,46 +154,46 @@ function drawTreatmentCard(
     borderRadius,
     colors.cardBackground,
     colors.cardBorder,
-    1.5 * config.scale
+    2
   );
   
   let currentY = y + cardDimensions.padding;
   
-  // Draw treatment name (bold, larger)
+  // Draw treatment name (bold, larger for Instagram)
   ctx.fillStyle = colors.text;
-  ctx.font = `bold ${16 * config.scale}px system-ui, -apple-system, sans-serif`;
+  ctx.font = `bold 24px system-ui, -apple-system, sans-serif`;
   ctx.textAlign = 'left';
   
   const nameLines = wrapText(ctx, item.name, width - cardDimensions.padding * 2);
   nameLines.forEach(line => {
     ctx.fillText(line, x + cardDimensions.padding, currentY);
-    currentY += 24 * config.scale;
+    currentY += 32;
   });
   
   // Space between name and price
-  currentY += 8 * config.scale;
+  currentY += 12;
   
-  // Draw price (prominent, colored)
+  // Draw price (prominent, colored, larger)
   ctx.fillStyle = colors.price;
-  ctx.font = `600 ${14 * config.scale}px system-ui, -apple-system, sans-serif`;
+  ctx.font = `600 18px system-ui, -apple-system, sans-serif`;
   ctx.textAlign = 'right';
   
   const price = item.price.includes('zł') ? item.price : `${item.price} zł`;
   ctx.fillText(price, x + width - cardDimensions.padding, currentY);
-  currentY += 20 * config.scale;
+  currentY += 26;
   
-  // Draw description (smaller, lighter)
+  // Draw description (larger for Instagram)
   if (item.description) {
-    currentY += 12 * config.scale; // Space before description
+    currentY += 16; // Space before description
     
     ctx.fillStyle = colors.secondary;
-    ctx.font = `400 ${12 * config.scale}px system-ui, -apple-system, sans-serif`;
+    ctx.font = `400 16px system-ui, -apple-system, sans-serif`;
     ctx.textAlign = 'left';
     
     const descLines = wrapText(ctx, item.description, width - cardDimensions.padding * 2);
     descLines.forEach(line => {
       ctx.fillText(line, x + cardDimensions.padding, currentY);
-      currentY += 18 * config.scale;
+      currentY += 22;
     });
   }
 }
@@ -218,10 +218,20 @@ export async function generateCardBasedCategoryPng(
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d')!;
   
-  // Calculate total dimensions
-  const pageWidth = (config.canvasWidth || 450) * renderConfig.scale;
-  const headerHeight = 100 * renderConfig.scale;
-  const footerHeight = 40 * renderConfig.scale;
+  // Use config dimensions directly for proper Instagram Stories format
+  const pageWidth = config.canvasWidth || 1080;
+  const pageHeight = config.canvasHeight || 1920;
+  const headerHeight = 120;
+  const footerHeight = 60;
+  
+  // Debug logging
+  console.log('PNG Generation Config:', {
+    configWidth: config.canvasWidth,
+    configHeight: config.canvasHeight,
+    pageWidth,
+    pageHeight,
+    scale: renderConfig.scale
+  });
   
   // Calculate card heights
   const cardHeights = category.items.map(item => 
@@ -234,9 +244,9 @@ export async function generateCardBasedCategoryPng(
   
   const totalHeight = headerHeight + totalContentHeight + footerHeight;
   
-  // Set canvas dimensions
+  // Set canvas dimensions to Instagram Stories format
   canvas.width = pageWidth;
-  canvas.height = totalHeight;
+  canvas.height = pageHeight;
   
   // Enable high-quality rendering
   ctx.imageSmoothingEnabled = true;
@@ -247,27 +257,27 @@ export async function generateCardBasedCategoryPng(
   ctx.fillStyle = renderConfig.colors.background;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   
-  // Draw header
+  // Draw header with larger fonts for Instagram Stories
   ctx.fillStyle = renderConfig.colors.primary;
-  ctx.font = `bold ${28 * renderConfig.scale}px system-ui, -apple-system, sans-serif`;
+  ctx.font = `bold 36px system-ui, -apple-system, sans-serif`;
   ctx.textAlign = 'center';
   ctx.fillText(
     'Kosmetolog Anna Gajęcka',
     pageWidth / 2,
-    25 * renderConfig.scale
+    40
   );
   
   ctx.fillStyle = renderConfig.colors.text;
-  ctx.font = `600 ${20 * renderConfig.scale}px system-ui, -apple-system, sans-serif`;
+  ctx.font = `600 28px system-ui, -apple-system, sans-serif`;
   ctx.fillText(
     category.title,
     pageWidth / 2,
-    65 * renderConfig.scale
+    90
   );
   
-  // Draw treatment cards
-  let currentY = headerHeight + 20 * renderConfig.scale;
-  const cardWidth = renderConfig.cardDimensions.width * renderConfig.scale;
+  // Draw treatment cards with proper Instagram Stories dimensions
+  let currentY = headerHeight + 40;
+  const cardWidth = pageWidth * 0.9; // 90% of screen width
   const cardX = (pageWidth - cardWidth) / 2;
   
   category.items.forEach((item, index) => {
@@ -283,7 +293,7 @@ export async function generateCardBasedCategoryPng(
       renderConfig
     );
     
-    currentY += cardHeight + renderConfig.cardDimensions.margin * renderConfig.scale;
+    currentY += cardHeight + 30; // Fixed margin between cards
   });
   
   // Convert to blob with proper scaling
