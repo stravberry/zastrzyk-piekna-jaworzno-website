@@ -214,28 +214,30 @@ export async function generateCardBasedCategoryPng(
   category: PriceCategory,
   config: PngGenerationConfig = DEFAULT_CONFIG
 ): Promise<Blob> {
+  console.log('🎨 =================================');
+  console.log('🎨 GENERATING SINGLE CATEGORY PNG');
+  console.log('🎨 =================================');
+  console.log('📝 Category:', category.title);
+  console.log('📝 Input items count:', category.items.length);
+  
+  // Log all input items for debugging
+  console.log('📝 All input items:');
+  category.items.forEach((item, index) => {
+    console.log(`  ${index + 1}. ${item.name} - ${item.price} - ${item.description?.substring(0, 50)}...`);
+  });
+
   // Determine quality mode based on config or default to aesthetic
   const qualityMode = (config as any).qualityMode || 'aesthetic';
+  console.log('📝 Quality mode:', qualityMode);
   
-  // Preview optimization to show recommendations
-  const preview = previewOptimization(category.items, config.canvasHeight || 1920);
-  console.log('🎯 Smart PNG Generation Preview:', preview);
-  
-  // Get smart pagination configuration
-  const paginationConfig = getSmartPaginationConfig(
-    category.items.length, 
-    qualityMode, 
-    config.canvasHeight || 1920
-  );
-  
-  // Calculate optimal font sizes
+  // Calculate optimal font sizes WITHOUT using smart pagination
   const fontConfig = calculateOptimalFontSizes(
     category.items.length,
     qualityMode,
     config.canvasHeight || 1920
   );
   
-  console.log('🎨 Font configuration:', fontConfig);
+  console.log('🔧 Font configuration:', fontConfig);
   
   const renderConfig = { 
     ...RENDER_CONFIG,
@@ -256,17 +258,14 @@ export async function generateCardBasedCategoryPng(
   const pageWidth = config.canvasWidth || 1080;
   const pageHeight = config.canvasHeight || 1920;
   
-  // Smart page breaking
-  const pageBreakResult = smartPageBreaking(
-    category.items,
-    paginationConfig,
-    fontConfig,
-    pageWidth * 0.9,
-    renderConfig.cardDimensions.padding
-  );
-  
-  // ALWAYS use all items from category - no pagination for single category
+  // ALWAYS use ALL items from category - NO pagination for single category
   const pageItems = category.items;
+  
+  console.log('✅ Using ALL items (no pagination):', {
+    categoryItems: category.items.length,
+    pageItems: pageItems.length,
+    itemsMatch: category.items.length === pageItems.length
+  });
   
   // Calculate available space
   const headerHeight = 100;
@@ -351,8 +350,11 @@ export async function generateCardBasedCategoryPng(
   const finalCardWidth = singleCardWidth;
   const cardX = (pageWidth - finalCardWidth) / 2;
   
+  console.log('🖼️ Drawing treatment cards:');
   pageItems.forEach((item, index) => {
     const cardHeight = cardHeights[index];
+    
+    console.log(`  ➤ Drawing card ${index + 1}/${pageItems.length}: "${item.name}" at Y=${currentY}, height=${cardHeight}`);
     
     drawSmartTreatmentCard(
       ctx,
@@ -366,6 +368,13 @@ export async function generateCardBasedCategoryPng(
     );
     
     currentY += cardHeight + 10; // Consistent margin
+    console.log(`    ✅ Card drawn, next Y position: ${currentY}`);
+  });
+  
+  console.log('🎯 Final rendering complete:', {
+    totalCardsDrawn: pageItems.length,
+    finalYPosition: currentY,
+    canvasHeight: pageHeight
   });
   
   // Convert to blob with proper scaling
