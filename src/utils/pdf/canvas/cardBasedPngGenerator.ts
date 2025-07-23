@@ -516,7 +516,49 @@ export async function generateCardBasedCategoryPages(
   category: PriceCategory,
   config: PngGenerationConfig = DEFAULT_CONFIG
 ): Promise<Blob[]> {
-  const renderConfig = { ...RENDER_CONFIG };
+  console.log('📖 =================================');
+  console.log('📖 GENERATING PAGINATED CATEGORY PNG');
+  console.log('📖 =================================');
+  console.log('📝 Category:', category.title);
+  console.log('📝 Total items:', category.items.length);
+  
+  // Determine quality mode based on config or default to aesthetic
+  const qualityMode = (config as any).qualityMode || 'aesthetic';
+  console.log('📝 Quality mode:', qualityMode);
+  
+  // Calculate optimal font sizes for ALL items in the category (same as single page generator)
+  const fontConfig = calculateOptimalFontSizes(
+    category.items.length,
+    qualityMode,
+    config.canvasHeight || 1920
+  );
+  
+  console.log('🔧 Font configuration:', fontConfig);
+  
+  const renderConfig = { 
+    ...RENDER_CONFIG,
+    scale: config.scale || RENDER_CONFIG.scale,
+    cardDimensions: {
+      ...RENDER_CONFIG.cardDimensions,
+      width: config.canvasWidth ? config.canvasWidth * 0.9 : RENDER_CONFIG.cardDimensions.width,
+      padding: config.padding || RENDER_CONFIG.cardDimensions.padding,
+      margin: Math.round((config.padding || 20) * 1.2),
+    }
+  };
+
+  // Apply font adjustment based on item count (same logic as single page generator)
+  const adjustedFontConfig = {
+    ...fontConfig,
+    treatmentName: Math.max(24, fontConfig.treatmentName - Math.floor(category.items.length / 10)),
+    description: Math.max(18, fontConfig.description - Math.floor(category.items.length / 12)),
+    price: Math.max(22, fontConfig.price - Math.floor(category.items.length / 12))
+  };
+  
+  const adjustedPadding = Math.max(15, renderConfig.cardDimensions.padding - Math.floor(category.items.length / 8));
+  
+  console.log('🔧 Adjusted font config:', adjustedFontConfig);
+  console.log('🔧 Adjusted padding:', adjustedPadding);
+  
   const maxPageHeight = 1920; // Instagram Stories height
   const headerHeight = 150; // Header with title and branding
   const footerHeight = 100; // Footer with clinic info
@@ -526,10 +568,18 @@ export async function generateCardBasedCategoryPages(
   const tempCanvas = document.createElement('canvas');
   const tempCtx = tempCanvas.getContext('2d')!;
   
-  // Calculate card heights
-  const cardHeights = category.items.map(item => 
-    calculateCardHeight(tempCtx, item, renderConfig)
-  );
+  // Calculate card heights using smart calculation (same as rendering)
+  const cardHeights = category.items.map(item => {
+    const height = calculateSmartCardHeight(
+      tempCtx, 
+      item, 
+      adjustedFontConfig,
+      renderConfig.cardDimensions.width,
+      adjustedPadding
+    );
+    console.log(`📏 Item "${item.name}" calculated height: ${height}px`);
+    return height;
+  });
   
   // Split items into pages
   const pages: { items: PriceItem[], heights: number[] }[] = [];
@@ -540,8 +590,13 @@ export async function generateCardBasedCategoryPages(
   category.items.forEach((item, index) => {
     const cardHeight = cardHeights[index] + renderConfig.cardDimensions.margin * renderConfig.scale;
     
+    console.log(`📄 Checking item ${index + 1}: "${item.name}"`);
+    console.log(`   Card height: ${cardHeight}px, Current page height: ${currentPageHeight}px`);
+    console.log(`   Available height: ${availableHeight}px, Would exceed: ${currentPageHeight + cardHeight > availableHeight}`);
+    
     if (currentPageHeight + cardHeight > availableHeight && currentPageItems.length > 0) {
       // Start new page
+      console.log(`📄 Starting new page. Current page has ${currentPageItems.length} items.`);
       pages.push({ items: [...currentPageItems], heights: [...currentPageHeights] });
       currentPageItems = [item];
       currentPageHeights = [cardHeights[index]];
@@ -554,8 +609,17 @@ export async function generateCardBasedCategoryPages(
   });
   
   if (currentPageItems.length > 0) {
+    console.log(`📄 Final page has ${currentPageItems.length} items.`);
     pages.push({ items: currentPageItems, heights: currentPageHeights });
   }
+  
+  console.log(`📖 Total pages created: ${pages.length}`);
+  pages.forEach((page, index) => {
+    console.log(`📄 Page ${index + 1}: ${page.items.length} items`);
+    page.items.forEach((item, itemIndex) => {
+      console.log(`   ${itemIndex + 1}. ${item.name}`);
+    });
+  });
   
   // Generate PNG for each page
   const blobs: Blob[] = [];
@@ -568,9 +632,12 @@ export async function generateCardBasedCategoryPages(
       items: page.items,
     };
     
+    console.log(`🎨 Generating PNG for page ${pageIndex + 1}/${pages.length} with ${page.items.length} items`);
     const blob = await generateCardBasedCategoryPng(pageCategory, config);
     blobs.push(blob);
+    console.log(`✅ Page ${pageIndex + 1} generated successfully`);
   }
   
+  console.log(`📖 All ${blobs.length} page blobs generated successfully!`);
   return blobs;
 }
