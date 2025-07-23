@@ -319,8 +319,8 @@ export function getSmartPaginationConfig(
     case 'maxItems':
       return {
         ...baseConfig,
-        maxItemsPerPage: 30,
-        preferredItemsPerPage: 20,
+        maxItemsPerPage: 15, // Restored to realistic value
+        preferredItemsPerPage: 12, // Restored to realistic value
         headerHeight: 130, // Optimized header height
         footerHeight: 40
       };

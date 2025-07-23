@@ -168,7 +168,7 @@ function drawSmartTreatmentCard(
     2
   );
   
-  let currentY = y + cardDimensions.padding;
+  let currentY = y + cardDimensions.padding * 1.6; // Synchronized with calculateSmartCardHeight
   
   // Draw treatment name (bold, dynamic size)
   ctx.fillStyle = colors.text;
@@ -178,11 +178,11 @@ function drawSmartTreatmentCard(
   const nameLines = wrapTextSmart(ctx, item.name, width - cardDimensions.padding * 2);
   nameLines.forEach(line => {
     ctx.fillText(line, x + cardDimensions.padding, currentY);
-    currentY += fontConfig.treatmentName * 1.4;
+    currentY += fontConfig.treatmentName * 1.1; // Synchronized with calculateSmartCardHeight
   });
   
   // Space between name and price
-  currentY += 12;
+  currentY += 8; // Synchronized with calculateSmartCardHeight
   
   // Draw price (prominent, colored, dynamic size)
   ctx.fillStyle = colors.price;
@@ -191,11 +191,11 @@ function drawSmartTreatmentCard(
   
   const price = item.price.includes('zł') ? item.price : `${item.price} zł`;
   ctx.fillText(price, x + width - cardDimensions.padding, currentY);
-  currentY += fontConfig.price * 1.4;
+  currentY += fontConfig.price * 1.1; // Synchronized with calculateSmartCardHeight
   
   // Draw description (dynamic size)
   if (item.description) {
-    currentY += 16; // Space before description
+    currentY += 12; // Synchronized with calculateSmartCardHeight
     
     ctx.fillStyle = colors.secondary;
     ctx.font = `400 ${fontConfig.description}px system-ui, -apple-system, sans-serif`;
@@ -204,7 +204,7 @@ function drawSmartTreatmentCard(
     const descLines = wrapTextSmart(ctx, item.description, width - cardDimensions.padding * 2);
     descLines.forEach(line => {
       ctx.fillText(line, x + cardDimensions.padding, currentY);
-      currentY += fontConfig.description * 1.3;
+      currentY += fontConfig.description * 1.1; // Synchronized with calculateSmartCardHeight
     });
   }
 }
