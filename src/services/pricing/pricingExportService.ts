@@ -84,28 +84,35 @@ const downloadSingleCategoryPng = async (category: PriceCategory, quality: 'web'
       const blobs = await generateCategoryPagesAsPng(category, config);
       
       console.log(`Kategoria ${category.title} została podzielona na ${blobs.length} stron`);
-      toast.info(`Kategoria "${category.title}" została podzielona na ${blobs.length} stron ze względu na zawartość`);
+      toast.info(`Kategoria "${category.title}" została podzielona na ${blobs.length} stron. Kliknij każdy link aby pobrać.`);
       
       const date = new Date().toISOString().slice(0, 10);
       
-      // Download each page with delay to prevent browser blocking
-      for (let index = 0; index < blobs.length; index++) {
-        const blob = blobs[index];
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        const suffix = blobs.length > 1 ? `-${index + 1}` : '';
-        link.download = `Zastrzyk-Piekna-${category.title.replace(/\s+/g, '-')}${suffix}-${date}.png`;
-        link.click();
-        URL.revokeObjectURL(url);
-        
-        // Small delay between downloads to prevent browser blocking
-        if (index < blobs.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 500));
-        }
-      }
+      // Create download function for each blob
+      const downloadBlob = (blob: Blob, filename: string, delay: number) => {
+        setTimeout(() => {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = filename;
+          link.style.display = 'none';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          // Clean up URL after a delay
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }, delay);
+      };
       
-      console.log(`Pomyślnie pobrano ${blobs.length} plików PNG dla kategorii: ${category.title}`);
+      // Download each page with increasing delays
+      blobs.forEach((blob, index) => {
+        const suffix = blobs.length > 1 ? `-${index + 1}` : '';
+        const filename = `Zastrzyk-Piekna-${category.title.replace(/\s+/g, '-')}${suffix}-${date}.png`;
+        downloadBlob(blob, filename, index * 1000); // 1 second delay between downloads
+      });
+      
+      console.log(`Zaplanowano pobieranie ${blobs.length} plików PNG dla kategorii: ${category.title}`);
     } else {
       // Generate single PNG for smaller categories
       const blob = await generateSingleCategoryPng(category, config);
