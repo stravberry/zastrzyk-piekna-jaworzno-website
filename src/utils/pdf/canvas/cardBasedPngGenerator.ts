@@ -517,9 +517,9 @@ export async function generateCardBasedCategoryPages(
   config: PngGenerationConfig = DEFAULT_CONFIG
 ): Promise<Blob[]> {
   const renderConfig = { ...RENDER_CONFIG };
-  const maxPageHeight = 1000 * renderConfig.scale; // Maximum page height
-  const headerHeight = 80 * renderConfig.scale;
-  const footerHeight = 40 * renderConfig.scale;
+  const maxPageHeight = 1920; // Instagram Stories height
+  const headerHeight = 150; // Header with title and branding
+  const footerHeight = 100; // Footer with clinic info
   const availableHeight = maxPageHeight - headerHeight - footerHeight;
   
   // Create temporary canvas for measurements

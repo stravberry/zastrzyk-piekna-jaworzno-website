@@ -72,23 +72,47 @@ const downloadSingleCategoryPng = async (category: PriceCategory, quality: 'web'
     console.log('Category:', category.title);
     console.log('Item count:', category.items.length);
     
-    // Use intelligent height-based page splitting instead of fixed item count
-    console.log(`Sprawdzam czy kategoria ${category.title} z ${category.items.length} elementami wymaga podziału`);
-    
     // Get configuration based on quality setting
     const config = getConfigByQuality(quality);
     
-    // Generate single PNG for the entire category
-    const blob = await generateSingleCategoryPng(category, config);
+    // Intelligent splitting decision based on item count
+    const shouldSplit = category.items.length > 8;
+    console.log(`Kategoria ${category.title} z ${category.items.length} elementami ${shouldSplit ? 'wymaga' : 'nie wymaga'} podziału`);
     
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    const date = new Date().toISOString().slice(0, 10);
-    link.download = `Zastrzyk-Piekna-${category.title.replace(/\s+/g, '-')}-${date}.png`;
-    link.click();
-    URL.revokeObjectURL(url);
-    console.log(`Pomyślnie pobrano PNG dla kategorii: ${category.title}`);
+    if (shouldSplit) {
+      // Use page splitting for large categories
+      const blobs = await generateCategoryPagesAsPng(category, config);
+      
+      console.log(`Kategoria ${category.title} została podzielona na ${blobs.length} stron`);
+      toast.info(`Kategoria "${category.title}" została podzielona na ${blobs.length} stron ze względu na zawartość`);
+      
+      const date = new Date().toISOString().slice(0, 10);
+      
+      // Download each page
+      blobs.forEach((blob, index) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const suffix = blobs.length > 1 ? `-${index + 1}` : '';
+        link.download = `Zastrzyk-Piekna-${category.title.replace(/\s+/g, '-')}${suffix}-${date}.png`;
+        link.click();
+        URL.revokeObjectURL(url);
+      });
+      
+      console.log(`Pomyślnie pobrano ${blobs.length} plików PNG dla kategorii: ${category.title}`);
+    } else {
+      // Generate single PNG for smaller categories
+      const blob = await generateSingleCategoryPng(category, config);
+      
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const date = new Date().toISOString().slice(0, 10);
+      link.download = `Zastrzyk-Piekna-${category.title.replace(/\s+/g, '-')}-${date}.png`;
+      link.click();
+      URL.revokeObjectURL(url);
+      console.log(`Pomyślnie pobrano PNG dla kategorii: ${category.title}`);
+    }
   } catch (error) {
     console.error(`Błąd Canvas API dla kategorii ${category.title}, używam fallback:`, error);
     
@@ -284,12 +308,22 @@ export const exportPricingToPng = async (categoryId?: string, quality: 'web' | '
         // Get configuration based on quality setting
         const config = getConfigByQuality(quality);
         
-        // Generate single PNG for the entire category
-        const blob = await generateSingleCategoryPng(targetCategory, config);
-        const date = new Date().toISOString().slice(0, 10);
+        // Intelligent splitting decision for single category export
+        const shouldSplit = targetCategory.items.length > 8;
         
-        // Return the single blob
-        return blob;
+        if (shouldSplit) {
+          // Use page splitting for large categories
+          const blobs = await generateCategoryPagesAsPng(targetCategory, config);
+          console.log(`Single category export: ${targetCategory.title} podzielone na ${blobs.length} stron`);
+          toast.info(`Kategoria "${targetCategory.title}" została podzielona na ${blobs.length} stron`);
+          
+          // Return first blob for API compatibility
+          return blobs[0];
+        } else {
+          // Generate single PNG for smaller categories
+          const blob = await generateSingleCategoryPng(targetCategory, config);
+          return blob;
+        }
       } catch (error) {
         console.error('Canvas API failed, using html2canvas fallback:', error);
         
