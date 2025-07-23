@@ -1,12 +1,19 @@
-// Main canvas PNG generator exports
+// Unified PNG generator exports with improved quality and spacing
 
 import { PriceCategory } from "@/components/pricing/PriceCard";
 
-// Import new simplified generators
+// Use improved generators as primary exports
 export { 
-  generateSimpleFullPricingPng as generateFullPricingPng,
-  generateSimpleCategoryPng as generateSingleCategoryPng,
-  generateSimpleCategoryPagesAsPng as generateCategoryPagesAsPng
+  generateImprovedFullPricingPng as generateFullPricingPng,
+  generateImprovedCategoryPng as generateSingleCategoryPng,
+  generateImprovedCategoryPages as generateCategoryPagesAsPng
+} from './improvedPngGenerator';
+
+// Legacy exports for backward compatibility
+export { 
+  generateSimpleFullPricingPng,
+  generateSimpleCategoryPng,
+  generateSimpleCategoryPagesAsPng
 } from './simplePngGenerator';
 
 // Keep utility exports

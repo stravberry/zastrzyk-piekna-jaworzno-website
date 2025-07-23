@@ -7,16 +7,10 @@ import { generatePricingPdf, generatePricingPdfFromHtml } from "@/utils/pdf";
 import { generateFullPricingPng, generateSingleCategoryPng, generateCategoryPagesAsPng } from "@/utils/pdf/canvas";
 import { toast } from "sonner";
 
-// Simple and reliable font preloading - removed Google Fonts for better compatibility
-const preloadFonts = async (): Promise<void> => {
-  try {
-    console.log('Przygotowywanie fontów systemowych...');
-    // Just ensure system fonts are ready - no need for complex loading
-    await new Promise(r => setTimeout(r, 100));
-    console.log('Fonty systemowe gotowe');
-  } catch (error) {
-    console.error('Błąd podczas przygotowania fontów:', error);
-  }
+// Improved font handling - no preloading needed with system fonts
+const ensureSystemFonts = (): void => {
+  // System fonts are always available, no loading required
+  console.log('Używanie niezawodnych fontów systemowych');
 };
 
 // Export pricing data as PDF
@@ -77,12 +71,15 @@ const downloadSingleCategoryPng = async (category: PriceCategory): Promise<void>
     console.log('Category:', category.title);
     console.log('Item count:', category.items.length);
     
-    if (category.items.length > 7) { // Changed from 8 to 7
-      console.log(`Kategoria ${category.title} ma ${category.items.length} elementów, dzielę na strony`);
-      toast.info(`Kategoria "${category.title}" zostanie podzielona na strony ze względu na dużą liczbę elementów`);
-      
-      // Use multi-page generator
-      const blobs = await generateCategoryPagesAsPng(category);
+    // Use intelligent height-based page splitting instead of fixed item count
+    console.log(`Sprawdzam czy kategoria ${category.title} z ${category.items.length} elementami wymaga podziału`);
+    
+    // Always try to generate and let the improved generator decide on splitting
+    const blobs = await generateCategoryPagesAsPng(category);
+    
+    if (blobs.length > 1) {
+      console.log(`Kategoria ${category.title} została podzielona na ${blobs.length} stron`);
+      toast.info(`Kategoria "${category.title}" została podzielona na ${blobs.length} stron ze względu na zawartość`);
       const date = new Date().toISOString().slice(0, 10);
       
       // Download each page
@@ -90,15 +87,16 @@ const downloadSingleCategoryPng = async (category: PriceCategory): Promise<void>
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `Zastrzyk-Piekna-${category.title.replace(/\s+/g, '-')}-${index + 1}-${date}.png`;
+        const suffix = blobs.length > 1 ? `-${index + 1}` : '';
+        link.download = `Zastrzyk-Piekna-${category.title.replace(/\s+/g, '-')}${suffix}-${date}.png`;
         link.click();
         URL.revokeObjectURL(url);
       });
       
       console.log(`Pomyślnie pobrano ${blobs.length} plików PNG dla kategorii: ${category.title}`);
     } else {
-      // Use single-page generator
-      const blob = await generateSingleCategoryPng(category);
+      // This case is now handled above, but kept for safety
+      const blob = blobs[0];
       
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -113,7 +111,7 @@ const downloadSingleCategoryPng = async (category: PriceCategory): Promise<void>
     console.error(`Błąd Canvas API dla kategorii ${category.title}, używam fallback:`, error);
     
     // Fallback to old html2canvas method
-    await preloadFonts();
+    ensureSystemFonts();
     
     const tempContainer = document.createElement('div');
     tempContainer.style.position = 'absolute';
@@ -179,7 +177,7 @@ const downloadFullPricingTablePng = async (categories: PriceCategory[]): Promise
     console.error('Błąd Canvas API dla pełnego cennika, używam fallback:', error);
     
     // Fallback to old html2canvas method
-    await preloadFonts();
+    ensureSystemFonts();
     
     const tempContainer = document.createElement('div');
     tempContainer.style.position = 'absolute';
@@ -286,8 +284,8 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
       
       console.log(`Eksport pojedynczej kategorii: ${targetCategory.title}`);
       
-      // Preload fonts before starting
-      await preloadFonts();
+      // Ensure system fonts are ready
+      ensureSystemFonts();
       
       // Create a temporary container for rendering
       const tempContainer = document.createElement('div');
@@ -298,14 +296,13 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
       document.body.appendChild(tempContainer);
       
       try {
-        // For single category export, handle multi-page downloads manually
-        if (targetCategory.items.length > 7) {
-          console.log(`Single category export: ${targetCategory.title} ma ${targetCategory.items.length} elementów, dzielę na strony`);
-          toast.info(`Kategoria "${targetCategory.title}" zostanie podzielona na strony ze względu na dużą liczbę elementów`);
-          
-          // Use multi-page generator and download all pages
-          const blobs = await generateCategoryPagesAsPng(targetCategory);
-          const date = new Date().toISOString().slice(0, 10);
+        // Use improved generator that handles page splitting automatically
+        const blobs = await generateCategoryPagesAsPng(targetCategory);
+        const date = new Date().toISOString().slice(0, 10);
+        
+        if (blobs.length > 1) {
+          console.log(`Single category export: ${targetCategory.title} podzielone na ${blobs.length} stron`);
+          toast.info(`Kategoria "${targetCategory.title}" została podzielona na ${blobs.length} stron`);
           
           // Download each page for single category export
           blobs.forEach((blob, index) => {
@@ -319,10 +316,10 @@ export const exportPricingToPng = async (categoryId?: string): Promise<Blob> => 
           
           // Return first blob for API compatibility
           return blobs[0];
+        } else {
+          // Single page - return the blob directly
+          return blobs[0];
         }
-        
-        // Use new Canvas API generator for single page
-        return await generateSingleCategoryPng(targetCategory);
       } catch (error) {
         console.error('Canvas API failed, using html2canvas fallback:', error);
         

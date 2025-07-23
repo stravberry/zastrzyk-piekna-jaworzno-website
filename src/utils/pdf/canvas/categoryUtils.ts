@@ -2,9 +2,10 @@
 
 import { PriceCategory } from "@/components/pricing/PriceCard";
 
-// Split category into pages if it has too many items
-export const splitCategoryIntoPages = (category: PriceCategory, maxItemsPerPage: number = 7): PriceCategory[] => {
-  console.log('=== CATEGORY SPLITTING ===');
+// Legacy function - kept for compatibility
+// The improved generator handles splitting automatically based on content height
+export const splitCategoryIntoPages = (category: PriceCategory, maxItemsPerPage: number = 6): PriceCategory[] => {
+  console.log('=== LEGACY CATEGORY SPLITTING (fallback) ===');
   console.log('Category name:', category.title);
   console.log('Total items:', category.items.length);
   console.log('Max items per page:', maxItemsPerPage);
