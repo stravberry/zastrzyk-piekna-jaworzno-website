@@ -51,8 +51,8 @@ const Navbar = () => {
     <header
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-white shadow-md py-2"
-          : "bg-white/80 backdrop-blur-sm py-4"
+          ? "bg-white shadow-md"
+          : "bg-white/80 backdrop-blur-sm"
       }`}
     >
       <div className="container-custom flex items-center justify-between">
@@ -64,7 +64,7 @@ const Navbar = () => {
           <img 
             src="/lovable-uploads/804508f2-6a41-40ba-9bcb-9badecb67a15.png" 
             alt="Zastrzyk Piękna — logo gabinetu" 
-            className="h-16 md:h-24"
+            className="h-24 md:h-32"
             loading="eager"
             decoding="async"
             fetchPriority="high"
