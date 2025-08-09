@@ -2,10 +2,11 @@
 import React, { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ShieldCheck, Star, Leaf } from "lucide-react";
 import { useScrollTo } from "@/hooks/useScrollTo";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import AnimatedBackground from "@/components/hero/AnimatedBackground";
+import VideoLite from "@/components/media/VideoLite";
 
 const HeroSection = () => {
   const servicesRef = useRef<HTMLDivElement>(null);
@@ -32,6 +33,7 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/20"></div>
         <div className="absolute -top-20 -right-20 w-[40rem] h-[40rem] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(244,114,182,0.15),transparent_60%)] blur-3xl"></div>
         <div className="absolute -bottom-32 -left-24 w-[36rem] h-[36rem] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(234,179,8,0.12),transparent_60%)] blur-3xl"></div>
+        <div className="absolute inset-0 opacity-10 [background-image:radial-gradient(circle,_rgba(248,60,134,0.3)_1px,transparent_1px)] [background-size:18px_18px]" aria-hidden="true"></div>
       </div>
       
       {/* Animated 3D Background */}
@@ -41,12 +43,12 @@ const HeroSection = () => {
         {/* Left side content */}
         <div className="flex flex-col items-start text-left space-y-6 mb-10 lg:mb-0">
           <div
-            className={`text-xs md:text-sm tracking-[0.2em] uppercase text-pink-500/90 transition-all duration-1000 ${
+            className={`inline-flex items-center gap-2 rounded-full border border-pink-100 bg-white/70 backdrop-blur px-3 py-1 text-xs md:text-sm tracking-[0.2em] uppercase text-pink-600 transition-all duration-1000 ${
               isTitleVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
             }`}
-            aria-label="Gabinet kosmetologii"
           >
-            Gabinet kosmetologii
+            <span className="size-1.5 rounded-full bg-pink-500" aria-hidden="true"></span>
+            <span aria-label="Gabinet kosmegologii">Gabinet kosmegologii</span>
           </div>
           <h1 
             ref={titleRef} 
@@ -56,6 +58,12 @@ const HeroSection = () => {
           >
             Gabinet kosmetologii Jaworzno
           </h1>
+          <div
+            className={`h-1 w-28 rounded-full bg-gold-400/90 transition-all duration-1000 ${
+              isTitleVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+            }`}
+            aria-hidden="true"
+          ></div>
           
           <p 
             ref={descriptionRef} 
@@ -84,6 +92,27 @@ const HeroSection = () => {
               </Link>
             </Button>
           </div>
+
+          {/* Trust badges */}
+          <div 
+            className={`flex flex-wrap items-center gap-3 md:gap-4 transition-all duration-1000 delay-350 ${
+              isButtonsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+            }`}
+            aria-label="Atuty gabinetu"
+          >
+            <div className="inline-flex items-center gap-2 rounded-full border border-pink-100 bg-white/80 px-3 py-1 text-sm text-gray-700">
+              <ShieldCheck className="w-4 h-4 text-pink-500" aria-hidden="true" />
+              Bezpieczeństwo zabiegów
+            </div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-pink-100 bg-white/80 px-3 py-1 text-sm text-gray-700">
+              <Star className="w-4 h-4 text-pink-500" aria-hidden="true" />
+              Certyfikowane preparaty
+            </div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-pink-100 bg-white/80 px-3 py-1 text-sm text-gray-700">
+              <Leaf className="w-4 h-4 text-pink-500" aria-hidden="true" />
+              Naturalne efekty
+            </div>
+          </div>
           
           <div 
             ref={statsRef} 
@@ -109,17 +138,8 @@ const HeroSection = () => {
             isVideoVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-20"
           }`}
         >
-          <div className="w-full h-full min-h-[300px] bg-gray-100 rounded-lg shadow-md overflow-hidden">
-            <div className="w-full h-full flex items-center justify-center">
-              <iframe 
-                className="w-full h-[300px] md:h-[350px]" 
-                src="https://www.youtube.com/embed/bUmHTcIdrmk?si=3uuNuaWxzCmSr0KJ" 
-                title="Zastrzyk Piękna - Gabinet kosmetologiczny" 
-                loading="lazy"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowFullScreen
-              />
-            </div>
+          <div className="w-full h-full min-h-[300px] bg-white/80 backdrop-blur-sm rounded-lg shadow-md overflow-hidden border border-pink-100">
+            <VideoLite videoId="bUmHTcIdrmk" title="Zastrzyk Piękna - Gabinet kosmetologii" />
           </div>
         </div>
       </div>
