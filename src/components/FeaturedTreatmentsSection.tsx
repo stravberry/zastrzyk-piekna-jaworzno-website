@@ -56,7 +56,7 @@ const FeaturedTreatmentsSection = () => {
             {treatments.map((treatment) => (
               <div
                 key={treatment.id}
-                className={`group bg-card border border-border rounded-xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative ${
+                className={`group relative h-full overflow-hidden rounded-xl border border-primary/10 bg-card/80 backdrop-blur-sm p-8 shadow-sm hover:shadow-md hover:border-primary/30 hover:-translate-y-1 transition-all duration-300 ${
                   isVisible ? `animate-slide-up ${treatment.delay}` : ""
                 }`}
               >
@@ -69,7 +69,7 @@ const FeaturedTreatmentsSection = () => {
                 </div>
                 {/* Icon */}
                 <div className="mb-6">
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors duration-300">
+                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 text-primary ring-1 ring-primary/15 group-hover:bg-primary/15 transition-colors duration-300">
                     {treatment.icon}
                   </div>
                 </div>

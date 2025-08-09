@@ -19,16 +19,16 @@ const ServiceCard = ({ title, description, icon, link }: ServiceCardProps) => {
   const linkText = title === "Peelingi chemiczne" ? "Zobacz cennik" : "Dowiedz się więcej";
 
   return (
-    <Card className="group relative h-full overflow-hidden border border-primary/10 bg-card/80 backdrop-blur-sm shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-primary/30">
+    <Card className="group relative h-full overflow-hidden rounded-xl border border-primary/10 bg-card/80 backdrop-blur-sm shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-primary/30 hover:bg-card/90">
       <CardHeader className="pb-4">
-        <div className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary shadow-sm">
+        <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary ring-1 ring-primary/15 shadow-sm transition-colors">
           {/* Ikona */}
-          <span className="[&_svg]:h-6 [&_svg]:w-6">{icon}</span>
+          <span className="[&_svg]:h-7 [&_svg]:w-7">{icon}</span>
         </div>
-        <CardTitle className="font-playfair text-xl">
+        <CardTitle className="font-playfair text-2xl transition-colors group-hover:text-primary">
           {displayTitle}
         </CardTitle>
-        <span className="mt-2 block h-px w-12 bg-primary/20" aria-hidden="true" />
+        <span className="mt-3 block h-px w-16 bg-primary/20" aria-hidden="true" />
       </CardHeader>
       <CardContent className="flex h-full flex-col">
         <CardDescription className="text-base text-muted-foreground">
