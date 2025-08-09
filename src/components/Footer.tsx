@@ -12,9 +12,11 @@ const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center">
               <img 
-                src="/lovable-uploads/3b19512b-b68a-4530-ac22-e8c824bf3cf3.png" 
-                alt="Zastrzyk Piękna - Logo" 
+                src="/lovable-uploads/804508f2-6a41-40ba-9bcb-9badecb67a15.png" 
+                alt="Zastrzyk Piękna — logo gabinetu" 
                 className="h-16 mb-2"
+                loading="lazy"
+                decoding="async"
               />
             </div>
             <p className="text-gray-600 text-sm">
