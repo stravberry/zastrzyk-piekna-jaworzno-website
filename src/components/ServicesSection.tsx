@@ -63,11 +63,11 @@ const ServicesSection = () => {
  Do każdego przypadku podchodzę holistyczne, a terapie zabiegowe tworzę indywidualnie w oparciu o dogłębny wywiad, aktualna wiedze oraz najnowocześniejsze rozwiązania</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
           {services.map((service, index) => (
             <div 
               key={service.id}
-              className="transition-all duration-700"
+              className="transition-all duration-700 animate-fade-in will-change-transform"
               style={{ 
                 transitionDelay: `${index * 100}ms`,
                 opacity: isHeaderVisible ? 1 : 0,
