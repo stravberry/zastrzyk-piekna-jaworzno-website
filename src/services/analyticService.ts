@@ -15,7 +15,7 @@ export const initDataLayer = () => {
     timestamp: new Date().toISOString()
   });
   
-  console.log('Analytics data layer initialized with GTM enhancements');
+  
 };
 
 export const trackPageView = (path: string, title: string) => {
@@ -35,7 +35,7 @@ export const trackPageView = (path: string, title: string) => {
       }
     });
     
-    console.log(`Page view tracked: ${path}`);
+    
   } catch (error) {
     console.error('Error tracking page view:', error);
   }
@@ -54,7 +54,7 @@ export const trackEvent = (category: string, action: string, label?: string, val
       page_location: window.location.href
     });
     
-    console.log(`Event tracked: ${category} / ${action} / ${label || 'N/A'} / ${value || 'N/A'}`);
+    
   } catch (error) {
     console.error('Error tracking event:', error);
   }
@@ -71,7 +71,7 @@ export const trackConversion = (conversionType: string, conversionValue?: number
       timestamp: new Date().toISOString()
     });
     
-    console.log(`Conversion tracked: ${conversionType}, value: ${conversionValue} ${conversionCurrency}`);
+    
   } catch (error) {
     console.error('Error tracking conversion:', error);
   }
@@ -86,7 +86,7 @@ export const trackFormSubmission = (formName: string, formData?: any) => {
       timestamp: new Date().toISOString()
     });
     
-    console.log(`Form submission tracked: ${formName}`);
+    
   } catch (error) {
     console.error('Error tracking form submission:', error);
   }
@@ -101,7 +101,7 @@ export const trackScrollDepth = (percentage: number) => {
       timestamp: new Date().toISOString()
     });
     
-    console.log(`Scroll depth tracked: ${percentage}%`);
+    
   } catch (error) {
     console.error('Error tracking scroll depth:', error);
   }
@@ -116,7 +116,7 @@ export const trackTimeOnPage = (timeInSeconds: number) => {
       timestamp: new Date().toISOString()
     });
     
-    console.log(`Time on page tracked: ${timeInSeconds}s`);
+    
   } catch (error) {
     console.error('Error tracking time on page:', error);
   }
@@ -131,7 +131,7 @@ export const trackUserEngagement = (engagementType: string, engagementValue?: st
       timestamp: new Date().toISOString()
     });
     
-    console.log(`User engagement tracked: ${engagementType}`);
+    
   } catch (error) {
     console.error('Error tracking user engagement:', error);
   }
@@ -154,7 +154,7 @@ export const trackServiceView = (serviceName: string, serviceCategory: string, s
       timestamp: new Date().toISOString()
     });
     
-    console.log(`Service view tracked: ${serviceName}`);
+    
   } catch (error) {
     console.error('Error tracking service view:', error);
   }
@@ -169,7 +169,7 @@ export const trackServiceInterest = (serviceName: string, actionType: string) =>
       timestamp: new Date().toISOString()
     });
     
-    console.log(`Service interest tracked: ${serviceName} - ${actionType}`);
+    
   } catch (error) {
     console.error('Error tracking service interest:', error);
   }

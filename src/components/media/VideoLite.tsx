@@ -4,17 +4,17 @@ interface VideoLiteProps {
   videoId: string;
   title?: string;
   className?: string;
+  posterSrc?: string;
 }
 
 /**
  * Lightweight YouTube embed: shows a thumbnail with play button, loads iframe on click
  */
-const VideoLite: React.FC<VideoLiteProps> = ({ videoId, title = "YouTube video", className = "" }) => {
+const VideoLite: React.FC<VideoLiteProps> = ({ videoId, title = "YouTube video", className = "", posterSrc = "/placeholder.svg" }) => {
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const thumbnailUrl = useMemo(() => `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`, [videoId]);
-  const iframeSrc = useMemo(
-    () => `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`,
+const iframeSrc = useMemo(
+    () => `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`,
     [videoId]
   );
 
@@ -26,6 +26,7 @@ const VideoLite: React.FC<VideoLiteProps> = ({ videoId, title = "YouTube video",
           src={iframeSrc}
           title={title}
           loading="lazy"
+          referrerPolicy="strict-origin-when-cross-origin"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowFullScreen
         />
@@ -42,7 +43,7 @@ const VideoLite: React.FC<VideoLiteProps> = ({ videoId, title = "YouTube video",
     >
       {/* Thumbnail */}
       <img
-        src={thumbnailUrl}
+        src={posterSrc}
         alt={title}
         className="absolute inset-0 w-full h-full object-cover"
         loading="lazy"

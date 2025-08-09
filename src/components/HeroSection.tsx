@@ -8,10 +8,12 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import AnimatedBackground from "@/components/hero/AnimatedBackground";
 import VideoLite from "@/components/media/VideoLite";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const HeroSection = () => {
   const servicesRef = useRef<HTMLDivElement>(null);
   const { scrollToRef } = useScrollTo();
+  const isMobile = useIsMobile();
 
   // Create refs for animation elements
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -132,19 +134,21 @@ const HeroSection = () => {
           </div>
         </div>
         
-        {/* Right side video */}
-        <div 
-          ref={videoRef} 
-          className={`hidden sm:flex items-center justify-center transition-all duration-1000 delay-500 ${
-            isVideoVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-20"
-          }`}
-        >
-          <div className="w-full bg-white/80 backdrop-blur-sm rounded-lg shadow-md overflow-hidden border border-pink-100">
-            <AspectRatio ratio={16 / 9}>
-              <VideoLite videoId="bUmHTcIdrmk" title="Zastrzyk Piękna - Gabinet kosmetologii" className="w-full h-full" />
-            </AspectRatio>
-          </div>
-        </div>
+{/* Right side video */}
+{!isMobile && (
+  <div 
+    ref={videoRef} 
+    className={`hidden sm:flex items-center justify-center transition-all duration-1000 delay-500 ${
+      isVideoVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-20"
+    }`}
+  >
+    <div className="w-full bg-white/80 backdrop-blur-sm rounded-lg shadow-md overflow-hidden border border-pink-100">
+      <AspectRatio ratio={16 / 9}>
+        <VideoLite videoId="bUmHTcIdrmk" title="Zastrzyk Piękna - Gabinet kosmetologii" className="w-full h-full" />
+      </AspectRatio>
+    </div>
+  </div>
+)}
       </div>
       
       {/* Scroll hint */}
