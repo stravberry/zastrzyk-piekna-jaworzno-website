@@ -56,7 +56,7 @@ const FeaturedTreatmentsSection = () => {
             {treatments.map((treatment) => (
               <div
                 key={treatment.id}
-                className={`group relative h-full overflow-hidden rounded-xl border border-primary/10 bg-card/80 backdrop-blur-sm p-8 shadow-sm hover:shadow-md hover:border-primary/30 hover:-translate-y-1 transition-all duration-300 ${
+                className={`group relative h-full overflow-visible rounded-xl border border-primary/10 bg-card/80 backdrop-blur-sm p-8 shadow-sm hover:shadow-md hover:border-primary/30 hover:-translate-y-1 transition-all duration-300 ${
                   isVisible ? `animate-slide-up ${treatment.delay}` : ""
                 }`}
               >
