@@ -1,20 +1,19 @@
 
-import React, { useRef, useEffect, lazy, Suspense } from "react";
+import React, { useRef, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
 import ServicesSection from "@/components/ServicesSection";
 import AboutSection from "@/components/AboutSection";
+import TestimonialsSection from "@/components/TestimonialsSection";
 import CTASection from "@/components/CTASection";
+import InstagramSection from "@/components/InstagramSection";
 import FeaturedTreatmentsSection from "@/components/FeaturedTreatmentsSection";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useScrollTracking } from "@/hooks/useScrollTracking";
 import { useClickTracking } from "@/hooks/useClickTracking";
 import { useAdvancedTracking } from "@/hooks/useAdvancedTracking";
-
-const LazyTestimonialsSection = lazy(() => import("@/components/TestimonialsSection"));
-const LazyInstagramSection = lazy(() => import("@/components/InstagramSection"));
 
 const Index = () => {
   const servicesRef = useRef<HTMLDivElement>(null);
@@ -107,11 +106,7 @@ const Index = () => {
             isTestimonialsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}
         >
-          {isTestimonialsVisible && (
-            <Suspense fallback={<div className="h-64" aria-busy="true" />}> 
-              <LazyTestimonialsSection />
-            </Suspense>
-          )}
+          <TestimonialsSection />
         </div>
         <div 
           ref={instagramRef}
@@ -119,11 +114,7 @@ const Index = () => {
             isInstagramVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}
         >
-          {isInstagramVisible && (
-            <Suspense fallback={<div className="h-64" aria-busy="true" />}> 
-              <LazyInstagramSection />
-            </Suspense>
-          )}
+          <InstagramSection />
         </div>
         <div 
           ref={ctaRef}

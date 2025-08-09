@@ -8,12 +8,10 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import AnimatedBackground from "@/components/hero/AnimatedBackground";
 import VideoLite from "@/components/media/VideoLite";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 const HeroSection = () => {
   const servicesRef = useRef<HTMLDivElement>(null);
   const { scrollToRef } = useScrollTo();
-  const isMobile = useIsMobile();
 
   // Create refs for animation elements
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -31,7 +29,7 @@ const HeroSection = () => {
 
   return (
     <header className="relative min-h-[90vh] flex items-center justify-center bg-gradient-to-r from-pink-50 to-white overflow-hidden pt-24 md:pt-32 pb-14">
-      
+      <div className="absolute inset-0 z-0 opacity-20 bg-[url('/images/hero-pattern.jpg')] bg-cover bg-center" aria-hidden="true"></div>
       <div className="absolute inset-0 z-10 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/20"></div>
         <div className="absolute -top-20 -right-20 w-[40rem] h-[40rem] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(244,114,182,0.15),transparent_60%)] blur-3xl"></div>
@@ -134,21 +132,19 @@ const HeroSection = () => {
           </div>
         </div>
         
-{/* Right side video */}
-{!isMobile && (
-  <div 
-    ref={videoRef} 
-    className={`hidden sm:flex items-center justify-center transition-all duration-1000 delay-500 ${
-      isVideoVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-20"
-    }`}
-  >
-    <div className="w-full bg-white/80 backdrop-blur-sm rounded-lg shadow-md overflow-hidden border border-pink-100">
-      <AspectRatio ratio={16 / 9}>
-        <VideoLite videoId="bUmHTcIdrmk" title="Zastrzyk Piękna - Gabinet kosmetologii" className="w-full h-full" />
-      </AspectRatio>
-    </div>
-  </div>
-)}
+        {/* Right side video */}
+        <div 
+          ref={videoRef} 
+          className={`hidden sm:flex items-center justify-center transition-all duration-1000 delay-500 ${
+            isVideoVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-20"
+          }`}
+        >
+          <div className="w-full bg-white/80 backdrop-blur-sm rounded-lg shadow-md overflow-hidden border border-pink-100">
+            <AspectRatio ratio={16 / 9}>
+              <VideoLite videoId="bUmHTcIdrmk" title="Zastrzyk Piękna - Gabinet kosmetologii" className="w-full h-full" />
+            </AspectRatio>
+          </div>
+        </div>
       </div>
       
       {/* Scroll hint */}

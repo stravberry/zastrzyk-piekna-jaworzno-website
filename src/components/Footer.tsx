@@ -15,8 +15,6 @@ const Footer = () => {
                 src="/lovable-uploads/804508f2-6a41-40ba-9bcb-9badecb67a15.png" 
                 alt="Zastrzyk Piękna — logo gabinetu" 
                 className="h-16 mb-2"
-                width="512"
-                height="512"
                 loading="lazy"
                 decoding="async"
               />

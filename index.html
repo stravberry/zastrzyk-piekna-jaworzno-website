@@ -1,35 +1,14 @@
 <!DOCTYPE html>
 <html lang="pl">
   <head>
-    <!-- Deferred GTM + Consent Mode v2 -->
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S0VTTJ61DH"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){ window.dataLayer.push(arguments); }
-      // Consent defaults: deny ads, allow basic analytics
-      gtag('consent', 'default', {
-        ad_storage: 'denied',
-        ad_user_data: 'denied',
-        ad_personalization: 'denied',
-        analytics_storage: 'granted'
-      });
-      (function(){
-        var loaded = false;
-        function loadGTM(){
-          if(loaded) return; loaded = true;
-          var s = document.createElement('script');
-          s.async = true;
-          s.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-KSDBNZN4';
-          document.head.appendChild(s);
-        }
-        ['click','scroll','keydown','mousemove','touchstart'].forEach(function(evt){
-          window.addEventListener(evt, loadGTM, { once: true, passive: true });
-        });
-        if ('requestIdleCallback' in window) {
-          requestIdleCallback(loadGTM, { timeout: 3000 });
-        } else {
-          setTimeout(loadGTM, 3000);
-        }
-      })();
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-S0VTTJ61DH');
     </script>
     
     <meta charset="UTF-8" />
@@ -38,35 +17,37 @@
     <meta name="description" content="Gabinet kosmetologii estetycznej Zastrzyk Piękna w Jaworznie. Specjalizujemy się w terapiach przeciwstarzeniowych, modelowaniu ust i makijażu permanentnym brwi. Umów wizytę już dziś!" />
     <meta name="author" content="Anna Gajęcka" />
 
-    <!-- Optimal font loading -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://www.googletagmanager.com">
-    <link rel="preconnect" href="https://img.youtube.com">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
     <meta property="og:title" content="Zastrzyk Piękna - Gabinet Kosmetologii Estetycznej - Anna Gajęcka - Jaworzno" />
     <meta property="og:description" content="Gabinet kosmetologii estetycznej Zastrzyk Piękna w Jaworznie. Specjalizujemy się w terapiach przeciwstarzeniowych, modelowaniu ust i makijażu permanentnym brwi." />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="/lovable-uploads/804508f2-6a41-40ba-9bcb-9badecb67a15.png" />
+    <meta property="og:image" content="/images/hero-pattern.jpg" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="/lovable-uploads/804508f2-6a41-40ba-9bcb-9badecb67a15.png" />
+    <meta name="twitter:image" content="/images/hero-pattern.jpg" />
     
     <!-- Favicon - zmieniamy na literę Z -->
     <link rel="icon" type="image/svg+xml" href="#" id="dynamic-favicon" />
 
-    <!-- GTM is deferred via inline loader above to improve performance -->
-    
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-KSDBNZN4');</script>
+    <!-- End Google Tag Manager -->
+    <link rel="preload" as="image" href="/lovable-uploads/804508f2-6a41-40ba-9bcb-9badecb67a15.png" imagesrcset="/lovable-uploads/804508f2-6a41-40ba-9bcb-9badecb67a15.png" fetchpriority="high" type="image/png" />
   </head>
 
   <body>
-    <!-- GTM noscript removed to avoid early network work; analytics loads after interaction -->
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KSDBNZN4"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
     
     <div id="root"></div>
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
-    
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
