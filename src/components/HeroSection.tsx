@@ -29,7 +29,7 @@ const HeroSection = () => {
 
   return (
     <header className="relative min-h-[90vh] flex items-center justify-center bg-gradient-to-r from-pink-50 to-white overflow-hidden pt-24 md:pt-32 pb-14">
-      <div className="absolute inset-0 z-0 opacity-20 bg-[url('/images/hero-pattern.jpg')] bg-cover bg-center" aria-hidden="true"></div>
+      
       <div className="absolute inset-0 z-10 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/20"></div>
         <div className="absolute -top-20 -right-20 w-[40rem] h-[40rem] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(244,114,182,0.15),transparent_60%)] blur-3xl"></div>
