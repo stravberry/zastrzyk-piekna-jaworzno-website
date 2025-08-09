@@ -46,7 +46,7 @@ const ServicesSection = () => {
     link: "/zabiegi/peelingi-chemiczne"
   }];
 
-  return <section className="section-padding bg-pink-50/50">
+  return <section className="section-padding bg-gradient-to-b from-primary/5 to-transparent">
       <div className="container-custom">
         <div 
           ref={headerRef}
