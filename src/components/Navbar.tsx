@@ -39,7 +39,6 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { name: "Strona Główna", path: "/" },
     { name: "O Mnie", path: "/o-mnie" },
     { name: "Zabiegi", path: "/uslugi" },
     { name: "Cennik", path: "/cennik" },
