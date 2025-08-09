@@ -20,7 +20,7 @@ const VideoLite: React.FC<VideoLiteProps> = ({ videoId, title = "YouTube video",
 
   if (isPlaying) {
     return (
-      <div className={`relative w-full h-[300px] md:h-[350px] ${className}`}>
+      <div className={`relative w-full h-full ${className}`}>
         <iframe
           className="absolute inset-0 w-full h-full"
           src={iframeSrc}
@@ -37,7 +37,7 @@ const VideoLite: React.FC<VideoLiteProps> = ({ videoId, title = "YouTube video",
     <button
       type="button"
       onClick={() => setIsPlaying(true)}
-      className={`group relative w-full h-[300px] md:h-[350px] overflow-hidden ${className}`}
+      className={`group relative w-full h-full overflow-hidden ${className}`}
       aria-label={`Odtwórz wideo: ${title}`}
     >
       {/* Thumbnail */}
