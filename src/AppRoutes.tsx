@@ -1,37 +1,39 @@
 
 import { Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import Services from "./pages/Services";
-import Gallery from "./pages/Gallery";
-import Pricing from "./pages/Pricing";
-import AboutMe from "./pages/AboutMe";
-import Blog from "./pages/Blog";
-import Contact from "./pages/Contact";
-import NotFound from "./pages/NotFound";
-import LipModeling from "./pages/LipModeling";
-import AntiAgingTherapies from "./pages/AntiAgingTherapies";
-import Sculptra from "./pages/Sculptra";
-
-// Admin imports
-import AdminWrapper from "./pages/admin/AdminWrapper";
-import AdminLogin from "./pages/admin/AdminLogin";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminPosts from "./pages/admin/AdminPosts";
-import AdminPostEditor from "./pages/admin/AdminPostEditor";
-import AdminGallery from "./pages/admin/AdminGallery";
-import AdminPricing from "./pages/admin/AdminPricing";
-import AdminContacts from "./pages/admin/AdminContacts";
-import AdminAnalytics from "./pages/admin/AdminAnalytics";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminSecurity from "./pages/admin/AdminSecurity";
-import AdminCodeSettings from "./pages/admin/AdminCodeSettings";
-import AdminCRM from "./pages/admin/AdminCRM";
-import AdminPatientProfile from "./pages/admin/AdminPatientProfile";
-import AdminPatientEdit from "./pages/admin/AdminPatientEdit";
-import AdminEmailTemplates from "./pages/admin/AdminEmailTemplates";
-import AdminAppointments from "./pages/admin/AdminAppointments";
-import AdminAppointmentNew from "./pages/admin/AdminAppointmentNew";
+import { lazy } from "react";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
+
+const Index = lazy(() => import("./pages/Index"));
+const Services = lazy(() => import("./pages/Services"));
+const Gallery = lazy(() => import("./pages/Gallery"));
+const Pricing = lazy(() => import("./pages/Pricing"));
+const AboutMe = lazy(() => import("./pages/AboutMe"));
+const Blog = lazy(() => import("./pages/Blog"));
+const Contact = lazy(() => import("./pages/Contact"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const LipModeling = lazy(() => import("./pages/LipModeling"));
+const AntiAgingTherapies = lazy(() => import("./pages/AntiAgingTherapies"));
+const Sculptra = lazy(() => import("./pages/Sculptra"));
+
+// Admin imports (code-split)
+const AdminWrapper = lazy(() => import("./pages/admin/AdminWrapper"));
+const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminPosts = lazy(() => import("./pages/admin/AdminPosts"));
+const AdminPostEditor = lazy(() => import("./pages/admin/AdminPostEditor"));
+const AdminGallery = lazy(() => import("./pages/admin/AdminGallery"));
+const AdminPricing = lazy(() => import("./pages/admin/AdminPricing"));
+const AdminContacts = lazy(() => import("./pages/admin/AdminContacts"));
+const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
+const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
+const AdminSecurity = lazy(() => import("./pages/admin/AdminSecurity"));
+const AdminCodeSettings = lazy(() => import("./pages/admin/AdminCodeSettings"));
+const AdminCRM = lazy(() => import("./pages/admin/AdminCRM"));
+const AdminPatientProfile = lazy(() => import("./pages/admin/AdminPatientProfile"));
+const AdminPatientEdit = lazy(() => import("./pages/admin/AdminPatientEdit"));
+const AdminEmailTemplates = lazy(() => import("./pages/admin/AdminEmailTemplates"));
+const AdminAppointments = lazy(() => import("./pages/admin/AdminAppointments"));
+const AdminAppointmentNew = lazy(() => import("./pages/admin/AdminAppointmentNew"));
 
 const AppRoutes = () => {
   return (
