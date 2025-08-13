@@ -16,7 +16,7 @@ interface PriceCardItemProps {
 
 export const PriceCardItem: React.FC<PriceCardItemProps> = ({ item, index }) => {
   return (
-    <React.Fragment>
+    <>
       <tr className={index % 2 === 0 ? "bg-white" : "bg-pink-50/30"}>
         <td className="py-4 px-6">
           <div className="flex items-center gap-2 flex-wrap">
@@ -35,7 +35,7 @@ export const PriceCardItem: React.FC<PriceCardItemProps> = ({ item, index }) => 
           </td>
         </tr>
       )}
-    </React.Fragment>
+    </>
   );
 };
 

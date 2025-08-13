@@ -5,6 +5,7 @@ import { useAdmin } from "@/context/AdminContext";
 import { Loader2, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { secureLogger } from "@/utils/secureLogger";
 
 interface AdminProtectedRouteProps {
   requiredRole?: 'admin' | 'editor';
@@ -31,7 +32,7 @@ const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({
       setChecked(true);
       
       if (!isAuthenticated) {
-        console.log('[SECURITY] User not authenticated, redirecting to login');
+        secureLogger.warn('User not authenticated, redirecting to login');
         navigate("/admin/login", { replace: true });
         return;
       }

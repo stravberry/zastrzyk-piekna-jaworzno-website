@@ -11,6 +11,7 @@ import { submitContactForm, ContactFormData } from "@/services/contactService";
 import { toast } from "sonner";
 import { Mail, Send } from "lucide-react";
 import { useAdvancedTracking } from "@/hooks/useAdvancedTracking";
+import { secureLogger } from "@/utils/secureLogger";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Imię musi mieć co najmniej 2 znaki"),
@@ -46,7 +47,7 @@ const ContactForm = () => {
 
   const onSubmit = async (data: ContactFormData) => {
     try {
-      console.log("Submitting form with data:", data);
+      secureLogger.info("Contact form submitted");
       
       // Track form submission attempt
       trackFormInteraction('contact_form_submitted', 'Contact Form', {
@@ -69,7 +70,7 @@ const ContactForm = () => {
         toast.success("Wiadomość została wysłana pomyślnie!");
         form.reset();
       } else {
-        console.error("Form submission failed:", result.message);
+        secureLogger.error("Form submission failed:", result.message);
         
         // Track form error
         trackFormInteraction('contact_form_error', 'Contact Form', {
@@ -79,7 +80,7 @@ const ContactForm = () => {
         toast.error(result.message || "Wystąpił błąd podczas wysyłania wiadomości");
       }
     } catch (error) {
-      console.error("Contact form error:", error);
+      secureLogger.error("Contact form error:", error);
       
       // Track form failure
       trackFormInteraction('contact_form_failure', 'Contact Form', {

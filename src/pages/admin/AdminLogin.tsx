@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2, Eye, EyeOff, Shield } from "lucide-react";
+import { secureLogger } from "@/utils/secureLogger";
 
 const AdminLogin: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -19,7 +20,7 @@ const AdminLogin: React.FC = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && !loading) {
-      console.log('[LOGIN] User already authenticated, redirecting to dashboard');
+      secureLogger.info('User already authenticated, redirecting to dashboard');
       navigate("/admin/dashboard", { replace: true });
     }
   }, [isAuthenticated, navigate, loading]);
@@ -45,7 +46,7 @@ const AdminLogin: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('[LOGIN] Form submitted');
+    secureLogger.debug('Login form submitted');
 
     setIsLoading(true);
 
@@ -62,18 +63,18 @@ const AdminLogin: React.FC = () => {
         return;
       }
 
-      console.log('[LOGIN] Attempting login for:', email);
+      secureLogger.info('Attempting login', { email });
       const success = await login(email, password);
       
       if (success) {
-        console.log('[LOGIN] Login successful, redirecting');
+        secureLogger.info('Login successful, redirecting');
         navigate("/admin/dashboard", { replace: true });
       } else {
-        console.log('[LOGIN] Login failed');
+        secureLogger.warn('Login failed', { email });
         toast.error('Nieprawidłowe dane logowania');
       }
     } catch (error) {
-      console.error("[LOGIN] Login error:", error);
+      secureLogger.error("Login error:", error);
       toast.error("Wystąpił błąd podczas logowania");
     } finally {
       setIsLoading(false);
