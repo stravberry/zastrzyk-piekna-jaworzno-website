@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
 import { toast } from "sonner";
 import { hasRole, getCurrentUserRole, isAdmin, UserRole } from "@/services/auth/userRoles";
+import { secureLogger } from "@/utils/secureLogger";
 
 interface AdminContextType {
   isAuthenticated: boolean;
@@ -34,13 +35,13 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Simplified permission checking
   const checkPermissions = async (): Promise<boolean> => {
-    console.log('[AUTH] Checking permissions');
+    secureLogger.debug('Checking user permissions');
     try {
       const adminStatus = await isAdmin();
       const role = await getCurrentUserRole();
       const editorStatus = await hasRole('editor');
       
-      console.log('[AUTH] Permissions result:', { adminStatus, role, editorStatus });
+      secureLogger.debug('Permissions result:', { adminStatus, role, editorStatus });
       
       setIsAdminUser(adminStatus);
       setIsEditor(editorStatus);
@@ -48,7 +49,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       
       return adminStatus || editorStatus;
     } catch (error) {
-      console.error('[AUTH] Error checking permissions:', error);
+      secureLogger.error('Error checking permissions:', error);
       return false;
     }
   };
@@ -59,13 +60,13 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (initializingRef.current) return;
       initializingRef.current = true;
       
-      console.log('[AUTH] Initializing auth');
+      secureLogger.debug('Initializing authentication');
 
       try {
         // Set up auth state listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
-            console.log("[AUTH] Auth state change:", event, !!session);
+            secureLogger.debug("Auth state change event:", { event, hasSession: !!session });
             
             setSession(session);
             setUser(session?.user ?? null);
@@ -86,7 +87,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
         // Get current session
         const { data: { session: currentSession } } = await supabase.auth.getSession();
-        console.log('[AUTH] Initial session:', !!currentSession);
+        secureLogger.debug('Initial session status:', { hasSession: !!currentSession });
         
         if (currentSession) {
           setSession(currentSession);
@@ -102,7 +103,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           subscription.unsubscribe();
         };
       } catch (error) {
-        console.error('[AUTH] Error during initialization:', error);
+        secureLogger.error('Error during auth initialization:', error);
         setLoading(false);
         initializingRef.current = false;
       }
@@ -113,7 +114,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Simple login
   const login = async (email: string, password: string): Promise<boolean> => {
-    console.log('[AUTH] Starting login process');
+    secureLogger.info('Starting admin login process');
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -121,29 +122,29 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       });
       
       if (error) {
-        console.error('[AUTH] Login error:', error);
+        secureLogger.error('Login authentication failed:', error);
         throw error;
       }
       
       if (data.user) {
-        console.log('[AUTH] Login successful');
+        secureLogger.info('Authentication successful, checking permissions');
         
         // Check permissions
         const hasPermissions = await checkPermissions();
         
         if (!hasPermissions) {
-          console.log('[AUTH] User lacks admin permissions');
+          secureLogger.warn('User lacks admin permissions, signing out');
           await supabase.auth.signOut();
           throw new Error('Brak uprawnień do panelu administracyjnego');
         }
 
-        console.log('[AUTH] Login completed successfully');
+        secureLogger.info('Admin login completed successfully');
         toast.success('Zalogowano pomyślnie');
         return true;
       }
       return false;
     } catch (error: any) {
-      console.error('[AUTH] Login error:', error);
+      secureLogger.error('Login process failed:', error);
       toast.error(error.message || 'Wystąpił błąd podczas logowania');
       return false;
     }
@@ -151,7 +152,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Simple logout
   const logout = async () => {
-    console.log('[AUTH] Starting logout process');
+    secureLogger.info('Starting admin logout process');
     try {
       setUser(null);
       setSession(null);
@@ -164,9 +165,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       
       toast.success('Wylogowano bezpiecznie');
       navigate("/admin/login", { replace: true });
-      console.log('[AUTH] Logout completed successfully');
+      secureLogger.info('Admin logout completed successfully');
     } catch (error) {
-      console.error('[AUTH] Logout error:', error);
+      secureLogger.error('Logout process failed:', error);
       toast.error('Wystąpił błąd podczas wylogowywania');
       navigate("/admin/login", { replace: true });
     }

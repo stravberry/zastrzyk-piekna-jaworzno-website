@@ -3,8 +3,11 @@ import {
   sanitizeInput, 
   validateEmail, 
   validatePhone, 
-  logSecurityEvent
+  logSecurityEvent,
+  detectSuspiciousActivity
 } from "./securityService";
+import { secureLogger } from "@/utils/secureLogger";
+import { InputSecurityValidator } from "@/utils/inputSecurity";
 
 export interface ContactFormData {
   name: string;
@@ -27,15 +30,25 @@ export interface ContactSubmission extends ContactFormData {
 // Simplified contact form submission - no rate limiting, minimal security checks
 export const submitContactForm = async (formData: ContactFormData): Promise<{ success: boolean; message: string }> => {
   try {
-    // Basic client-side validation and sanitization
+    // Enhanced input validation and sanitization
     const sanitizedData = {
-      name: sanitizeInput(formData.name, 'contact_name'),
-      email: sanitizeInput(formData.email, 'contact_email').toLowerCase(),
-      phone: formData.phone ? sanitizeInput(formData.phone, 'contact_phone') : undefined,
-      subject: sanitizeInput(formData.subject, 'contact_subject'),
-      message: sanitizeInput(formData.message, 'contact_message'),
+      name: sanitizeInput(formData.name, 'general'),
+      email: sanitizeInput(formData.email, 'email').toLowerCase(),
+      phone: formData.phone ? sanitizeInput(formData.phone, 'general') : undefined,
+      subject: sanitizeInput(formData.subject, 'general'),
+      message: sanitizeInput(formData.message, 'general'),
       consent_given: formData.consent_given
     };
+
+    // Check for suspicious activity before processing
+    if (detectSuspiciousActivity(sanitizedData, 'contact_form')) {
+      throw new Error('Nieprawidłowe dane w formularzu');
+    }
+
+    // Additional security validation
+    if (InputSecurityValidator.isRateLimited(`contact_${sanitizedData.email}`, 3, 300000)) {
+      throw new Error('Zbyt wiele prób. Spróbuj ponownie za 5 minut.');
+    }
 
     // Basic validation only
     if (!validateEmail(sanitizedData.email)) {
@@ -78,7 +91,7 @@ export const submitContactForm = async (formData: ContactFormData): Promise<{ su
     });
 
     if (error) {
-      console.error('Contact form submission error:', error);
+      secureLogger.error('Contact form submission error:', error);
       throw new Error('Błąd wysyłania');
     }
 
@@ -93,7 +106,7 @@ export const submitContactForm = async (formData: ContactFormData): Promise<{ su
 
     return { success: true, message: 'Wiadomość została wysłana pomyślnie!' };
   } catch (error) {
-    console.error('Contact form error:', error);
+    secureLogger.error('Contact form error:', error);
     return { 
       success: false, 
       message: error instanceof Error ? error.message : 'Błąd wysyłania'
@@ -131,7 +144,7 @@ export const getContactSubmissions = async (): Promise<ContactSubmission[]> => {
       updated_at: item.updated_at
     }));
   } catch (error) {
-    console.error('Failed to fetch contact submissions:', error);
+    secureLogger.error('Failed to fetch contact submissions:', error);
     
     await logSecurityEvent('contact_submissions_fetch_error', 'medium', {
       error: error instanceof Error ? error.message : 'Unknown error'
@@ -161,7 +174,7 @@ export const updateContactStatus = async (id: string, status: 'new' | 'reviewed'
       status: status
     });
   } catch (error) {
-    console.error('Failed to update contact status:', error);
+    secureLogger.error('Failed to update contact status:', error);
     
     await logSecurityEvent('contact_status_update_error', 'medium', {
       submission_id: id,

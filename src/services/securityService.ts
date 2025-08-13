@@ -1,4 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
+import { secureLogger } from "@/utils/secureLogger";
+import { InputSecurityValidator } from "@/utils/inputSecurity";
 
 export interface SecurityEvent {
   id: string;
@@ -26,7 +28,7 @@ export const logSecurityEvent = async (
       _user_agent: navigator.userAgent
     });
   } catch (error) {
-    console.error('Failed to log security event:', error);
+    secureLogger.error('Failed to log security event:', error);
     // Fallback to admin activity log
     try {
       await supabase.rpc('log_admin_activity', {
@@ -36,7 +38,7 @@ export const logSecurityEvent = async (
         _details: { ...metadata, severity, fallback: true }
       });
     } catch (fallbackError) {
-      console.error('Fallback security logging also failed:', fallbackError);
+      secureLogger.error('Fallback security logging also failed:', fallbackError);
     }
   }
 };
@@ -78,7 +80,7 @@ export const getSecurityEvents = async (
       created_at: item.created_at
     }));
   } catch (error) {
-    console.error('Failed to fetch security events:', error);
+    secureLogger.error('Failed to fetch security events:', error);
     // Fallback to admin activity log
     try {
       const { data, error } = await supabase
@@ -100,7 +102,7 @@ export const getSecurityEvents = async (
         created_at: item.created_at
       }));
     } catch (fallbackError) {
-      console.error('Fallback security events fetch failed:', fallbackError);
+      secureLogger.error('Fallback security events fetch failed:', fallbackError);
       throw fallbackError;
     }
   }
@@ -159,7 +161,7 @@ export const validateUserSession = async (): Promise<{
       needsReauth: false 
     };
   } catch (error) {
-    console.error('Session validation failed:', error);
+    secureLogger.error('Session validation failed:', error);
     await logSecurityEvent('session_validation_failed', 'high', { 
       error: error instanceof Error ? error.message : 'Unknown error' 
     });
@@ -167,40 +169,39 @@ export const validateUserSession = async (): Promise<{
   }
 };
 
-// Basic input sanitization helpers - simplified
+// Enhanced input sanitization using secure validator
 export const sanitizeInput = (input: string, context: string = 'general'): string => {
   if (!input) return '';
   
-  const sanitized = input
-    .replace(/[<>]/g, '') // Remove potential XSS characters
-    .replace(/javascript:/gi, '') // Remove javascript: protocols
-    .trim()
-    .slice(0, 1000); // Limit length
-
-  return sanitized;
+  const result = InputSecurityValidator.sanitizeInput(input, context as any, 1000);
+  
+  if (!result.isValid) {
+    secureLogger.warn('Input sanitization failed:', result.errors);
+    return ''; // Return empty string for invalid input
+  }
+  
+  return result.sanitized || '';
 };
 
 export const sanitizeHtml = (html: string): string => {
   if (!html) return '';
   
-  const sanitized = html
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/on\w+="[^"]*"/gi, '')
-    .replace(/on\w+='[^']*'/gi, '')
-    .replace(/javascript:/gi, '')
-    .trim();
-
-  return sanitized;
+  const result = InputSecurityValidator.sanitizeInput(html, 'html', 5000);
+  
+  if (!result.isValid) {
+    secureLogger.warn('HTML sanitization failed:', result.errors);
+    return '';
+  }
+  
+  return result.sanitized || '';
 };
 
 export const validateEmail = (email: string): boolean => {
-  const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-  return emailRegex.test(email) && email.length <= 255;
+  return InputSecurityValidator.validateEmail(email);
 };
 
 export const validatePhone = (phone: string): boolean => {
-  const cleanPhone = phone.replace(/\D/g, '');
-  return cleanPhone.length >= 9 && cleanPhone.length <= 15;
+  return InputSecurityValidator.validatePhone(phone);
 };
 
 export const validateRequired = (value: string, fieldName: string): string | null => {
@@ -233,8 +234,8 @@ export const detectSuspiciousActivity = (formData: any, context: string = 'form'
   const suspicious = dangerousPatterns.some(pattern => pattern.test(textToCheck));
   
   if (suspicious) {
-    console.log('Basic SQL injection detected');
-    logSecurityEvent('basic_sql_injection_detected', 'high', {
+    secureLogger.warn('SQL injection attempt detected');
+    logSecurityEvent('sql_injection_detected', 'critical', {
       context,
       blocked_content_preview: textToCheck.substring(0, 100) + '...'
     });
@@ -299,7 +300,7 @@ export const cleanupAuthState = (): void => {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Failed to cleanup auth state:', error);
+    secureLogger.error('Failed to cleanup auth state:', error);
   }
 };
 
@@ -321,7 +322,7 @@ export const checkRateLimit = async (
     });
 
     if (error) {
-      console.error('Rate limit check failed:', error);
+      secureLogger.error('Rate limit check failed:', error);
       // Fallback to allowing the action but log the failure
       await logSecurityEvent('rate_limit_check_failed', 'medium', { 
         error: error.message, 
@@ -345,7 +346,7 @@ export const checkRateLimit = async (
       blockedUntil: result.blocked_until
     };
   } catch (error) {
-    console.error('Rate limit check error:', error);
+    secureLogger.error('Rate limit check error:', error);
     return { allowed: true }; // Fail open for availability
   }
 };
