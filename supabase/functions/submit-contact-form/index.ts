@@ -58,7 +58,41 @@ serve(async (req) => {
     const userAgent = req.headers.get('user-agent') || 'unknown';
     console.log('Client IP extracted:', clientIP);
 
-    // NO RATE LIMITING - proceed directly to validation
+    // ENHANCED SECURITY: Check rate limiting before processing
+    try {
+      const { data: rateLimitResult, error: rateLimitError } = await supabaseClient.rpc('enhanced_rate_limit_check', {
+        _identifier: clientIP,
+        _action: 'contact_form_submission',
+        _max_attempts: 3,
+        _window_minutes: 5,
+        _block_duration_minutes: 15
+      });
+
+      if (rateLimitError) {
+        console.error('Rate limit check failed:', rateLimitError);
+        // Continue but log the failure
+        await supabaseClient.rpc('log_security_event', {
+          _event_type: 'rate_limit_check_failed',
+          _severity: 'medium',
+          _details: { error: rateLimitError.message, ip: clientIP }
+        });
+      } else if (rateLimitResult && !rateLimitResult.allowed) {
+        console.log('Rate limit exceeded for IP:', clientIP);
+        return new Response(
+          JSON.stringify({ 
+            error: 'Zbyt wiele prób wysłania formularza. Spróbuj ponownie za 15 minut.',
+            blocked_until: rateLimitResult.blocked_until 
+          }),
+          { 
+            status: 429, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+    } catch (rateLimitErr) {
+      console.error('Rate limiting system error:', rateLimitErr);
+      // Continue without blocking legitimate requests
+    }
 
     // Basic server-side validation only
     const errors: string[] = [];
@@ -85,6 +119,41 @@ serve(async (req) => {
     
     if (!formData.consent_given) {
       errors.push('Zgoda jest wymagana');
+    }
+
+    // Enhanced input sanitization and security checks
+    const suspiciousPatterns = [
+      /<script[^>]*>[\s\S]*?<\/script>/gi,
+      /<iframe[^>]*>[\s\S]*?<\/iframe>/gi,
+      /javascript\s*:/gi,
+      /on\w+\s*=\s*["'][^"']*["']/gi,
+      /(union|select|insert|delete|update|drop|create|alter)\s+/gi
+    ];
+
+    const checkForSuspiciousContent = (text: string): boolean => {
+      return suspiciousPatterns.some(pattern => pattern.test(text));
+    };
+
+    // Check all text fields for suspicious content
+    const textFields = [formData.name, formData.email, formData.subject, formData.message];
+    if (textFields.some(field => field && checkForSuspiciousContent(field))) {
+      console.log('Suspicious content detected in form submission');
+      await supabaseClient.rpc('log_security_event', {
+        _event_type: 'suspicious_contact_form_content',
+        _severity: 'high',
+        _details: { 
+          ip_address: clientIP, 
+          user_agent: userAgent,
+          form_data: { name: formData.name, email: formData.email, subject: formData.subject }
+        }
+      });
+      return new Response(
+        JSON.stringify({ error: 'Nieprawidłowe dane w formularzu' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
     if (errors.length > 0) {
