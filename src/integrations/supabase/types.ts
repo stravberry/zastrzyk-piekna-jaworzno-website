@@ -1012,6 +1012,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      anonymize_ip: {
+        Args: { ip_addr: unknown }
+        Returns: string
+      }
       can_manage_users: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -1025,6 +1029,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      cleanup_old_contact_submissions: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       create_appointment_reminders: {
         Args: { appointment_id_param: string }
         Returns: undefined
@@ -1037,8 +1045,16 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      decrypt_contact_data: {
+        Args: { encrypted_data: string }
+        Returns: string
+      }
       decrypt_sensitive_data: {
         Args: { encrypted_data: string }
+        Returns: string
+      }
+      encrypt_contact_data: {
+        Args: { data: string }
         Returns: string
       }
       encrypt_sensitive_data: {
@@ -1075,6 +1091,23 @@ export type Database = {
         Returns: {
           body_code: string
           head_code: string
+        }[]
+      }
+      get_contact_submissions_secure: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          consent_given: boolean
+          created_at: string
+          email: string
+          id: string
+          ip_address: string
+          message: string
+          name: string
+          phone: string
+          status: string
+          subject: string
+          updated_at: string
+          user_agent: string
         }[]
       }
       get_current_user_role: {
@@ -1203,6 +1236,19 @@ export type Database = {
           last_name: string
           phone: string
         }[]
+      }
+      submit_contact_secure: {
+        Args: {
+          _consent_given: boolean
+          _email: string
+          _ip_address?: unknown
+          _message: string
+          _name: string
+          _phone: string
+          _subject: string
+          _user_agent?: string
+        }
+        Returns: Json
       }
       update_code_settings: {
         Args: { p_body_code: string; p_head_code: string }
