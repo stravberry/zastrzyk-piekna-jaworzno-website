@@ -1037,6 +1037,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      decrypt_sensitive_data: {
+        Args: { encrypted_data: string }
+        Returns: string
+      }
+      encrypt_sensitive_data: {
+        Args: { data: string }
+        Returns: string
+      }
       enhanced_rate_limit_check: {
         Args: {
           _action: string
@@ -1072,6 +1080,27 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
+      }
+      get_patient_secure: {
+        Args: { patient_id: string }
+        Returns: {
+          address: string
+          allergies: string
+          contraindications: string
+          created_at: string
+          date_of_birth: string
+          email: string
+          first_name: string
+          id: string
+          is_active: boolean
+          last_name: string
+          medical_notes: string
+          notes: string
+          phone: string
+          skin_type: string
+          source: string
+          updated_at: string
+        }[]
       }
       get_pending_reminders: {
         Args: Record<PropertyKey, never>
@@ -1118,6 +1147,18 @@ export type Database = {
         }
         Returns: undefined
       }
+      log_emergency_patient_access: {
+        Args: { override_user?: string; patient_id: string; reason: string }
+        Returns: undefined
+      }
+      log_patient_access: {
+        Args: {
+          access_type: string
+          additional_metadata?: Json
+          patient_id: string
+        }
+        Returns: undefined
+      }
       log_security_event: {
         Args: {
           _details?: Json
@@ -1151,9 +1192,25 @@ export type Database = {
           phone: string
         }[]
       }
+      search_patients_secure: {
+        Args: { search_term: string }
+        Returns: {
+          created_at: string
+          email: string
+          first_name: string
+          id: string
+          last_appointment: string
+          last_name: string
+          phone: string
+        }[]
+      }
       update_code_settings: {
         Args: { p_body_code: string; p_head_code: string }
         Returns: undefined
+      }
+      validate_patient_access_session: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
     }
     Enums: {
