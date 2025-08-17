@@ -1,8 +1,24 @@
 # Security Implementation Summary - CRITICAL UPDATE
 
-## 🚨 CRITICAL SECURITY VULNERABILITIES FIXED
+## 🚨 LATEST SECURITY VULNERABILITIES FIXED (January 2025)
 
-### 1. Patient Medical Records Data Breach (RESOLVED) ⚠️
+### 1. OAuth Token Security Vulnerability (RESOLVED) ⚠️
+- **Status**: ✅ FIXED - CRITICAL VULNERABILITY RESOLVED
+- **Issue**: Google Calendar OAuth tokens exposed to ALL authenticated users
+- **Severity**: CRITICAL - Complete account takeover possible
+- **Impact**: Any authenticated user could steal OAuth tokens and gain full Google Calendar access
+- **Data at Risk**: OAuth access tokens, refresh tokens, calendar permissions
+- **Fix Applied**: Restricted calendar_integrations table to admin-only access with comprehensive RLS policies
+
+### 2. Business Data Exposure (RESOLVED) 🔒
+- **Status**: ✅ FIXED - MODERATE VULNERABILITY RESOLVED
+- **Issue**: Sensitive business data accessible to ALL authenticated users
+- **Severity**: MODERATE - Business intelligence exposure
+- **Impact**: Email templates, treatment data, calendar events exposed to unauthorized users
+- **Data at Risk**: Email templates, treatment information, calendar events, appointment sync data
+- **Fix Applied**: Implemented admin-only access policies for email_templates, treatments, calendar_events, and appointment_calendar_events tables
+
+### 3. Patient Medical Records Data Breach (RESOLVED) ⚠️
 - **Status**: ✅ FIXED - CRITICAL VULNERABILITY RESOLVED
 - **Issue**: Patient medical records were accessible to ANY authenticated user
 - **Severity**: CRITICAL - HIPAA violation, privacy breach

@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -1018,8 +1018,8 @@ export type Database = {
       }
       check_rate_limit: {
         Args: {
-          _identifier: string
           _action: string
+          _identifier: string
           _max_attempts?: number
           _window_minutes?: number
         }
@@ -1039,11 +1039,11 @@ export type Database = {
       }
       enhanced_rate_limit_check: {
         Args: {
-          _identifier: string
           _action: string
+          _block_duration_minutes?: number
+          _identifier: string
           _max_attempts?: number
           _window_minutes?: number
-          _block_duration_minutes?: number
         }
         Returns: Json
       }
@@ -1054,19 +1054,19 @@ export type Database = {
       get_all_users_with_roles: {
         Args: Record<PropertyKey, never>
         Returns: {
-          user_id: string
-          email: string
           created_at: string
-          last_sign_in_at: string
+          email: string
           email_confirmed_at: string
+          last_sign_in_at: string
           roles: string[]
+          user_id: string
         }[]
       }
       get_code_settings: {
         Args: Record<PropertyKey, never>
         Returns: {
-          head_code: string
           body_code: string
+          head_code: string
         }[]
       }
       get_current_user_role: {
@@ -1076,21 +1076,21 @@ export type Database = {
       get_pending_reminders: {
         Args: Record<PropertyKey, never>
         Returns: {
-          id: string
           appointment_id: string
-          reminder_type: string
-          patient_name: string
-          patient_email: string
-          treatment_name: string
-          scheduled_date: string
           duration_minutes: number
+          id: string
+          patient_email: string
+          patient_name: string
           pre_treatment_notes: string
+          reminder_type: string
+          scheduled_date: string
+          treatment_name: string
         }[]
       }
       has_role: {
         Args: {
-          _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
         Returns: boolean
       }
@@ -1112,43 +1112,47 @@ export type Database = {
       log_admin_activity: {
         Args: {
           _action: string
-          _resource_type?: string
-          _resource_id?: string
           _details?: Json
+          _resource_id?: string
+          _resource_type?: string
         }
         Returns: undefined
       }
       log_security_event: {
         Args: {
-          _event_type: string
-          _severity?: string
           _details?: Json
+          _event_type: string
           _ip_address?: unknown
+          _severity?: string
           _user_agent?: string
         }
         Returns: undefined
       }
+      log_sensitive_access_attempt: {
+        Args: { _action: string; _table_name: string }
+        Returns: undefined
+      }
       remove_user_role: {
         Args: {
-          target_user_id: string
           target_role: Database["public"]["Enums"]["app_role"]
+          target_user_id: string
         }
         Returns: boolean
       }
       search_patients: {
         Args: { search_term: string }
         Returns: {
-          id: string
+          created_at: string
+          email: string
           first_name: string
+          id: string
+          last_appointment: string
           last_name: string
           phone: string
-          email: string
-          created_at: string
-          last_appointment: string
         }[]
       }
       update_code_settings: {
-        Args: { p_head_code: string; p_body_code: string }
+        Args: { p_body_code: string; p_head_code: string }
         Returns: undefined
       }
     }
