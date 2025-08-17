@@ -2,62 +2,102 @@
  * Security configuration and CSP (Content Security Policy) utilities
  */
 
-// Content Security Policy configuration
+// Enhanced Content Security Policy configuration
 export const generateCSPHeader = (): string => {
   const cspDirectives = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://vercel.live",
+    // More restrictive script policy - removed unsafe-eval
+    "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://vercel.live",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
-    "img-src 'self' data: blob: https: http:",
+    // More restrictive image policy - removed http: for better security
+    "img-src 'self' data: blob: https:",
     "media-src 'self' blob:",
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://vitals.vercel-insights.com",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://vitals.vercel-insights.com https://*.lovableproject.com",
     "frame-src 'self' https://www.youtube-nocookie.com",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
+    // Enhanced security directives
+    "manifest-src 'self'",
+    "worker-src 'self'",
+    "child-src 'none'",
+    "require-trusted-types-for 'script'",
+    "trusted-types default",
     "upgrade-insecure-requests"
   ];
   
   return cspDirectives.join('; ');
 };
 
-// Security headers configuration
+// Enhanced security headers configuration
 export const securityHeaders = {
   'Content-Security-Policy': generateCSPHeader(),
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
   'X-XSS-Protection': '1; mode=block',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
-  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload'
+  // Enhanced permissions policy
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), magnetometer=(), gyroscope=(), accelerometer=(), ambient-light-sensor=()',
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
+  // Additional security headers
+  'Cross-Origin-Embedder-Policy': 'require-corp',
+  'Cross-Origin-Opener-Policy': 'same-origin',
+  'Cross-Origin-Resource-Policy': 'same-origin',
+  'X-Permitted-Cross-Domain-Policies': 'none',
+  'Clear-Site-Data': '"cache", "cookies", "storage"', // Only for logout endpoints
+  'Feature-Policy': 'camera \'none\'; microphone \'none\'; geolocation \'none\';'
 };
 
-// Security constants
+// Security constants (optimized configuration)
 export const SECURITY_CONFIG = {
-  // Rate limiting
-  MAX_LOGIN_ATTEMPTS: 5,
+  // Enhanced rate limiting
+  MAX_LOGIN_ATTEMPTS: 3, // Reduced from 5 for better security
   LOGIN_WINDOW_MINUTES: 15,
-  CONTACT_FORM_RATE_LIMIT: 3,
+  LOGIN_BLOCK_DURATION_MINUTES: 30, // New: block duration for login attempts
+  CONTACT_FORM_RATE_LIMIT: 2, // Reduced from 3
   CONTACT_FORM_WINDOW_MS: 300000, // 5 minutes
   
-  // Session security
-  SESSION_TIMEOUT_MINUTES: 60,
+  // Enhanced session security
+  SESSION_TIMEOUT_MINUTES: 120, // Aligned with inactivity monitor
+  SESSION_REFRESH_THRESHOLD_MINUTES: 15, // New: refresh session if expires within 15min
   MAX_SESSION_REFRESH_ATTEMPTS: 3,
+  INACTIVITY_WARNING_MINUTES: 10, // New: warn 10 minutes before logout
+  INACTIVITY_FINAL_WARNING_MINUTES: 3, // New: final warning timing
   
-  // Input validation
-  MAX_INPUT_LENGTH: 1000,
-  MAX_MESSAGE_LENGTH: 5000,
-  MAX_FILENAME_LENGTH: 255,
+  // Enhanced input validation
+  MAX_INPUT_LENGTH: 500, // Reduced from 1000 for tighter validation
+  MAX_MESSAGE_LENGTH: 2000, // Reduced from 5000
+  MAX_FILENAME_LENGTH: 100, // Reduced from 255
+  MIN_PASSWORD_LENGTH: 12, // New: minimum password requirement
   
-  // File upload security
-  ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
-  MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
+  // Enhanced file upload security
+  ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/webp'], // Removed gif for security
+  ALLOWED_DOCUMENT_TYPES: ['application/pdf'], // New: document type restrictions
+  MAX_FILE_SIZE: 5 * 1024 * 1024, // Reduced to 5MB from 10MB
+  MAX_FILES_PER_UPLOAD: 10, // New: limit files per upload
   
-  // API security
-  API_TIMEOUT_MS: 30000,
-  MAX_CONCURRENT_REQUESTS: 10
+  // Enhanced API security
+  API_TIMEOUT_MS: 15000, // Reduced from 30000 for better UX
+  MAX_CONCURRENT_REQUESTS: 5, // Reduced from 10
+  REQUEST_RETRY_ATTEMPTS: 2, // New: API retry configuration
+  REQUEST_RETRY_DELAY_MS: 1000, // New: delay between retries
+  
+  // New: Content security
+  ALLOWED_ORIGINS: [
+    'https://*.lovableproject.com',
+    'https://*.supabase.co',
+    'https://*.vercel.app'
+  ],
+  BLOCKED_USER_AGENTS: [
+    'bot', 'crawler', 'spider', 'scraper'
+  ],
+  
+  // New: Monitoring thresholds
+  SECURITY_EVENT_RATE_LIMIT: 20, // Max security events per window
+  SECURITY_EVENT_WINDOW_MINUTES: 5,
+  SUSPICIOUS_ACTIVITY_THRESHOLD: 10 // Events to trigger investigation
 } as const;
 
 // Security validation patterns

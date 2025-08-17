@@ -13,24 +13,26 @@ import { toast } from "sonner";
 export const useSecurityMonitor = () => {
   const queryClient = useQueryClient();
 
-  // Monitor session validity with enhanced checking
+  // Optimized session validity monitoring
   const { data: sessionStatus, refetch: recheckSession } = useQuery({
     queryKey: ['session-validation'],
     queryFn: validateUserSession,
-    refetchInterval: 5 * 60 * 1000, // Check every 5 minutes
+    refetchInterval: 3 * 60 * 1000, // Check every 3 minutes (more frequent)
     refetchOnWindowFocus: true,
     refetchOnMount: true,
-    staleTime: 2 * 60 * 1000, // Consider fresh for 2 minutes
+    staleTime: 90 * 1000, // Consider fresh for 90 seconds (reduced)
+    retry: 2, // Limit retries
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
   });
 
   // Enhanced security event handler with rate limiting
   const handleSecurityEvent = useCallback(async (eventType: string, severity: 'low' | 'medium' | 'high' | 'critical' = 'medium', metadata: any = {}) => {
     try {
-      // Check rate limit for security events to prevent spam
+      // Enhanced rate limit for security events
       const rateLimitResult = await checkRateLimit(
         `security_event_${eventType}`,
         'security_logging',
-        10, // max 10 events per window
+        20, // Increased to 20 events per window (from SECURITY_CONFIG)
         5   // 5 minute window
       );
 
