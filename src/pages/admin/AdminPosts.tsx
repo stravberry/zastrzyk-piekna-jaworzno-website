@@ -39,7 +39,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { getAllBlogPosts, deleteBlogPost } from "@/services/blogService";
+import { getAllBlogPosts, deleteBlogPost, seedSamplePosts } from "@/services/blogService";
 import { BlogPost } from "@/types/admin";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -90,6 +90,27 @@ const AdminPosts: React.FC = () => {
 
   const confirmDelete = (id: number) => {
     setDeleteId(id);
+  };
+
+  const handleSeedSamplePosts = async () => {
+    try {
+      const success = await seedSamplePosts();
+      if (success) {
+        toast({
+          title: "Przykładowe posty dodane",
+          description: "Przykładowe posty zostały pomyślnie dodane",
+        });
+        refetch();
+      } else {
+        throw new Error("Failed to seed posts");
+      }
+    } catch (error) {
+      toast({
+        title: "Błąd",
+        description: "Nie udało się dodać przykładowych postów",
+        variant: "destructive",
+      });
+    }
   };
 
   const filteredPosts = posts?.filter(post => 
@@ -181,7 +202,12 @@ const AdminPosts: React.FC = () => {
               <MobilePostCard key={post.id} post={post} />
             ))
           ) : (
-            <div className="text-center py-8">Nie znaleziono postów</div>
+            <div className="text-center py-8">
+              <p className="text-gray-500 mb-4">Brak postów</p>
+              <Button onClick={handleSeedSamplePosts} variant="outline" size="sm">
+                Dodaj przykładowe posty
+              </Button>
+            </div>
           )}
         </div>
       )}
@@ -274,7 +300,12 @@ const AdminPosts: React.FC = () => {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center py-8">
-                      Nie znaleziono postów
+                      <div>
+                        <p className="text-gray-500 mb-4">Brak postów</p>
+                        <Button onClick={handleSeedSamplePosts} variant="outline" size="sm">
+                          Dodaj przykładowe posty
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 )}

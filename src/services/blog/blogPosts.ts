@@ -8,9 +8,6 @@ import { incrementBlogPostViews, getAllPostViews } from "./blogViews";
 // Get all blog posts
 export const getAllBlogPosts = async (): Promise<BlogPost[]> => {
   try {
-    // Try to seed sample posts first
-    await seedBlogPosts();
-    
     const { data, error } = await supabase
       .from('blog_posts')
       .select('*')
@@ -34,22 +31,8 @@ export const getAllBlogPosts = async (): Promise<BlogPost[]> => {
     });
   } catch (error) {
     console.error('Error in getAllBlogPosts:', error);
-    // Fall back to sample data if database access fails
-    return blogPosts.map(post => ({
-      ...post,
-      content: `<p>${post.excerpt}</p><p>Lorem ipsum dolor sit amet...</p>`,
-      seo: {
-        metaTitle: post.title,
-        metaDescription: post.excerpt,
-        keywords: [post.category],
-      },
-      stats: {
-        id: post.id,
-        views: 0, // Use 0 instead of random for fallback
-        clicks: Math.floor(Math.random() * 200) + 20,
-        timeSpent: Math.floor(Math.random() * 180) + 60,
-      }
-    }));
+    // Return empty array on database error instead of fallback data
+    return [];
   }
 };
 
@@ -83,27 +66,6 @@ export const getBlogPostById = async (id: number): Promise<BlogPost | null> => {
     return mappedPost;
   } catch (error) {
     console.error('Error in getBlogPostById:', error);
-    
-    // If database access fails, try to find the post in sample data
-    const samplePost = blogPosts.find(post => post.id === id);
-    if (samplePost) {
-      return {
-        ...samplePost,
-        content: `<p>${samplePost.excerpt}</p><p>Lorem ipsum dolor sit amet...</p>`,
-        seo: {
-          metaTitle: samplePost.title,
-          metaDescription: samplePost.excerpt,
-          keywords: [samplePost.category],
-        },
-        stats: {
-          id: samplePost.id,
-          views: 0, // Use 0 instead of random for fallback
-          clicks: Math.floor(Math.random() * 200) + 20,
-          timeSpent: Math.floor(Math.random() * 180) + 60,
-        }
-      };
-    }
-    
     return null;
   }
 };
@@ -237,6 +199,23 @@ export const deleteBlogPost = async (id: number): Promise<boolean> => {
     return true;
   } catch (error) {
     console.error('Error in deleteBlogPost:', error);
+    return false;
+  }
+};
+
+// Manual seeding function for admin use
+export const seedSamplePosts = async (): Promise<boolean> => {
+  try {
+    // Verify auth status before continuing
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) {
+      throw new Error("User must be authenticated to seed blog posts");
+    }
+
+    await seedBlogPosts();
+    return true;
+  } catch (error) {
+    console.error('Error in seedSamplePosts:', error);
     return false;
   }
 };
