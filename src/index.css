@@ -88,10 +88,6 @@
     @apply bg-pink-500 text-white px-6 py-3 rounded-md font-medium transition-all hover:bg-pink-600 inline-block;
   }
   
-  .btn-outline {
-    @apply border border-pink-500 text-pink-500 px-6 py-3 rounded-md font-medium transition-all hover:bg-pink-500 hover:text-white inline-block;
-  }
-  
   .service-card {
     @apply bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all border border-pink-50;
   }
@@ -99,33 +95,7 @@
   .title-underline {
     @apply relative pb-3 inline-block after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-2/3 after:h-0.5 after:bg-gold-400;
   }
-  
-  .gold-accent {
-    @apply text-gold-500;
-  }
 
-  /* Smooth loading animations - prevent flicker */
-  .animate-fade-in {
-    @apply opacity-100 translate-y-0 transition-all duration-500 ease-out;
-  }
-
-  .animate-fade-in-delayed {
-    @apply opacity-0 translate-y-4;
-    animation: fadeInSmooth 0.6s ease-out forwards;
-  }
-
-  @keyframes fadeInSmooth {
-    from {
-      opacity: 0;
-      transform: translateY(16px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* Hero sections should be visible immediately */
   .hero-content {
     @apply opacity-100 translate-y-0;
   }
