@@ -147,74 +147,39 @@ Zapraszam na mój Instagram @zastrzyk_piekna oraz zachęcam do obejrzenia wszyst
           </div>
         </section>
 
-        {/* Advantages Section - Visual & Animated */}
-        <section className="py-20 bg-gradient-to-br from-pink-50 via-purple-50 to-gold-50 relative overflow-hidden">
-          {/* Floating background elements */}
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-10 left-10 w-20 h-20 bg-pink-200/30 rounded-full animate-float"></div>
-            <div className="absolute top-32 right-20 w-16 h-16 bg-gold-200/40 rounded-full animate-float" style={{animationDelay: '1s'}}></div>
-            <div className="absolute bottom-20 left-20 w-24 h-24 bg-purple-200/30 rounded-full animate-float" style={{animationDelay: '2s'}}></div>
-            <div className="absolute bottom-40 right-10 w-12 h-12 bg-rose-200/40 rounded-full animate-float" style={{animationDelay: '1.5s'}}></div>
-          </div>
-          
-          <div className="container-custom relative">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold mb-4 font-playfair">
+        {/* Advantages Section */}
+        <section className="py-16 bg-gray-50">
+          <div className="container-custom">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 font-playfair">
                 <span>Dlaczego warto wybrać </span>
                 <span className="text-pink-500">mój gabinet?</span>
               </h2>
-              <div className="w-24 h-1 bg-gradient-to-r from-pink-500 to-gold-500 mx-auto rounded-full"></div>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8 max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
               {advantages.map((advantage, index) => {
                 const IconComponent = advantage.icon;
                 return (
                   <div 
                     key={index}
-                    className="group relative"
-                    style={{
-                      animation: `slideUp 0.8s ease-out ${advantage.delay} both`
-                    }}
+                    className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 border border-gray-100"
                   >
-                    {/* Main card */}
-                    <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-6 h-full shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 cursor-pointer border border-white/50">
-                      {/* Gradient overlay on hover */}
-                      <div className={`absolute inset-0 bg-gradient-to-br ${advantage.color} opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity duration-500`}></div>
-                      
-                      {/* Floating number */}
-                      <div className="absolute -top-4 -right-4 w-12 h-12 bg-gradient-to-br from-pink-500 to-pink-600 text-white rounded-full flex items-center justify-center font-bold text-lg font-playfair shadow-lg group-hover:animate-pulse">
+                    <div className="text-center">
+                      <div className="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <IconComponent className="w-6 h-6 text-pink-600" />
+                      </div>
+                      <div className="w-8 h-8 bg-pink-500 text-white rounded-full flex items-center justify-center text-sm font-semibold mx-auto mb-3">
                         {advantage.number}
                       </div>
-                      
-                      {/* Icon container */}
-                      <div className="relative mb-6">
-                        <div className={`w-16 h-16 ${advantage.bgColor} rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300`}>
-                          <IconComponent className="w-8 h-8 text-gray-700 group-hover:text-pink-600 transition-colors duration-300" />
-                        </div>
-                        
-                        {/* Animated ring */}
-                        <div className="absolute inset-0 w-16 h-16 mx-auto border-2 border-pink-200 rounded-2xl opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-500"></div>
-                      </div>
-                      
-                      {/* Title */}
-                      <h3 className="text-center font-semibold text-gray-800 group-hover:text-pink-600 transition-colors duration-300 font-playfair text-sm md:text-base leading-tight">
+                      <h3 className="font-semibold text-gray-800 text-sm md:text-base leading-tight">
                         {advantage.title}
                       </h3>
-                      
-                      {/* Animated bottom accent */}
-                      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-1 bg-gradient-to-r from-pink-500 to-gold-500 group-hover:w-3/4 transition-all duration-500 rounded-full"></div>
                     </div>
-                    
-                    {/* Glow effect */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-gold-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500 -z-10 scale-110"></div>
                   </div>
                 );
               })}
             </div>
-            
-            {/* Central connecting element */}
-            <div className="hidden lg:block absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-gradient-to-br from-pink-200/50 to-gold-200/50 rounded-full blur-3xl animate-pulse"></div>
           </div>
         </section>
 
