@@ -4,7 +4,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { User, Award, GraduationCap, Heart, Shield, BookOpen, Instagram, Star } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const AboutMe = () => {
@@ -13,67 +12,27 @@ const AboutMe = () => {
   const advantages = [
     {
       number: "01",
-      icon: User,
-      title: "Indywidualne podejście",
-      color: "from-pink-400 to-pink-600",
-      bgColor: "bg-pink-50",
-      delay: "0ms"
+      title: "Magister kosmetologii"
     },
     {
       number: "02", 
-      icon: Award,
-      title: "Kosmetolog Roku",
-      color: "from-gold-400 to-gold-600",
-      bgColor: "bg-gold-50",
-      delay: "100ms"
+      title: "Kosmetolog Roku"
     },
     {
       number: "03",
-      icon: GraduationCap,
-      title: "Magister kosmetologii",
-      color: "from-purple-400 to-purple-600",
-      bgColor: "bg-purple-50",
-      delay: "200ms"
+      title: "Specjalizacja anti-aging"
     },
     {
       number: "04",
-      icon: Heart,
-      title: "Specjalizacja anti-aging",
-      color: "from-rose-400 to-rose-600",
-      bgColor: "bg-rose-50",
-      delay: "300ms"
+      title: "Indywidualne podejście"
     },
     {
       number: "05",
-      icon: Shield,
-      title: "Certyfikowane preparaty",
-      color: "from-emerald-400 to-emerald-600",
-      bgColor: "bg-emerald-50",
-      delay: "400ms"
+      title: "Certyfikowane preparaty"
     },
     {
       number: "06",
-      icon: BookOpen,
-      title: "Ciągły rozwój",
-      color: "from-blue-400 to-blue-600",
-      bgColor: "bg-blue-50",
-      delay: "500ms"
-    },
-    {
-      number: "07",
-      icon: Instagram,
-      title: "Aktywność online",
-      color: "from-violet-400 to-violet-600",
-      bgColor: "bg-violet-50",
-      delay: "600ms"
-    },
-    {
-      number: "08",
-      icon: Star,
-      title: "Widoczne efekty",
-      color: "from-amber-400 to-amber-600",
-      bgColor: "bg-amber-50",
-      delay: "700ms"
+      title: "Widoczne efekty"
     }
   ];
 
@@ -157,28 +116,22 @@ Zapraszam na mój Instagram @zastrzyk_piekna oraz zachęcam do obejrzenia wszyst
               </h2>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-              {advantages.map((advantage, index) => {
-                const IconComponent = advantage.icon;
-                return (
-                  <div 
-                    key={index}
-                    className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 border border-gray-100"
-                  >
-                    <div className="text-center">
-                      <div className="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                        <IconComponent className="w-6 h-6 text-pink-600" />
-                      </div>
-                      <div className="w-8 h-8 bg-pink-500 text-white rounded-full flex items-center justify-center text-sm font-semibold mx-auto mb-3">
-                        {advantage.number}
-                      </div>
-                      <h3 className="font-semibold text-gray-800 text-sm md:text-base leading-tight">
-                        {advantage.title}
-                      </h3>
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
+              {advantages.map((advantage, index) => (
+                <div 
+                  key={index}
+                  className="bg-white rounded-lg p-4 border border-gray-200"
+                >
+                  <div className="text-center">
+                    <div className="w-8 h-8 bg-pink-500 text-white rounded-full flex items-center justify-center text-sm font-semibold mx-auto mb-3">
+                      {advantage.number}
                     </div>
+                    <h3 className="font-medium text-gray-800 text-sm leading-tight">
+                      {advantage.title}
+                    </h3>
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           </div>
         </section>
