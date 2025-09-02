@@ -32,7 +32,6 @@ const ImageWithLoading: React.FC<ImageWithLoadingProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isInView, setIsInView] = useState(!lazy || priority);
   const [hasError, setHasError] = useState(false);
-  const [currentSrc, setCurrentSrc] = useState(thumbnailSrc || src);
   const imgRef = useRef<HTMLImageElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
@@ -65,30 +64,6 @@ const ImageWithLoading: React.FC<ImageWithLoadingProps> = ({
     };
   }, [lazy, priority, isInView]);
 
-  // Progressive loading: thumbnail → full image
-  useEffect(() => {
-    if (!isInView) return;
-
-    if (thumbnailSrc && currentSrc === thumbnailSrc) {
-      // Load full image in background
-      const fullImg = new Image();
-      fullImg.onload = () => {
-        setCurrentSrc(webpSrc || src);
-      };
-      fullImg.onerror = () => {
-        if (webpSrc && webpSrc !== src) {
-          // Try fallback to original if WebP fails
-          const fallbackImg = new Image();
-          fallbackImg.onload = () => {
-            setCurrentSrc(src);
-          };
-          fallbackImg.src = src;
-        }
-      };
-      fullImg.src = webpSrc || src;
-    }
-  }, [isInView, currentSrc, thumbnailSrc, webpSrc, src]);
-
   const handleLoad = () => {
     setIsLoading(false);
     onLoad?.();
@@ -97,19 +72,11 @@ const ImageWithLoading: React.FC<ImageWithLoadingProps> = ({
   const handleError = () => {
     setHasError(true);
     setIsLoading(false);
-    
-    // Try fallback to original if WebP fails
-    if (webpSrc && currentSrc === webpSrc && webpSrc !== src) {
-      setCurrentSrc(src);
-      setHasError(false);
-      return;
-    }
-    
     onError?.();
   };
 
   return (
-    <div className={cn("relative overflow-hidden", className)}>
+    <div className="relative overflow-hidden">
       {/* Loading skeleton */}
       {isLoading && (
         <div className="absolute inset-0 bg-gray-200 animate-pulse" />
@@ -140,7 +107,7 @@ const ImageWithLoading: React.FC<ImageWithLoadingProps> = ({
       ) : (
         <img
           ref={imgRef}
-          src={isInView ? currentSrc : undefined}
+          src={isInView ? src : undefined}
           srcSet={srcSet}
           sizes={sizes}
           alt={alt}
