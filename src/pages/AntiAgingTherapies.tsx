@@ -114,14 +114,14 @@ const AntiAgingTherapies: React.FC = () => {
         <meta property="og:description" content={seoDescription} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://zastrzyk-piekna.pl/zabiegi/terapie-przeciwstarzeniowe" />
-        <meta property="og:image" content="/images/hero-pattern.jpg" />
+        <meta property="og:image" content="/lovable-uploads/3a1253e8-eed9-48e4-8df8-71bb5f933f0b.png" />
         <meta property="og:locale" content="pl_PL" />
         
         {/* Twitter tags */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={seoTitle} />
         <meta name="twitter:description" content={seoDescription} />
-        <meta name="twitter:image" content="/images/hero-pattern.jpg" />
+        <meta name="twitter:image" content="/lovable-uploads/3a1253e8-eed9-48e4-8df8-71bb5f933f0b.png" />
         
         {/* Keywords targeting specific locations */}
         <meta name="keywords" content={[...keywords, ...locations].join(", ")} />
