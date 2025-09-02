@@ -1,5 +1,5 @@
 
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 
 interface ScrollOptions {
   behavior?: ScrollBehavior;
@@ -10,18 +10,22 @@ interface ScrollOptions {
  * Custom hook for smooth scrolling to elements
  */
 export const useScrollTo = () => {
+  // Cache window dimensions to reduce DOM queries
+  const dimensionsCache = useRef({ height: 0, lastUpdate: 0 });
+
   const scrollToElement = useCallback((element: HTMLElement | null, options: ScrollOptions = {}) => {
     if (!element) return;
     
     const { behavior = "smooth", offset = 0 } = options;
     
-    // Use requestAnimationFrame to batch DOM reads
+    // Batch all DOM operations in a single frame
     requestAnimationFrame(() => {
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
+      const elementRect = element.getBoundingClientRect();
+      const currentScroll = window.pageYOffset;
+      const targetPosition = elementRect.top + currentScroll - offset;
     
       window.scrollTo({
-        top: offsetPosition,
+        top: targetPosition,
         behavior,
       });
     });

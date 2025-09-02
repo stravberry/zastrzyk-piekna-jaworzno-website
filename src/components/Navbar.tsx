@@ -1,6 +1,6 @@
 
 // Navigation component with responsive design
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAdvancedTracking } from "@/hooks/useAdvancedTracking";
@@ -11,21 +11,31 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const { trackElementClick, trackContactAttempt } = useAdvancedTracking();
 
+  // Cache scroll position to avoid excessive reads
+  const scrollPosition = useRef(0);
+  const ticking = useRef(false);
+
   useEffect(() => {
     const handleScroll = () => {
-      const offset = window.scrollY;
-      if (offset > 50) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
+      if (!ticking.current) {
+        ticking.current = true;
+        requestAnimationFrame(() => {
+          const currentScroll = window.scrollY;
+          // Only update state if scroll threshold is crossed
+          if ((currentScroll > 50) !== scrolled) {
+            setScrolled(currentScroll > 50);
+          }
+          scrollPosition.current = currentScroll;
+          ticking.current = false;
+        });
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, []);
+  }, [scrolled]);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);

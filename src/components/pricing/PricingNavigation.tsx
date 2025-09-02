@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { ChevronRight, ChevronDown, ChevronUp, Columns3, LayoutGrid } from "lucide-react";
 import { PriceCategory } from "./PriceCard";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -17,22 +17,40 @@ const PricingNavigation: React.FC<PricingNavigationProps> = ({ categories }) => 
   const [isOpen, setIsOpen] = useState(false);
   const [isDesktopOpen, setIsDesktopOpen] = useState(true);
   const [isAutoCollapsing, setIsAutoCollapsing] = useState(false);
+  
+  // Cache navigation dimensions to reduce DOM queries
+  const navigationCache = useRef({ height: 72, lastUpdate: 0 });
+  
+  const updateNavigationHeight = useCallback(() => {
+    const now = Date.now();
+    // Only update every 100ms to avoid excessive calculations
+    if (now - navigationCache.current.lastUpdate < 100) return navigationCache.current.height;
+    
+    const navElement = document.querySelector('.bg-white.py-4.shadow-sm');
+    if (navElement) {
+      navigationCache.current = {
+        height: navElement.clientHeight,
+        lastUpdate: now
+      };
+    }
+    return navigationCache.current.height;
+  }, []);
 
   const handleCategoryClick = (e: React.MouseEvent<HTMLAnchorElement>, categoryId: string) => {
     e.preventDefault();
     const element = document.getElementById(categoryId);
     if (element) {
-      // Calculate the exact position to scroll to, placing the view just above the category
-      // Use requestAnimationFrame to batch DOM reads and avoid forced reflow
+      // Batch all DOM operations in a single requestAnimationFrame
       requestAnimationFrame(() => {
-        const navigationHeight = document.querySelector('.bg-white.py-4.shadow-sm')?.clientHeight || 72; // Height of navigation bar
-        const offset = navigationHeight + 16; // Add some extra padding for better visibility
+        const navigationHeight = updateNavigationHeight();
+        const offset = navigationHeight + 16;
         
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - offset;
+        const elementRect = element.getBoundingClientRect();
+        const currentScroll = window.pageYOffset;
+        const targetPosition = elementRect.top + currentScroll - offset;
         
         window.scrollTo({
-          top: offsetPosition,
+          top: targetPosition,
           behavior: "smooth"
         });
       });
