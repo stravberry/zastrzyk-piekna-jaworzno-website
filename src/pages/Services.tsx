@@ -133,11 +133,13 @@ const Services = () => {
                     {service.image ? (
                       <img 
                         src={service.image} 
-                        alt={service.title}
+                        alt={service.title} 
                         className="w-full h-auto rounded-lg shadow-lg object-cover"
                         style={{height: "400px"}}
+                        onLoad={() => console.log(`Image loaded successfully: ${service.image}`)}
                         onError={(e) => {
                           console.log(`Error loading image for ${service.title}: ${service.image}`);
+                          console.error('Image error event:', e);
                           e.currentTarget.src = "/placeholder.svg";
                           toast({
                             title: "Informacja",
