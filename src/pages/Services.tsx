@@ -1,8 +1,10 @@
 import React from "react";
+import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import ImageWithLoading from "@/components/ui/image-with-loading";
 import { Droplet, User, Heart, Syringe, Star, FileImage } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -73,8 +75,15 @@ const Services = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
+    <>
+      <Helmet>
+        <title>Zabiegi Kosmetologiczne Jaworzno | Zastrzyk Piękna</title>
+        <meta name="description" content="Profesjonalne zabiegi kosmetologiczne w Jaworznie: terapie przeciwstarzeniowe, modelowanie ust, mezoterapia, makijaż permanentny. Kosmetolog roku województwa śląskiego." />
+        <link rel="preload" as="image" href="/lovable-uploads/8911cfd6-7a54-4b02-8722-20c61218807d.png" />
+        <link rel="dns-prefetch" href="//zastrzyk-piekna.lovable.app" />
+      </Helmet>
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
       <main className="flex-grow">
         {/* Hero Section */}
         <section className="bg-pink-50 pt-32 md:pt-40 pb-8 md:pb-12">
@@ -131,19 +140,16 @@ const Services = () => {
                   
                   <div className={`relative ${index % 2 !== 0 ? 'lg:col-start-1' : ''}`}>
                     {service.image ? (
-                      <img 
-                        src={service.image} 
-                        alt={service.title} 
-                        className="w-full h-auto rounded-lg shadow-lg object-cover"
-                        style={{height: "400px"}}
-                        onLoad={() => console.log(`Image loaded successfully: ${service.image}`)}
-                        onError={(e) => {
-                          console.log(`Error loading image for ${service.title}: ${service.image}`);
-                          console.error('Image error event:', e);
-                          e.currentTarget.src = "/placeholder.svg";
+                      <ImageWithLoading
+                        src={service.image}
+                        alt={service.title}
+                        className="w-full h-[400px] rounded-lg shadow-lg object-cover"
+                        priority={index === 0}
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 600px"
+                        onError={() => {
                           toast({
                             title: "Informacja",
-                            description: `Używam obrazu zastępczego dla: ${service.title}`,
+                            description: `Problem z ładowaniem obrazu dla: ${service.title}`,
                           });
                         }}
                       />
@@ -182,6 +188,7 @@ const Services = () => {
       </main>
       <Footer />
     </div>
+    </>
   );
 };
 
