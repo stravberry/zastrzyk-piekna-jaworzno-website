@@ -29,7 +29,7 @@ const ImageWithLoading: React.FC<ImageWithLoadingProps> = ({
   sizes,
   srcSet
 }) => {
-  const [isLoading, setIsLoading] = useState(!priority);
+  const [isLoading, setIsLoading] = useState(true);
   const [isInView, setIsInView] = useState(!lazy || priority);
   const [hasError, setHasError] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -76,7 +76,7 @@ const ImageWithLoading: React.FC<ImageWithLoadingProps> = ({
   };
 
   return (
-    <div className="relative">
+    <div className="relative bg-transparent">
       {/* Loading skeleton - only for non-priority images */}
       {isLoading && !priority && (
         <div className="absolute inset-0 bg-gray-200 animate-pulse" />
