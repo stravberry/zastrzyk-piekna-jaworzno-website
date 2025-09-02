@@ -23,15 +23,18 @@ const PricingNavigation: React.FC<PricingNavigationProps> = ({ categories }) => 
     const element = document.getElementById(categoryId);
     if (element) {
       // Calculate the exact position to scroll to, placing the view just above the category
-      const navigationHeight = document.querySelector('.bg-white.py-4.shadow-sm')?.clientHeight || 72; // Height of navigation bar
-      const offset = navigationHeight + 16; // Add some extra padding for better visibility
-      
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
-      
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth"
+      // Use requestAnimationFrame to batch DOM reads and avoid forced reflow
+      requestAnimationFrame(() => {
+        const navigationHeight = document.querySelector('.bg-white.py-4.shadow-sm')?.clientHeight || 72; // Height of navigation bar
+        const offset = navigationHeight + 16; // Add some extra padding for better visibility
+        
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - offset;
+        
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth"
+        });
       });
 
       // Close the mobile menu after clicking a category

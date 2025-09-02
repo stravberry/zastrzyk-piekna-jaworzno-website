@@ -15,12 +15,15 @@ export const useScrollTo = () => {
     
     const { behavior = "smooth", offset = 0 } = options;
     
-    const elementPosition = element.getBoundingClientRect().top;
-    const offsetPosition = elementPosition + window.pageYOffset - offset;
+    // Use requestAnimationFrame to batch DOM reads
+    requestAnimationFrame(() => {
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
     
-    window.scrollTo({
-      top: offsetPosition,
-      behavior,
+      window.scrollTo({
+        top: offsetPosition,
+        behavior,
+      });
     });
   }, []);
 
