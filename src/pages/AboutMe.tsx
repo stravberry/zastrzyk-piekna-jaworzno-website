@@ -8,33 +8,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 const AboutMe = () => {
   const isMobile = useIsMobile();
-  
-  const advantages = [
-    {
-      number: "01",
-      title: "Magister kosmetologii"
-    },
-    {
-      number: "02", 
-      title: "Kosmetolog Roku"
-    },
-    {
-      number: "03",
-      title: "Specjalizacja anti-aging"
-    },
-    {
-      number: "04",
-      title: "Indywidualne podejście"
-    },
-    {
-      number: "05",
-      title: "Certyfikowane preparaty"
-    },
-    {
-      number: "06",
-      title: "Widoczne efekty"
-    }
-  ];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -106,35 +79,6 @@ Zapraszam na mój Instagram @zastrzyk_piekna oraz zachęcam do obejrzenia wszyst
           </div>
         </section>
 
-        {/* Advantages Section */}
-        <section className="py-16 bg-gray-50">
-          <div className="container-custom">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 font-playfair">
-                <span>Dlaczego warto wybrać </span>
-                <span className="text-pink-500">mój gabinet?</span>
-              </h2>
-            </div>
-            
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
-              {advantages.map((advantage, index) => (
-                <div 
-                  key={index}
-                  className="bg-white rounded-lg p-4 border border-gray-200"
-                >
-                  <div className="text-center">
-                    <div className="w-8 h-8 bg-pink-500 text-white rounded-full flex items-center justify-center text-sm font-semibold mx-auto mb-3">
-                      {advantage.number}
-                    </div>
-                    <h3 className="font-medium text-gray-800 text-sm leading-tight">
-                      {advantage.title}
-                    </h3>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* CTA Section */}
         <section className="py-16 bg-gradient-to-r from-pink-500 to-pink-600 text-white">
