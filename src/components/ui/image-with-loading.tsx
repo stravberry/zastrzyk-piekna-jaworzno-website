@@ -76,7 +76,7 @@ const ImageWithLoading: React.FC<ImageWithLoadingProps> = ({
   };
 
   return (
-    <div className="relative overflow-hidden">
+    <div className={cn("relative overflow-hidden", className)}>
       {/* Loading skeleton */}
       {isLoading && (
         <div className="absolute inset-0 bg-gray-200 animate-pulse" />
@@ -95,8 +95,7 @@ const ImageWithLoading: React.FC<ImageWithLoadingProps> = ({
             className={cn(
               "transition-opacity duration-300",
               isLoading ? "opacity-0" : "opacity-100",
-              hasError ? "hidden" : "",
-              className
+              hasError ? "hidden" : ""
             )}
             onLoad={handleLoad}
             onError={handleError}
@@ -114,8 +113,7 @@ const ImageWithLoading: React.FC<ImageWithLoadingProps> = ({
           className={cn(
             "transition-opacity duration-300",
             isLoading ? "opacity-0" : "opacity-100",
-            hasError ? "hidden" : "",
-            className
+            hasError ? "hidden" : ""
           )}
           onLoad={handleLoad}
           onError={handleError}
