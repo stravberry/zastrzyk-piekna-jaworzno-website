@@ -134,7 +134,7 @@ const Services = () => {
                       <img 
                         src={service.image} 
                         alt={service.title} 
-                        className="w-full h-auto rounded-lg shadow-lg object-cover"
+                        className="w-full h-auto rounded-lg shadow-lg object-fill"
                         style={{height: "400px"}}
                         onLoad={() => console.log(`Image loaded successfully: ${service.image}`)}
                         onError={(e) => {
