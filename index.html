@@ -26,12 +26,23 @@
     <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:image" content="/lovable-uploads/3a1253e8-eed9-48e4-8df8-71bb5f933f0b.png" />
     
-    <!-- Font optimization -->
+    <!-- Font optimization - aggressive non-blocking approach -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Load fonts asynchronously to prevent render-blocking -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <!-- Preload font files directly for faster loading -->
+    <link rel="preload" href="https://fonts.gstatic.com/s/playfairdisplay/v30/nuFiD-vYSZviVYUb_rj3ij__anPXDTzYgEM8_zM.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="https://fonts.gstatic.com/s/poppins/v20/pxiEyp8kv8JHgFVrJJfecnFHGPc.woff2" as="font" type="font/woff2" crossorigin>
+    <!-- Load font CSS with swap display and async -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <script>
+      // Fallback font loading for better performance
+      if (!window.FontFace) {
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap';
+        document.head.appendChild(link);
+      }
+    </script>
     <noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
     
     <!-- Favicon - zmieniamy na literę Z -->
