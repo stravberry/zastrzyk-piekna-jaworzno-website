@@ -4,12 +4,13 @@ interface VideoLiteProps {
   videoId: string;
   title?: string;
   className?: string;
+  priority?: boolean;
 }
 
 /**
  * Lightweight YouTube embed: shows a thumbnail with play button, loads iframe on click
  */
-const VideoLite: React.FC<VideoLiteProps> = ({ videoId, title = "YouTube video", className = "" }) => {
+const VideoLite: React.FC<VideoLiteProps> = ({ videoId, title = "YouTube video", className = "", priority = false }) => {
   const [isPlaying, setIsPlaying] = useState(false);
 
   const thumbnailUrl = useMemo(() => `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`, [videoId]);
@@ -45,7 +46,8 @@ const VideoLite: React.FC<VideoLiteProps> = ({ videoId, title = "YouTube video",
         src={thumbnailUrl}
         alt={title}
         className="absolute inset-0 w-full h-full object-cover"
-        loading="lazy"
+        loading={priority ? "eager" : "lazy"}
+        fetchPriority={priority ? "high" : "auto"}
       />
 
       {/* Overlay gradient for readability */}

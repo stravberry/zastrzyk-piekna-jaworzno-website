@@ -141,7 +141,7 @@ const HeroSection = () => {
         >
           <div className="w-full bg-white/80 backdrop-blur-sm rounded-lg shadow-md overflow-hidden border border-pink-100">
             <AspectRatio ratio={16 / 9}>
-              <VideoLite videoId="bUmHTcIdrmk" title="Zastrzyk Piękna - Gabinet kosmetologii" className="w-full h-full" />
+              <VideoLite videoId="bUmHTcIdrmk" title="Zastrzyk Piękna - Gabinet kosmetologii" className="w-full h-full" priority={true} />
             </AspectRatio>
           </div>
         </div>
