@@ -77,7 +77,7 @@ const Services = () => {
       <Navbar />
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="bg-pink-50 pt-40 pb-16 md:pb-24">
+        <section className="bg-pink-50 pt-24 md:pt-32 pb-16 md:pb-24">
           <div className="container-custom text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6 font-playfair">
               <span>Zabiegi </span>
