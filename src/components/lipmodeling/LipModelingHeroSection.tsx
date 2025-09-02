@@ -23,7 +23,7 @@ const LipModelingHeroSection: React.FC = () => {
       
       <div className="container-custom relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          <div className="animate-fade-in px-4 md:px-0 mb-10 lg:mb-0">
+          <div className="hero-content px-4 md:px-0 mb-10 lg:mb-0">
             <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold font-playfair mb-4 md:mb-6">
               <span className="text-pink-500">Modelowanie </span>
               <span className="relative">

@@ -46,6 +46,13 @@
     --sidebar-border: 350 15% 90%;
     --sidebar-ring: 350 85% 60%;
   }
+
+  /* Prevent animation flicker on page load */
+  .preload-prevent * {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+    transition-duration: 0s !important;
+  }
 }
 
 @layer base {
@@ -95,5 +102,31 @@
   
   .gold-accent {
     @apply text-gold-500;
+  }
+
+  /* Smooth loading animations - prevent flicker */
+  .animate-fade-in {
+    @apply opacity-100 translate-y-0 transition-all duration-500 ease-out;
+  }
+
+  .animate-fade-in-delayed {
+    @apply opacity-0 translate-y-4;
+    animation: fadeInSmooth 0.6s ease-out forwards;
+  }
+
+  @keyframes fadeInSmooth {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Hero sections should be visible immediately */
+  .hero-content {
+    @apply opacity-100 translate-y-0;
   }
 }

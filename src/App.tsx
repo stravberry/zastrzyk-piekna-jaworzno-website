@@ -9,11 +9,13 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import AppRoutes from "./AppRoutes";
 import { useScrollToTop } from "./hooks/useScrollToTop";
+import { usePreventFlicker } from "./hooks/usePreventFlicker";
 
 const queryClient = new QueryClient();
 
 const AppContent = () => {
   useScrollToTop();
+  usePreventFlicker();
   return <AppRoutes />;
 };
 

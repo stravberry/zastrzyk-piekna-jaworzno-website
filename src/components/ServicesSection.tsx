@@ -67,12 +67,12 @@ const ServicesSection = () => {
           {services.map((service, index) => (
             <div 
               key={service.id}
-              className="transition-all duration-700 animate-fade-in will-change-transform"
-              style={{ 
-                transitionDelay: `${index * 100}ms`,
-                opacity: isHeaderVisible ? 1 : 0,
-                transform: isHeaderVisible ? 'translateY(0)' : 'translateY(20px)'
-              }}
+            className={`transition-all duration-700 will-change-transform ${
+              isHeaderVisible ? 'animate-fade-in-delayed' : 'opacity-0 translate-y-4'
+            }`}
+            style={{ 
+              transitionDelay: `${index * 100}ms`
+            }}
             >
               <ServiceCard 
                 title={service.title} 
