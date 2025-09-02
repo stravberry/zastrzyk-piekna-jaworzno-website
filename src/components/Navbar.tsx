@@ -75,6 +75,7 @@ const Navbar = () => {
         >
           <ImageWithLoading 
             src="/lovable-uploads/804508f2-6a41-40ba-9bcb-9badecb67a15.png" 
+            webpSrc="/lovable-uploads/804508f2-6a41-40ba-9bcb-9badecb67a15.webp"
             alt="Zastrzyk Piękna — logo gabinetu" 
             className="h-24 md:h-32"
             sizes="(max-width: 768px) 96px, 128px"

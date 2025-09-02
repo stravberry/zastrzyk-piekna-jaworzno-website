@@ -14,6 +14,7 @@ const Footer = () => {
             <div className="flex items-center">
               <ImageWithLoading
                 src="/lovable-uploads/804508f2-6a41-40ba-9bcb-9badecb67a15.png" 
+                webpSrc="/lovable-uploads/804508f2-6a41-40ba-9bcb-9badecb67a15.webp"
                 alt="Zastrzyk Piękna — logo gabinetu" 
                 className="h-16 mb-2"
                 sizes="64px"

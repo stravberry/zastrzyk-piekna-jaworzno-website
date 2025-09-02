@@ -45,6 +45,7 @@ const AboutSection = () => {
                 alt="Anna Gajęcka - Kosmetolog" 
                 className="w-full h-auto object-cover" 
                 src="/lovable-uploads/2e819def-450f-472d-bf96-82773e78b080.jpg"
+                webpSrc="/lovable-uploads/2e819def-450f-472d-bf96-82773e78b080.webp"
                 sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 584px"
                 priority={false}
               />
