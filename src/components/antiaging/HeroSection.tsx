@@ -72,8 +72,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             <div className="aspect-square rounded-full bg-gold-100 absolute -bottom-5 -left-5 w-16 h-16 md:w-20 md:h-20 z-0 animate-pulse hidden sm:block" aria-hidden="true"></div>
             <div className="relative z-10 max-w-md mx-auto">
               <img 
-                src="/lovable-uploads/8911cfd6-7a54-4b02-8722-20c61218807d.png" 
-                alt="Terapie przeciwstarzeniowe" 
+                src="/lovable-uploads/3a1253e8-eed9-48e4-8df8-71bb5f933f0b.png" 
+                alt="Terapie przeciwstarzeniowe - pobieranie krwi do zabiegu autologicznego" 
                 className="rounded-lg shadow-xl w-full h-auto aspect-[4/3] object-cover transform-gpu transition-transform duration-700 hover:scale-[1.02]"
                 loading="eager"
               />
