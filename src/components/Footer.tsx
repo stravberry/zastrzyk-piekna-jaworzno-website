@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import ImageWithLoading from "@/components/ui/image-with-loading";
 import { Instagram, MapPin, Phone, Mail } from "lucide-react";
 
 const Footer = () => {
@@ -11,12 +12,12 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="space-y-4">
             <div className="flex items-center">
-              <img 
+              <ImageWithLoading
                 src="/lovable-uploads/804508f2-6a41-40ba-9bcb-9badecb67a15.png" 
                 alt="Zastrzyk Piękna — logo gabinetu" 
                 className="h-16 mb-2"
-                loading="lazy"
-                decoding="async"
+                sizes="64px"
+                priority={false}
               />
             </div>
             <p className="text-gray-600 text-sm">

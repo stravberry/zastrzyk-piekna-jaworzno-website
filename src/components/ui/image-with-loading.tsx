@@ -12,6 +12,8 @@ interface ImageWithLoadingProps {
   onLoad?: () => void;
   onError?: () => void;
   priority?: boolean;
+  sizes?: string;
+  srcSet?: string;
 }
 
 const ImageWithLoading: React.FC<ImageWithLoadingProps> = ({
@@ -23,7 +25,9 @@ const ImageWithLoading: React.FC<ImageWithLoadingProps> = ({
   lazy = true,
   onLoad,
   onError,
-  priority = false
+  priority = false,
+  sizes,
+  srcSet
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isInView, setIsInView] = useState(!lazy || priority);
@@ -112,21 +116,46 @@ const ImageWithLoading: React.FC<ImageWithLoadingProps> = ({
       )}
       
       {/* Actual image */}
-      <img
-        ref={imgRef}
-        src={isInView ? currentSrc : undefined}
-        alt={alt}
-        className={cn(
-          "transition-opacity duration-300",
-          isLoading ? "opacity-0" : "opacity-100",
-          hasError ? "hidden" : "",
-          className
-        )}
-        onLoad={handleLoad}
-        onError={handleError}
-        loading={priority ? "eager" : "lazy"}
-        decoding="async"
-      />
+      {webpSrc ? (
+        <picture>
+          <source srcSet={webpSrc} type="image/webp" sizes={sizes} />
+          <img
+            ref={imgRef}
+            src={isInView ? currentSrc : undefined}
+            srcSet={srcSet}
+            sizes={sizes}
+            alt={alt}
+            className={cn(
+              "transition-opacity duration-300",
+              isLoading ? "opacity-0" : "opacity-100",
+              hasError ? "hidden" : "",
+              className
+            )}
+            onLoad={handleLoad}
+            onError={handleError}
+            loading={priority ? "eager" : "lazy"}
+            decoding="async"
+          />
+        </picture>
+      ) : (
+        <img
+          ref={imgRef}
+          src={isInView ? currentSrc : undefined}
+          srcSet={srcSet}
+          sizes={sizes}
+          alt={alt}
+          className={cn(
+            "transition-opacity duration-300",
+            isLoading ? "opacity-0" : "opacity-100",
+            hasError ? "hidden" : "",
+            className
+          )}
+          onLoad={handleLoad}
+          onError={handleError}
+          loading={priority ? "eager" : "lazy"}
+          decoding="async"
+        />
+      )}
       
       {/* Error fallback */}
       {hasError && (

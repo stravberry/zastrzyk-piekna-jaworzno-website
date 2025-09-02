@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAdvancedTracking } from "@/hooks/useAdvancedTracking";
+import ImageWithLoading from "@/components/ui/image-with-loading";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -61,13 +62,12 @@ const Navbar = () => {
           className="flex items-center"
           onClick={() => trackElementClick('logo', 'Logo Click', 'navbar')}
         >
-          <img 
+          <ImageWithLoading 
             src="/lovable-uploads/804508f2-6a41-40ba-9bcb-9badecb67a15.png" 
             alt="Zastrzyk Piękna — logo gabinetu" 
             className="h-24 md:h-32"
-            loading="eager"
-            decoding="async"
-            fetchPriority="high"
+            sizes="(max-width: 768px) 96px, 128px"
+            priority={true}
           />
         </Link>
 

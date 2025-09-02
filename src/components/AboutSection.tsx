@@ -2,6 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import ImageWithLoading from "@/components/ui/image-with-loading";
 
 const AboutSection = () => {
   return (
@@ -40,10 +41,12 @@ const AboutSection = () => {
 
           <div className="order-1 lg:order-2 relative">
             <div className="rounded-lg overflow-hidden shadow-xl">
-              <img 
+              <ImageWithLoading
                 alt="Anna Gajęcka - Kosmetolog" 
                 className="w-full h-auto object-cover" 
-                src="/lovable-uploads/2e819def-450f-472d-bf96-82773e78b080.jpg" 
+                src="/lovable-uploads/2e819def-450f-472d-bf96-82773e78b080.jpg"
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 584px"
+                priority={false}
               />
             </div>
             <div className="absolute -bottom-5 -right-5 bg-white p-4 rounded-lg shadow-lg border border-pink-100">
