@@ -3,7 +3,6 @@ import React, { useRef, useState } from "react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useLipModelingImages } from "@/hooks/useGalleryImages";
 import GalleryHeader from "./components/GalleryHeader";
-import GalleryMainDisplay from "./components/GalleryMainDisplay";
 import ThumbnailGallery from "./components/ThumbnailGallery";
 import GalleryCTA from "./components/GalleryCTA";
 import FullscreenGallery from "./components/FullscreenGallery";
@@ -59,9 +58,9 @@ const LipModelingGallerySection: React.FC = () => {
             <div className="animate-pulse space-y-4">
               <div className="h-8 bg-gray-200 rounded w-64 mx-auto"></div>
               <div className="h-4 bg-gray-200 rounded w-96 mx-auto"></div>
-              <div className="mt-8 grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-4">
-                {Array.from({ length: 12 }).map((_, i) => (
-                  <div key={i} className="aspect-[9/16] bg-gray-200 rounded"></div>
+              <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <div key={i} className="aspect-[4/5] bg-gray-200 rounded-lg"></div>
                 ))}
               </div>
             </div>
@@ -89,35 +88,15 @@ const LipModelingGallerySection: React.FC = () => {
       <div className="container-custom">
         <GalleryHeader isVisible={isVisible} />
 
-        {/* Main Gallery Display */}
-        <div 
-          className={`mb-12 transition-all duration-1000 ${
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-          }`}
-          style={{ transitionDelay: "300ms" }}
-        >
-          <GalleryMainDisplay
-            currentImage={images[currentImage]}
-            currentIndex={currentImage}
-            totalImages={images.length}
-            onPrevious={prevImage}
-            onNext={nextImage}
-            onSetImage={setCurrentImage}
-            onImageClick={() => openFullscreen()}
-          />
-        </div>
-
-        {/* Thumbnail Gallery */}
+        {/* Gallery Grid */}
         <div 
           className={`transition-all duration-1000 ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}
-          style={{ transitionDelay: "600ms" }}
+          style={{ transitionDelay: "300ms" }}
         >
           <ThumbnailGallery
             images={images}
-            currentIndex={currentImage}
-            onImageSelect={setCurrentImage}
             onImageClick={openFullscreen}
           />
         </div>

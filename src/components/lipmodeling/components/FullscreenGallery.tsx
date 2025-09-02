@@ -38,30 +38,46 @@ const FullscreenGallery: React.FC<FullscreenGalleryProps> = ({
   onNext
 }) => {
   const [isInfoVisible, setIsInfoVisible] = useState(true);
-  
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const currentImage = images[currentIndex];
-  console.log('FullscreenGallery render - currentIndex:', currentIndex, 'currentImage:', currentImage?.title);
 
-  // Handle navigation with direct calls to parent functions
+  // Minimum distance required to trigger swipe
+  const minSwipeDistance = 50;
+
+  // Handle navigation with wrapping (infinite loop)
   const handlePrevious = useCallback(() => {
-    console.log('Previous clicked, current index:', currentIndex, 'total images:', images.length);
-    if (currentIndex > 0) {
-      console.log('Calling onPrevious');
-      onPrevious();
-    } else {
-      console.log('Already at first image');
-    }
-  }, [currentIndex, onPrevious, images.length]);
+    onPrevious();
+  }, [onPrevious]);
 
   const handleNext = useCallback(() => {
-    console.log('Next clicked, current index:', currentIndex, 'total images:', images.length);
-    if (currentIndex < images.length - 1) {
-      console.log('Calling onNext');
-      onNext();
-    } else {
-      console.log('Already at last image');
+    onNext();
+  }, [onNext]);
+
+  // Touch/swipe handlers
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      handleNext();
     }
-  }, [currentIndex, onNext, images.length]);
+    if (isRightSwipe) {
+      handlePrevious();
+    }
+  };
 
   // Preload adjacent images for better UX
   useEffect(() => {
@@ -84,7 +100,6 @@ const FullscreenGallery: React.FC<FullscreenGalleryProps> = ({
     if (!isOpen) return;
 
     const handleKeyPress = (e: KeyboardEvent) => {
-      console.log('Key pressed:', e.key, 'current index:', currentIndex);
       switch (e.key) {
         case 'ArrowLeft':
           e.preventDefault();
@@ -111,7 +126,6 @@ const FullscreenGallery: React.FC<FullscreenGalleryProps> = ({
   }, [isOpen, handlePrevious, handleNext, onClose, currentIndex]);
 
   if (!currentImage) {
-    console.log('No current image found for index:', currentIndex);
     return null;
   }
 
@@ -142,8 +156,7 @@ const FullscreenGallery: React.FC<FullscreenGalleryProps> = ({
             variant="ghost"
             size="lg"
             onClick={handlePrevious}
-            disabled={currentIndex <= 0}
-            className="absolute left-4 z-20 text-white hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed"
+            className="absolute left-4 z-20 text-white hover:bg-white/20"
             aria-label="Poprzednie zdjęcie"
           >
             <ChevronLeft className="w-8 h-8" />
@@ -153,15 +166,19 @@ const FullscreenGallery: React.FC<FullscreenGalleryProps> = ({
             variant="ghost"
             size="lg"
             onClick={handleNext}
-            disabled={currentIndex >= images.length - 1}
-            className="absolute right-4 z-20 text-white hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed"
+            className="absolute right-4 z-20 text-white hover:bg-white/20"
             aria-label="Następne zdjęcie"
           >
             <ChevronRight className="w-8 h-8" />
           </Button>
 
-          {/* Main image container with proper sizing */}
-          <div className="relative w-full h-full flex items-center justify-center p-16">
+          {/* Main image container with touch support */}
+          <div 
+            className="relative w-full h-full flex items-center justify-center p-16"
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+          >
             <div className="relative max-w-full max-h-full flex items-center justify-center">
               <ImageWithLoading
                 key={`${currentImage.id}-${currentIndex}`}
@@ -211,7 +228,7 @@ const FullscreenGallery: React.FC<FullscreenGalleryProps> = ({
 
           {/* Touch/swipe indicators */}
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white/60 text-xs md:hidden">
-            Przesuń palcem lub użyj strzałek
+            Przesuń palcem aby przełączać zdjęcia
           </div>
         </div>
       </DialogContent>

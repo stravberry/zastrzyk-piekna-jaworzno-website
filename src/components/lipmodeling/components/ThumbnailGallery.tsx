@@ -20,41 +20,35 @@ interface GalleryImage {
 
 interface ThumbnailGalleryProps {
   images: GalleryImage[];
-  currentIndex: number;
-  onImageSelect: (index: number) => void;
   onImageClick: (index: number) => void;
 }
 
 const ThumbnailGallery: React.FC<ThumbnailGalleryProps> = ({
   images,
-  currentIndex,
-  onImageSelect,
   onImageClick
 }) => {
   return (
-    <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
       {images.map((image, index) => (
         <button
           key={image.id}
           onClick={() => onImageClick(index)}
-          onMouseEnter={() => onImageSelect(index)}
-          className={`relative group rounded-lg overflow-hidden transition-all ${
-            index === currentIndex 
-              ? 'ring-2 ring-pink-500 shadow-lg' 
-              : 'hover:shadow-md hover:scale-105'
-          }`}
+          className="relative group rounded-lg overflow-hidden transition-all hover:shadow-lg focus:ring-2 focus:ring-pink-500 focus:outline-none"
         >
-          <AspectRatio ratio={9/16}>
+          <AspectRatio ratio={4/5}>
             <ImageWithLoading
               src={image.after}
               webpSrc={image.webp_url}
               thumbnailSrc={image.thumbnail_url}
-              alt={`Miniatura - ${image.description}`}
+              alt={`Efekt zabiegu - ${image.description}`}
               className="w-full h-full object-cover"
-              priority={index < 6} // Prioritize first 6 images
+              priority={index < 8} // Prioritize first 8 images
             />
           </AspectRatio>
-          <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute bottom-0 left-0 right-0 p-3 text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <p className="truncate">{image.technique}</p>
+          </div>
         </button>
       ))}
     </div>
