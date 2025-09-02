@@ -132,8 +132,8 @@ const Services = () => {
                   <div className={`relative ${index % 2 !== 0 ? 'lg:col-start-1' : ''}`}>
                     {service.image ? (
                       <img 
-                        src={service.image} 
-                        alt={service.title} 
+                        src="/lovable-uploads/f6d875fb-15fb-435b-bafe-cacdf2df9980.png" 
+                        alt="Zabiegi autologiczne - pobieranie krwi do terapii przeciwstarzeniowych" 
                         className="w-full h-auto rounded-lg shadow-lg object-cover"
                         style={{height: "400px"}}
                         onError={(e) => {
