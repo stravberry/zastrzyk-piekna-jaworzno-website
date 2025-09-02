@@ -121,7 +121,7 @@ const ImageWithLoading: React.FC<ImageWithLoadingProps> = ({
           <source srcSet={webpSrc} type="image/webp" sizes={sizes} />
           <img
             ref={imgRef}
-            src={isInView ? currentSrc : undefined}
+            src={isInView ? src : undefined}
             srcSet={srcSet}
             sizes={sizes}
             alt={alt}
