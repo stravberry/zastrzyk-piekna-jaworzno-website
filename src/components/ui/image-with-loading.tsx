@@ -78,9 +78,9 @@ const ImageWithLoading: React.FC<ImageWithLoadingProps> = ({
 
   return (
     <div className="relative bg-transparent">
-      {/* Loading skeleton - only for non-priority images */}
-      {isLoading && !priority && (
-        <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+      {/* Loading skeleton - disabled for priority images */}
+      {isLoading && !priority && lazy && (
+        <div className="absolute inset-0 bg-muted/20 animate-pulse" />
       )}
       
       {/* Actual image */}
