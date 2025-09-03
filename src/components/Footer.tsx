@@ -15,7 +15,7 @@ const Footer = () => {
               <ImageWithLoading
                 src="/lovable-uploads/ca8b4446-c52a-49cd-8797-c645d772eb94.png" 
                 alt="Zastrzyk Piękna — logo gabinetu" 
-                className="h-16 mb-2"
+                className="h-16 mb-2 logo-image"
                 sizes="64px"
                 priority={true}
               />

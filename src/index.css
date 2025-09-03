@@ -99,4 +99,15 @@
   .hero-content {
     @apply opacity-100 translate-y-0;
   }
+
+  /* Logo styling - ensures transparent background globally */
+  .logo-image {
+    @apply bg-transparent;
+    mix-blend-mode: multiply;
+  }
+  
+  .logo-image img {
+    @apply bg-transparent;
+    mix-blend-mode: multiply;
+  }
 }
