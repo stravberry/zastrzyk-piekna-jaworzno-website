@@ -70,6 +70,7 @@ const ImageWithLoading: React.FC<ImageWithLoadingProps> = ({
   };
 
   const handleError = () => {
+    console.error('Image loading failed:', src, 'Alt:', alt);
     setHasError(true);
     setIsLoading(false);
     onError?.();
