@@ -5,12 +5,13 @@ import { blogPosts } from "@/data/blogData";
 import { mapDbPostToFrontend, seedBlogPosts } from "./blogCore";
 import { incrementBlogPostViews, getAllPostViews } from "./blogViews";
 
-// Get all blog posts
+// Get all blog posts (only published ones for public view)
 export const getAllBlogPosts = async (): Promise<BlogPost[]> => {
   try {
     const { data, error } = await supabase
       .from('blog_posts')
       .select('*')
+      .eq('is_published', true)
       .order('date', { ascending: false });
 
     if (error) {
@@ -36,13 +37,14 @@ export const getAllBlogPosts = async (): Promise<BlogPost[]> => {
   }
 };
 
-// Get a single blog post by ID and increment view count
+// Get a single blog post by ID and increment view count (only published ones)
 export const getBlogPostById = async (id: number): Promise<BlogPost | null> => {
   try {
     const { data, error } = await supabase
       .from('blog_posts')
       .select('*')
       .eq('id', id)
+      .eq('is_published', true)
       .single();
 
     if (error) {
@@ -102,7 +104,8 @@ export const createBlogPost = async (postData: BlogPostDraft): Promise<BlogPost>
         meta_title: postData.seo?.metaTitle,
         meta_description: postData.seo?.metaDescription,
         keywords: keywords,
-        date: new Date().toISOString()
+        date: new Date().toISOString(),
+        is_published: true // New posts are published by default
       })
       .select()
       .single();
@@ -216,6 +219,62 @@ export const seedSamplePosts = async (): Promise<boolean> => {
     return true;
   } catch (error) {
     console.error('Error in seedSamplePosts:', error);
+    return false;
+  }
+};
+
+// Admin function: Get all blog posts (including unpublished)
+export const getAllBlogPostsForAdmin = async (): Promise<BlogPost[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*')
+      .order('date', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching all blog posts for admin:', error);
+      throw error;
+    }
+
+    // Get all view counts
+    const viewsMap = await getAllPostViews();
+
+    return data.map(post => {
+      const mappedPost = mapDbPostToFrontend(post);
+      // Use real view count from database
+      if (mappedPost.stats) {
+        mappedPost.stats.views = viewsMap[post.id] || 0;
+      }
+      return mappedPost;
+    });
+  } catch (error) {
+    console.error('Error in getAllBlogPostsForAdmin:', error);
+    return [];
+  }
+};
+
+// Admin function: Toggle post publication status
+export const togglePostPublication = async (id: number, isPublished: boolean): Promise<boolean> => {
+  try {
+    // Verify auth status before continuing
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) {
+      throw new Error("User must be authenticated to update blog posts");
+    }
+    
+    const { error } = await supabase
+      .from('blog_posts')
+      .update({ is_published: isPublished })
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error updating post publication status:', error);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error in togglePostPublication:', error);
     return false;
   }
 };

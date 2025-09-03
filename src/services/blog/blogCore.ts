@@ -30,6 +30,7 @@ export const mapDbPostToFrontend = (dbPost: any): BlogPost => {
     readTime: dbPost.read_time,
     date: formattedDate,
     slug: dbPost.slug || `/blog/${dbPost.id}`,
+    isPublished: dbPost.is_published,
     seo: {
       metaTitle: dbPost.meta_title || dbPost.title,
       metaDescription: dbPost.meta_description || dbPost.excerpt,

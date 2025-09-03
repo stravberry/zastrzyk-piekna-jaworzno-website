@@ -25,6 +25,7 @@ export interface BlogPost {
   image: string;
   readTime: string;
   slug: string;
+  isPublished?: boolean;
   seo: {
     metaTitle: string;
     metaDescription: string;
