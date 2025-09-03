@@ -74,7 +74,7 @@ const Navbar = () => {
           onClick={() => trackElementClick('logo', 'Logo Click', 'navbar')}
         >
           <ImageWithLoading 
-            src="/lovable-uploads/b4c6bb25-923b-4b9e-b22f-d62c3114c4cf.png" 
+            src="/lovable-uploads/be710c83-a656-488e-a05c-4c4734471405.png" 
             alt="Zastrzyk Piękna — logo gabinetu" 
             className="h-24 md:h-32"
             sizes="(max-width: 768px) 96px, 128px"
