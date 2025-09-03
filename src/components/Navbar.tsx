@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAdvancedTracking } from "@/hooks/useAdvancedTracking";
-import ImageWithLoading from "@/components/ui/image-with-loading";
+import LogoWithFallback from "@/components/ui/LogoWithFallback";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -73,10 +73,8 @@ const Navbar = () => {
           className="flex items-center"
           onClick={() => trackElementClick('logo', 'Logo Click', 'navbar')}
         >
-          <ImageWithLoading 
-            src="/lovable-uploads/ca8b4446-c52a-49cd-8797-c645d772eb94.png" 
-            alt="Zastrzyk Piękna — logo gabinetu" 
-            className="h-24 md:h-32 logo-image"
+          <LogoWithFallback 
+            className="h-24 md:h-32"
             sizes="(max-width: 768px) 96px, 128px"
             priority={true}
           />

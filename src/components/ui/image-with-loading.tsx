@@ -77,7 +77,7 @@ const ImageWithLoading: React.FC<ImageWithLoadingProps> = ({
   };
 
   // Check if this is a logo image
-  const isLogo = className?.includes('logo-image');
+  const isLogo = className?.includes('logo-image-v3-20250903');
 
   return (
     <div className={cn("relative", isLogo ? "bg-transparent" : "bg-transparent")}>

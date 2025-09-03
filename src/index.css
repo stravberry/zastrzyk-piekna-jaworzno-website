@@ -100,37 +100,105 @@
     @apply opacity-100 translate-y-0;
   }
 
-  /* Logo styling v2 - aggressive transparent background fix */
-  .logo-image {
+  /* Logo styling v3 - cache busting 20250903 - comprehensive fix */
+  .logo-image-v3-20250903 {
+    isolation: isolate;
     background: transparent !important;
     background-color: transparent !important;
     background-image: none !important;
-    mix-blend-mode: multiply;
-    filter: drop-shadow(0 0 0 transparent);
+    position: relative;
+    overflow: hidden;
   }
   
-  .logo-image img {
+  .logo-image-v3-20250903 img,
+  .logo-image-v3-20250903 picture img {
     background: transparent !important;
     background-color: transparent !important;
     background-image: none !important;
-    mix-blend-mode: multiply;
-    filter: brightness(0) invert(1) brightness(1);
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    
+    /* Primary method: CSS mask for transparency */
+    -webkit-mask-image: linear-gradient(transparent, transparent);
+    mask-image: linear-gradient(transparent, transparent);
+    
+    /* Secondary method: Advanced filters */
+    filter: 
+      brightness(0) 
+      invert(1) 
+      contrast(100%) 
+      drop-shadow(0 0 0 transparent);
   }
   
-  .logo-image picture {
+  .logo-image-v3-20250903 picture {
     background: transparent !important;
     background-color: transparent !important;
+    background-image: none !important;
+    display: block;
+    width: 100%;
+    height: 100%;
   }
   
-  .logo-image picture img {
-    background: transparent !important;
-    background-color: transparent !important;
-  }
-  
-  /* Fallback for browsers that don't support mix-blend-mode */
-  @supports not (mix-blend-mode: multiply) {
-    .logo-image img {
-      filter: brightness(0) invert(1);
+  /* Fallback method 1: clip-path */
+  @supports (clip-path: inset(0)) {
+    .logo-image-v3-20250903 img {
+      clip-path: inset(0);
     }
+  }
+  
+  /* Fallback method 2: mix-blend-mode for compatibility */
+  @supports (mix-blend-mode: multiply) {
+    .logo-image-v3-20250903 img {
+      mix-blend-mode: multiply;
+    }
+  }
+  
+  /* Force transparency override */
+  .logo-image-v3-20250903::before,
+  .logo-image-v3-20250903::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent !important;
+    pointer-events: none;
+    z-index: -1;
+  }
+  
+  /* Dark mode compatibility */
+  .dark .logo-image-v3-20250903 img {
+    filter: 
+      brightness(0) 
+      invert(1) 
+      contrast(100%) 
+      brightness(1);
+  }
+  
+  /* Mobile optimization */
+  @media (max-width: 768px) {
+    .logo-image-v3-20250903 img {
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+    }
+  }
+
+  /* Clean fallback logo styling */
+  .logo-fallback-clean {
+    display: block;
+    background: transparent !important;
+    background-color: transparent !important;
+  }
+  
+  .logo-fallback-clean img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: transparent !important;
+    background-color: transparent !important;
   }
 }

@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import ImageWithLoading from "@/components/ui/image-with-loading";
+import LogoWithFallback from "@/components/ui/LogoWithFallback";
 import { Instagram, MapPin, Phone, Mail } from "lucide-react";
 
 const Footer = () => {
@@ -12,10 +12,8 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="space-y-4">
             <div className="flex items-center">
-              <ImageWithLoading
-                src="/lovable-uploads/ca8b4446-c52a-49cd-8797-c645d772eb94.png" 
-                alt="Zastrzyk Piękna — logo gabinetu" 
-                className="h-16 mb-2 logo-image"
+              <LogoWithFallback
+                className="h-16 mb-2"
                 sizes="64px"
                 priority={true}
               />
