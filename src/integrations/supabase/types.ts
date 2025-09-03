@@ -1317,6 +1317,10 @@ export type Database = {
         Args: { p_body_code: string; p_head_code: string }
         Returns: undefined
       }
+      validate_admin_contact_access: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       validate_patient_access_session: {
         Args: Record<PropertyKey, never>
         Returns: boolean
