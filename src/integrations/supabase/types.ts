@@ -850,6 +850,45 @@ export type Database = {
         }
         Relationships: []
       }
+      security_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string | null
+          description: string
+          id: string
+          metadata: Json | null
+          resolved: boolean | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          title: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string | null
+          description: string
+          id?: string
+          metadata?: Json | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity: string
+          title: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string | null
+          description?: string
+          id?: string
+          metadata?: Json | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          title?: string
+        }
+        Relationships: []
+      }
       security_audit_log: {
         Row: {
           created_at: string | null
@@ -1108,6 +1147,16 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      create_security_alert: {
+        Args: {
+          _description: string
+          _metadata?: Json
+          _severity: string
+          _title: string
+          _type: string
+        }
+        Returns: string
+      }
       decrypt_contact_data: {
         Args: { encrypted_data: string }
         Returns: string
@@ -1123,6 +1172,15 @@ export type Database = {
       encrypt_sensitive_data: {
         Args: { data: string }
         Returns: string
+      }
+      enhanced_contact_security_check: {
+        Args: {
+          _email: string
+          _honeypot_field?: string
+          _ip_address: unknown
+          _user_agent: string
+        }
+        Returns: Json
       }
       enhanced_rate_limit_check: {
         Args: {
@@ -1321,7 +1379,15 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      validate_admin_session_security: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       validate_patient_access_session: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      validate_patient_access_session_enhanced: {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }

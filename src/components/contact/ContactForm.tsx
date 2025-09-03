@@ -20,19 +20,20 @@ const contactSchema = z.object({
   subject: z.string().min(3, "Temat musi mieć co najmniej 3 znaki"),
   message: z.string().min(10, "Wiadomość musi mieć co najmniej 10 znaków"),
   consent_given: z.boolean().refine(val => val === true, "Zgoda jest wymagana"),
+  honeypot: z.string().optional(), // Security honeypot field
 });
 
 const ContactForm = () => {
   const { trackConversion, trackFormInteraction, trackFormField } = useAdvancedTracking();
 
-  // Fixed default values - all required fields must have defined values
-  const defaultValues: ContactFormData = {
+  const defaultValues: ContactFormData & { honeypot?: string } = {
     name: "",
     email: "",
     phone: "",
     subject: "",
     message: "",
     consent_given: false,
+    honeypot: "", // Security honeypot field
   };
 
   const form = useForm<ContactFormData>({
@@ -111,6 +112,22 @@ const ContactForm = () => {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {/* Security honeypot field - hidden from users */}
+          <div style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }}>
+            <FormField
+              control={form.control}
+              name="honeypot"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Leave this field empty</FormLabel>
+                  <FormControl>
+                    <Input {...field} tabIndex={-1} autoComplete="off" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+
           <FormField
             control={form.control}
             name="name"

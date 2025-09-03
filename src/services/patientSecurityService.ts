@@ -5,6 +5,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { logSecurityEvent } from "./securityService";
+import { secureLogger } from "@/utils/secureLogger";
 
 // Patient data interface with security metadata
 export interface SecurePatient {
@@ -292,16 +293,17 @@ export const logEmergencyPatientAccess = async (
  */
 export const validatePatientAccess = async (): Promise<boolean> => {
   try {
-    const { data, error } = await supabase.rpc('validate_patient_access_session');
+    // Use enhanced validation function
+    const { data, error } = await supabase.rpc('validate_patient_access_session_enhanced');
     
     if (error) {
-      console.error('Patient access validation failed:', error);
+      secureLogger.error('Failed to validate patient access', { error: error.message });
       return false;
     }
     
     return data === true;
   } catch (error) {
-    console.error('Patient access validation error:', error);
+    secureLogger.error('Error validating patient access', { error });
     return false;
   }
 };
