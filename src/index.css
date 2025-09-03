@@ -100,14 +100,37 @@
     @apply opacity-100 translate-y-0;
   }
 
-  /* Logo styling - ensures transparent background globally */
+  /* Logo styling v2 - aggressive transparent background fix */
   .logo-image {
-    @apply bg-transparent;
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
     mix-blend-mode: multiply;
+    filter: drop-shadow(0 0 0 transparent);
   }
   
   .logo-image img {
-    @apply bg-transparent;
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
     mix-blend-mode: multiply;
+    filter: brightness(0) invert(1) brightness(1);
+  }
+  
+  .logo-image picture {
+    background: transparent !important;
+    background-color: transparent !important;
+  }
+  
+  .logo-image picture img {
+    background: transparent !important;
+    background-color: transparent !important;
+  }
+  
+  /* Fallback for browsers that don't support mix-blend-mode */
+  @supports not (mix-blend-mode: multiply) {
+    .logo-image img {
+      filter: brightness(0) invert(1);
+    }
   }
 }

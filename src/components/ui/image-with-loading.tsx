@@ -76,10 +76,13 @@ const ImageWithLoading: React.FC<ImageWithLoadingProps> = ({
     onError?.();
   };
 
+  // Check if this is a logo image
+  const isLogo = className?.includes('logo-image');
+
   return (
-    <div className="relative bg-transparent">
-      {/* Loading skeleton - disabled for priority images */}
-      {isLoading && !priority && lazy && (
+    <div className={cn("relative", isLogo ? "bg-transparent" : "bg-transparent")}>
+      {/* Loading skeleton - disabled for priority images and logos */}
+      {isLoading && !priority && lazy && !isLogo && (
         <div className="absolute inset-0 bg-muted/20 animate-pulse" />
       )}
       
