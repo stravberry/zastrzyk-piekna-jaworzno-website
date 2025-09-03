@@ -6,6 +6,7 @@ import Gallery from "./pages/Gallery";
 import Pricing from "./pages/Pricing";
 import AboutMe from "./pages/AboutMe";
 import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import LipModeling from "./pages/LipModeling";
@@ -43,6 +44,7 @@ const AppRoutes = () => {
       <Route path="/cennik" element={<Pricing />} />
       <Route path="/o-mnie" element={<AboutMe />} />
       <Route path="/blog" element={<Blog />} />
+      <Route path="/blog/:slug" element={<BlogPost />} />
       <Route path="/kontakt" element={<Contact />} />
       <Route path="/zabiegi/modelowanie-ust" element={<LipModeling />} />
       <Route path="/zabiegi/terapie-antystarzeniowe" element={<AntiAgingTherapies />} />
