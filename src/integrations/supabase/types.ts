@@ -181,6 +181,13 @@ export type Database = {
             referencedRelation: "blog_posts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "blog_post_views_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "published_blog_posts"
+            referencedColumns: ["id"]
+          },
         ]
       }
       blog_posts: {
@@ -192,6 +199,7 @@ export type Database = {
           excerpt: string
           id: number
           image: string | null
+          is_published: boolean
           keywords: string[] | null
           meta_description: string | null
           meta_title: string | null
@@ -208,6 +216,7 @@ export type Database = {
           excerpt: string
           id?: number
           image?: string | null
+          is_published?: boolean
           keywords?: string[] | null
           meta_description?: string | null
           meta_title?: string | null
@@ -224,6 +233,7 @@ export type Database = {
           excerpt?: string
           id?: number
           image?: string | null
+          is_published?: boolean
           keywords?: string[] | null
           meta_description?: string | null
           meta_title?: string | null
@@ -1009,7 +1019,60 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      published_blog_posts: {
+        Row: {
+          author_id: string | null
+          category: string | null
+          content: string | null
+          date: string | null
+          excerpt: string | null
+          id: number | null
+          image: string | null
+          is_published: boolean | null
+          keywords: string[] | null
+          meta_description: string | null
+          meta_title: string | null
+          read_time: string | null
+          slug: string | null
+          title: string | null
+          view_count: number | null
+        }
+        Insert: {
+          author_id?: string | null
+          category?: string | null
+          content?: string | null
+          date?: string | null
+          excerpt?: string | null
+          id?: number | null
+          image?: string | null
+          is_published?: boolean | null
+          keywords?: string[] | null
+          meta_description?: string | null
+          meta_title?: string | null
+          read_time?: string | null
+          slug?: string | null
+          title?: string | null
+          view_count?: number | null
+        }
+        Update: {
+          author_id?: string | null
+          category?: string | null
+          content?: string | null
+          date?: string | null
+          excerpt?: string | null
+          id?: number | null
+          image?: string | null
+          is_published?: boolean | null
+          keywords?: string[] | null
+          meta_description?: string | null
+          meta_title?: string | null
+          read_time?: string | null
+          slug?: string | null
+          title?: string | null
+          view_count?: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       anonymize_ip: {
