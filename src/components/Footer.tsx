@@ -13,12 +13,11 @@ const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center">
               <ImageWithLoading
-                src="/lovable-uploads/804508f2-6a41-40ba-9bcb-9badecb67a15.png" 
-                webpSrc="/lovable-uploads/804508f2-6a41-40ba-9bcb-9badecb67a15.webp"
+                src="/lovable-uploads/ca8b4446-c52a-49cd-8797-c645d772eb94.png" 
                 alt="Zastrzyk Piękna — logo gabinetu" 
                 className="h-16 mb-2"
                 sizes="64px"
-                priority={false}
+                priority={true}
               />
             </div>
             <p className="text-gray-600 text-sm">
