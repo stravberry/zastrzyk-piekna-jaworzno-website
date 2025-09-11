@@ -24,11 +24,12 @@ export const generateZFavicon = (): string => {
 };
 
 /**
- * Updates the favicon dynamically
+ * Updates the favicon dynamically with cache busting
  */
 export const updateFavicon = () => {
-  // Generate the favicon data URI
+  // Generate the favicon data URI with timestamp for cache busting
   const faviconUri = generateZFavicon();
+  const timestamp = Date.now();
   
   // Find existing favicon link element or create a new one
   let linkElement = document.querySelector("link[rel*='icon']") as HTMLLinkElement;
@@ -38,7 +39,12 @@ export const updateFavicon = () => {
     document.head.appendChild(linkElement);
   }
   
-  // Update the href attribute with our new favicon
-  linkElement.href = faviconUri;
+  // Update the href attribute with cache busting
+  linkElement.href = `${faviconUri}?v=${timestamp}`;
   linkElement.type = 'image/svg+xml';
+  
+  // Force browser cache refresh
+  const newLink = linkElement.cloneNode(true) as HTMLLinkElement;
+  linkElement.parentNode?.insertBefore(newLink, linkElement);
+  setTimeout(() => linkElement.remove(), 100);
 };

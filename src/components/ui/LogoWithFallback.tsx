@@ -26,12 +26,14 @@ const LogoWithFallback: React.FC<LogoWithFallbackProps> = ({
     }
   };
 
+  // Add timestamp for aggressive cache busting
+  const timestamp = Date.now();
   const logoSrc = useOriginal && !hasError 
-    ? "/lovable-uploads/ca8b4446-c52a-49cd-8797-c645d772eb94.png"
+    ? `/lovable-uploads/ca8b4446-c52a-49cd-8797-c645d772eb94.png?v=${timestamp}`
     : logoFallback;
 
   const logoClass = useOriginal && !hasError 
-    ? `${className} logo-image-v3-20250903`
+    ? `${className} logo-image-v4-20250911-fixed`
     : `${className} logo-fallback-clean`;
 
   return (

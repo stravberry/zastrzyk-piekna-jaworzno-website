@@ -201,4 +201,45 @@
     background: transparent !important;
     background-color: transparent !important;
   }
+
+  /* New Logo Image Styling v4 - Simplified and Compatible */
+  .logo-image-v4-20250911-fixed {
+    position: relative;
+    display: block;
+    background: transparent !important;
+    background-color: transparent !important;
+  }
+  
+  .logo-image-v4-20250911-fixed img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    background: transparent !important;
+    background-color: transparent !important;
+    /* Remove all problematic filters that cause black rendering */
+  }
+  
+  /* Progressive enhancement for better transparency */
+  @supports (background-blend-mode: multiply) {
+    .logo-image-v4-20250911-fixed {
+      background: radial-gradient(ellipse at center, transparent 30%, rgba(255,255,255,0.1) 100%);
+      background-blend-mode: multiply;
+    }
+  }
+  
+  /* Dark mode - minimal changes */
+  .dark .logo-image-v4-20250911-fixed img {
+    opacity: 0.95;
+    /* Remove invert filter that causes issues */
+  }
+  
+  /* Mobile optimization */
+  @media (max-width: 768px) {
+    .logo-image-v4-20250911-fixed img {
+      image-rendering: crisp-edges;
+      transform: translateZ(0); /* Force GPU acceleration */
+    }
+  }
 }

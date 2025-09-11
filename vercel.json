@@ -40,6 +40,23 @@
       ]
     },
     {
+      "source": "/lovable-uploads/ca8b4446-c52a-49cd-8797-c645d772eb94.png",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        },
+        {
+          "key": "Pragma",
+          "value": "no-cache"
+        },
+        {
+          "key": "Expires",
+          "value": "0"
+        }
+      ]
+    },
+    {
       "source": "/lovable-uploads/(.*)",
       "headers": [
         {
