@@ -11,12 +11,8 @@ const Footer = () => {
       <div className="container-custom">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="space-y-4">
-            <div className="flex items-center">
-              <LogoWithFallback
-                className="h-16 mb-2"
-                sizes="64px"
-                priority={true}
-              />
+            <div className="flex items-center mb-2">
+              <h3 className="text-xl font-semibold text-primary">Zastrzyk Piękna</h3>
             </div>
             <p className="text-gray-600 text-sm">
               Gabinet kosmetologii estetycznej prowadzony przez Annę Gajęcką, 

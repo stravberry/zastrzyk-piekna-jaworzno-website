@@ -73,11 +73,9 @@ const Navbar = () => {
           className="flex items-center"
           onClick={() => trackElementClick('logo', 'Logo Click', 'navbar')}
         >
-          <LogoWithFallback 
-            className="h-24 md:h-32"
-            sizes="(max-width: 768px) 96px, 128px"
-            priority={true}
-          />
+          <div className="h-24 md:h-32 w-32 flex items-center">
+            <span className="text-lg font-semibold text-primary">Zastrzyk Piękna</span>
+          </div>
         </Link>
 
         {/* Desktop Navigation */}
