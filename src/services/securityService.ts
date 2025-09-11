@@ -115,30 +115,30 @@ export const validateUserSession = async (): Promise<{
   needsReauth: boolean;
 }> => {
   try {
-    const { data: { session }, error } = await supabase.auth.getSession();
+    // Use the enhanced session validation function
+    const { data: sessionValid, error } = await supabase.rpc('validate_patient_access_session_enhanced');
     
     if (error) {
-      await logSecurityEvent('session_validation_error', 'medium', { error: error.message });
+      await logSecurityEvent('enhanced_session_validation_error', 'medium', { error: error.message });
       return { isValid: false, user: null, needsReauth: true };
     }
-
-    if (!session) {
-      return { isValid: false, user: null, needsReauth: false };
-    }
-
-    // Check if session is expired
-    const now = new Date().getTime();
-    const expiresAt = new Date(session.expires_at || 0).getTime();
     
-    if (now >= expiresAt) {
-      await logSecurityEvent('session_expired', 'low', { 
-        user_id: session.user.id,
-        expires_at: session.expires_at 
+    if (!sessionValid) {
+      return { isValid: false, user: null, needsReauth: true };
+    }
+    
+    // Get current session and user
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !session) {
+      await logSecurityEvent('session_retrieval_failed', 'medium', {
+        error: sessionError?.message || 'No session',
+        timestamp: new Date().toISOString()
       });
       return { isValid: false, user: null, needsReauth: true };
     }
 
-    // Validate user still exists and has proper permissions
+    // Validate user role with additional security checks
     const { data: userRole, error: roleError } = await supabase.rpc('get_current_user_role');
     
     if (roleError) {
@@ -149,10 +149,11 @@ export const validateUserSession = async (): Promise<{
       return { isValid: false, user: null, needsReauth: true };
     }
 
-    // Log successful session validation for audit purposes
-    await logSecurityEvent('session_validated', 'low', { 
+    // Log successful enhanced session validation for audit purposes
+    await logSecurityEvent('enhanced_session_validated', 'low', { 
       user_id: session.user.id,
-      role: userRole 
+      role: userRole,
+      validation_method: 'enhanced'
     });
 
     return { 
@@ -161,8 +162,8 @@ export const validateUserSession = async (): Promise<{
       needsReauth: false 
     };
   } catch (error) {
-    secureLogger.error('Session validation failed:', error);
-    await logSecurityEvent('session_validation_failed', 'high', { 
+    secureLogger.error('Enhanced session validation failed:', error);
+    await logSecurityEvent('enhanced_session_validation_failed', 'high', { 
       error: error instanceof Error ? error.message : 'Unknown error' 
     });
     return { isValid: false, user: null, needsReauth: true };

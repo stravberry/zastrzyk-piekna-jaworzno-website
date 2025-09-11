@@ -1157,12 +1157,20 @@ export type Database = {
         }
         Returns: string
       }
+      decrypt_calendar_token: {
+        Args: { encrypted_token: string }
+        Returns: string
+      }
       decrypt_contact_data: {
         Args: { encrypted_data: string }
         Returns: string
       }
       decrypt_sensitive_data: {
         Args: { encrypted_data: string }
+        Returns: string
+      }
+      encrypt_calendar_token: {
+        Args: { token: string }
         Returns: string
       }
       encrypt_contact_data: {
@@ -1205,6 +1213,13 @@ export type Database = {
           last_sign_in_at: string
           roles: string[]
           user_id: string
+        }[]
+      }
+      get_calendar_tokens_secure: {
+        Args: { integration_id: string }
+        Returns: {
+          access_token: string
+          refresh_token: string
         }[]
       }
       get_code_settings: {
