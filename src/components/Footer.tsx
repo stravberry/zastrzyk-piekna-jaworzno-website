@@ -77,7 +77,7 @@ const Footer = () => {
             <h4 className="text-lg font-semibold font-playfair">Zabiegi</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/zabiegi/terapie-przeciwstarzeniowe" className="text-gray-600 hover:text-pink-500 transition-colors text-sm">
+                <Link to="/zabiegi/terapie-antystarzeniowe" className="text-gray-600 hover:text-pink-500 transition-colors text-sm">
                   Terapie przeciwstarzeniowe
                 </Link>
               </li>
