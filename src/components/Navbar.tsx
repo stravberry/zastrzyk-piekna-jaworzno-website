@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAdvancedTracking } from "@/hooks/useAdvancedTracking";
 import LogoWithFallback from "@/components/ui/LogoWithFallback";
+import logo from "@/assets/zastrzyk-piekna-logo.png";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -73,8 +74,12 @@ const Navbar = () => {
           className="flex items-center"
           onClick={() => trackElementClick('logo', 'Logo Click', 'navbar')}
         >
-          <div className="h-24 md:h-32 w-32 flex items-center">
-            <span className="text-lg font-semibold text-primary">Zastrzyk Piękna</span>
+          <div className="h-24 md:h-32 w-auto flex items-center">
+            <img 
+              src={logo} 
+              alt="Zastrzyk Piękna - Kosmetolog Anna Gajęcka" 
+              className="h-12 md:h-16 w-auto object-contain"
+            />
           </div>
         </Link>
 
