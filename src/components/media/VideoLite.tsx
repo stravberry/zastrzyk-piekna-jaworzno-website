@@ -48,6 +48,9 @@ const VideoLite: React.FC<VideoLiteProps> = ({ videoId, title = "YouTube video",
         className="absolute inset-0 w-full h-full object-cover"
         loading={priority ? "eager" : "lazy"}
         fetchPriority={priority ? "high" : "auto"}
+        decoding="async"
+        width="480"
+        height="360"
       />
 
       {/* Overlay gradient for readability */}
