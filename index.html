@@ -29,6 +29,10 @@
     <!-- Font optimization - aggressive non-blocking approach -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- YouTube preconnect for faster video thumbnail loading -->
+    <link rel="preconnect" href="https://img.youtube.com">
+    <link rel="dns-prefetch" href="https://img.youtube.com">
     <!-- Preload font files directly for faster loading -->
     <link rel="preload" href="https://fonts.gstatic.com/s/playfairdisplay/v30/nuFiD-vYSZviVYUb_rj3ij__anPXDTzYgEM8_zM.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="https://fonts.gstatic.com/s/poppins/v20/pxiEyp8kv8JHgFVrJJfecnFHGPc.woff2" as="font" type="font/woff2" crossorigin>
@@ -55,8 +59,12 @@
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-KSDBNZN4');</script>
     <!-- End Google Tag Manager -->
+    <!-- Critical images preload -->
     <link rel="preload" as="image" href="/lovable-uploads/804508f2-6a41-40ba-9bcb-9badecb67a15.webp" imagesrcset="/lovable-uploads/804508f2-6a41-40ba-9bcb-9badecb67a15.webp" fetchpriority="high" type="image/webp" />
     <link rel="preload" as="image" href="/lovable-uploads/2e819def-450f-472d-bf96-82773e78b080.webp" imagesrcset="/lovable-uploads/2e819def-450f-472d-bf96-82773e78b080.webp" fetchpriority="high" type="image/webp" />
+    
+    <!-- YouTube thumbnail preload for LCP optimization -->
+    <link rel="preload" as="image" href="https://img.youtube.com/vi/bUmHTcIdrmk/hqdefault.jpg" fetchpriority="high" />
   </head>
 
   <body>
