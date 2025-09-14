@@ -291,12 +291,16 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
               color: #EC4899; 
               text-align: center; 
               margin-bottom: 35px; 
-              font-size: 32px;
+              font-size: 36px; /* Increased from 32px for better prominence */
               font-weight: 700; 
               font-family: 'Playfair Display', serif !important; 
               page-break-after: avoid;
               line-height: 1.2;
               letter-spacing: 0.5px;
+              padding: 0 20px; /* Add padding to prevent text cutoff */
+              word-wrap: break-word; /* Ensure text wraps if needed */
+              white-space: nowrap; /* Keep title on single line */
+              overflow: visible; /* Ensure text is visible */
             }
             
             .category { 
@@ -315,7 +319,7 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
               color: white; 
               padding: 16px 18px; 
               margin: 0; 
-              font-size: 20px;
+              font-size: 22px; /* Slightly increased from 20px */
               font-family: 'Playfair Display', serif !important; 
               font-weight: 600;
               page-break-after: avoid;
@@ -328,6 +332,8 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
               align-items: center;
               justify-content: center;
               min-height: 50px;
+              word-wrap: break-word; /* Ensure text wraps if needed */
+              overflow: visible; /* Ensure text is visible */
             }
             table { 
               width: 100%; 

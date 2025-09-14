@@ -39,20 +39,32 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
 
   console.log('Total canvas height:', totalHeight);
 
-  canvas.width = 850;
+  canvas.width = 950; // Increased width for Polish text
   canvas.height = totalHeight;
 
   // Set white background
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  let currentY = 60; // Adequate top margin for 36px font
+  // Enable high-quality text rendering
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
 
-  // Draw main title with proper positioning
+  let currentY = 70; // Increased top margin for better positioning
+
+  // Draw main title with proper positioning and font
   ctx.fillStyle = '#EC4899';
-  ctx.font = `bold 36px ${FONTS.playfair}, serif`;
-  drawCenteredText(ctx, 'Cennik Usług', canvas.width / 2, currentY);
-  currentY += 80; // Space after title (36px font + spacing)
+  ctx.font = `bold 38px ${FONTS.playfair}, "Times New Roman", serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  
+  // Measure and log title positioning
+  const titleText = 'Cennik Usług';
+  const titleMetrics = ctx.measureText(titleText);
+  console.log(`Title "${titleText}" - width: ${titleMetrics.width}, canvas width: ${canvas.width}, center x: ${canvas.width / 2}`);
+  
+  ctx.fillText(titleText, canvas.width / 2, currentY);
+  currentY += 90; // Increased space after title
 
   // Draw categories
   categories.forEach((category, categoryIndex) => {
@@ -61,8 +73,14 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
     drawRoundedRect(ctx, padding, currentY, canvas.width - padding * 2, categoryHeaderHeight, 12);
     
     ctx.fillStyle = '#ffffff';
-    ctx.font = `600 24px ${FONTS.poppins}, sans-serif`;
-    drawCenteredText(ctx, category.title, canvas.width / 2, currentY + 6, canvas.width - padding * 4); // Much higher positioning
+    ctx.font = `600 26px ${FONTS.poppins}, "Arial", sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    // Center the category title properly
+    const categoryY = currentY + (categoryHeaderHeight / 2);
+    console.log(`Category "${category.title}" - positioning at x=${canvas.width / 2}, y=${categoryY}`);
+    ctx.fillText(category.title, canvas.width / 2, categoryY);
     currentY += categoryHeaderHeight;
 
     // Table headers

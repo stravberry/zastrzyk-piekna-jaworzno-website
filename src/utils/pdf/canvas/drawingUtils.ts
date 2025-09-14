@@ -54,7 +54,7 @@ export const wrapText = (
   return lines.length > 0 ? lines : [''];
 };
 
-// Enhanced centered text with proper multiline handling
+// Enhanced centered text with proper multiline handling and debugging
 export const drawCenteredText = (
   ctx: CanvasRenderingContext2D,
   text: string,
@@ -62,19 +62,36 @@ export const drawCenteredText = (
   y: number,
   maxWidth?: number
 ): void => {
+  // Save current context
+  const currentFont = ctx.font;
+  const currentFillStyle = ctx.fillStyle;
+  
   ctx.textAlign = 'center';
-  ctx.textBaseline = 'top'; // Changed from 'middle' to 'top' for better control
+  ctx.textBaseline = 'top';
   
   if (maxWidth && text.length > 0) {
     const lines = wrapText(ctx, text, maxWidth);
-    const lineHeight = 22;
+    const lineHeight = 25; // Increased line height for better readability
+    
+    console.log(`Drawing centered multiline text "${text}" at x=${x}, y=${y}, lines=${lines.length}, font=${currentFont}`);
     
     lines.forEach((line, index) => {
-      ctx.fillText(line, x, y + (index * lineHeight));
+      const lineY = y + (index * lineHeight);
+      // Measure each line to ensure proper centering
+      const metrics = ctx.measureText(line);
+      console.log(`  Line ${index + 1}: "${line}" at y=${lineY}, width=${metrics.width}`);
+      ctx.fillText(line, x, lineY);
     });
   } else {
+    // Single line text with measurements
+    const metrics = ctx.measureText(text);
+    console.log(`Drawing centered single text "${text}" at x=${x}, y=${y}, width=${metrics.width}, font=${currentFont}`);
     ctx.fillText(text, x, y);
   }
+  
+  // Restore context
+  ctx.font = currentFont;
+  ctx.fillStyle = currentFillStyle;
 };
 
 // Enhanced left-aligned text with better line spacing
