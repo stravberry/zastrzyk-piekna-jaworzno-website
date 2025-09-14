@@ -124,20 +124,51 @@ export const generateFullPricingPng = async (categories: PriceCategory[]): Promi
       
       console.log('Background drawn from:', padding, currentY, 'width:', canvas.width - padding * 2, 'height:', itemHeight);
 
-      // Service name at top-left of the row with proper spacing
-      const hasDescription = item.description && item.description.trim() !== '';
-      const nameStartY = hasDescription ? currentY + 25 : currentY + 15; // Match heightCalculator padding
-      
-      ctx.fillStyle = '#1F2937';
-      ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'top';
-      const nameLines = wrapText(ctx, item.name || '', 240);
-      
-      // Draw each line of the name
-      nameLines.forEach((line, lineIndex) => {
-        ctx.fillText(line, nameColumnX, nameStartY + (lineIndex * 22));
-      });
+        // Service name at top-left of the row with proper spacing
+        const hasDescription = item.description && item.description.trim() !== '';
+        const nameStartY = hasDescription ? currentY + 25 : currentY + 15; // Match heightCalculator padding
+        
+        ctx.fillStyle = '#1F2937';
+        ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        const nameLines = wrapText(ctx, item.name || '', 240);
+        
+        // Draw each line of the name
+        nameLines.forEach((line, lineIndex) => {
+          ctx.fillText(line, nameColumnX, nameStartY + (lineIndex * 22));
+        });
+
+        // Draw badge after service name if present
+        if (item.badge) {
+          const badgeY = nameStartY;
+          const badgeX = nameColumnX + ctx.measureText(nameLines[0]).width + 10;
+          
+          // Badge configuration matching ServiceBadge component
+          const badgeConfig = item.badge === 'promotion' 
+            ? { text: 'PROMOCJA', bgColor: '#EC4899', textColor: '#FFFFFF' }
+            : item.badge === 'new'
+            ? { text: 'NOWOŚĆ', bgColor: '#22C55E', textColor: '#FFFFFF' }
+            : null;
+          
+          if (badgeConfig) {
+            // Draw badge background
+            const badgeText = badgeConfig.text;
+            ctx.font = `600 10px ${FONTS.poppins}, sans-serif`;
+            const badgeMetrics = ctx.measureText(badgeText);
+            const badgeWidth = badgeMetrics.width + 12;
+            const badgeHeight = 18;
+            
+            ctx.fillStyle = badgeConfig.bgColor;
+            drawRoundedRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, 4);
+            
+            // Draw badge text
+            ctx.fillStyle = badgeConfig.textColor;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(badgeText, badgeX + badgeWidth / 2, badgeY + badgeHeight / 2);
+          }
+        }
 
       // Description below the name with proper spacing
       if (item.description && item.description.trim() !== '') {

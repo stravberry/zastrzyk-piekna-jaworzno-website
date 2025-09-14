@@ -160,6 +160,38 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
         ctx.font = `600 16px ${FONTS.poppins}, sans-serif`;
         drawLeftText(ctx, item.name, nameColumnX, nameStartY, 240);
 
+        // Draw badge after service name if present
+        if (item.badge) {
+          const nameLines = wrapText(ctx, item.name || '', 240);
+          const badgeY = nameStartY;
+          const badgeX = nameColumnX + ctx.measureText(nameLines[0]).width + 10;
+          
+          // Badge configuration matching ServiceBadge component
+          const badgeConfig = item.badge === 'promotion' 
+            ? { text: 'PROMOCJA', bgColor: '#EC4899', textColor: '#FFFFFF' }
+            : item.badge === 'new'
+            ? { text: 'NOWOŚĆ', bgColor: '#22C55E', textColor: '#FFFFFF' }
+            : null;
+          
+          if (badgeConfig) {
+            // Draw badge background
+            const badgeText = badgeConfig.text;
+            ctx.font = `600 10px ${FONTS.poppins}, sans-serif`;
+            const badgeMetrics = ctx.measureText(badgeText);
+            const badgeWidth = badgeMetrics.width + 12;
+            const badgeHeight = 18;
+            
+            ctx.fillStyle = badgeConfig.bgColor;
+            drawRoundedRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, 4);
+            
+            // Draw badge text
+            ctx.fillStyle = badgeConfig.textColor;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(badgeText, badgeX + badgeWidth / 2, badgeY + badgeHeight / 2);
+          }
+        }
+
         // Description
         if (hasDescription) {
           const nameLines = wrapText(ctx, item.name || '', 240);
@@ -465,7 +497,27 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
                   <tbody>
                     ${category.items.map(item => `
                       <tr>
-                        <td>${item.name}</td>
+                        <td>
+                          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <span>${item.name}</span>
+                            ${item.badge ? `
+                              <span class="badge badge-${item.badge}" style="
+                                display: inline-flex; 
+                                align-items: center; 
+                                padding: 2px 6px; 
+                                border-radius: 4px; 
+                                font-size: 9px; 
+                                font-weight: 600; 
+                                text-transform: uppercase;
+                                ${item.badge === 'promotion' ? 'background-color: #EC4899; color: white;' : ''}
+                                ${item.badge === 'new' ? 'background-color: #22C55E; color: white;' : ''}
+                              ">
+                                ${item.badge === 'promotion' ? '★ PROMOCJA' : ''}
+                                ${item.badge === 'new' ? '✦ NOWOŚĆ' : ''}
+                              </span>
+                            ` : ''}
+                          </div>
+                        </td>
                         <td class="description">${item.description || ''}</td>
                         <td class="price">${formatPrice(item.price)}</td>
                       </tr>

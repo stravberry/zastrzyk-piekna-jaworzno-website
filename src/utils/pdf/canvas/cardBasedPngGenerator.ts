@@ -181,6 +181,47 @@ function drawSmartTreatmentCard(
     currentY += fontConfig.treatmentName * 1.4;
   });
   
+  // Draw badge after treatment name if present
+  if (item.badge && nameLines.length > 0) {
+    // Calculate badge position after the first line of name
+    const badgeY = y + cardDimensions.padding;
+    const firstLineWidth = ctx.measureText(nameLines[0]).width;
+    const badgeX = x + cardDimensions.padding + firstLineWidth + 15;
+    
+    // Badge configuration matching ServiceBadge component
+    const badgeConfig = item.badge === 'promotion' 
+      ? { text: 'PROMOCJA', bgColor: '#EC4899', textColor: '#FFFFFF' }
+      : item.badge === 'new'
+      ? { text: 'NOWOŚĆ', bgColor: '#22C55E', textColor: '#FFFFFF' }
+      : null;
+    
+    if (badgeConfig) {
+      // Draw badge background
+      ctx.font = `600 ${Math.max(10, fontConfig.treatmentName * 0.5)}px system-ui, -apple-system, sans-serif`;
+      const badgeMetrics = ctx.measureText(badgeConfig.text);
+      const badgeWidth = badgeMetrics.width + 16;
+      const badgeHeight = fontConfig.treatmentName * 0.8;
+      
+      // Ensure badge fits within card bounds
+      if (badgeX + badgeWidth <= x + width - cardDimensions.padding) {
+        ctx.fillStyle = badgeConfig.bgColor;
+        ctx.beginPath();
+        ctx.roundRect(badgeX, badgeY, badgeWidth, badgeHeight, 6);
+        ctx.fill();
+        
+        // Draw badge text
+        ctx.fillStyle = badgeConfig.textColor;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(badgeConfig.text, badgeX + badgeWidth / 2, badgeY + badgeHeight / 2);
+        
+        // Reset text alignment
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+      }
+    }
+  }
+  
   // Space between name and price
   currentY += 12;
   

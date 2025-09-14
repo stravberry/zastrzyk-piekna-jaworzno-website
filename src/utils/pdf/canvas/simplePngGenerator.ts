@@ -129,6 +129,44 @@ export const generateSimpleCategoryPng = async (category: PriceCategory): Promis
       ctx.fillText(line, padding + 15, currentY + 15 + (lineIndex * 20));
     });
 
+    // Draw badge after service name if present
+    if (item.badge && nameLines.length > 0) {
+      const badgeY = currentY + 15;
+      const firstLineWidth = ctx.measureText(nameLines[0]).width;
+      const badgeX = padding + 15 + firstLineWidth + 10;
+      
+      // Badge configuration matching ServiceBadge component
+      const badgeConfig = item.badge === 'promotion' 
+        ? { text: 'PROMOCJA', bgColor: '#EC4899', textColor: '#FFFFFF' }
+        : item.badge === 'new'
+        ? { text: 'NOWOŚĆ', bgColor: '#22C55E', textColor: '#FFFFFF' }
+        : null;
+      
+      if (badgeConfig) {
+        // Draw badge background
+        ctx.font = `600 10px ${FONTS.poppins}, sans-serif`;
+        const badgeMetrics = ctx.measureText(badgeConfig.text);
+        const badgeWidth = badgeMetrics.width + 12;
+        const badgeHeight = 16;
+        
+        // Ensure badge fits within canvas bounds
+        if (badgeX + badgeWidth <= canvas.width - padding) {
+          ctx.fillStyle = badgeConfig.bgColor;
+          drawRoundedRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, 4);
+          
+          // Draw badge text
+          ctx.fillStyle = badgeConfig.textColor;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(badgeConfig.text, badgeX + badgeWidth / 2, badgeY + badgeHeight / 2);
+          
+          // Reset text alignment
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'top';
+        }
+      }
+    }
+
     let textY = currentY + 15 + (nameLines.length * 20) + 5;
 
     // Price
@@ -262,6 +300,44 @@ export const generateSimpleFullPricingPng = async (categories: PriceCategory[]):
       nameLines.forEach((line, lineIndex) => {
         ctx.fillText(line, contentStartX + 15, currentY + 15 + (lineIndex * 24));
       });
+
+      // Draw badge after service name if present
+      if (item.badge && nameLines.length > 0) {
+        const badgeY = currentY + 15;
+        const firstLineWidth = ctx.measureText(nameLines[0]).width;
+        const badgeX = contentStartX + 15 + firstLineWidth + 10;
+        
+        // Badge configuration matching ServiceBadge component
+        const badgeConfig = item.badge === 'promotion' 
+          ? { text: 'PROMOCJA', bgColor: '#EC4899', textColor: '#FFFFFF' }
+          : item.badge === 'new'
+          ? { text: 'NOWOŚĆ', bgColor: '#22C55E', textColor: '#FFFFFF' }
+          : null;
+        
+        if (badgeConfig) {
+          // Draw badge background
+          ctx.font = `600 10px ${FONTS.poppins}, sans-serif`;
+          const badgeMetrics = ctx.measureText(badgeConfig.text);
+          const badgeWidth = badgeMetrics.width + 12;
+          const badgeHeight = 16;
+          
+          // Ensure badge fits within name column bounds
+          if (badgeX + badgeWidth <= contentStartX + nameColWidth - 10) {
+            ctx.fillStyle = badgeConfig.bgColor;
+            drawRoundedRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, 4);
+            
+            // Draw badge text
+            ctx.fillStyle = badgeConfig.textColor;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(badgeConfig.text, badgeX + badgeWidth / 2, badgeY + badgeHeight / 2);
+            
+            // Reset text alignment
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+          }
+        }
+      }
 
       // Description - positioned in description column
       if (item.description && item.description.trim() !== '') {
