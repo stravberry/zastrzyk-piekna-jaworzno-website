@@ -30,7 +30,15 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    if (!resendApiKey) {
+      console.error('Missing RESEND_API_KEY secret');
+      return new Response(
+        JSON.stringify({ success: false, error: 'Email service not configured' }),
+        { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+    const resend = new Resend(resendApiKey);
 
     // Validate request method
     if (req.method !== 'POST') {
@@ -85,7 +93,7 @@ serve(async (req) => {
     // Sanitize input data
     const sanitizedData = {
       to_email: replyData.to_email.trim().toLowerCase(),
-      to_name: replyData.to_name.trim(),
+      to_name: replyData.to_name?.trim() || '',
       subject: replyData.subject.trim(),
       message: replyData.message.trim(),
       original_submission_id: replyData.original_submission_id,
@@ -102,7 +110,7 @@ serve(async (req) => {
         to_name: sanitizedData.to_name,
         subject: sanitizedData.subject,
         message: sanitizedData.message,
-        sent_by_ip: clientIP,
+        sent_by_ip: clientIP !== 'unknown' ? clientIP : null,
         sent_by_user_agent: userAgent
       })
       .select()
@@ -163,8 +171,9 @@ serve(async (req) => {
 
     // Send email via Resend
     const { data: emailData, error: emailError } = await resend.emails.send({
-      from: 'Zastrzyk Piękna <noreply@zastrzykpiekna.pl>',
+      from: 'Zastrzyk Piękna <noreply@zastrzykpiekna.eu>',
       to: [sanitizedData.to_email],
+      reply_to: 'zastrzykpiekna.kontakt@gmail.com',
       subject: sanitizedData.subject,
       html: htmlContent,
       text: `${sanitizedData.message}\n\n---\nTwoja oryginalna wiadomość:\nTemat: ${sanitizedData.original_subject}\n${sanitizedData.original_message}`
