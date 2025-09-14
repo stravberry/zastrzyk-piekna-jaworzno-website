@@ -69,7 +69,6 @@ const AdminSecurityWrapper: React.FC<AdminSecurityWrapperProps> = ({ children })
 const getRequiredRoleForPath = (path: string): string | null => {
   const adminOnlyPaths = [
     '/admin/users',
-    '/admin/security',
     '/admin/code-settings'
   ];
 

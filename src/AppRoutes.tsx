@@ -24,7 +24,7 @@ import AdminPricing from "./pages/admin/AdminPricing";
 import AdminContacts from "./pages/admin/AdminContacts";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminUsers from "./pages/admin/AdminUsers";
-import AdminSecurity from "./pages/admin/AdminSecurity";
+
 import AdminCodeSettings from "./pages/admin/AdminCodeSettings";
 import AdminCRM from "./pages/admin/AdminCRM";
 import AdminPatientProfile from "./pages/admin/AdminPatientProfile";
@@ -132,11 +132,6 @@ const AppRoutes = () => {
         <Route path="users" element={
           <AdminProtectedRoute requiredRole="admin">
             <AdminUsers />
-          </AdminProtectedRoute>
-        } />
-        <Route path="security" element={
-          <AdminProtectedRoute requiredRole="admin">
-            <AdminSecurity />
           </AdminProtectedRoute>
         } />
         <Route path="code-settings" element={

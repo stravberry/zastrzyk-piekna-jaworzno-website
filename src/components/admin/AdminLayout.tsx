@@ -80,7 +80,6 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     { name: "Szablony Email", href: "/admin/email-templates", icon: FileEdit },
     { name: "Analityka", href: "/admin/analytics", icon: BarChart3 },
     { name: "Użytkownicy", href: "/admin/users", icon: Users, adminOnly: true },
-    { name: "Bezpieczeństwo", href: "/admin/security", icon: Shield, adminOnly: true },
     { name: "Kod", href: "/admin/code-settings", icon: Code, adminOnly: true },
   ];
 
