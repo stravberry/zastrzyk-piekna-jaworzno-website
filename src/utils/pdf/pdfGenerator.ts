@@ -63,7 +63,7 @@ export const generatePricingPdf = async (categories: PriceCategory[]): Promise<B
       // Draw title using same logic as PNG generator
       ctx.fillStyle = '#EC4899';
       ctx.font = `bold 36px ${FONTS.playfair}, serif`;
-      drawCenteredText(ctx, 'Cennik Usług', canvas.width / 2, currentY);
+      drawCenteredText(ctx, 'Cennik Usług', canvas.width / 2, currentY, canvas.width - padding * 2);
       currentY += 80; // Same spacing as PNG generator
     };
 
@@ -298,9 +298,11 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
               line-height: 1.2;
               letter-spacing: 0.5px;
               padding: 0 20px; /* Add padding to prevent text cutoff */
+              width: 100%;
+              max-width: 100%;
               word-wrap: break-word; /* Ensure text wraps if needed */
-              white-space: nowrap; /* Keep title on single line */
-              overflow: visible; /* Ensure text is visible */
+              overflow-wrap: anywhere; /* Allow breaking long words */
+              white-space: normal; /* Allow wrapping to avoid cut off */
             }
             
             .category { 
@@ -317,7 +319,7 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
             .category-header { 
               background: #EC4899; 
               color: white; 
-              padding: 16px 18px; 
+              padding: 18px 20px; 
               margin: 0; 
               font-size: 22px; /* Slightly increased from 20px */
               font-family: 'Playfair Display', serif !important; 
@@ -332,8 +334,11 @@ export const generatePricingPdfFromHtml = async (categories: PriceCategory[]): P
               align-items: center;
               justify-content: center;
               min-height: 50px;
-              word-wrap: break-word; /* Ensure text wraps if needed */
-              overflow: visible; /* Ensure text is visible */
+              width: 100%;
+              max-width: 100%;
+              white-space: normal; /* Allow wrapping */
+              word-break: break-word; /* Break long words */
+              overflow-wrap: anywhere; /* Ensure text never gets cut */
             }
             table { 
               width: 100%; 
