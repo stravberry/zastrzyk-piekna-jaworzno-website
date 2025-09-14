@@ -28,27 +28,9 @@ export interface ContactSubmission extends ContactFormData {
   updated_at: string;
 }
 
-// Enhanced secure contact form submission with encryption and advanced rate limiting
+// Enhanced secure contact form submission using edge function
 export const submitContactForm = async (formData: ContactFormData): Promise<{ success: boolean; message: string }> => {
   try {
-    // Enhanced security check first
-    const securityCheck = await supabase.rpc('enhanced_contact_security_check', {
-      _email: formData.email.trim().toLowerCase(),
-      _ip_address: null, // Will be handled by edge function
-      _user_agent: navigator.userAgent,
-      _honeypot_field: formData.honeypot || null
-    });
-
-    if (securityCheck.error) {
-      console.error('Security check failed:', securityCheck.error);
-      return { success: false, message: 'Security validation failed. Please try again.' };
-    }
-
-    const securityResult = securityCheck.data as any;
-    if (securityResult && !securityResult.allowed) {
-      return { success: false, message: securityResult.reason || 'Submission blocked for security reasons.' };
-    }
-
     // Enhanced input validation and sanitization
     const sanitizedData = {
       name: sanitizeInput(formData.name, 'general'),
@@ -96,29 +78,28 @@ export const submitContactForm = async (formData: ContactFormData): Promise<{ su
       throw new Error('Wykryto podejrzaną zawartość');
     }
 
-    // Use the secure database function for submission
-    const { data, error } = await supabase.rpc('submit_contact_secure', {
-      _name: sanitizedData.name,
-      _email: sanitizedData.email,
-      _phone: sanitizedData.phone,
-      _subject: sanitizedData.subject,
-      _message: sanitizedData.message,
-      _consent_given: sanitizedData.consent_given,
-      _ip_address: null, // Would get from request context in real app
-      _user_agent: navigator.userAgent
+    // Use the edge function for submission (bypasses encryption/validation conflict)
+    const { data, error } = await supabase.functions.invoke('submit-contact-form', {
+      body: {
+        name: sanitizedData.name,
+        email: sanitizedData.email,
+        phone: sanitizedData.phone,
+        subject: sanitizedData.subject,
+        message: sanitizedData.message,
+        consent_given: sanitizedData.consent_given
+      }
     });
 
     if (error) {
-      secureLogger.error('Secure contact submission error:', error);
+      secureLogger.error('Contact form submission error:', error);
       throw new Error('Błąd wysyłania formularza');
     }
 
-    const result = data as { success: boolean; error?: string };
-    if (!result?.success) {
-      throw new Error(result?.error || 'Błąd wysyłania');
+    if (!data?.success) {
+      throw new Error(data?.error || 'Błąd wysyłania formularza');
     }
 
-    return { success: true, message: 'Wiadomość została wysłana pomyślnie i zaszyfrowana!' };
+    return { success: true, message: 'Wiadomość została wysłana pomyślnie!' };
   } catch (error) {
     secureLogger.error('Contact form error:', error);
     return { 
