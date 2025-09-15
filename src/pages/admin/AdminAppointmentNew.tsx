@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -8,8 +7,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,13 +19,22 @@ import { Tables } from "@/integrations/supabase/types";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useGoogleCalendar } from "@/hooks/useGoogleCalendar";
-import { CalendarIcon, ArrowLeft, Save, Mail, Check, ChevronsUpDown } from "lucide-react";
+import { CalendarIcon, ArrowLeft, Save, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
-
+import AdminLayout from "@/components/admin/AdminLayout";
 import { PatientSelector } from "@/components/admin/crm/PatientSelector";
 
 type Patient = Tables<"patients">;
-type Treatment = Tables<"treatments">;
+
+interface Treatment {
+  id: string;
+  name: string;
+  category: string;
+  description?: string;
+  price?: number;
+  duration_minutes?: number;
+  is_active: boolean;
+}
 
 const appointmentSchema = z.object({
   treatment_id: z.string().min(1, "Wybierz zabieg"),
@@ -61,12 +68,11 @@ const AdminAppointmentNew: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [treatmentSearchOpen, setTreatmentSearchOpen] = useState(false);
   const { syncAppointment, isSyncing } = useGoogleCalendar();
 
-  // Get patient ID from URL params (both query param and route param)
+  // Get patient ID from URL params
   const patientIdFromQuery = searchParams.get('patientId');
-  const patientIdFromUrl = window.location.pathname.split('/').pop(); // Get last segment
+  const patientIdFromUrl = window.location.pathname.split('/').pop();
   const patientId = patientIdFromQuery || (patientIdFromUrl && patientIdFromUrl !== 'new' ? patientIdFromUrl : null);
   
   const { data: urlPatient } = useQuery({
@@ -102,19 +108,35 @@ const AdminAppointmentNew: React.FC = () => {
     }
   });
 
-  // Fetch treatments from the treatments table
+  // Fetch treatments from pricing categories
   const { data: treatments } = useQuery({
-    queryKey: ['treatments'],
+    queryKey: ['available-treatments'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('treatments')
+        .from('pricing_categories')
         .select('*')
-        .eq('is_active', true)
-        .order('category', { ascending: true })
-        .order('name', { ascending: true });
+        .order('title', { ascending: true });
       
       if (error) throw error;
-      return data as Treatment[];
+      
+      // Convert pricing categories to treatments format
+      const allTreatments: Treatment[] = [];
+      data?.forEach(category => {
+        const items = category.items as any[];
+        items?.forEach(item => {
+          allTreatments.push({
+            id: `${category.id}_${item.name}`,
+            name: item.name,
+            category: category.title,
+            description: item.description || undefined,
+            price: parseFloat(item.price?.replace(/[^\d.]/g, '') || '0'),
+            duration_minutes: 60, // Default duration
+            is_active: true
+          });
+        });
+      });
+      
+      return allTreatments;
     }
   });
 
@@ -154,7 +176,7 @@ const AdminAppointmentNew: React.FC = () => {
         .from('patient_appointments')
         .insert({
           patient_id: selectedPatient.id,
-          treatment_id: data.treatment_id, // Now this will be a proper UUID
+          treatment_id: data.treatment_id,
           scheduled_date: scheduledDateTime,
           duration_minutes: data.duration_minutes,
           pre_treatment_notes: data.pre_treatment_notes || null,
@@ -183,56 +205,57 @@ const AdminAppointmentNew: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Breadcrumbs */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/admin/dashboard">Dashboard</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/admin/appointments">Wizyty</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbPage>Nowa wizyta</BreadcrumbPage>
-        </BreadcrumbList>
-      </Breadcrumb>
+    <AdminLayout>
+      <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
+        {/* Breadcrumbs - hidden on mobile */}
+        <div className="hidden sm:block">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/admin/dashboard">Dashboard</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/admin/appointments">Wizyty</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbPage>Nowa wizyta</BreadcrumbPage>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
 
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate('/admin/appointments')}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Powrót
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">Umów nową wizytę</h1>
-            <p className="text-muted-foreground">Wybierz pacjenta i umów wizytę</p>
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/admin/appointments')}
+            >
+              <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Powrót</span>
+            </Button>
+            <div>
+              <h1 className="text-lg sm:text-2xl font-bold">Nowa wizyta</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground">Wybierz pacjenta i umów wizytę</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Patient Selection */}
-        <div className="lg:col-span-1">
+        {/* Mobile-first layout */}
+        <div className="space-y-4 sm:space-y-6">
+          {/* Patient Selection */}
           <PatientSelector
             selectedPatient={selectedPatient}
             onPatientSelect={setSelectedPatient}
             onClearSelection={() => setSelectedPatient(null)}
           />
-        </div>
 
-        {/* Appointment Form */}
-        <div className="lg:col-span-2">
+          {/* Appointment Form */}
           <Card>
             <CardHeader>
-              <CardTitle>Szczegóły wizyty</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-base sm:text-lg">Szczegóły wizyty</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">
                 {selectedPatient 
                   ? `Umów wizytę dla: ${selectedPatient.first_name} ${selectedPatient.last_name}`
                   : 'Najpierw wybierz pacjenta'
@@ -242,82 +265,58 @@ const AdminAppointmentNew: React.FC = () => {
             <CardContent>
               {selectedPatient ? (
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                       {/* Treatment Selection */}
-                       <div className="md:col-span-2">
-                         <FormField
-                           control={form.control}
-                           name="treatment_id"
-                           render={({ field }) => (
-                             <FormItem className="flex flex-col">
-                               <FormLabel>Zabieg *</FormLabel>
-                               <Popover open={treatmentSearchOpen} onOpenChange={setTreatmentSearchOpen}>
-                                 <PopoverTrigger asChild>
-                                   <FormControl>
-                                     <Button
-                                       variant="outline"
-                                       role="combobox"
-                                       aria-expanded={treatmentSearchOpen}
-                                       className="w-full justify-between text-left font-normal"
-                                     >
-                                       {field.value
-                                         ? treatments?.find((treatment) => treatment.id === field.value)?.name
-                                         : "Wybierz zabieg..."}
-                                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                     </Button>
-                                   </FormControl>
-                                 </PopoverTrigger>
-                                 <PopoverContent className="w-full p-0 z-50" align="start">
-                                   <Command>
-                                     <CommandInput placeholder="Wyszukaj zabieg..." className="h-9" />
-                                     <CommandEmpty>Nie znaleziono zabiegu.</CommandEmpty>
-                                     <CommandList className="max-h-80 overflow-y-auto">
-                                       {Object.entries(groupedTreatments || {}).map(([category, categoryTreatments]) => (
-                                         <CommandGroup key={category} heading={category}>
-                                           {Array.isArray(categoryTreatments) && categoryTreatments.map((treatment: Treatment) => (
-                                             <CommandItem
-                                               key={treatment.id}
-                                               value={`${treatment.name} ${category}`}
-                                               onSelect={() => {
-                                                 field.onChange(treatment.id);
-                                                 setTreatmentSearchOpen(false);
-                                               }}
-                                               className="cursor-pointer"
-                                             >
-                                               <Check
-                                                 className={cn(
-                                                   "mr-2 h-4 w-4",
-                                                   field.value === treatment.id ? "opacity-100" : "opacity-0"
-                                                 )}
-                                               />
-                                               <div className="flex flex-col flex-1">
-                                                 <span className="font-medium">{treatment.name}</span>
-                                                 {treatment.price && (
-                                                   <span className="text-sm text-muted-foreground">{treatment.price} zł</span>
-                                                 )}
-                                               </div>
-                                             </CommandItem>
-                                           ))}
-                                         </CommandGroup>
-                                       ))}
-                                     </CommandList>
-                                   </Command>
-                                 </PopoverContent>
-                               </Popover>
-                               <FormMessage />
-                             </FormItem>
-                           )}
-                         />
-                       </div>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+                    {/* Treatment Selection */}
+                    <FormField
+                      control={form.control}
+                      name="treatment_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium">Zabieg *</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Wybierz zabieg..." />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="max-h-60">
+                              {Object.entries(groupedTreatments || {}).map(([category, categoryTreatments]) => (
+                                <SelectGroup key={category}>
+                                  <SelectLabel className="font-medium">{category}</SelectLabel>
+                                  {categoryTreatments.map((treatment) => (
+                                    <SelectItem key={treatment.id} value={treatment.id}>
+                                      <div className="flex flex-col text-left">
+                                        <span className="font-medium">{treatment.name}</span>
+                                        {treatment.price && (
+                                          <span className="text-xs text-muted-foreground">{treatment.price} zł</span>
+                                        )}
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                                </SelectGroup>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                      {/* Date and Time */}
+                    {/* Treatment Description */}
+                    {selectedTreatment?.description && (
+                      <div className="p-3 bg-muted/50 rounded-lg">
+                        <p className="text-xs sm:text-sm text-muted-foreground">{selectedTreatment.description}</p>
+                      </div>
+                    )}
+
+                    {/* Date and Time - Mobile stacked layout */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
                         name="scheduled_date"
                         render={({ field }) => (
                           <FormItem className="flex flex-col">
-                            <FormLabel>Data *</FormLabel>
+                            <FormLabel className="text-sm font-medium">Data *</FormLabel>
                             <Popover>
                               <PopoverTrigger asChild>
                                 <FormControl>
@@ -359,26 +358,30 @@ const AdminAppointmentNew: React.FC = () => {
                         name="scheduled_time"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Godzina *</FormLabel>
+                            <FormLabel className="text-sm font-medium">Godzina *</FormLabel>
                             <FormControl>
-                              <Input {...field} type="time" />
+                              <Input {...field} type="time" className="w-full" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
+                    </div>
 
+                    {/* Duration and Cost */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
                         name="duration_minutes"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Czas trwania (minuty)</FormLabel>
+                            <FormLabel className="text-sm font-medium">Czas trwania (minuty)</FormLabel>
                             <FormControl>
                               <Input 
                                 {...field} 
                                 type="number" 
                                 onChange={(e) => field.onChange(parseInt(e.target.value))}
+                                className="w-full"
                               />
                             </FormControl>
                             <FormMessage />
@@ -391,110 +394,151 @@ const AdminAppointmentNew: React.FC = () => {
                         name="cost"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Koszt (zł)</FormLabel>
+                            <FormLabel className="text-sm font-medium">Koszt (zł)</FormLabel>
                             <FormControl>
                               <Input 
                                 {...field} 
                                 type="number" 
                                 step="0.01"
                                 onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                                className="w-full"
                               />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
+                    </div>
 
-                      {/* Notes */}
-                      <div className="md:col-span-2">
+                    {/* Notes */}
+                    <FormField
+                      control={form.control}
+                      name="pre_treatment_notes"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium">Notatki przed zabiegiem</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              {...field} 
+                              placeholder="Dodaj notatki..." 
+                              className="resize-none"
+                              rows={3}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Email & Calendar Settings */}
+                    <div className="space-y-3 sm:space-y-4">
+                      <h3 className="text-sm font-medium">Ustawienia przypomień</h3>
+                      
+                      <div className="space-y-3">
                         <FormField
                           control={form.control}
-                          name="pre_treatment_notes"
+                          name="email_reminders_enabled"
                           render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Notatki przed zabiegiem</FormLabel>
+                            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
                               <FormControl>
-                                <Textarea {...field} placeholder="Dodaj notatki..." />
+                                <Checkbox
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
                               </FormControl>
-                              <FormMessage />
+                              <div className="space-y-1 leading-none">
+                                <FormLabel className="text-sm">
+                                  <Mail className="w-4 h-4 inline mr-2" />
+                                  Przypomienia email
+                                </FormLabel>
+                              </div>
                             </FormItem>
                           )}
                         />
-                      </div>
 
-                      {/* Options */}
-                      <div className="md:col-span-2 space-y-4">
-                        <div className="flex items-center space-x-2">
-                          <FormField
-                            control={form.control}
-                            name="email_reminders_enabled"
-                            render={({ field }) => (
-                              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                  />
-                                </FormControl>
-                                <div className="space-y-1 leading-none">
-                                  <FormLabel>
-                                    Wysyłaj przypomnienia email
-                                  </FormLabel>
-                                </div>
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                        <FormField
+                          control={form.control}
+                          name="calendar_sync_enabled"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel className="text-sm">
+                                  <CalendarIcon className="w-4 h-4 inline mr-2" />
+                                  Synchronizacja z kalendarzem
+                                </FormLabel>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
 
-                        <div className="flex items-center space-x-2">
-                          <FormField
-                            control={form.control}
-                            name="calendar_sync_enabled"
-                            render={({ field }) => (
-                              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                  />
-                                </FormControl>
-                                <div className="space-y-1 leading-none">
-                                  <FormLabel>
-                                    Synchronizuj z Google Calendar
-                                  </FormLabel>
-                                </div>
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                        {form.watch('email_reminders_enabled') && (
+                          <div className="ml-6 space-y-2">
+                            <FormField
+                              control={form.control}
+                              name="reminder_preferences.24h"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                    />
+                                  </FormControl>
+                                  <FormLabel className="text-xs sm:text-sm">24 godziny przed</FormLabel>
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="reminder_preferences.2h"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                    />
+                                  </FormControl>
+                                  <FormLabel className="text-xs sm:text-sm">2 godziny przed</FormLabel>
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        )}
                       </div>
                     </div>
-
-                    {/* Treatment Description */}
-                    {selectedTreatment?.description && (
-                      <div className="p-4 bg-muted/50 rounded-lg">
-                        <h4 className="font-medium mb-2">Opis zabiegu:</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {selectedTreatment.description}
-                        </p>
-                      </div>
-                    )}
 
                     {/* Submit Button */}
                     <div className="flex gap-2 pt-4">
                       <Button 
                         type="submit" 
                         disabled={isSubmitting || isSyncing}
-                        className="flex-1"
+                        className="flex-1 sm:flex-none sm:w-auto"
                       >
-                        <Save className="w-4 h-4 mr-2" />
-                        {isSubmitting ? 'Zapisywanie...' : 'Umów wizytę'}
+                        {(isSubmitting || isSyncing) ? (
+                          <>
+                            <Save className="w-4 h-4 mr-2 animate-spin" />
+                            Zapisywanie...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="w-4 h-4 mr-2" />
+                            Umów wizytę
+                          </>
+                        )}
                       </Button>
                       <Button 
-                        type="button" 
-                        variant="outline" 
+                        type="button"
+                        variant="outline"
                         onClick={() => navigate('/admin/appointments')}
                         disabled={isSubmitting}
+                        className="sm:hidden"
                       >
                         Anuluj
                       </Button>
@@ -503,14 +547,14 @@ const AdminAppointmentNew: React.FC = () => {
                 </Form>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
-                  <p>Wybierz pacjenta, aby rozpocząć umówienie wizyty</p>
+                  <p className="text-sm">Wybierz pacjenta aby umówić wizytę</p>
                 </div>
               )}
             </CardContent>
           </Card>
         </div>
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 

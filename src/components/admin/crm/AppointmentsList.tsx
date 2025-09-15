@@ -52,9 +52,21 @@ const AppointmentsList: React.FC = () => {
       let query = supabase
         .from('patient_appointments')
         .select(`
-          *,
-          patients (*),
-          treatments (*)
+          id,
+          scheduled_date,
+          duration_minutes,
+          status,
+          cost,
+          pre_treatment_notes,
+          post_treatment_notes,
+          treatment_id,
+          patient_id,
+          patients!inner (
+            id,
+            first_name,
+            last_name,
+            email
+          )
         `, { count: 'exact' })
         .order('scheduled_date', { ascending: false });
 
@@ -74,13 +86,39 @@ const AppointmentsList: React.FC = () => {
       const { data, error, count } = await query;
       if (error) throw error;
 
+      // Get treatment names from pricing categories
+      const { data: pricingData } = await supabase
+        .from('pricing_categories')
+        .select('*');
+
+      // Create treatment lookup
+      const treatmentLookup: Record<string, { name: string; category: string }> = {};
+      pricingData?.forEach(category => {
+        const items = category.items as any[];
+        items?.forEach(item => {
+          const treatmentId = `${category.id}_${item.name}`;
+          treatmentLookup[treatmentId] = {
+            name: item.name,
+            category: category.title
+          };
+        });
+      });
+
+      // Add treatment info to appointments
+      const appointmentsWithTreatments = data?.map(appointment => ({
+        ...appointment,
+        treatments: treatmentLookup[appointment.treatment_id] || { name: 'Nieznany zabieg', category: 'Inne' }
+      })) || [];
+
       return {
-        appointments: data as AppointmentWithDetails[] || [],
+        appointments: appointmentsWithTreatments as AppointmentWithDetails[],
         totalCount: count || 0
       };
     },
     refetchOnWindowFocus: false,
-    refetchOnMount: true
+    refetchOnMount: true,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    cacheTime: 1000 * 60 * 5, // 5 minutes
   });
 
   // Mutation for quick status updates
