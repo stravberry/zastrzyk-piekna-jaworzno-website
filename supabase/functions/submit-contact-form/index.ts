@@ -201,23 +201,66 @@ serve(async (req) => {
 
     console.log('Contact submission saved:', submissionData);
 
+    // Helper function to process email template placeholders
+    const processTemplate = (template: string, data: any): string => {
+      return template
+        .replace(/{{name}}/g, data.name || '')
+        .replace(/{{email}}/g, data.email || '')
+        .replace(/{{phone}}/g, data.phone || '')
+        .replace(/{{subject}}/g, data.subject || '')
+        .replace(/{{message}}/g, (data.message || '').replace(/\n/g, '<br>'))
+        .replace(/{{ip}}/g, data.ip || '')
+        .replace(/{{user_agent}}/g, data.userAgent || '');
+    };
+
+    // Fetch email templates from database
+    const { data: templates, error: templatesError } = await supabaseClient
+      .from('email_templates')
+      .select('*')
+      .eq('is_active', true)
+      .in('template_type', ['contact_notification', 'contact_confirmation']);
+
+    if (templatesError) {
+      console.error('Error fetching email templates:', templatesError);
+    }
+
+    const notificationTemplate = templates?.find(t => t.template_type === 'contact_notification');
+    const confirmationTemplate = templates?.find(t => t.template_type === 'contact_confirmation');
+
     // Send email notification to clinic
     try {
+      let notificationSubject = `Nowa wiadomość: ${sanitizedData.subject}`;
+      let notificationHtml = `
+        <h2>Nowa wiadomość z formularza kontaktowego</h2>
+        <p><strong>Imię i nazwisko:</strong> ${sanitizedData.name}</p>
+        <p><strong>Email:</strong> ${sanitizedData.email}</p>
+        ${sanitizedData.phone ? `<p><strong>Telefon:</strong> ${sanitizedData.phone}</p>` : ''}
+        <p><strong>Temat:</strong> ${sanitizedData.subject}</p>
+        <p><strong>Wiadomość:</strong></p>
+        <p>${sanitizedData.message.replace(/\n/g, '<br>')}</p>
+        <hr>
+        <p><small>IP: ${clientIP} | User Agent: ${userAgent}</small></p>
+      `;
+
+      // Use template if available
+      if (notificationTemplate) {
+        notificationSubject = processTemplate(notificationTemplate.subject, {
+          ...sanitizedData,
+          ip: clientIP,
+          userAgent: userAgent
+        });
+        notificationHtml = processTemplate(notificationTemplate.html_content, {
+          ...sanitizedData,
+          ip: clientIP,
+          userAgent: userAgent
+        });
+      }
+
       const emailResult = await resend.emails.send({
         from: 'Formularz kontaktowy <noreply@zastrzykpiekna.eu>',
         to: ['zastrzykpiekna.kontakt@gmail.com'],
-        subject: `Nowa wiadomość: ${sanitizedData.subject}`,
-        html: `
-          <h2>Nowa wiadomość z formularza kontaktowego</h2>
-          <p><strong>Imię i nazwisko:</strong> ${sanitizedData.name}</p>
-          <p><strong>Email:</strong> ${sanitizedData.email}</p>
-          ${sanitizedData.phone ? `<p><strong>Telefon:</strong> ${sanitizedData.phone}</p>` : ''}
-          <p><strong>Temat:</strong> ${sanitizedData.subject}</p>
-          <p><strong>Wiadomość:</strong></p>
-          <p>${sanitizedData.message.replace(/\n/g, '<br>')}</p>
-          <hr>
-          <p><small>IP: ${clientIP} | User Agent: ${userAgent}</small></p>
-        `,
+        subject: notificationSubject,
+        html: notificationHtml,
       });
 
       console.log('Email sent successfully:', emailResult);
@@ -228,20 +271,29 @@ serve(async (req) => {
 
     // Send confirmation email to user
     try {
+      let confirmationSubject = 'Potwierdzenie otrzymania wiadomości';
+      let confirmationHtml = `
+        <h2>Dziękujemy za kontakt!</h2>
+        <p>Cześć ${sanitizedData.name},</p>
+        <p>Otrzymaliśmy Twoją wiadomość i skontaktujemy się z Tobą tak szybko, jak to możliwe.</p>
+        <p><strong>Temat Twojej wiadomości:</strong> ${sanitizedData.subject}</p>
+        <br>
+        <p>Pozdrawiamy,<br>Zespół Zastrzyk Piękna</p>
+        <hr>
+        <p><small>Grunwaldzka 106, 43-600 Jaworzno<br>Tel: 514 902 242</small></p>
+      `;
+
+      // Use template if available
+      if (confirmationTemplate) {
+        confirmationSubject = processTemplate(confirmationTemplate.subject, sanitizedData);
+        confirmationHtml = processTemplate(confirmationTemplate.html_content, sanitizedData);
+      }
+
       await resend.emails.send({
         from: 'Zastrzyk Piękna <noreply@zastrzykpiekna.eu>',
         to: [sanitizedData.email],
-        subject: 'Potwierdzenie otrzymania wiadomości',
-        html: `
-          <h2>Dziękujemy za kontakt!</h2>
-          <p>Cześć ${sanitizedData.name},</p>
-          <p>Otrzymaliśmy Twoją wiadomość i skontaktujemy się z Tobą tak szybko, jak to możliwe.</p>
-          <p><strong>Temat Twojej wiadomości:</strong> ${sanitizedData.subject}</p>
-          <br>
-          <p>Pozdrawiamy,<br>Zespół Zastrzyk Piękna</p>
-          <hr>
-          <p><small>Grunwaldzka 106, 43-600 Jaworzno<br>Tel: 514 902 242</small></p>
-        `,
+        subject: confirmationSubject,
+        html: confirmationHtml,
       });
     } catch (confirmEmailError) {
       console.error('Confirmation email failed:', confirmEmailError);
