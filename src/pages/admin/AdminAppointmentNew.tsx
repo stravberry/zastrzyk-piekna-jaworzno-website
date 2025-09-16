@@ -279,14 +279,14 @@ const AdminAppointmentNew: React.FC = () => {
                                 <SelectValue placeholder="Wybierz zabieg..." />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent className="max-h-60">
+                            <SelectContent className="max-h-60 w-full min-w-[320px] sm:w-auto">
                               {Object.entries(groupedTreatments || {}).map(([category, categoryTreatments]) => (
                                 <SelectGroup key={category}>
-                                  <SelectLabel className="font-medium">{category}</SelectLabel>
+                                  <SelectLabel className="font-medium text-sm px-2 py-1.5">{category}</SelectLabel>
                                   {categoryTreatments.map((treatment) => (
-                                    <SelectItem key={treatment.id} value={treatment.id}>
-                                      <div className="flex flex-col text-left">
-                                        <span className="font-medium">{treatment.name}</span>
+                                    <SelectItem key={treatment.id} value={treatment.id} className="px-2 py-2">
+                                      <div className="flex flex-col text-left w-full">
+                                        <span className="font-medium text-sm">{treatment.name}</span>
                                         {treatment.price && (
                                           <span className="text-xs text-muted-foreground">{treatment.price} zł</span>
                                         )}
@@ -345,6 +345,7 @@ const AdminAppointmentNew: React.FC = () => {
                                     date < new Date(new Date().setHours(0, 0, 0, 0))
                                   }
                                   initialFocus
+                                  className={cn("p-3 pointer-events-auto")}
                                 />
                               </PopoverContent>
                             </Popover>

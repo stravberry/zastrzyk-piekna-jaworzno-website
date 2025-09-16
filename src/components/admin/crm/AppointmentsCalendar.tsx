@@ -11,7 +11,7 @@ import { Tables } from "@/integrations/supabase/types";
 
 type AppointmentWithDetails = Tables<"patient_appointments"> & {
   patients: Tables<"patients">;
-  treatments: Tables<"treatments">;
+  treatments: { name: string; category: string };
 };
 
 const AppointmentsCalendar: React.FC = () => {
@@ -28,17 +28,52 @@ const AppointmentsCalendar: React.FC = () => {
       const { data, error } = await supabase
         .from('patient_appointments')
         .select(`
-          *,
-          patients (*),
-          treatments (*)
+          id,
+          scheduled_date,
+          duration_minutes,
+          status,
+          cost,
+          treatment_id,
+          patients!inner (
+            id,
+            first_name,
+            last_name,
+            email
+          )
         `)
         .gte('scheduled_date', startOfMonth.toISOString())
         .lte('scheduled_date', endOfMonth.toISOString())
         .order('scheduled_date', { ascending: true });
 
       if (error) throw error;
-      return data as AppointmentWithDetails[] || [];
-    }
+
+      // Get treatment names from pricing categories
+      const { data: pricingData } = await supabase
+        .from('pricing_categories')
+        .select('id, title, items');
+
+      // Create treatment lookup
+      const treatmentLookup: Record<string, { name: string; category: string }> = {};
+      pricingData?.forEach(category => {
+        const items = category.items as any[];
+        items?.forEach(item => {
+          const treatmentId = `${category.id}_${item.name}`;
+          treatmentLookup[treatmentId] = {
+            name: item.name,
+            category: category.title
+          };
+        });
+      });
+
+      // Add treatment info to appointments
+      return data?.map(appointment => ({
+        ...appointment,
+        treatments: treatmentLookup[appointment.treatment_id] || { name: 'Nieznany zabieg', category: 'Inne' }
+      })) || [];
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 10, // 10 minutes
+    refetchOnWindowFocus: false,
   });
 
   // Get appointments for selected date
