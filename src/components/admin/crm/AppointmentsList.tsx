@@ -86,32 +86,42 @@ const AppointmentsList: React.FC = () => {
       const { data, error, count } = await query;
       if (error) throw error;
 
-      // Get treatment names from pricing categories
-      const { data: pricingData } = await supabase
-        .from('pricing_categories')
-        .select('*');
-
-      // Create treatment lookup
+      // Now get treatment info from the new RPC function  
+      const { data: treatmentData } = await supabase.rpc('get_available_treatments_from_pricing');
+      
+      // Create treatment lookup from the RPC result
       const treatmentLookup: Record<string, { name: string; category: string }> = {};
-      pricingData?.forEach(category => {
-        const items = category.items as any[];
-        items?.forEach(item => {
-          const treatmentId = `${category.id}_${item.name}`;
-          treatmentLookup[treatmentId] = {
-            name: item.name,
-            category: category.title
-          };
-        });
+      treatmentData?.forEach(treatment => {
+        treatmentLookup[treatment.treatment_id] = {
+          name: treatment.name,
+          category: treatment.category
+        };
       });
 
-      // Add treatment info to appointments
-      const appointmentsWithTreatments = data?.map(appointment => ({
-        ...appointment,
-        treatments: treatmentLookup[appointment.treatment_id] || { name: 'Nieznany zabieg', category: 'Inne' }
-      })) || [];
+      // Map appointments with treatment names
+      const appointmentsWithTreatments: AppointmentWithDetails[] = data?.map(appointment => {
+        const treatmentInfo = treatmentLookup[appointment.treatment_id] || { name: 'Nieznany zabieg', category: 'Inne' };
+        
+        return {
+          ...appointment,
+          treatments: {
+            id: appointment.treatment_id,
+            name: treatmentInfo.name,
+            category: treatmentInfo.category,
+            description: null,
+            price: null,
+            duration_minutes: null,
+            contraindications: null,
+            aftercare_instructions: null,
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+        } as AppointmentWithDetails;
+      }) || [];
 
       return {
-        appointments: appointmentsWithTreatments as AppointmentWithDetails[],
+        appointments: appointmentsWithTreatments,
         totalCount: count || 0
       };
     },

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -47,22 +46,16 @@ const AppointmentsCalendar: React.FC = () => {
 
       if (error) throw error;
 
-      // Get treatment names from pricing categories
-      const { data: pricingData } = await supabase
-        .from('pricing_categories')
-        .select('id, title, items');
-
-      // Create treatment lookup
+      // Get treatment names using new RPC function
+      const { data: treatmentData } = await supabase.rpc('get_available_treatments_from_pricing');
+      
+      // Create treatment lookup from the RPC result
       const treatmentLookup: Record<string, { name: string; category: string }> = {};
-      pricingData?.forEach(category => {
-        const items = category.items as any[];
-        items?.forEach(item => {
-          const treatmentId = `${category.id}_${item.name}`;
-          treatmentLookup[treatmentId] = {
-            name: item.name,
-            category: category.title
-          };
-        });
+      treatmentData?.forEach(treatment => {
+        treatmentLookup[treatment.treatment_id] = {
+          name: treatment.name,
+          category: treatment.category
+        };
       });
 
       // Add treatment info to appointments
@@ -135,106 +128,115 @@ const AppointmentsCalendar: React.FC = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
-      {/* Calendar */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg sm:text-xl">Kalendarz wizyt</CardTitle>
-        </CardHeader>
-        <CardContent className="p-3 sm:p-6">
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={setSelectedDate}
-            month={selectedMonth}
-            onMonthChange={setSelectedMonth}
-            modifiers={{
-              hasAppointment: appointmentDates
-            }}
-            modifiersStyles={{
-              hasAppointment: {
-                backgroundColor: '#fecaca',
-                color: '#dc2626',
-                fontWeight: 'bold'
-              }
-            }}
-            className="rounded-md border w-full"
-          />
-          <div className="mt-4 text-xs sm:text-sm text-gray-600">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-red-200 rounded"></div>
-              <span>Dni z wizytami</span>
+    <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
+        {/* Calendar */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg sm:text-xl">Kalendarz wizyt</CardTitle>
+          </CardHeader>
+          <CardContent className="p-3 sm:p-6">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={setSelectedDate}
+              month={selectedMonth}
+              onMonthChange={setSelectedMonth}
+              modifiers={{
+                hasAppointment: appointmentDates
+              }}
+              modifiersStyles={{
+                hasAppointment: {
+                  backgroundColor: '#fecaca',
+                  color: '#dc2626',
+                  fontWeight: 'bold'
+                }
+              }}
+              className="rounded-md border w-full [&_.rdp-table]:w-full"
+            />
+            <div className="mt-4 text-xs sm:text-sm text-gray-600">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-red-200 rounded"></div>
+                <span>Dni z wizytami</span>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Selected Date Appointments */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg sm:text-xl">
-            Wizyty na dzień {selectedDate ? selectedDate.toLocaleDateString('pl-PL') : 'Wybierz datę'}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-3 sm:p-6">
-          {selectedDate ? (
-            <div className="space-y-2 sm:space-y-3 max-h-[300px] sm:max-h-[400px] overflow-y-auto">
-              {selectedDateAppointments.length > 0 ? (
-                selectedDateAppointments.map((appointment) => (
-                  <Card key={appointment.id} className="p-2 sm:p-3">
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
-                          <h4 className="font-medium text-xs sm:text-sm truncate">{appointment.treatments.name}</h4>
-                          <Badge className={`text-xs ${getStatusColor(appointment.status || 'scheduled')} self-start sm:self-auto`}>
-                            {getStatusText(appointment.status || 'scheduled')}
-                          </Badge>
+        {/* Selected Date Appointments */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg sm:text-xl">
+              Wizyty na dzień {selectedDate ? selectedDate.toLocaleDateString('pl-PL') : 'Wybierz datę'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-3 sm:p-6">
+            {selectedDate ? (
+              <div className="space-y-2 sm:space-y-3 max-h-[300px] sm:max-h-[400px] overflow-y-auto">
+                {selectedDateAppointments.length > 0 ? (
+                  selectedDateAppointments.map((appointment) => (
+                    <Card key={appointment.id} className="p-2 sm:p-3 border-l-2 border-l-primary/30">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-col gap-2 mb-2">
+                            <h4 className="font-medium text-xs sm:text-sm truncate">{appointment.treatments.name}</h4>
+                            <Badge className={`text-xs ${getStatusColor(appointment.status || 'scheduled')} self-start`}>
+                              {getStatusText(appointment.status || 'scheduled')}
+                            </Badge>
+                          </div>
+                          
+                          <div className="space-y-1 text-xs text-gray-600">
+                            <div className="flex items-center">
+                              <User className="w-3 h-3 mr-1 flex-shrink-0" />
+                              <span className="truncate">{appointment.patients.first_name} {appointment.patients.last_name}</span>
+                            </div>
+                            <div className="flex items-center">
+                              <Clock className="w-3 h-3 mr-1 flex-shrink-0" />
+                              <span className="font-medium">
+                                {new Date(appointment.scheduled_date).toLocaleTimeString('pl-PL', {
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </span>
+                              {appointment.duration_minutes && (
+                                <span className="ml-2 text-xs bg-gray-100 px-2 py-0.5 rounded">
+                                  {appointment.duration_minutes}min
+                                </span>
+                              )}
+                            </div>
+                            {appointment.cost && (
+                              <div className="font-medium text-xs text-green-600">
+                                Koszt: {appointment.cost} zł
+                              </div>
+                            )}
+                          </div>
                         </div>
                         
-                        <div className="space-y-1 text-xs text-gray-600">
-                          <div className="flex items-center">
-                            <User className="w-3 h-3 mr-1 flex-shrink-0" />
-                            <span className="truncate">{appointment.patients.first_name} {appointment.patients.last_name}</span>
-                          </div>
-                          <div className="flex items-center">
-                            <Clock className="w-3 h-3 mr-1 flex-shrink-0" />
-                            {new Date(appointment.scheduled_date).toLocaleTimeString('pl-PL', {
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
-                          </div>
-                          {appointment.cost && (
-                            <div className="font-medium text-xs">
-                              Koszt: {appointment.cost} zł
-                            </div>
-                          )}
-                        </div>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => downloadCalendarEvent(appointment.id)}
+                          className="text-xs p-1.5 h-7 w-7 self-end sm:self-auto"
+                        >
+                          <Download className="w-3 h-3" />
+                        </Button>
                       </div>
-                      
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => downloadCalendarEvent(appointment.id)}
-                        className="ml-0 sm:ml-2 text-xs px-2 py-1 self-end sm:self-auto"
-                      >
-                        <Download className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  </Card>
-                ))
-              ) : (
-                <div className="text-center py-8 text-gray-500 text-xs sm:text-sm">
-                  Brak wizyt w wybranym dniu
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-gray-500 text-xs sm:text-sm">
-              Wybierz datę aby zobaczyć wizyty
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                    </Card>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-gray-500 text-xs sm:text-sm">
+                    Brak wizyt w wybranym dniu
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500 text-xs sm:text-sm">
+                Wybierz datę aby zobaczyć wizyty
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

@@ -162,7 +162,7 @@ const PatientProfile: React.FC<PatientProfileProps> = ({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+      <div className="max-w-5xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         {/* Back button */}
         {onBack && (
           <Button 

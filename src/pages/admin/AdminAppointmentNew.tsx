@@ -108,33 +108,24 @@ const AdminAppointmentNew: React.FC = () => {
     }
   });
 
-  // Fetch treatments from pricing categories
+  // Fetch treatments from pricing using new RPC function
   const { data: treatments } = useQuery({
     queryKey: ['available-treatments'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('pricing_categories')
-        .select('*')
-        .order('title', { ascending: true });
+      const { data, error } = await supabase.rpc('get_available_treatments_from_pricing');
       
       if (error) throw error;
       
-      // Convert pricing categories to treatments format
-      const allTreatments: Treatment[] = [];
-      data?.forEach(category => {
-        const items = category.items as any[];
-        items?.forEach(item => {
-          allTreatments.push({
-            id: `${category.id}_${item.name}`,
-            name: item.name,
-            category: category.title,
-            description: item.description || undefined,
-            price: parseFloat(item.price?.replace(/[^\d.]/g, '') || '0'),
-            duration_minutes: 60, // Default duration
-            is_active: true
-          });
-        });
-      });
+      // Convert to Treatment format
+      const allTreatments: Treatment[] = data?.map(item => ({
+        id: item.treatment_id,
+        name: item.name,
+        category: item.category,
+        description: item.description || undefined,
+        price: item.price ? Number(item.price) : undefined,
+        duration_minutes: item.duration_minutes || 60,
+        is_active: true
+      })) || [];
       
       return allTreatments;
     }
@@ -206,7 +197,7 @@ const AdminAppointmentNew: React.FC = () => {
 
   return (
     <AdminLayout>
-      <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
+      <div className="max-w-4xl mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6">
         {/* Breadcrumbs - hidden on mobile */}
         <div className="hidden sm:block">
           <Breadcrumb>

@@ -790,6 +790,33 @@ export type Database = {
         }
         Relationships: []
       }
+      pricing_treatment_map: {
+        Row: {
+          created_at: string | null
+          id: string
+          pricing_category_id: string
+          pricing_item_name: string
+          treatment_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          pricing_category_id: string
+          pricing_item_name: string
+          treatment_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          pricing_category_id?: string
+          pricing_item_name?: string
+          treatment_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1215,6 +1242,17 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_available_treatments_from_pricing: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          category: string
+          description: string
+          duration_minutes: number
+          name: string
+          price: number
+          treatment_id: string
+        }[]
+      }
       get_calendar_tokens_secure: {
         Args: { integration_id: string }
         Returns: {
@@ -1249,6 +1287,16 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
+      }
+      get_or_create_treatment_for_pricing_item: {
+        Args: {
+          _category_id: string
+          _duration_minutes?: number
+          _item_description?: string
+          _item_name: string
+          _item_price?: number
+        }
+        Returns: string
       }
       get_patient_secure: {
         Args: { patient_id: string }

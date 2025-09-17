@@ -69,7 +69,7 @@ const AdminPricing = () => {
   };
 
   return (
-    <div className="p-3 sm:p-4 lg:p-6 w-full min-h-screen bg-gray-50">
+    <div className="max-w-4xl mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6">
       <PricingActions 
         onAddCategory={handleAddCategory} 
         onResetData={handleResetData}
