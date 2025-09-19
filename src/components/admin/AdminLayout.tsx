@@ -201,7 +201,7 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
           {/* Main content */}
           <main className="flex-1 pt-16 lg:pt-0 overflow-x-hidden min-w-0">
-            <div className="max-w-screen-2xl mx-auto p-3 sm:p-4 lg:p-6 xl:p-8 min-w-0">
+            <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8 xl:px-10 py-4 md:py-6 min-w-0 overflow-x-hidden">
               {children}
             </div>
           </main>
