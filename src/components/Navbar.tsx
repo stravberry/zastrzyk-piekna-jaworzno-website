@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetClose, SheetTrigger } from "@/components/ui/sheet";
 import { useAdvancedTracking } from "@/hooks/useAdvancedTracking";
 import LogoWithFallback from "@/components/ui/LogoWithFallback";
 import AnimatedBurgerIcon from "@/components/ui/AnimatedBurgerIcon";
@@ -137,20 +137,32 @@ const Navbar = () => {
             trackElementClick('menu_toggle', open ? 'Open Menu' : 'Close Menu', 'mobile_navigation');
           }}
         >
-            <button
-              className="lg:hidden text-gray-700 focus:outline-none relative z-[60]"
-              aria-label={isOpen ? "Zamknij menu" : "Otwórz menu"}
-              onClick={() => {
-                const next = !isOpen;
-                setIsOpen(next);
-                trackElementClick('menu_toggle', next ? 'Open Menu' : 'Close Menu', 'mobile_navigation');
-              }}
-            >
-              <AnimatedBurgerIcon isOpen={isOpen} />
-            </button>
+            <SheetTrigger asChild>
+              <button
+                className="lg:hidden text-gray-700 focus:outline-none relative z-[70]"
+                aria-label={isOpen ? "Zamknij menu" : "Otwórz menu"}
+                onClick={() => {
+                  trackElementClick('menu_toggle', !isOpen ? 'Open Menu' : 'Close Menu', 'mobile_navigation');
+                }}
+              >
+                <AnimatedBurgerIcon isOpen={isOpen} />
+              </button>
+            </SheetTrigger>
 
-          <SheetContent side="right" className="w-[80vw] sm:w-80 p-0">
+          <SheetContent side="right" className="w-[80vw] sm:w-80 p-0 [&>button.absolute.right-4.top-4]:hidden">
             <div className="flex flex-col h-full">
+              <div className="flex items-center justify-between px-4 py-4 border-b">
+                <span className="text-sm font-medium uppercase tracking-wide text-gray-500">Menu</span>
+                <SheetClose asChild>
+                  <button
+                    className="text-gray-700 focus:outline-none"
+                    aria-label="Zamknij menu"
+                    onClick={() => trackElementClick('menu_toggle', 'Close Menu', 'mobile_navigation')}
+                  >
+                    <AnimatedBurgerIcon isOpen={true} />
+                  </button>
+                </SheetClose>
+              </div>
 
               {/* Navigation Links */}
               <nav className="flex-1 px-4 py-6">
