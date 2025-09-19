@@ -277,7 +277,7 @@ const AdminSidebar: React.FC<{
       <SidebarContent className="bg-white">
         {/* Header - always show on mobile, hide only when collapsed on desktop */}
         {shouldShowFullContent && (
-          <div className="p-6 border-b">
+          <div className="p-4 border-b">
             <Link to="/" className="flex items-center mb-2">
               <img 
                 src="/src/assets/zastrzyk-piekna-logo.png" 
@@ -340,7 +340,7 @@ const AdminSidebar: React.FC<{
         )}
 
         {/* Navigation */}
-        <SidebarGroup className="px-4 py-4">
+        <SidebarGroup className="p-4">
           <SidebarGroupLabel className={collapsed ? "sr-only" : ""}>
             Menu główne
           </SidebarGroupLabel>
