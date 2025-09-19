@@ -174,8 +174,12 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           {/* Mobile header with burger menu */}
           <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-white border-b shadow-sm lg:hidden">
             <div className="flex items-center justify-between h-full px-4">
-              <Link to="/" className="text-lg font-bold text-pink-600">
-                Zastrzyk Piękna
+              <Link to="/" className="flex items-center">
+                <img 
+                  src="/src/assets/zastrzyk-piekna-logo.png" 
+                  alt="Zastrzyk Piękna - Kosmetolog Anna Gajęcka"
+                  className="h-8 w-auto"
+                />
               </Link>
               <SidebarTrigger className="p-2" />
             </div>
@@ -261,8 +265,12 @@ const AdminSidebar: React.FC<{
         {/* Header - always show on mobile, hide only when collapsed on desktop */}
         {shouldShowFullContent && (
           <div className="p-6 border-b">
-            <Link to="/" className="text-xl font-bold text-pink-600">
-              Zastrzyk Piękna
+            <Link to="/" className="flex items-center mb-2">
+              <img 
+                src="/src/assets/zastrzyk-piekna-logo.png" 
+                alt="Zastrzyk Piękna - Kosmetolog Anna Gajęcka"
+                className="h-10 w-auto"
+              />
             </Link>
             <p className="text-sm text-gray-500 mt-1">Panel administracyjny</p>
             
