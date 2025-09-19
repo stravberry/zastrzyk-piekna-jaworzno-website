@@ -139,7 +139,7 @@ const Navbar = () => {
         {/* Mobile Menu Button */}
         <button
           onClick={toggleMenu}
-          className="lg:hidden text-gray-700 focus:outline-none z-[110] relative"
+          className="lg:hidden text-gray-700 focus:outline-none z-50 relative"
           aria-label={isOpen ? "Zamknij menu" : "Otwórz menu"}
         >
           <svg
@@ -168,80 +168,83 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Mobile Navigation with Improved Animation */}
-      {isOpen && (
-        <div className="fixed inset-0 lg:hidden z-[100]">
-          {/* Backdrop */}
-          <div 
-            className={`absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${
-              isOpen ? "opacity-100" : "opacity-0"
-            }`}
-            onClick={() => setIsOpen(false)}
-          />
-          
-          {/* Sliding Panel */}
-          <div 
-            className={`absolute top-0 right-0 h-full w-3/4 max-w-xs bg-white shadow-xl 
-              transform transition-transform duration-300 ease-out will-change-transform ${
-              isOpen ? "translate-x-0" : "translate-x-full"
-            }`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex flex-col h-full">
-              {/* Close button */}
-              <div className="flex justify-end p-4 pt-6">
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+      {/* Mobile Navigation Overlay */}
+      <div className={`fixed inset-0 lg:hidden z-40 ${isOpen ? 'block' : 'hidden'}`}>
+        {/* Backdrop */}
+        <div 
+          className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          onClick={() => setIsOpen(false)}
+        />
+        
+        {/* Sliding Panel */}
+        <div 
+          className={`absolute top-0 left-0 h-full w-3/4 max-w-xs bg-white shadow-2xl 
+            transform transition-transform duration-300 ease-in-out ${
+            isOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex flex-col h-full">
+            {/* Header with logo space */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-100">
+              <div className="h-12 flex items-center">
+                <img 
+                  src={logo} 
+                  alt="Zastrzyk Piękna" 
+                  className="h-8 w-auto object-contain"
+                />
               </div>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
 
-              {/* Navigation Links */}
-              <nav className="flex-1 px-6 py-4">
-                <div className="space-y-6">
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.name}
-                      to={link.path}
-                      className="block text-lg font-medium text-gray-800 hover:text-pink-500 transition-colors py-2 border-b border-gray-100 last:border-b-0"
-                      onClick={() => {
-                        setIsOpen(false);
-                        handleNavClick(link.name, link.path);
-                      }}
-                    >
-                      {link.name}
-                    </Link>
-                  ))}
-                </div>
-
-                {/* CTA Button */}
-                <div className="mt-8">
-                  <Button
-                    asChild
-                    className="bg-pink-500 hover:bg-pink-600 text-white w-full py-3 text-lg font-medium"
+            {/* Navigation Links */}
+            <nav className="flex-1 px-4 py-6">
+              <div className="space-y-1">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.name}
+                    to={link.path}
+                    className="block px-3 py-3 text-base font-medium text-gray-800 hover:text-pink-500 hover:bg-pink-50 rounded-lg transition-all duration-200"
                     onClick={() => {
                       setIsOpen(false);
-                      handleInstagramClick();
+                      handleNavClick(link.name, link.path);
                     }}
                   >
-                    <a 
-                      href="https://instagram.com/zastrzyk_piekna" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                    >
-                      Umów Wizytę
-                    </a>
-                  </Button>
-                </div>
-              </nav>
-            </div>
+                    {link.name}
+                  </Link>
+                ))}
+              </div>
+
+              {/* CTA Button */}
+              <div className="mt-8 px-3">
+                <Button
+                  asChild
+                  className="bg-pink-500 hover:bg-pink-600 text-white w-full py-3 text-base font-medium rounded-lg"
+                  onClick={() => {
+                    setIsOpen(false);
+                    handleInstagramClick();
+                  }}
+                >
+                  <a 
+                    href="https://instagram.com/zastrzyk_piekna" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                  >
+                    Umów Wizytę
+                  </a>
+                </Button>
+              </div>
+            </nav>
           </div>
         </div>
-      )}
+      </div>
     </header>
   );
 };
