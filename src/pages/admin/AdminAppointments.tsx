@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CalendarPlus } from "lucide-react";
-import AppointmentsCalendarView from "@/components/admin/crm/AppointmentsCalendarView";
+import DailyAppointmentsView from "@/components/admin/crm/DailyAppointmentsView";
 import AdminLayout from "@/components/admin/AdminLayout";
 
 const AdminAppointments: React.FC = () => {
@@ -31,7 +31,7 @@ const AdminAppointments: React.FC = () => {
           </Button>
         </div>
 
-        <AppointmentsCalendarView />
+        <DailyAppointmentsView />
       </div>
     </AdminLayout>
   );
