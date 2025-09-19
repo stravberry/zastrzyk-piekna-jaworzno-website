@@ -184,8 +184,8 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     <AdminSecurityWrapper>
       <SidebarProvider open={sidebarOpen} onOpenChange={setSidebarOpen}>
         <div className="min-h-screen flex w-full bg-gray-50">
-          {/* Mobile header with burger menu - only on mobile, not tablet */}
-          <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-white border-b shadow-sm md:hidden">
+          {/* Mobile header with burger menu */}
+          <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-white border-b shadow-sm lg:hidden">
             <div className="flex items-center justify-between h-full px-4">
               <Link to="/" className="flex items-center">
                 <img 
@@ -213,7 +213,7 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           />
 
           {/* Main content */}
-          <main className="flex-1 pt-16 md:pt-0 overflow-x-hidden min-w-0">
+          <main className="flex-1 pt-16 lg:pt-0 overflow-x-hidden min-w-0">
             <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8 xl:px-10 py-4 md:py-6 min-w-0 overflow-x-hidden">
               {children}
             </div>
@@ -273,7 +273,7 @@ const AdminSidebar: React.FC<{
   };
 
   return (
-    <Sidebar className={collapsed ? "w-14" : "w-64"} collapsible="icon">
+    <Sidebar className={`${collapsed ? "w-14" : "w-64"} mt-16 lg:mt-0`} collapsible="icon">
       <SidebarContent className="bg-white">
         {/* Header - always show on mobile, hide only when collapsed on desktop */}
         {shouldShowFullContent && (
