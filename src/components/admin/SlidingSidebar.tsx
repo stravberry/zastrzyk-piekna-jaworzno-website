@@ -93,11 +93,9 @@ export const SlidingSidebar: React.FC<SlidingSidebarProps> = ({
     }
   };
 
-  // Handle navigation clicks - close sidebar on mobile
+  // Handle navigation clicks - close sidebar automatically
   const handleNavClick = () => {
-    if (isMobile) {
-      onToggle();
-    }
+    onToggle();
   };
 
   // Close on Escape key
