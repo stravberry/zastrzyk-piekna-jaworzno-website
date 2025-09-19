@@ -19,10 +19,9 @@ import {
   User,
   Clock,
   AlertTriangle,
-  CheckCircle,
-  X,
-  Menu
+  CheckCircle
 } from "lucide-react";
+import AnimatedBurgerIcon from "@/components/ui/AnimatedBurgerIcon";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,6 +44,7 @@ interface SlidingSidebarProps {
   showLogoutDialog: boolean;
   setShowLogoutDialog: (show: boolean) => void;
   handleSecureLogout: () => void;
+  isDesktop?: boolean;
 }
 
 export const SlidingSidebar: React.FC<SlidingSidebarProps> = ({
@@ -56,7 +56,8 @@ export const SlidingSidebar: React.FC<SlidingSidebarProps> = ({
   securityStatus,
   showLogoutDialog,
   setShowLogoutDialog,
-  handleSecureLogout
+  handleSecureLogout,
+  isDesktop = false
 }) => {
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -88,31 +89,33 @@ export const SlidingSidebar: React.FC<SlidingSidebarProps> = ({
 
   // Close sidebar when clicking outside on mobile
   const handleBackdropClick = () => {
-    if (isMobile) {
+    if (isMobile && !isDesktop) {
       onToggle();
     }
   };
 
-  // Handle navigation clicks - close sidebar automatically
+  // Handle navigation clicks - close sidebar automatically (only on mobile)
   const handleNavClick = () => {
-    onToggle();
+    if (isMobile && !isDesktop) {
+      onToggle();
+    }
   };
 
-  // Close on Escape key
+  // Close on Escape key (only on mobile)
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === 'Escape' && isOpen && isMobile && !isDesktop) {
         onToggle();
       }
     };
 
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, onToggle]);
+  }, [isOpen, onToggle, isMobile, isDesktop]);
 
   // Prevent body scroll when sidebar is open on mobile
   useEffect(() => {
-    if (isMobile && isOpen) {
+    if (isMobile && !isDesktop && isOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -121,28 +124,29 @@ export const SlidingSidebar: React.FC<SlidingSidebarProps> = ({
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isMobile, isOpen]);
+  }, [isMobile, isOpen, isDesktop]);
 
   return (
     <>
       {/* Backdrop for mobile */}
-      {isOpen && isMobile && (
+      {isOpen && isMobile && !isDesktop && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-40"
           onClick={handleBackdropClick}
         />
       )}
       
-      {/* Sliding Sidebar */}
+      {/* Sidebar */}
       <div className={`
-        fixed top-0 left-0 h-full bg-white shadow-lg z-50 
-        transform transition-transform duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        ${isDesktop ? 'static' : 'fixed'} top-0 left-0 h-full bg-white shadow-lg 
+        ${isDesktop ? 'z-auto' : 'z-50'}
+        ${isDesktop ? '' : 'transform transition-transform duration-300 ease-in-out'}
+        ${isDesktop || isOpen ? 'translate-x-0' : '-translate-x-full'}
         ${isMobile ? 'w-80' : 'w-72'}
       `}>
         {/* Header */}
         <div className="p-4 border-b">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center mb-2">
             <Link to="/" className="flex items-center">
               <img 
                 src="/src/assets/zastrzyk-piekna-logo.png" 
@@ -150,14 +154,6 @@ export const SlidingSidebar: React.FC<SlidingSidebarProps> = ({
                 className="h-10 w-auto"
               />
             </Link>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onToggle}
-              className="p-2 hover:bg-gray-100"
-            >
-              <X className="w-4 h-4" />
-            </Button>
           </div>
           <p className="text-sm text-gray-500 mt-1">Panel administracyjny</p>
           
@@ -289,7 +285,7 @@ export const SlidingSidebar: React.FC<SlidingSidebarProps> = ({
   );
 };
 
-// Hamburger Menu Button Component
+// Animated Hamburger Menu Button Component
 export const SlidingSidebarTrigger: React.FC<{
   isOpen: boolean;
   onToggle: () => void;
@@ -302,11 +298,7 @@ export const SlidingSidebarTrigger: React.FC<{
       className="p-2 hover:bg-gray-100 transition-colors"
       aria-label={isOpen ? "Zamknij menu" : "Otwórz menu"}
     >
-      {isOpen ? (
-        <X className="w-5 h-5" />
-      ) : (
-        <Menu className="w-5 h-5" />
-      )}
+      <AnimatedBurgerIcon isOpen={isOpen} className="w-5 h-5" />
     </Button>
   );
 };

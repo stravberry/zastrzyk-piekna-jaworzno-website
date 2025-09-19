@@ -2,12 +2,14 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAdmin } from "@/context/AdminContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 import AdminSecurityWrapper from "./AdminSecurityWrapper";
 import { toast } from "sonner";
 import { SlidingSidebar, SlidingSidebarTrigger } from "./SlidingSidebar";
 
 const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, userRole, logout, session } = useAdmin();
+  const isMobile = useIsMobile();
 
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
@@ -101,45 +103,70 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   return (
     <AdminSecurityWrapper>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header with hamburger menu */}
-        <header className="fixed top-0 left-0 right-0 z-30 h-16 bg-white border-b shadow-sm">
-          <div className="flex items-center justify-between h-full px-4">
-            <div className="flex items-center space-x-4">
-              <SlidingSidebarTrigger 
-                isOpen={sidebarOpen} 
-                onToggle={toggleSidebar}
-              />
-              <Link to="/" className="flex items-center">
-                <img 
-                  src="/src/assets/zastrzyk-piekna-logo.png" 
-                  alt="Zastrzyk Piękna - Kosmetolog Anna Gajęcka"
-                  className="h-8 w-auto"
-                />
-              </Link>
+      <div className="min-h-screen bg-gray-50 flex">
+        {/* Desktop Sidebar - Always visible */}
+        {!isMobile && (
+          <div className="w-72 flex-shrink-0">
+            <SlidingSidebar
+              isOpen={true}
+              onToggle={() => {}} // No toggle on desktop
+              user={user}
+              userRole={userRole}
+              sessionInfo={sessionInfo}
+              securityStatus={securityStatus}
+              showLogoutDialog={showLogoutDialog}
+              setShowLogoutDialog={setShowLogoutDialog}
+              handleSecureLogout={handleSecureLogout}
+              isDesktop={true}
+            />
+          </div>
+        )}
+
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Mobile Header with hamburger menu */}
+          {isMobile && (
+            <header className="fixed top-0 left-0 right-0 z-30 h-16 bg-white border-b shadow-sm">
+              <div className="flex items-center justify-between h-full px-4">
+                <div className="flex items-center space-x-4">
+                  <SlidingSidebarTrigger 
+                    isOpen={sidebarOpen} 
+                    onToggle={toggleSidebar}
+                  />
+                  <Link to="/" className="flex items-center">
+                    <img 
+                      src="/src/assets/zastrzyk-piekna-logo.png" 
+                      alt="Zastrzyk Piękna - Kosmetolog Anna Gajęcka"
+                      className="h-8 w-auto"
+                    />
+                  </Link>
+                </div>
+              </div>
+            </header>
+          )}
+
+          {/* Mobile Sliding Sidebar */}
+          {isMobile && (
+            <SlidingSidebar
+              isOpen={sidebarOpen}
+              onToggle={toggleSidebar}
+              user={user}
+              userRole={userRole}
+              sessionInfo={sessionInfo}
+              securityStatus={securityStatus}
+              showLogoutDialog={showLogoutDialog}
+              setShowLogoutDialog={setShowLogoutDialog}
+              handleSecureLogout={handleSecureLogout}
+              isDesktop={false}
+            />
+          )}
+
+          {/* Main content */}
+          <main className={`flex-1 w-full ${isMobile ? 'pt-16' : ''}`}>
+            <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8 xl:px-10 py-4 md:py-6">
+              {children}
             </div>
-          </div>
-        </header>
-
-        {/* Sliding Sidebar */}
-        <SlidingSidebar
-          isOpen={sidebarOpen}
-          onToggle={toggleSidebar}
-          user={user}
-          userRole={userRole}
-          sessionInfo={sessionInfo}
-          securityStatus={securityStatus}
-          showLogoutDialog={showLogoutDialog}
-          setShowLogoutDialog={setShowLogoutDialog}
-          handleSecureLogout={handleSecureLogout}
-        />
-
-        {/* Main content */}
-        <main className="pt-16 w-full">
-          <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8 xl:px-10 py-4 md:py-6">
-            {children}
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
     </AdminSecurityWrapper>
   );
