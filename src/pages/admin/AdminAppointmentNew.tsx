@@ -70,6 +70,7 @@ const AdminAppointmentNew: React.FC = () => {
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTreatmentDialogOpen, setIsTreatmentDialogOpen] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const { syncAppointment, isSyncing } = useGoogleCalendar();
 
   // Get patient ID from URL params
@@ -327,7 +328,7 @@ const AdminAppointmentNew: React.FC = () => {
                         render={({ field }) => (
                           <FormItem className="flex flex-col">
                             <FormLabel className="text-sm font-medium">Data *</FormLabel>
-                            <Popover>
+                            <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                               <PopoverTrigger asChild>
                                 <FormControl>
                                   <Button
@@ -350,7 +351,10 @@ const AdminAppointmentNew: React.FC = () => {
                                 <Calendar
                                   mode="single"
                                   selected={field.value}
-                                  onSelect={field.onChange}
+                                  onSelect={(date) => {
+                                    field.onChange(date);
+                                    setIsCalendarOpen(false);
+                                  }}
                                   disabled={(date) =>
                                     date < new Date(new Date().setHours(0, 0, 0, 0))
                                   }
