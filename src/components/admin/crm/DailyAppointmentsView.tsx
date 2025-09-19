@@ -277,36 +277,37 @@ const DailyAppointmentsView: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6 min-w-0">
       {/* Mobile/Tablet Calendar - Show on smaller screens */}
-      <div className="xl:hidden">
+      <div className="lg:hidden">
         <VisualCalendar 
           selectedDate={selectedDate} 
           onDateSelect={setSelectedDate}
+          compact={true}
         />
       </div>
 
       {/* Main Content Container */}
-      <div className="xl:flex xl:gap-6">
+      <div className="lg:flex lg:gap-6 min-w-0">
         {/* Main Content */}
-        <div className="xl:flex-1 xl:min-w-0 space-y-6">
+        <div className="lg:flex-1 lg:min-w-0 space-y-4 lg:space-y-6">
         {/* Date Navigation Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Button
               variant="outline"
               size="sm"
               onClick={() => navigateDate('prev')}
-              className="h-9"
+              className="h-9 w-9 p-0 flex-shrink-0"
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
             
             <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="h-9 min-w-[200px] justify-start gap-2">
-                  <CalendarIcon className="w-4 h-4" />
-                  <span className="font-medium">
+                <Button variant="outline" className="h-9 flex-1 min-w-0 justify-start gap-2 px-3">
+                  <CalendarIcon className="w-4 h-4 flex-shrink-0" />
+                  <span className="font-medium truncate">
                     {getDateDisplayText(selectedDate)}
                   </span>
                 </Button>
@@ -331,15 +332,15 @@ const DailyAppointmentsView: React.FC = () => {
               variant="outline"
               size="sm"
               onClick={() => navigateDate('next')}
-              className="h-9"
+              className="h-9 w-9 p-0 flex-shrink-0"
             >
               <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-40 h-9">
+              <SelectTrigger className="w-32 sm:w-40 h-9">
                 <SelectValue placeholder="Filtruj status" />
               </SelectTrigger>
               <SelectContent>
@@ -355,9 +356,10 @@ const DailyAppointmentsView: React.FC = () => {
               variant="outline"
               size="sm"
               onClick={() => setSelectedDate(new Date())}
-              className="h-9"
+              className="h-9 px-3"
             >
-              Dzisiaj
+              <span className="hidden sm:inline">Dzisiaj</span>
+              <span className="sm:hidden">Dziś</span>
             </Button>
           </div>
         </div>
@@ -439,9 +441,9 @@ const DailyAppointmentsView: React.FC = () => {
             appointments.map((appointment) => (
               <Card key={appointment.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-6">
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                  <div className="flex flex-col gap-4">
                     <div className="flex-1 space-y-3">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
                         <h3 className="text-lg font-semibold text-gray-900">
                           {appointment.treatments?.name || 'Nieznany zabieg'}
                         </h3>
@@ -453,7 +455,7 @@ const DailyAppointmentsView: React.FC = () => {
                         </Badge>
                       </div>
 
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-600">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 text-sm text-gray-600">
                         <div className="flex items-center gap-1">
                           <User className="w-4 h-4" />
                           <span>{appointment.patients?.first_name} {appointment.patients?.last_name}</span>
@@ -481,47 +483,49 @@ const DailyAppointmentsView: React.FC = () => {
                       <AppointmentReminderStatus appointmentId={appointment.id} />
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                      <QuickStatusChange
-                        currentStatus={appointment.status}
-                        onStatusChange={(status: AppointmentStatus) => handleQuickStatusChange(appointment.id, status)}
-                      />
-                      
-                      <ManualReminderButton appointmentId={appointment.id} />
+                    <div className="flex flex-col gap-2 sm:flex-row sm:gap-2 sm:flex-wrap">
+                      <div className="flex gap-2">
+                        <QuickStatusChange
+                          currentStatus={appointment.status}
+                          onStatusChange={(status: AppointmentStatus) => handleQuickStatusChange(appointment.id, status)}
+                        />
+                        
+                        <ManualReminderButton appointmentId={appointment.id} />
+                      </div>
 
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => addToCalendar(appointment.id)}
-                        className="text-xs sm:text-sm"
-                      >
-                        <CalendarPlus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                        <span className="hidden sm:inline">Dodaj do kalendarza</span>
-                        <span className="sm:hidden">Kalendarz</span>
-                      </Button>
+                       <div className="flex gap-2 flex-wrap">
+                         <Button 
+                           size="sm" 
+                           variant="outline"
+                           onClick={() => addToCalendar(appointment.id)}
+                           className="text-xs flex-1 sm:flex-initial sm:text-sm"
+                         >
+                           <CalendarPlus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                           <span className="hidden sm:inline">Dodaj do kalendarza</span>
+                           <span className="sm:hidden">Kalendarz</span>
+                         </Button>
 
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => handleEditAppointment(appointment as AppointmentWithDetails)}
-                        className="text-xs sm:text-sm"
-                      >
-                        <Edit className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                        <span className="hidden sm:inline">Edytuj</span>
-                        <span className="sm:hidden">Edytuj</span>
-                      </Button>
+                         <Button 
+                           size="sm" 
+                           variant="outline"
+                           onClick={() => handleEditAppointment(appointment as AppointmentWithDetails)}
+                           className="text-xs flex-1 sm:flex-initial sm:text-sm"
+                         >
+                           <Edit className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                           <span>Edytuj</span>
+                         </Button>
 
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => setAppointmentToDelete(appointment.id)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 text-xs sm:text-sm"
-                      >
-                        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                        <span className="hidden sm:inline">Usuń</span>
-                        <span className="sm:hidden">Usuń</span>
-                      </Button>
-                    </div>
+                         <Button 
+                           size="sm" 
+                           variant="outline"
+                           onClick={() => setAppointmentToDelete(appointment.id)}
+                           className="text-red-600 hover:text-red-700 hover:bg-red-50 text-xs flex-1 sm:flex-initial sm:text-sm"
+                         >
+                           <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                           <span>Usuń</span>
+                         </Button>
+                       </div>
+                     </div>
                   </div>
                 </CardContent>
               </Card>
@@ -569,12 +573,13 @@ const DailyAppointmentsView: React.FC = () => {
         </AlertDialog>
         </div>
 
-        {/* Desktop Sidebar - Calendar */}
-        <div className="hidden xl:block xl:w-80 xl:flex-shrink-0">
-          <div className="xl:sticky xl:top-6">
+        {/* Desktop Sidebar Calendar - Show on larger screens */}
+        <div className="hidden lg:block lg:w-72 xl:w-80 lg:flex-shrink-0">
+          <div className="lg:sticky lg:top-4 xl:top-6">
             <VisualCalendar 
               selectedDate={selectedDate} 
               onDateSelect={setSelectedDate}
+              compact={false}
             />
           </div>
         </div>

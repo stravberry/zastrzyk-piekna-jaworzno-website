@@ -75,9 +75,9 @@ const VisualCalendar: React.FC<VisualCalendarProps> = ({ selectedDate, onDateSel
     const hasScheduled = dayData.statuses.includes('scheduled');
     const hasCancelled = dayData.statuses.includes('cancelled') || dayData.statuses.includes('no_show');
     
-    if (hasCompleted) return 'bg-success';
-    if (hasScheduled) return 'bg-primary';
-    if (hasCancelled) return 'bg-destructive';
+    if (hasCompleted) return 'bg-green-500';
+    if (hasScheduled) return 'bg-blue-500';
+    if (hasCancelled) return 'bg-red-500';
     
     return 'bg-gray-500';
   };
@@ -152,15 +152,15 @@ const VisualCalendar: React.FC<VisualCalendarProps> = ({ selectedDate, onDateSel
           compact && "gap-1 mb-2"
         )}>
           <div className="flex items-center gap-1">
-            <div className="w-2 h-2 sm:w-3 sm:h-3 bg-success rounded-full"></div>
+            <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full"></div>
             <span className={cn("text-xs", compact && "hidden sm:inline")}>Zakończone</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-2 h-2 sm:w-3 sm:h-3 bg-primary rounded-full"></div>
+            <div className="w-2 h-2 sm:w-3 sm:h-3 bg-blue-500 rounded-full"></div>
             <span className={cn("text-xs", compact && "hidden sm:inline")}>Zaplanowane</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-2 h-2 sm:w-3 sm:h-3 bg-destructive rounded-full"></div>
+            <div className="w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full"></div>
             <span className={cn("text-xs", compact && "hidden sm:inline")}>Anulowane</span>
           </div>
         </div>
