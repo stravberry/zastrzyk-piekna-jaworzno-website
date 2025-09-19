@@ -167,9 +167,22 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const sessionInfo = getSessionInfo();
   const securityStatus = user ? 'secure' : 'warning';
 
+  // Auto-collapse sidebar on tablets (768-1023px), open on desktop, mobile uses Sheet
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  useEffect(() => {
+    const setByWidth = () => {
+      const w = window.innerWidth;
+      const isTablet = w >= 768 && w < 1024;
+      setSidebarOpen(!isTablet);
+    };
+    setByWidth();
+    window.addEventListener('resize', setByWidth);
+    return () => window.removeEventListener('resize', setByWidth);
+  }, []);
+
   return (
     <AdminSecurityWrapper>
-      <SidebarProvider>
+      <SidebarProvider open={sidebarOpen} onOpenChange={setSidebarOpen}>
         <div className="min-h-screen flex w-full bg-gray-50">
           {/* Mobile header with burger menu */}
           <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-white border-b shadow-sm lg:hidden">

@@ -278,12 +278,20 @@ const DailyAppointmentsView: React.FC = () => {
 
   return (
     <div className="space-y-4 lg:space-y-6 min-w-0">
-      {/* Mobile/Tablet Calendar - Show on smaller screens */}
-      <div className="lg:hidden">
+      {/* Kalendarz - mobile */}
+      <div className="md:hidden">
         <VisualCalendar 
           selectedDate={selectedDate} 
           onDateSelect={setSelectedDate}
-          compact={true}
+          compact
+        />
+      </div>
+
+      {/* Kalendarz - tablet (większy, niekompaktowy) */}
+      <div className="hidden md:block lg:hidden">
+        <VisualCalendar 
+          selectedDate={selectedDate} 
+          onDateSelect={setSelectedDate}
         />
       </div>
 
