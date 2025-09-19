@@ -273,7 +273,7 @@ const AdminSidebar: React.FC<{
   };
 
   return (
-    <Sidebar className={`${collapsed ? "w-14" : "w-64"} mt-16 lg:mt-0`} collapsible="icon">
+    <Sidebar className={`mt-16 lg:mt-0`} collapsible="icon">
       <SidebarContent className="bg-white">
         {/* Header - always show on mobile, hide only when collapsed on desktop */}
         {shouldShowFullContent && (
@@ -340,7 +340,7 @@ const AdminSidebar: React.FC<{
         )}
 
         {/* Navigation */}
-        <SidebarGroup className="py-4">
+        <SidebarGroup className="px-0 py-4">
           <SidebarGroupLabel className={collapsed ? "sr-only" : "px-4"}>
             Menu główne
           </SidebarGroupLabel>
@@ -350,10 +350,10 @@ const AdminSidebar: React.FC<{
                 const Icon = item.icon;
                 return (
                   <SidebarMenuItem key={item.name}>
-                    <SidebarMenuButton asChild>
+                    <SidebarMenuButton asChild isActive={isActive(item.href)}>
                       <NavLink 
                         to={item.href} 
-                        className={`flex items-center mx-2 px-3 py-2 text-sm font-medium rounded-md transition-colors ${collapsed ? 'justify-center' : ''} ${getNavCls(item.href)}`}
+                        className={`${collapsed ? 'justify-center' : ''}`}
                         onClick={handleMobileNavClick}
                       >
                          <Icon className="w-4 h-4 flex-shrink-0" />
