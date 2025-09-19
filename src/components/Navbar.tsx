@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useAdvancedTracking } from "@/hooks/useAdvancedTracking";
 import LogoWithFallback from "@/components/ui/LogoWithFallback";
+import AnimatedBurgerIcon from "@/components/ui/AnimatedBurgerIcon";
 import logo from "@/assets/zastrzyk-piekna-logo.png";
 
 const Navbar = () => {
@@ -145,37 +146,7 @@ const Navbar = () => {
                 trackElementClick('menu_toggle', next ? 'Open Menu' : 'Close Menu', 'mobile_navigation');
               }}
             >
-              {isOpen ? (
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
-              )}
+              <AnimatedBurgerIcon isOpen={isOpen} />
             </button>
 
           <SheetContent side="right" className="w-[80vw] sm:w-80 p-0">
