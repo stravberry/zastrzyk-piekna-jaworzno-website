@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useAdvancedTracking } from "@/hooks/useAdvancedTracking";
 import LogoWithFallback from "@/components/ui/LogoWithFallback";
 import logo from "@/assets/zastrzyk-piekna-logo.png";
@@ -84,11 +84,7 @@ const Navbar = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-white shadow-md"
-          : "bg-white/80 backdrop-blur-sm"
-      }`}
+      className={`fixed top-0 left-0 w-full z-60 transition-all duration-300 ${scrolled ? "bg-white shadow-md" : "bg-white/80 backdrop-blur-sm"}`}
     >
       <div className="container-custom flex items-center justify-between">
         <Link 
@@ -140,41 +136,50 @@ const Navbar = () => {
             trackElementClick('menu_toggle', open ? 'Open Menu' : 'Close Menu', 'mobile_navigation');
           }}
         >
-          <SheetTrigger asChild>
             <button
-              className="lg:hidden text-gray-700 focus:outline-none relative"
+              className="lg:hidden text-gray-700 focus:outline-none relative z-[60]"
               aria-label={isOpen ? "Zamknij menu" : "Otwórz menu"}
+              onClick={() => {
+                const next = !isOpen;
+                setIsOpen(next);
+                trackElementClick('menu_toggle', next ? 'Open Menu' : 'Close Menu', 'mobile_navigation');
+              }}
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
+              {isOpen ? (
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              )}
             </button>
-          </SheetTrigger>
 
           <SheetContent side="right" className="w-[80vw] sm:w-80 p-0">
             <div className="flex flex-col h-full">
-              {/* Header with logo */}
-              <div className="flex items-center justify-between p-4 border-b border-gray-100">
-                <div className="h-12 flex items-center">
-                  <img
-                    src={logo}
-                    alt="Zastrzyk Piękna"
-                    className="h-8 w-auto object-contain"
-                  />
-                </div>
-                {/* Close button is provided by SheetContent */}
-              </div>
 
               {/* Navigation Links */}
               <nav className="flex-1 px-4 py-6">
