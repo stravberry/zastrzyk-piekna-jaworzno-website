@@ -27,7 +27,6 @@ import { useAdmin } from "@/context/AdminContext";
 import { Badge } from "@/components/ui/badge";
 import AdminSecurityWrapper from "./AdminSecurityWrapper";
 import { toast } from "sonner";
-import SidebarCalendarPreview from "./crm/SidebarCalendarPreview";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -353,11 +352,6 @@ const AdminSidebar: React.FC<{
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
-        {/* Calendar Preview - only show on desktop when not collapsed */}
-        {shouldShowFullContent && (
-          <SidebarCalendarPreview />
-        )}
 
         {/* Logout button */}
         <div className="mt-auto p-4 border-t">

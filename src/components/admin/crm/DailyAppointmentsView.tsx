@@ -39,6 +39,7 @@ import AppointmentReminderStatus from "./AppointmentReminderStatus";
 import AppointmentForm from "./AppointmentForm";
 import QuickStatusChange from "./QuickStatusChange";
 import ManualReminderButton from "./ManualReminderButton";
+import VisualCalendar from "./VisualCalendar";
 
 type AppointmentWithDetails = Tables<"patient_appointments"> & {
   patients: Tables<"patients">;
@@ -276,283 +277,295 @@ const DailyAppointmentsView: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Date Navigation Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigateDate('prev')}
-            className="h-9"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
-          
-          <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-            <PopoverTrigger asChild>
-              <Button variant="outline" className="h-9 min-w-[200px] justify-start gap-2">
-                <CalendarIcon className="w-4 h-4" />
-                <span className="font-medium">
-                  {getDateDisplayText(selectedDate)}
-                </span>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={(date) => {
-                  if (date) {
-                    setSelectedDate(date);
-                    setIsCalendarOpen(false);
-                  }
-                }}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigateDate('next')}
-            className="h-9"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40 h-9">
-              <SelectValue placeholder="Filtruj status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Wszystkie</SelectItem>
-              <SelectItem value="scheduled">Zaplanowane</SelectItem>
-              <SelectItem value="completed">Zakończone</SelectItem>
-              <SelectItem value="cancelled">Anulowane</SelectItem>
-              <SelectItem value="no_show">Nieobecności</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setSelectedDate(new Date())}
-            className="h-9"
-          >
-            Dzisiaj
-          </Button>
-        </div>
-      </div>
-
-      {/* Daily Statistics */}
-      {totalAppointments > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Users className="w-4 h-4 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Wizyty</p>
-                  <p className="text-xl font-semibold">{totalAppointments}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Zakończone</p>
-                  <p className="text-xl font-semibold">{completedAppointments}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-emerald-100 rounded-lg">
-                  <DollarSign className="w-4 h-4 text-emerald-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Przychód</p>
-                  <p className="text-xl font-semibold">{totalRevenue.toFixed(2)} zł</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Appointments List */}
-      <div className="space-y-4">
-        {appointments.length === 0 ? (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <div className="flex flex-col items-center gap-4">
-                <div className="p-4 bg-gray-100 rounded-full">
-                  <CalendarIcon className="w-8 h-8 text-gray-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900">
-                    {isToday(selectedDate) 
-                      ? "Nie masz dziś zaplanowanych wizyt" 
-                      : `Brak wizyt na ${format(selectedDate, 'd MMMM yyyy', { locale: pl })}`
+    <div className="flex gap-6">
+      {/* Main Content */}
+      <div className="flex-1 space-y-6">
+        {/* Date Navigation Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigateDate('prev')}
+              className="h-9"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            
+            <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="h-9 min-w-[200px] justify-start gap-2">
+                  <CalendarIcon className="w-4 h-4" />
+                  <span className="font-medium">
+                    {getDateDisplayText(selectedDate)}
+                  </span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={(date) => {
+                    if (date) {
+                      setSelectedDate(date);
+                      setIsCalendarOpen(false);
                     }
-                  </h3>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {isToday(selectedDate) 
-                      ? "Możesz dodać nową wizytę klikając przycisk powyżej" 
-                      : "Wybierz inny dzień lub dodaj nową wizytę"
-                    }
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ) : (
-          appointments.map((appointment) => (
-            <Card key={appointment.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                  <div className="flex-1 space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {appointment.treatments?.name || 'Nieznany zabieg'}
-                      </h3>
-                      <Badge 
-                        variant="outline" 
-                        className={`${getStatusColor(appointment.status)} w-fit`}
-                      >
-                        {getStatusText(appointment.status)}
-                      </Badge>
-                    </div>
+                  }}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
 
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <User className="w-4 h-4" />
-                        <span>{appointment.patients?.first_name} {appointment.patients?.last_name}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" />
-                        <span>{formatTime(appointment.scheduled_date)}</span>
-                        {appointment.duration_minutes && (
-                          <span className="text-gray-400">({appointment.duration_minutes} min)</span>
-                        )}
-                      </div>
-                      {appointment.cost && (
-                        <div className="font-medium text-green-600">
-                          {appointment.cost.toFixed(2)} zł
-                        </div>
-                      )}
-                    </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigateDate('next')}
+              className="h-9"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
 
-                    {appointment.pre_treatment_notes && (
-                      <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                        <strong>Notatki:</strong> {appointment.pre_treatment_notes}
-                      </div>
-                    )}
+          <div className="flex items-center gap-3">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-40 h-9">
+                <SelectValue placeholder="Filtruj status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Wszystkie</SelectItem>
+                <SelectItem value="scheduled">Zaplanowane</SelectItem>
+                <SelectItem value="completed">Zakończone</SelectItem>
+                <SelectItem value="cancelled">Anulowane</SelectItem>
+                <SelectItem value="no_show">Nieobecności</SelectItem>
+              </SelectContent>
+            </Select>
 
-                    <AppointmentReminderStatus appointmentId={appointment.id} />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSelectedDate(new Date())}
+              className="h-9"
+            >
+              Dzisiaj
+            </Button>
+          </div>
+        </div>
+
+        {/* Daily Statistics */}
+        {totalAppointments > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <Users className="w-4 h-4 text-blue-600" />
                   </div>
-
-                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                    <QuickStatusChange
-                      currentStatus={appointment.status}
-                      onStatusChange={(status: AppointmentStatus) => handleQuickStatusChange(appointment.id, status)}
-                    />
-                    
-                    <ManualReminderButton appointmentId={appointment.id} />
-
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => addToCalendar(appointment.id)}
-                      className="text-xs sm:text-sm"
-                    >
-                      <CalendarPlus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                      <span className="hidden sm:inline">Dodaj do kalendarza</span>
-                      <span className="sm:hidden">Kalendarz</span>
-                    </Button>
-
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => handleEditAppointment(appointment as AppointmentWithDetails)}
-                      className="text-xs sm:text-sm"
-                    >
-                      <Edit className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                      <span className="hidden sm:inline">Edytuj</span>
-                      <span className="sm:hidden">Edytuj</span>
-                    </Button>
-
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => setAppointmentToDelete(appointment.id)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50 text-xs sm:text-sm"
-                    >
-                      <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                      <span className="hidden sm:inline">Usuń</span>
-                      <span className="sm:hidden">Usuń</span>
-                    </Button>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Wizyty</p>
+                    <p className="text-xl font-semibold">{totalAppointments}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          ))
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Zakończone</p>
+                    <p className="text-xl font-semibold">{completedAppointments}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-emerald-100 rounded-lg">
+                    <DollarSign className="w-4 h-4 text-emerald-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Przychód</p>
+                    <p className="text-xl font-semibold">{totalRevenue.toFixed(2)} zł</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         )}
+
+        {/* Appointments List */}
+        <div className="space-y-4">
+          {appointments.length === 0 ? (
+            <Card>
+              <CardContent className="p-8 text-center">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="p-4 bg-gray-100 rounded-full">
+                    <CalendarIcon className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900">
+                      {isToday(selectedDate) 
+                        ? "Nie masz dziś zaplanowanych wizyt" 
+                        : `Brak wizyt na ${format(selectedDate, 'd MMMM yyyy', { locale: pl })}`
+                      }
+                    </h3>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {isToday(selectedDate) 
+                        ? "Możesz dodać nową wizytę klikając przycisk powyżej" 
+                        : "Wybierz inny dzień lub dodaj nową wizytę"
+                      }
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            appointments.map((appointment) => (
+              <Card key={appointment.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                    <div className="flex-1 space-y-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {appointment.treatments?.name || 'Nieznany zabieg'}
+                        </h3>
+                        <Badge 
+                          variant="outline" 
+                          className={`${getStatusColor(appointment.status)} w-fit`}
+                        >
+                          {getStatusText(appointment.status)}
+                        </Badge>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <User className="w-4 h-4" />
+                          <span>{appointment.patients?.first_name} {appointment.patients?.last_name}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          <span>{formatTime(appointment.scheduled_date)}</span>
+                          {appointment.duration_minutes && (
+                            <span className="text-gray-400">({appointment.duration_minutes} min)</span>
+                          )}
+                        </div>
+                        {appointment.cost && (
+                          <div className="font-medium text-green-600">
+                            {appointment.cost.toFixed(2)} zł
+                          </div>
+                        )}
+                      </div>
+
+                      {appointment.pre_treatment_notes && (
+                        <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                          <strong>Notatki:</strong> {appointment.pre_treatment_notes}
+                        </div>
+                      )}
+
+                      <AppointmentReminderStatus appointmentId={appointment.id} />
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                      <QuickStatusChange
+                        currentStatus={appointment.status}
+                        onStatusChange={(status: AppointmentStatus) => handleQuickStatusChange(appointment.id, status)}
+                      />
+                      
+                      <ManualReminderButton appointmentId={appointment.id} />
+
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => addToCalendar(appointment.id)}
+                        className="text-xs sm:text-sm"
+                      >
+                        <CalendarPlus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                        <span className="hidden sm:inline">Dodaj do kalendarza</span>
+                        <span className="sm:hidden">Kalendarz</span>
+                      </Button>
+
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleEditAppointment(appointment as AppointmentWithDetails)}
+                        className="text-xs sm:text-sm"
+                      >
+                        <Edit className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                        <span className="hidden sm:inline">Edytuj</span>
+                        <span className="sm:hidden">Edytuj</span>
+                      </Button>
+
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => setAppointmentToDelete(appointment.id)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 text-xs sm:text-sm"
+                      >
+                        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                        <span className="hidden sm:inline">Usuń</span>
+                        <span className="sm:hidden">Usuń</span>
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
+
+        {/* Edit Appointment Form */}
+        {isEditFormOpen && editingAppointment && (
+          <AppointmentForm
+            isOpen={isEditFormOpen}
+            onClose={() => {
+              setIsEditFormOpen(false);
+              setEditingAppointment(null);
+            }}
+            onSuccess={() => {
+              setIsEditFormOpen(false);
+              setEditingAppointment(null);
+              refetch();
+            }}
+            editingAppointment={editingAppointment}
+          />
+        )}
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={!!appointmentToDelete} onOpenChange={() => setAppointmentToDelete(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Usuń wizytę</AlertDialogTitle>
+              <AlertDialogDescription>
+                Czy na pewno chcesz usunąć tę wizytę? Ta akcja nie może zostać cofnięta.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Anuluj</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => appointmentToDelete && deleteAppointment(appointmentToDelete)}
+                disabled={isDeleting}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                {isDeleting ? "Usuwanie..." : "Usuń wizytę"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
-      {/* Edit Appointment Form */}
-      {isEditFormOpen && editingAppointment && (
-        <AppointmentForm
-          isOpen={isEditFormOpen}
-          onClose={() => {
-            setIsEditFormOpen(false);
-            setEditingAppointment(null);
-          }}
-          onSuccess={() => {
-            setIsEditFormOpen(false);
-            setEditingAppointment(null);
-            refetch();
-          }}
-          editingAppointment={editingAppointment}
+      {/* Visual Calendar Sidebar */}
+      <div className="hidden lg:block w-80">
+        <VisualCalendar 
+          selectedDate={selectedDate}
+          onDateSelect={setSelectedDate}
         />
-      )}
-
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!appointmentToDelete} onOpenChange={() => setAppointmentToDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Usuń wizytę</AlertDialogTitle>
-            <AlertDialogDescription>
-              Czy na pewno chcesz usunąć tę wizytę? Ta akcja nie może zostać cofnięta.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Anuluj</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => appointmentToDelete && deleteAppointment(appointmentToDelete)}
-              disabled={isDeleting}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              {isDeleting ? "Usuwanie..." : "Usuń wizytę"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      </div>
     </div>
   );
 };
