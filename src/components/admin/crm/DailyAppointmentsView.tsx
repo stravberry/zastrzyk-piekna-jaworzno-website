@@ -195,7 +195,7 @@ const DailyAppointmentsView: React.FC = () => {
       };
 
       const eventDetails = {
-        text: `Wizyta: ${appointment.treatments?.name || 'Zabieg'}`,
+        text: `${appointment.patients?.first_name} ${appointment.patients?.last_name} - ${appointment.treatments?.name || 'Zabieg'}`,
         dates: `${formatDate(startDate)}/${formatDate(endDate)}`,
         details: `Pacjent: ${appointment.patients?.first_name} ${appointment.patients?.last_name}${appointment.pre_treatment_notes ? '\nNotatki: ' + appointment.pre_treatment_notes : ''}`,
         location: 'Zastrzyk Piękna'
