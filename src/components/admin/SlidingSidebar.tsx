@@ -146,14 +146,14 @@ export const SlidingSidebar: React.FC<SlidingSidebarProps> = ({
       `}>
         {/* Header */}
         <div className="p-4 border-b">
-          <div className="flex items-center mb-2">
+          <div className="flex items-center justify-between mb-2">
             <Link to="/" className="flex items-center">
-              <img 
-                src="/src/assets/zastrzyk-piekna-logo.png" 
-                alt="Zastrzyk Piękna - Kosmetolog Anna Gajęcka"
-                className="h-10 w-auto"
-              />
+              <span className="text-lg font-semibold text-gray-800">Admin Panel</span>
             </Link>
+            <SlidingSidebarTrigger 
+              isOpen={isOpen} 
+              onToggle={onToggle}
+            />
           </div>
           <p className="text-sm text-gray-500 mt-1">Panel administracyjny</p>
           
