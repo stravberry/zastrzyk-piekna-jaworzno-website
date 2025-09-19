@@ -23,6 +23,7 @@ import { CalendarIcon, ArrowLeft, Save, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { PatientSelector } from "@/components/admin/crm/PatientSelector";
+import { TreatmentSelectorDialog } from "@/components/admin/crm/TreatmentSelectorDialog";
 
 type Patient = Tables<"patients">;
 
@@ -68,6 +69,7 @@ const AdminAppointmentNew: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isTreatmentDialogOpen, setIsTreatmentDialogOpen] = useState(false);
   const { syncAppointment, isSyncing } = useGoogleCalendar();
 
   // Get patient ID from URL params
@@ -264,33 +266,50 @@ const AdminAppointmentNew: React.FC = () => {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-sm font-medium">Zabieg *</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Wybierz zabieg..." />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent className="max-h-60 w-full min-w-[320px] sm:w-auto">
-                              {Object.entries(groupedTreatments || {}).map(([category, categoryTreatments]) => (
-                                <SelectGroup key={category}>
-                                  <SelectLabel className="font-medium text-sm px-2 py-1.5">{category}</SelectLabel>
-                                  {categoryTreatments.map((treatment) => (
-                                    <SelectItem key={treatment.id} value={treatment.id} className="px-2 py-2">
-                                      <div className="flex flex-col text-left w-full">
-                                        <span className="font-medium text-sm">{treatment.name}</span>
-                                        {treatment.price && (
-                                          <span className="text-xs text-muted-foreground">{treatment.price} zł</span>
-                                        )}
-                                      </div>
-                                    </SelectItem>
-                                  ))}
-                                </SelectGroup>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <FormControl>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="w-full justify-start text-left h-auto min-h-[40px] p-3"
+                              onClick={() => setIsTreatmentDialogOpen(true)}
+                            >
+                              {selectedTreatment ? (
+                                <div className="flex flex-col items-start w-full">
+                                  <span className="font-medium text-sm">{selectedTreatment.name}</span>
+                                  {selectedTreatment.price && (
+                                    <span className="text-xs text-muted-foreground">{selectedTreatment.price} zł</span>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-muted-foreground">Wybierz zabieg...</span>
+                              )}
+                            </Button>
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
+                    />
+
+                    {/* Treatment Selector Dialog */}
+                    <TreatmentSelectorDialog
+                      isOpen={isTreatmentDialogOpen}
+                      onClose={() => setIsTreatmentDialogOpen(false)}
+                      treatments={groupedTreatments || {}}
+                      onSelect={(treatmentId) => {
+                        form.setValue("treatment_id", treatmentId);
+                        // Trigger the treatment selection logic
+                        const allTreatments = Object.values(groupedTreatments || {}).flat();
+                        const selected = allTreatments.find(t => t.id === treatmentId);
+                        if (selected) {
+                          if (selected.duration_minutes) {
+                            form.setValue("duration_minutes", selected.duration_minutes);
+                          }
+                          if (selected.price) {
+                            form.setValue("cost", selected.price);
+                          }
+                        }
+                      }}
+                      selectedTreatmentId={form.watch("treatment_id")}
                     />
 
                     {/* Treatment Description */}
