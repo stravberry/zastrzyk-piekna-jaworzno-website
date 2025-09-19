@@ -16,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Calendar, User, Download, FileText, Search, Filter, Trash2, Edit, Clock, CheckCircle } from "lucide-react";
+import { Calendar, User, CalendarPlus, FileText, Search, Filter, Trash2, Edit, Clock, CheckCircle } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 import AppointmentReminderStatus from "./AppointmentReminderStatus";
@@ -247,27 +247,41 @@ const AppointmentsList: React.FC = () => {
     }
   };
 
-  const downloadCalendarEvent = async (appointmentId: string) => {
+  const addToCalendar = async (appointmentId: string) => {
     try {
-      const { data, error } = await supabase.rpc('generate_ics_event', {
-        appointment_id_param: appointmentId
+      const appointment = appointments.find(apt => apt.id === appointmentId);
+      if (!appointment) return;
+
+      const startDate = new Date(appointment.scheduled_date);
+      const endDate = new Date(startDate.getTime() + (appointment.duration_minutes || 60) * 60000);
+      
+      const formatDate = (date: Date) => {
+        return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+      };
+
+      const eventDetails = {
+        text: `Wizyta: ${appointment.treatments?.name || 'Zabieg'}`,
+        dates: `${formatDate(startDate)}/${formatDate(endDate)}`,
+        details: `Pacjent: ${appointment.patients?.first_name} ${appointment.patients?.last_name}${appointment.pre_treatment_notes ? '\nNotatki: ' + appointment.pre_treatment_notes : ''}`,
+        location: 'Zastrzyk Piękna'
+      };
+
+      // Create Google Calendar URL
+      const params = new URLSearchParams({
+        action: 'TEMPLATE',
+        text: eventDetails.text,
+        dates: eventDetails.dates,
+        details: eventDetails.details,
+        location: eventDetails.location
       });
 
-      if (error) throw error;
+      const calendarUrl = `https://calendar.google.com/calendar/render?${params.toString()}`;
       
-      if (data) {
-        const blob = new Blob([data], { type: 'text/calendar' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `wizyta_${appointmentId}.ics`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      }
+      // Open in new tab
+      window.open(calendarUrl, '_blank');
     } catch (error) {
-      console.error('Error generating calendar event:', error);
+      console.error('Error adding to calendar:', error);
+      toast.error('Błąd podczas dodawania wydarzenia do kalendarza');
     }
   };
 
@@ -442,12 +456,12 @@ const AppointmentsList: React.FC = () => {
                       <Button 
                         size="sm" 
                         variant="outline"
-                        onClick={() => downloadCalendarEvent(appointment.id)}
+                        onClick={() => addToCalendar(appointment.id)}
                         className="flex-1 text-xs sm:text-sm"
                       >
-                        <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                        <span className="hidden sm:inline">Pobierz .ics</span>
-                        <span className="sm:hidden">.ics</span>
+                        <CalendarPlus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                        <span className="hidden sm:inline">Dodaj do kalendarza</span>
+                        <span className="sm:hidden">Kalendarz</span>
                       </Button>
                       <Button 
                         size="sm" 
