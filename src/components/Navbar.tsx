@@ -139,7 +139,7 @@ const Navbar = () => {
         {/* Mobile Menu Button */}
         <button
           onClick={toggleMenu}
-          className="lg:hidden text-gray-700 focus:outline-none z-50 relative"
+          className="lg:hidden text-gray-700 focus:outline-none z-80 relative"
           aria-label={isOpen ? "Zamknij menu" : "Otwórz menu"}
         >
           <svg
@@ -169,7 +169,7 @@ const Navbar = () => {
       </div>
 
       {/* Mobile Navigation Overlay */}
-      <div className={`fixed inset-0 lg:hidden z-40 ${isOpen ? 'block' : 'hidden'}`}>
+      <div className={`fixed inset-0 lg:hidden z-60 ${isOpen ? 'block' : 'hidden'}`}>
         {/* Backdrop */}
         <div 
           className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -178,9 +178,9 @@ const Navbar = () => {
         
         {/* Sliding Panel */}
         <div 
-          className={`absolute top-0 left-0 h-full w-3/4 max-w-xs bg-white shadow-2xl 
+          className={`absolute top-0 right-0 h-full w-3/4 max-w-xs bg-white shadow-2xl z-70
             transform transition-transform duration-300 ease-in-out ${
-            isOpen ? "translate-x-0" : "-translate-x-full"
+            isOpen ? "translate-x-0" : "translate-x-full"
           }`}
           onClick={(e) => e.stopPropagation()}
         >
@@ -196,7 +196,7 @@ const Navbar = () => {
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+                className="p-2 text-gray-500 hover:text-gray-700 transition-colors z-80"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
