@@ -149,7 +149,7 @@ const Navbar = () => {
               </button>
             </SheetTrigger>
 
-          <SheetContent side="right" className="w-[80vw] sm:w-80 p-0 [&>button.absolute.right-4.top-4]:hidden">
+          <SheetContent side="right" className="w-[80vw] sm:w-80 p-0 z-[80] [&>button.absolute.right-4.top-4]:hidden">
             <div className="flex flex-col h-full">
               <div className="flex items-center justify-between px-4 py-4 border-b">
                 <span className="text-sm font-medium uppercase tracking-wide text-gray-500">Menu</span>
