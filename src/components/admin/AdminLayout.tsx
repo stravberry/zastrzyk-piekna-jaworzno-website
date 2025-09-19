@@ -345,7 +345,7 @@ const AdminSidebar: React.FC<{
             Menu główne
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
+            <SidebarMenu className="space-y-1 px-2">
               {navigation.filter(canAccessRoute).map((item) => {
                 const Icon = item.icon;
                 return (
