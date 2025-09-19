@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAdvancedTracking } from "@/hooks/useAdvancedTracking";
 import LogoWithFallback from "@/components/ui/LogoWithFallback";
 import logo from "@/assets/zastrzyk-piekna-logo.png";
@@ -37,11 +38,6 @@ const Navbar = () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, [scrolled]);
-
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-    trackElementClick('menu_toggle', isOpen ? 'Close Menu' : 'Open Menu', 'mobile_navigation');
-  };
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -136,115 +132,93 @@ const Navbar = () => {
           </Button>
         </nav>
 
-        {/* Mobile Menu Button */}
-        <button
-          onClick={toggleMenu}
-          className="lg:hidden text-gray-700 focus:outline-none z-[80] relative"
-          aria-label={isOpen ? "Zamknij menu" : "Otwórz menu"}
+        {/* Mobile Menu */}
+        <Sheet
+          open={isOpen}
+          onOpenChange={(open) => {
+            setIsOpen(open);
+            trackElementClick('menu_toggle', open ? 'Open Menu' : 'Close Menu', 'mobile_navigation');
+          }}
         >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            {isOpen ? (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            ) : (
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            )}
-          </svg>
-        </button>
-      </div>
-
-      {/* Mobile Navigation Overlay */}
-      <div className={`fixed inset-0 lg:hidden z-[60] transition-opacity duration-300 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-        {/* Backdrop */}
-        <div 
-          className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-          onClick={() => setIsOpen(false)}
-        />
-        
-        {/* Sliding Panel */}
-        <div 
-          className={`absolute top-0 right-0 h-full w-3/4 max-w-xs bg-white shadow-2xl z-[70] will-change-transform
-            transform transition-transform duration-300 ease-in-out ${
-            isOpen ? "translate-x-0" : "translate-x-full"
-          }`}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="flex flex-col h-full">
-            {/* Header with logo space */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-100">
-              <div className="h-12 flex items-center">
-                <img 
-                  src={logo} 
-                  alt="Zastrzyk Piękna" 
-                  className="h-8 w-auto object-contain"
-                />
-              </div>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="p-2 text-gray-500 hover:text-gray-700 transition-colors z-[80]"
+          <SheetTrigger asChild>
+            <button
+              className="lg:hidden text-gray-700 focus:outline-none relative"
+              aria-label={isOpen ? "Zamknij menu" : "Otwórz menu"}
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+          </SheetTrigger>
 
-            {/* Navigation Links */}
-            <nav className="flex-1 px-4 py-6">
-              <div className="space-y-1">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.name}
-                    to={link.path}
-                    className="block px-3 py-3 text-base font-medium text-gray-800 hover:text-pink-500 hover:bg-pink-50 rounded-lg transition-all duration-200"
+          <SheetContent side="right" className="w-[80vw] sm:w-80 p-0">
+            <div className="flex flex-col h-full">
+              {/* Header with logo */}
+              <div className="flex items-center justify-between p-4 border-b border-gray-100">
+                <div className="h-12 flex items-center">
+                  <img
+                    src={logo}
+                    alt="Zastrzyk Piękna"
+                    className="h-8 w-auto object-contain"
+                  />
+                </div>
+                {/* Close button is provided by SheetContent */}
+              </div>
+
+              {/* Navigation Links */}
+              <nav className="flex-1 px-4 py-6">
+                <div className="space-y-1">
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.name}
+                      to={link.path}
+                      className="block px-3 py-3 text-base font-medium text-gray-800 hover:text-pink-500 hover:bg-pink-50 rounded-lg transition-all duration-200"
+                      onClick={() => {
+                        setIsOpen(false);
+                        handleNavClick(link.name, link.path);
+                      }}
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+                </div>
+
+                {/* CTA Button */}
+                <div className="mt-8 px-3">
+                  <Button
+                    asChild
+                    className="bg-pink-500 hover:bg-pink-600 text-white w-full py-3 text-base font-medium rounded-lg"
                     onClick={() => {
                       setIsOpen(false);
-                      handleNavClick(link.name, link.path);
+                      handleInstagramClick();
                     }}
                   >
-                    {link.name}
-                  </Link>
-                ))}
-              </div>
-
-              {/* CTA Button */}
-              <div className="mt-8 px-3">
-                <Button
-                  asChild
-                  className="bg-pink-500 hover:bg-pink-600 text-white w-full py-3 text-base font-medium rounded-lg"
-                  onClick={() => {
-                    setIsOpen(false);
-                    handleInstagramClick();
-                  }}
-                >
-                  <a 
-                    href="https://instagram.com/zastrzyk_piekna" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                  >
-                    Umów Wizytę
-                  </a>
-                </Button>
-              </div>
-            </nav>
-          </div>
-        </div>
+                    <a
+                      href="https://instagram.com/zastrzyk_piekna"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Umów Wizytę
+                    </a>
+                  </Button>
+                </div>
+              </nav>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
+
     </header>
   );
 };
