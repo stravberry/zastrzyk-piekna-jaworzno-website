@@ -15,6 +15,7 @@ const AnimatedBurgerIcon: React.FC<AnimatedBurgerIconProps> = ({ isOpen, classNa
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      overflow="visible"
     >
       {/* Top line - rotates and moves down to form top part of X */}
       <path
@@ -23,7 +24,8 @@ const AnimatedBurgerIcon: React.FC<AnimatedBurgerIconProps> = ({ isOpen, classNa
           isOpen ? 'rotate-45 translate-y-1.5' : 'rotate-0 translate-y-0'
         }`}
         style={{
-          transformOrigin: '50% 50%'
+          transformOrigin: '50% 50%',
+          transformBox: 'fill-box'
         }}
       />
       
@@ -42,7 +44,8 @@ const AnimatedBurgerIcon: React.FC<AnimatedBurgerIconProps> = ({ isOpen, classNa
           isOpen ? '-rotate-45 -translate-y-1.5' : 'rotate-0 translate-y-0'
         }`}
         style={{
-          transformOrigin: '50% 50%'
+          transformOrigin: '50% 50%',
+          transformBox: 'fill-box'
         }}
       />
     </svg>

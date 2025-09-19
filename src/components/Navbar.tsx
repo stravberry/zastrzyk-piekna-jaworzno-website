@@ -139,8 +139,11 @@ const Navbar = () => {
         >
             <SheetTrigger asChild>
               <button
+                type="button"
                 className="lg:hidden text-gray-700 focus:outline-none relative z-[90]"
                 aria-label={isOpen ? "Zamknij menu" : "Otwórz menu"}
+                aria-expanded={isOpen}
+                aria-pressed={isOpen}
                 onClick={() => {
                   trackElementClick('menu_toggle', !isOpen ? 'Open Menu' : 'Close Menu', 'mobile_navigation');
                 }}
@@ -151,18 +154,6 @@ const Navbar = () => {
 
           <SheetContent side="right" className="w-[80vw] sm:w-80 p-0 z-[80] [&>button.absolute.right-4.top-4]:hidden">
             <div className="flex flex-col h-full">
-              <div className="flex items-center justify-between px-4 py-4 border-b">
-                <span className="text-sm font-medium uppercase tracking-wide text-gray-500">Menu</span>
-                <SheetClose asChild>
-                  <button
-                    className="text-gray-700 focus:outline-none"
-                    aria-label="Zamknij menu"
-                    onClick={() => trackElementClick('menu_toggle', 'Close Menu', 'mobile_navigation')}
-                  >
-                    <AnimatedBurgerIcon isOpen={true} />
-                  </button>
-                </SheetClose>
-              </div>
 
               {/* Navigation Links */}
               <nav className="flex-1 px-4 py-6">
