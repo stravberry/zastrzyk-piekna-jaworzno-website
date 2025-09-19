@@ -139,7 +139,7 @@ const Navbar = () => {
         >
             <SheetTrigger asChild>
               <button
-                className="lg:hidden text-gray-700 focus:outline-none relative z-[70]"
+                className="lg:hidden text-gray-700 focus:outline-none relative z-[90]"
                 aria-label={isOpen ? "Zamknij menu" : "Otwórz menu"}
                 onClick={() => {
                   trackElementClick('menu_toggle', !isOpen ? 'Open Menu' : 'Close Menu', 'mobile_navigation');
