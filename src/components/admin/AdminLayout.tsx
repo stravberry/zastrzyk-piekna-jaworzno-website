@@ -340,8 +340,8 @@ const AdminSidebar: React.FC<{
         )}
 
         {/* Navigation */}
-        <SidebarGroup className="p-4">
-          <SidebarGroupLabel className={collapsed ? "sr-only" : ""}>
+        <SidebarGroup className="py-4">
+          <SidebarGroupLabel className={collapsed ? "sr-only" : "px-4"}>
             Menu główne
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -353,7 +353,7 @@ const AdminSidebar: React.FC<{
                     <SidebarMenuButton asChild>
                       <NavLink 
                         to={item.href} 
-                        className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${getNavCls(item.href)}`}
+                        className={`flex items-center mx-2 px-3 py-2 text-sm font-medium rounded-md transition-colors ${collapsed ? 'justify-center' : ''} ${getNavCls(item.href)}`}
                         onClick={handleMobileNavClick}
                       >
                          <Icon className="w-4 h-4 flex-shrink-0" />
