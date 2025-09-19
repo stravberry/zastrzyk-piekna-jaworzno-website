@@ -254,6 +254,18 @@ const AdminSidebar: React.FC<{
   const collapsed = state === "collapsed";
   const isMobile = useIsMobile();
   
+  // Detect tablet (768-1023px)
+  const [isTablet, setIsTablet] = React.useState(false);
+  React.useEffect(() => {
+    const checkTablet = () => {
+      const w = window.innerWidth;
+      setIsTablet(w >= 768 && w < 1024);
+    };
+    checkTablet();
+    window.addEventListener('resize', checkTablet);
+    return () => window.removeEventListener('resize', checkTablet);
+  }, []);
+  
   // On mobile, never show collapsed state - always show full menu when open
   const shouldShowFullContent = !collapsed || isMobile;
 
@@ -276,7 +288,7 @@ const AdminSidebar: React.FC<{
     <Sidebar className={`mt-16 lg:mt-0`} collapsible="icon">
       <SidebarContent className="bg-white">
         {/* Header - always show on mobile, hide only when collapsed on desktop */}
-        {shouldShowFullContent && (
+        {shouldShowFullContent && !isTablet && (
           <div className="p-4 border-b">
             <Link to="/" className="flex items-center mb-2">
               <img 
