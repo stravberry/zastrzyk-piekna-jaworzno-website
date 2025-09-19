@@ -277,9 +277,9 @@ const DailyAppointmentsView: React.FC = () => {
   }
 
   return (
-    <div className="flex gap-4 xl:gap-6 max-w-none">
+    <div className="space-y-6 lg:space-y-0 lg:flex lg:gap-6">
       {/* Main Content */}
-      <div className="flex-1 min-w-0 space-y-6">
+      <div className="lg:flex-1 space-y-6">
         {/* Date Navigation Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -560,8 +560,8 @@ const DailyAppointmentsView: React.FC = () => {
       </div>
 
       {/* Visual Calendar Sidebar */}
-      <div className="hidden lg:block w-72 xl:w-80 flex-shrink-0">
-        <div className="sticky top-6">
+      <div className="lg:w-80 lg:flex-shrink-0">
+        <div className="lg:sticky lg:top-6">
           <VisualCalendar 
             selectedDate={selectedDate}
             onDateSelect={setSelectedDate}

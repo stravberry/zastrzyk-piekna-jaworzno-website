@@ -105,26 +105,27 @@ const VisualCalendar: React.FC<VisualCalendarProps> = ({ selectedDate, onDateSel
 
   return (
     <Card className="w-full">
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2 px-3 sm:px-6 sm:pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <CalendarIcon className="w-5 h-5" />
-            Kalendarz wizyt
+          <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+            <CalendarIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="hidden sm:inline">Kalendarz wizyt</span>
+            <span className="sm:hidden">Kalendarz</span>
           </CardTitle>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => navigateMonth('prev')}
-              className="h-8 w-8 p-0"
+              className="h-7 w-7 p-0 sm:h-8 sm:w-8"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setCurrentMonth(new Date())}
-              className="text-sm font-medium min-w-[120px]"
+              className="text-xs sm:text-sm font-medium min-w-[100px] sm:min-w-[120px] h-7 sm:h-8"
             >
               {format(currentMonth, 'LLLL yyyy', { locale: pl })}
             </Button>
@@ -132,36 +133,36 @@ const VisualCalendar: React.FC<VisualCalendarProps> = ({ selectedDate, onDateSel
               variant="outline"
               size="sm"
               onClick={() => navigateMonth('next')}
-              className="h-8 w-8 p-0"
+              className="h-7 w-7 p-0 sm:h-8 sm:w-8"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
             </Button>
           </div>
         </div>
       </CardHeader>
       
-      <CardContent className="pt-0">
+      <CardContent className="pt-0 px-3 sm:px-6">
         {/* Legend */}
-        <div className="flex items-center gap-4 mb-4 text-xs">
+        <div className="flex items-center gap-2 sm:gap-4 mb-3 sm:mb-4 text-xs flex-wrap">
           <div className="flex items-center gap-1">
-            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            <span>Zakończone</span>
+            <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full"></div>
+            <span className="text-xs">Zakończone</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-            <span>Zaplanowane</span>
+            <div className="w-2 h-2 sm:w-3 sm:h-3 bg-blue-500 rounded-full"></div>
+            <span className="text-xs">Zaplanowane</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-            <span>Anulowane</span>
+            <div className="w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full"></div>
+            <span className="text-xs">Anulowane</span>
           </div>
         </div>
 
         {/* Calendar Grid */}
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
           {/* Week day headers */}
           {weekDays.map(day => (
-            <div key={day} className="p-2 text-center text-xs font-medium text-gray-500">
+            <div key={day} className="p-1 sm:p-2 text-center text-xs font-medium text-muted-foreground">
               {day}
             </div>
           ))}
@@ -179,11 +180,11 @@ const VisualCalendar: React.FC<VisualCalendarProps> = ({ selectedDate, onDateSel
                 key={day.toISOString()}
                 onClick={() => onDateSelect(day)}
                 className={cn(
-                  "relative p-2 text-sm font-medium rounded-lg border transition-all duration-200 hover:bg-gray-100",
-                  isCurrentMonth ? "text-gray-900" : "text-gray-400",
-                  isSelected && "ring-2 ring-blue-500 bg-blue-50",
-                  isToday && !isSelected && "bg-gray-100 font-bold",
-                  !isCurrentMonth && "hover:bg-gray-50"
+                  "relative p-1 sm:p-2 text-xs sm:text-sm font-medium rounded border transition-all duration-200 aspect-square hover:bg-muted/50",
+                  isCurrentMonth ? "text-foreground" : "text-muted-foreground",
+                  isSelected && "ring-2 ring-primary bg-primary/10",
+                  isToday && !isSelected && "bg-muted font-bold",
+                  !isCurrentMonth && "opacity-50"
                 )}
               >
                 <span className="relative z-10">{format(day, 'd')}</span>
@@ -193,13 +194,13 @@ const VisualCalendar: React.FC<VisualCalendarProps> = ({ selectedDate, onDateSel
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div 
                       className={cn(
-                        "w-6 h-6 rounded-full opacity-20",
+                        "w-4 h-4 sm:w-6 sm:h-6 rounded-full opacity-20",
                         dayColor
                       )}
                     />
                     {dayCount > 1 && (
-                      <div className="absolute top-0 right-0 w-4 h-4 bg-gray-700 text-white text-xs rounded-full flex items-center justify-center transform translate-x-1 -translate-y-1">
-                        {dayCount}
+                      <div className="absolute -top-0.5 -right-0.5 w-3 h-3 sm:w-4 sm:h-4 bg-foreground text-background text-xs rounded-full flex items-center justify-center">
+                        <span className="text-xs leading-none">{dayCount}</span>
                       </div>
                     )}
                   </div>
@@ -207,8 +208,8 @@ const VisualCalendar: React.FC<VisualCalendarProps> = ({ selectedDate, onDateSel
                 
                 {/* Single dot for single appointment */}
                 {dayCount === 1 && (
-                  <div className="absolute top-1 right-1">
-                    <div className={cn("w-2 h-2 rounded-full", dayColor)} />
+                  <div className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1">
+                    <div className={cn("w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full", dayColor)} />
                   </div>
                 )}
               </button>
