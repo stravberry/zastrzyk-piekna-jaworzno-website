@@ -43,6 +43,32 @@ const Navbar = () => {
     trackElementClick('menu_toggle', isOpen ? 'Close Menu' : 'Open Menu', 'mobile_navigation');
   };
 
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
+  // Close menu on escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen]);
+
   const handleNavClick = (linkName: string, path: string) => {
     trackElementClick('navigation_link', linkName, path);
   };
@@ -113,7 +139,8 @@ const Navbar = () => {
         {/* Mobile Menu Button */}
         <button
           onClick={toggleMenu}
-          className="lg:hidden text-gray-700 focus:outline-none z-50"
+          className="lg:hidden text-gray-700 focus:outline-none z-[110] relative"
+          aria-label={isOpen ? "Zamknij menu" : "Otwórz menu"}
         >
           <svg
             className="w-6 h-6"
@@ -141,49 +168,80 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Mobile Navigation with Animation */}
-      <div 
-        className={`fixed top-0 right-0 h-full w-full lg:hidden bg-black/30 backdrop-blur-sm transition-opacity duration-300 z-40 ${
-          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
-        onClick={() => setIsOpen(false)}
-      >
-        <div 
-          className={`absolute top-0 right-0 h-full w-3/4 max-w-xs bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
-            isOpen ? "translate-x-0" : "translate-x-full"
-          }`}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="container-custom py-4 flex flex-col space-y-4 pt-20 bg-white">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                to={link.path}
-                className="text-gray-700 hover:text-pink-500 transition-colors py-2"
-                onClick={() => {
-                  setIsOpen(false);
-                  handleNavClick(link.name, link.path);
-                }}
-              >
-                {link.name}
-              </Link>
-            ))}
-            <Button
-              asChild
-              className="bg-pink-500 hover:bg-pink-600 text-white w-full"
-              onClick={handleInstagramClick}
-            >
-              <a 
-                href="https://instagram.com/zastrzyk_piekna" 
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
-                Umów Wizytę
-              </a>
-            </Button>
+      {/* Mobile Navigation with Improved Animation */}
+      {isOpen && (
+        <div className="fixed inset-0 lg:hidden z-[100]">
+          {/* Backdrop */}
+          <div 
+            className={`absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${
+              isOpen ? "opacity-100" : "opacity-0"
+            }`}
+            onClick={() => setIsOpen(false)}
+          />
+          
+          {/* Sliding Panel */}
+          <div 
+            className={`absolute top-0 right-0 h-full w-3/4 max-w-xs bg-white shadow-xl 
+              transform transition-transform duration-300 ease-out will-change-transform ${
+              isOpen ? "translate-x-0" : "translate-x-full"
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex flex-col h-full">
+              {/* Close button */}
+              <div className="flex justify-end p-4 pt-6">
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Navigation Links */}
+              <nav className="flex-1 px-6 py-4">
+                <div className="space-y-6">
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.name}
+                      to={link.path}
+                      className="block text-lg font-medium text-gray-800 hover:text-pink-500 transition-colors py-2 border-b border-gray-100 last:border-b-0"
+                      onClick={() => {
+                        setIsOpen(false);
+                        handleNavClick(link.name, link.path);
+                      }}
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+                </div>
+
+                {/* CTA Button */}
+                <div className="mt-8">
+                  <Button
+                    asChild
+                    className="bg-pink-500 hover:bg-pink-600 text-white w-full py-3 text-lg font-medium"
+                    onClick={() => {
+                      setIsOpen(false);
+                      handleInstagramClick();
+                    }}
+                  >
+                    <a 
+                      href="https://instagram.com/zastrzyk_piekna" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                    >
+                      Umów Wizytę
+                    </a>
+                  </Button>
+                </div>
+              </nav>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </header>
   );
 };
