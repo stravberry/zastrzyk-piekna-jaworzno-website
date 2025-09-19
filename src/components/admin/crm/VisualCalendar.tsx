@@ -23,9 +23,10 @@ import { cn } from "@/lib/utils";
 interface VisualCalendarProps {
   selectedDate: Date;
   onDateSelect: (date: Date) => void;
+  compact?: boolean;
 }
 
-const VisualCalendar: React.FC<VisualCalendarProps> = ({ selectedDate, onDateSelect }) => {
+const VisualCalendar: React.FC<VisualCalendarProps> = ({ selectedDate, onDateSelect, compact = false }) => {
   const [currentMonth, setCurrentMonth] = React.useState(new Date());
 
   // Fetch appointments for the current month
@@ -74,9 +75,9 @@ const VisualCalendar: React.FC<VisualCalendarProps> = ({ selectedDate, onDateSel
     const hasScheduled = dayData.statuses.includes('scheduled');
     const hasCancelled = dayData.statuses.includes('cancelled') || dayData.statuses.includes('no_show');
     
-    if (hasCompleted) return 'bg-green-500';
-    if (hasScheduled) return 'bg-blue-500';
-    if (hasCancelled) return 'bg-red-500';
+    if (hasCompleted) return 'bg-success';
+    if (hasScheduled) return 'bg-primary';
+    if (hasCancelled) return 'bg-destructive';
     
     return 'bg-gray-500';
   };
@@ -104,66 +105,75 @@ const VisualCalendar: React.FC<VisualCalendarProps> = ({ selectedDate, onDateSel
   const weekDays = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Nie'];
 
   return (
-    <Card className="w-full">
-      <CardHeader className="pb-2 px-3 sm:px-6 sm:pb-3">
+    <Card className={cn("w-full", compact && "max-w-sm")}>
+      <CardHeader className={cn("pb-2 px-3 sm:px-6 sm:pb-3", compact && "px-4 pb-2")}>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-            <CalendarIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span className="hidden sm:inline">Kalendarz wizyt</span>
-            <span className="sm:hidden">Kalendarz</span>
+          <CardTitle className={cn("text-base sm:text-lg flex items-center gap-2", compact && "text-sm")}>
+            <CalendarIcon className={cn("w-4 h-4 sm:w-5 sm:h-5", compact && "w-4 h-4")} />
+            <span className={compact ? "hidden" : "hidden sm:inline"}>Kalendarz wizyt</span>
+            <span className={compact ? "inline" : "sm:hidden"}>Kalendarz</span>
           </CardTitle>
           <div className="flex items-center gap-1 sm:gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => navigateMonth('prev')}
-              className="h-7 w-7 p-0 sm:h-8 sm:w-8"
+              className={cn("h-7 w-7 p-0 sm:h-8 sm:w-8", compact && "h-6 w-6")}
             >
-              <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+              <ChevronLeft className={cn("w-3 h-3 sm:w-4 sm:h-4", compact && "w-3 h-3")} />
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setCurrentMonth(new Date())}
-              className="text-xs sm:text-sm font-medium min-w-[100px] sm:min-w-[120px] h-7 sm:h-8"
+              className={cn(
+                "text-xs sm:text-sm font-medium min-w-[100px] sm:min-w-[120px] h-7 sm:h-8",
+                compact && "text-xs min-w-[80px] h-6"
+              )}
             >
-              {format(currentMonth, 'LLLL yyyy', { locale: pl })}
+              {format(currentMonth, compact ? 'MMM yyyy' : 'LLLL yyyy', { locale: pl })}
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => navigateMonth('next')}
-              className="h-7 w-7 p-0 sm:h-8 sm:w-8"
+              className={cn("h-7 w-7 p-0 sm:h-8 sm:w-8", compact && "h-6 w-6")}
             >
-              <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+              <ChevronRight className={cn("w-3 h-3 sm:w-4 sm:h-4", compact && "w-3 h-3")} />
             </Button>
           </div>
         </div>
       </CardHeader>
       
-      <CardContent className="pt-0 px-3 sm:px-6">
+      <CardContent className={cn("pt-0 px-3 sm:px-6", compact && "px-4")}>
         {/* Legend */}
-        <div className="flex items-center gap-2 sm:gap-4 mb-3 sm:mb-4 text-xs flex-wrap">
+        <div className={cn(
+          "flex items-center gap-2 sm:gap-4 mb-3 sm:mb-4 text-xs flex-wrap",
+          compact && "gap-1 mb-2"
+        )}>
           <div className="flex items-center gap-1">
-            <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full"></div>
-            <span className="text-xs">Zakończone</span>
+            <div className="w-2 h-2 sm:w-3 sm:h-3 bg-success rounded-full"></div>
+            <span className={cn("text-xs", compact && "hidden sm:inline")}>Zakończone</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-2 h-2 sm:w-3 sm:h-3 bg-blue-500 rounded-full"></div>
-            <span className="text-xs">Zaplanowane</span>
+            <div className="w-2 h-2 sm:w-3 sm:h-3 bg-primary rounded-full"></div>
+            <span className={cn("text-xs", compact && "hidden sm:inline")}>Zaplanowane</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full"></div>
-            <span className="text-xs">Anulowane</span>
+            <div className="w-2 h-2 sm:w-3 sm:h-3 bg-destructive rounded-full"></div>
+            <span className={cn("text-xs", compact && "hidden sm:inline")}>Anulowane</span>
           </div>
         </div>
 
         {/* Calendar Grid */}
-        <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
+        <div className={cn("grid grid-cols-7 gap-0.5 sm:gap-1", compact && "gap-0.5")}>
           {/* Week day headers */}
           {weekDays.map(day => (
-            <div key={day} className="p-1 sm:p-2 text-center text-xs font-medium text-muted-foreground">
-              {day}
+            <div key={day} className={cn(
+              "p-1 sm:p-2 text-center text-xs font-medium text-muted-foreground",
+              compact && "p-1 text-xs"
+            )}>
+              {compact ? day.charAt(0) : day}
             </div>
           ))}
           
@@ -184,7 +194,8 @@ const VisualCalendar: React.FC<VisualCalendarProps> = ({ selectedDate, onDateSel
                   isCurrentMonth ? "text-foreground" : "text-muted-foreground",
                   isSelected && "ring-2 ring-primary bg-primary/10",
                   isToday && !isSelected && "bg-muted font-bold",
-                  !isCurrentMonth && "opacity-50"
+                  !isCurrentMonth && "opacity-50",
+                  compact && "p-1 text-xs"
                 )}
               >
                 <span className="relative z-10">{format(day, 'd')}</span>
