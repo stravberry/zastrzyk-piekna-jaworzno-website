@@ -107,7 +107,8 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   return (
     <div className="border border-input rounded-md focus-within:ring-1 focus-within:ring-ring">
       <div className={cn(
-        "sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border transition-all duration-200",
+        "sticky z-20 bg-background/95 backdrop-blur-sm border-b border-border transition-all duration-200",
+        isMobile ? "top-16" : "top-0",
         shouldHideToolbar && "opacity-0 pointer-events-none",
         "shadow-sm"
       )}>
