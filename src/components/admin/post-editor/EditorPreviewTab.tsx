@@ -50,8 +50,8 @@ export const EditorPreviewTab: React.FC<EditorPreviewTabProps> = ({ previewData 
             )}
             
             <div 
-              className="whitespace-pre-wrap break-words text-sm sm:text-base" 
-              dangerouslySetInnerHTML={{ __html: previewData.content.replace(/\n/g, '<br/>') }} 
+              className="prose prose-sm sm:prose-base max-w-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-code:text-foreground prose-blockquote:text-muted-foreground prose-a:text-primary"
+              dangerouslySetInnerHTML={{ __html: previewData.content }}
             />
           </div>
         </CardContent>

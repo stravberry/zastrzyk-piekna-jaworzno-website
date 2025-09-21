@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "./RichTextEditor";
 import { FormValues } from "./formSchema";
 
 interface ContentFieldsProps {
@@ -58,10 +59,11 @@ export const ContentFields: React.FC<ContentFieldsProps> = ({ control }) => {
           <FormItem>
             <FormLabel>Content</FormLabel>
             <FormControl>
-              <Textarea 
-                placeholder="Write your post content here..." 
+              <RichTextEditor
+                content={field.value || ''}
+                onChange={field.onChange}
+                placeholder="Write your post content here..."
                 className="min-h-[200px] sm:min-h-[300px]"
-                {...field} 
               />
             </FormControl>
             <FormMessage />
