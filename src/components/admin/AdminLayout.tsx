@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { SlidingSidebar, SlidingSidebarTrigger } from "./SlidingSidebar";
 
 const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, userRole, logout, session } = useAdmin();
+  const { user, userRole, logout, session, setMobileSidebarOpen } = useAdmin();
   const isMobile = useIsMobile();
 
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -99,6 +99,7 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
+    setMobileSidebarOpen(!sidebarOpen);
   };
 
   return (

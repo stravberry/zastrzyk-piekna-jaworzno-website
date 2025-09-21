@@ -18,6 +18,8 @@ interface AdminContextType {
   logout: () => void;
   loading: boolean;
   checkPermissions: () => Promise<boolean>;
+  isMobileSidebarOpen: boolean;
+  setMobileSidebarOpen: (open: boolean) => void;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
@@ -30,6 +32,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isAdminUser, setIsAdminUser] = useState<boolean>(false);
   const [isEditor, setIsEditor] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
   const navigate = useNavigate();
   const initializingRef = useRef<boolean>(false);
 
@@ -184,7 +187,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       login, 
       logout, 
       loading,
-      checkPermissions
+      checkPermissions,
+      isMobileSidebarOpen,
+      setMobileSidebarOpen: setIsMobileSidebarOpen
     }}>
       {children}
     </AdminContext.Provider>

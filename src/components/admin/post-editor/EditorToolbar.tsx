@@ -79,7 +79,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
   }
 
   return (
-    <div className="border-b border-border p-2 flex flex-wrap gap-1 bg-muted/30 z-50">
+    <div className="p-2 sm:p-3 flex flex-wrap gap-1 sm:gap-2 bg-background/95 backdrop-blur-sm">
       {/* Text formatting */}
       <div className="flex gap-1">
         <Button

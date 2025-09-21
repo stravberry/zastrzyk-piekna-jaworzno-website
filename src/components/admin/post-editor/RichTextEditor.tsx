@@ -12,6 +12,8 @@ import { TableCell } from '@tiptap/extension-table-cell';
 import { Placeholder } from '@tiptap/extension-placeholder';
 import { cn } from '@/lib/utils';
 import { EditorToolbar } from './EditorToolbar';
+import { useAdmin } from '@/context/AdminContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface RichTextEditorProps {
   content: string;
@@ -26,6 +28,8 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   placeholder = "Start writing your blog post...",
   className,
 }) => {
+  const { isMobileSidebarOpen } = useAdmin();
+  const isMobile = useIsMobile();
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -97,9 +101,16 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     return null;
   }
 
+  // Hide toolbar when mobile sidebar is open
+  const shouldHideToolbar = isMobile && isMobileSidebarOpen;
+
   return (
     <div className="border border-input rounded-md focus-within:ring-1 focus-within:ring-ring">
-      <div className="sticky top-0 z-50 bg-background border-b border-border">
+      <div className={cn(
+        "sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border transition-all duration-200",
+        shouldHideToolbar && "opacity-0 pointer-events-none",
+        "shadow-sm"
+      )}>
         <EditorToolbar editor={editor} />
       </div>
       <EditorContent 
