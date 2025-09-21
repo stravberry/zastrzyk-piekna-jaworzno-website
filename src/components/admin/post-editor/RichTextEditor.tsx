@@ -99,7 +99,9 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   return (
     <div className="border border-input rounded-md focus-within:ring-1 focus-within:ring-ring">
-      <EditorToolbar editor={editor} />
+      <div className="sticky top-0 z-10 bg-background">
+        <EditorToolbar editor={editor} />
+      </div>
       <EditorContent 
         editor={editor} 
         className="prose-editor"
