@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import AdminLayout from "@/components/admin/AdminLayout";
+
 import { ContactsHeader } from "@/components/admin/contacts/ContactsHeader";
 import { ContactCard } from "@/components/admin/contacts/ContactCard";
 import ContactReplyDialog from "@/components/admin/crm/ContactReplyDialog";
@@ -71,27 +71,24 @@ const AdminContacts = () => {
 
   if (error) {
     return (
-      <AdminLayout>
-        <div className="container-custom py-8">
-          <div className="flex items-center justify-center min-h-64 text-center">
-            <div className="space-y-4">
-              <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
-              <div>
-                <h2 className="text-xl font-semibold">Błąd ładowania wiadomości</h2>
-                <p className="text-muted-foreground">
-                  Wystąpił błąd podczas pobierania wiadomości kontaktowych.
-                </p>
-              </div>
+      <div className="container-custom py-8">
+        <div className="flex items-center justify-center min-h-64 text-center">
+          <div className="space-y-4">
+            <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
+            <div>
+              <h2 className="text-xl font-semibold">Błąd ładowania wiadomości</h2>
+              <p className="text-muted-foreground">
+                Wystąpił błąd podczas pobierania wiadomości kontaktowych.
+              </p>
             </div>
           </div>
         </div>
-      </AdminLayout>
+      </div>
     );
   }
 
   return (
-    <AdminLayout>
-      <div className="container-custom py-4 sm:py-8 space-y-6">
+    <div className="container-custom py-4 sm:py-8 space-y-6">
         {/* Header */}
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold">Wiadomości kontaktowe</h1>
@@ -172,8 +169,7 @@ const AdminContacts = () => {
           />
         )}
       </div>
-    </AdminLayout>
-  );
+    );
 };
 
 export default AdminContacts;
