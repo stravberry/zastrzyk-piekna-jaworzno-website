@@ -5,6 +5,7 @@ import { Calendar, Eye, Clock, ArrowLeft, Share2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { BlogContent } from "@/components/ui/BlogContent";
 import { BlogPost as BlogPostType } from "@/types/admin";
 import { getAllBlogPosts } from "@/services/blog/blogPosts";
 import { useToast } from "@/hooks/use-toast";
@@ -198,9 +199,9 @@ const BlogPost: React.FC = () => {
         {/* Article Content */}
         <section className="py-16 bg-white">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
-            <article className="prose prose-lg max-w-none">
-              <div 
-                dangerouslySetInnerHTML={{ __html: post.content }}
+            <article>
+              <BlogContent 
+                content={post.content}
                 className="text-gray-700 leading-relaxed"
               />
             </article>

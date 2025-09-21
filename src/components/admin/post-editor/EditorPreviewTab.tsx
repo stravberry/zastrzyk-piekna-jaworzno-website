@@ -2,6 +2,7 @@
 import React from "react";
 import { Image } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { BlogContent } from "@/components/ui/BlogContent";
 import { FormValues } from "./formSchema";
 
 interface EditorPreviewTabProps {
@@ -49,9 +50,9 @@ export const EditorPreviewTab: React.FC<EditorPreviewTabProps> = ({ previewData 
               </div>
             )}
             
-            <div 
-              className="prose prose-sm sm:prose-base max-w-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-code:text-foreground prose-blockquote:text-muted-foreground prose-a:text-primary"
-              dangerouslySetInnerHTML={{ __html: previewData.content }}
+            <BlogContent 
+              content={previewData.content}
+              className="max-w-none"
             />
           </div>
         </CardContent>
